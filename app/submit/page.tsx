@@ -100,7 +100,7 @@ export default function SubmitProfile() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Info */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Full Name *
               </label>
               <input
@@ -108,12 +108,12 @@ export default function SubmitProfile() {
                 required
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Email *
               </label>
               <input
@@ -121,25 +121,25 @@ export default function SubmitProfile() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Phone
               </label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             {/* Specialties */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Specialties (comma-separated)
               </label>
               <input
@@ -147,7 +147,7 @@ export default function SubmitProfile() {
                 placeholder="e.g., ASL Interpreter, Captioner, Audio Describer"
                 value={formData.specialties}
                 onChange={(e) => setFormData({ ...formData, specialties: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-sm text-gray-500 mt-1">
                 Separate multiple specialties with commas
@@ -156,14 +156,14 @@ export default function SubmitProfile() {
 
             {/* Bio */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Bio / About You
               </label>
               <textarea
                 rows={4}
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Tell us about your experience and background..."
               />
             </div>
@@ -171,18 +171,18 @@ export default function SubmitProfile() {
             {/* Location */}
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
                   City
                 </label>
                 <input
                   type="text"
                   value={formData.location_city}
                   onChange={(e) => setFormData({ ...formData, location_city: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
                   State
                 </label>
                 <input
@@ -190,7 +190,7 @@ export default function SubmitProfile() {
                   placeholder="e.g., CA, NY, TX"
                   value={formData.location_state}
                   onChange={(e) => setFormData({ ...formData, location_state: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -210,54 +210,54 @@ export default function SubmitProfile() {
 
             {/* Social Links */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Website
               </label>
               <input
                 type="url"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="https://"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 LinkedIn URL
               </label>
               <input
                 type="url"
                 value={formData.linkedin_url}
                 onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="https://linkedin.com/in/..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Instagram URL
               </label>
               <input
                 type="url"
                 value={formData.instagram_url}
                 onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="https://instagram.com/..."
               />
             </div>
 
             {/* Submission Notes */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Additional Notes
               </label>
               <textarea
                 rows={3}
                 value={formData.submission_notes}
                 onChange={(e) => setFormData({ ...formData, submission_notes: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Anything else you'd like us to know?"
               />
             </div>

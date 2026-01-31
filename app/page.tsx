@@ -66,6 +66,15 @@ export default function Home() {
             Admin Dashboard →
           </Link>
         </div>
+
+        <div className="mt-8 text-center">
+          <Link 
+            href="/contact" 
+            className="text-gray-600 hover:text-gray-900 underline"
+          >
+            Contact Us
+          </Link>
+        </div>
       </div>
     </div>
   );
