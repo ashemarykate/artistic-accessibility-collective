@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Login() {
   const router = useRouter();
@@ -10,132 +11,207 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [messageType, setMessageType] = useState<'info' | 'error'>('info');
+  const [mode, setMode] = useState<'login' | 'magic'>('magic');
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const showMsg = (text: string, type: 'info' | 'error' = 'info') => {
+    setMessage(text);
+    setMessageType(type);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    showMsg('');
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setMessage('Check your email to confirm your account!');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        router.push('/members');
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      // Link profile to user if not yet linked
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: unlinked } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', user.email)
+          .is('user_id', null)
+          .eq('status', 'approved')
+          .single();
+
+        if (unlinked) {
+          await supabase
+            .from('profiles')
+            .update({ user_id: user.id })
+            .eq('id', unlinked.id);
+        }
       }
-    } catch (error: any) {
-      setMessage(error.message || 'An error occurred');
+
+      router.push('/members');
+    } catch (err: any) {
+      showMsg(err.message || 'Could not log in. Please check your email and password.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMagicLink = async () => {
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      showMsg('Please enter your email address.', 'error');
+      return;
+    }
     setLoading(true);
-    setMessage('');
+    showMsg('');
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-      });
+      const { error } = await supabase.auth.signInWithOtp({ email });
       if (error) throw error;
-      setMessage('Check your email for a magic link!');
-    } catch (error: any) {
-      setMessage(error.message || 'An error occurred');
+      showMsg("We've sent a login link to your email. Check your inbox (and spam just in case).");
+    } catch (err: any) {
+      showMsg(err.message || 'Something went wrong. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-3xl font-bold mb-2 text-center">
-          {isSignUp ? 'Create Account' : 'Log In'}
+    <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
+      <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
+      </Link>
+
+      <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>
+        <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.25rem', textAlign: 'center' }}>
+          Member Login
         </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Access the member directory and endorse colleagues
+        <p className="font-accent-italic" style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: '1.75rem' }}>
+          welcome back
         </p>
 
-        <form onSubmit={handleAuth} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
+        {/* Mode toggle */}
+        <div
+          role="group"
+          aria-label="Login method"
+          style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'var(--aac-blue-light)', borderRadius: 'var(--radius-md)', padding: '0.25rem' }}
+        >
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+            type="button"
+            onClick={() => setMode('magic')}
+            className="btn btn-sm"
+            style={{
+              flex: 1,
+              background: mode === 'magic' ? 'var(--aac-blue)' : 'transparent',
+              color: mode === 'magic' ? 'var(--aac-white)' : 'var(--aac-blue)',
+              border: 'none',
+            }}
+            aria-pressed={mode === 'magic'}
           >
-            {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Log In')}
+            Email Link
           </button>
-        </form>
-
-        <div className="mt-4">
           <button
-            onClick={handleMagicLink}
-            disabled={loading || !email}
-            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400"
+            type="button"
+            onClick={() => setMode('login')}
+            className="btn btn-sm"
+            style={{
+              flex: 1,
+              background: mode === 'login' ? 'var(--aac-blue)' : 'transparent',
+              color: mode === 'login' ? 'var(--aac-white)' : 'var(--aac-blue)',
+              border: 'none',
+            }}
+            aria-pressed={mode === 'login'}
           >
-            Send Magic Link
+            Password
           </button>
         </div>
 
+        {mode === 'magic' ? (
+          <form onSubmit={handleMagicLink} noValidate>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label htmlFor="email-magic" className="form-label form-label-required">
+                Email Address
+              </label>
+              <input
+                id="email-magic"
+                type="email"
+                className="form-input"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+              {loading ? (
+                <><span className="spinner" aria-hidden="true" style={{ width: 18, height: 18, borderWidth: 2 }} /> Sending…</>
+              ) : (
+                'Send Login Link'
+              )}
+            </button>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.75rem', textAlign: 'center' }}>
+              We&apos;ll email you a one-click login link. No password needed.
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleLogin} noValidate>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label htmlFor="email-pw" className="form-label form-label-required">
+                Email Address
+              </label>
+              <input
+                id="email-pw"
+                type="email"
+                className="form-input"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label htmlFor="password" className="form-label form-label-required">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                className="form-input"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+              {loading ? (
+                <><span className="spinner" aria-hidden="true" style={{ width: 18, height: 18, borderWidth: 2 }} /> Logging in…</>
+              ) : (
+                'Log In'
+              )}
+            </button>
+          </form>
+        )}
+
         {message && (
-          <div className="mt-4 p-4 bg-blue-50 text-blue-700 rounded-lg text-sm">
+          <div
+            className={`alert ${messageType === 'error' ? 'alert-error' : 'alert-info'}`}
+            role="alert"
+            aria-live="polite"
+            style={{ marginTop: '1rem' }}
+          >
             {message}
           </div>
         )}
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-blue-600 hover:underline text-sm"
-          >
-            {isSignUp
-              ? 'Already have an account? Log in'
-              : "Don't have an account? Sign up"}
-          </button>
-        </div>
+        <hr className="divider" />
 
-        <div className="mt-6 pt-6 border-t text-center">
-          <a href="/" className="text-gray-600 hover:underline text-sm">
+        <p style={{ textAlign: 'center' }}>
+          <Link href="/" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textDecoration: 'underline' }}>
             ← Back to Home
-          </a>
-        </div>
+          </Link>
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

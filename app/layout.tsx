@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Artistic Accessibility Collective",
-  description: "Professional registry for accessibility professionals",
+  description: "A professional registry and community for accessibility specialists — together, together.",
 };
 
 export default function RootLayout({
@@ -13,8 +13,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
+      <body>
+        <a href="#main-content" className="skip-nav">
+          Skip to main content
+        </a>
+        <div id="main-content">
+          {children}
+        </div>
       </body>
     </html>
   );

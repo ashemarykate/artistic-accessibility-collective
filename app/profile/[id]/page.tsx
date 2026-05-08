@@ -1,19 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Profile, type Endorsement } from '@/lib/supabase';
+import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type EndorsementWithProfile = Endorsement & {
-  endorser: Profile;
-};
+type EndorsementWithProfile = Endorsement & { endorser: Profile };
 
 export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
   const profileId = params.id as string;
-  
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [endorsements, setEndorsements] = useState<EndorsementWithProfile[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -22,28 +20,23 @@ export default function ProfilePage() {
   const [endorsing, setEndorsing] = useState(false);
   const [hasEndorsed, setHasEndorsed] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [profileId]);
+  useEffect(() => { fetchData(); }, [profileId]);
 
   const fetchData = async () => {
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
 
-      // Get current user's profile if logged in
       if (user) {
-        const { data: userProfileData } = await supabase
+        const { data: up } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_id', user.id)
           .eq('status', 'approved')
           .single();
-        setCurrentUserProfile(userProfileData);
+        setCurrentUserProfile(up);
       }
 
-      // Get the profile being viewed
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -53,73 +46,49 @@ export default function ProfilePage() {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Get endorsements with endorser profiles
       const { data: endorsementsData, error: endorsementsError } = await supabase
         .from('endorsements')
-        .select(`
-          *,
-          endorser:profiles!endorser_id(*)
-        `)
+        .select('*, endorser:profiles!endorser_id(*)')
         .eq('endorsed_id', profileId);
 
       if (endorsementsError) throw endorsementsError;
-      
-      // Type assertion for the joined data
-      const endorsementsWithProfiles = endorsementsData.map((e: any) => ({
-        ...e,
-        endorser: e.endorser
-      })) as EndorsementWithProfile[];
-      
-      setEndorsements(endorsementsWithProfiles);
+      setEndorsements(endorsementsData as EndorsementWithProfile[]);
 
-      // Check if current user has endorsed
-      if (user && userProfileData) {
-        const hasEndorsement = endorsementsData.some(
-          (e: any) => e.endorser_id === userProfileData.id
-        );
-        setHasEndorsed(hasEndorsement);
+      if (user && endorsementsData) {
+        const { data: up2 } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+        if (up2) {
+          setHasEndorsed(endorsementsData.some((e: any) => e.endorser_id === up2.id));
+        }
       }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch (err) {
+      console.error('Error fetching profile:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEndorse = async () => {
-    if (!currentUserProfile) {
-      router.push('/login');
-      return;
-    }
-
+    if (!currentUserProfile) { router.push('/login'); return; }
     setEndorsing(true);
     try {
       if (hasEndorsed) {
-        // Remove endorsement
-        const { error } = await supabase
+        await supabase
           .from('endorsements')
           .delete()
           .eq('endorser_id', currentUserProfile.id)
           .eq('endorsed_id', profileId);
-
-        if (error) throw error;
       } else {
-        // Add endorsement
-        const { error } = await supabase
+        await supabase
           .from('endorsements')
-          .insert({
-            endorser_id: currentUserProfile.id,
-            endorsed_id: profileId,
-          });
-
-        if (error) throw error;
+          .insert({ endorser_id: currentUserProfile.id, endorsed_id: profileId });
       }
-
-      // Refresh data
       await fetchData();
-    } catch (error) {
-      console.error('Error toggling endorsement:', error);
-      alert('Error updating endorsement. Please try again.');
+    } catch (err) {
+      console.error('Error toggling endorsement:', err);
     } finally {
       setEndorsing(false);
     }
@@ -127,54 +96,102 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading profile...</div>
+      <div className="loading-screen" aria-live="polite" aria-label="Loading profile">
+        <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
+        <span>Loading profile…</span>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Profile Not Found</h1>
-          <Link href="/directory" className="text-blue-600 hover:underline">
-            ← Back to Directory
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100vh' }}>
+        <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }}>
+          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '1rem' }}>
+            Profile Not Found
+          </h1>
+          <Link href="/directory" className="btn btn-primary">
+            ← Browse Directory
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
-  const canEndorse = currentUserProfile && currentUserProfile.id !== profile.id;
+  const isOwnProfile = currentUserProfile?.id === profile.id;
+  const canEndorse = currentUserProfile && !isOwnProfile;
+  const needsVersionUpdate =
+    isOwnProfile && (profile.profile_version ?? 1) < REQUIRED_PROFILE_VERSION;
+
+  const displayName = profile.display_name || profile.full_name;
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          {/* Header */}
-          <div className="flex items-start mb-6">
-            {profile.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt={profile.full_name}
-                className="w-32 h-32 rounded-full mr-8"
-              />
-            ) : (
-              <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mr-8 text-5xl font-bold text-blue-600">
-                {profile.full_name.charAt(0)}
-              </div>
-            )}
-            
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-2">
-                {profile.display_name || profile.full_name}
+    <main className="page-wrapper" style={{ padding: '0 0 4rem' }}>
+      {/* Header bar */}
+      <header className="site-header">
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <nav className="site-nav" aria-label="Main navigation">
+          <Link href="/directory" className="nav-link">Directory</Link>
+          {currentUser && <Link href="/members" className="nav-link">Members</Link>}
+          {currentUser && <Link href="/feedback" className="nav-link">Share Feedback</Link>}
+          {!currentUser && <Link href="/login" className="nav-link">Log In</Link>}
+        </nav>
+      </header>
+
+      <div className="page-container">
+
+        {/* Profile version update banner */}
+        {needsVersionUpdate && (
+          <div className="alert alert-warning" role="alert" style={{ marginBottom: '1.5rem' }}>
+            <strong>Your profile has new fields available.</strong>{' '}
+            <Link href={`/profile/${profile.id}/edit`} style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+              Update your profile
+            </Link>{' '}
+            to make sure everything is current.
+          </div>
+        )}
+
+        <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+          {/* Profile header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <div
+              className="member-avatar member-avatar-lg"
+              aria-hidden="true"
+              role="img"
+            >
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                initial
+              )}
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <h1 className="font-display" style={{ color: 'var(--aac-navy)', fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', marginBottom: '0.25rem' }}>
+                {displayName}
               </h1>
-              
-              {profile.location_city && profile.location_state && (
-                <p className="text-lg text-gray-600 mb-2">
-                  📍 {profile.location_city}, {profile.location_state}
-                  {profile.willing_to_travel && ' • Will travel'}
+
+              {profile.pronouns && (
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '0.375rem' }}>
+                  {profile.pronouns}
+                </p>
+              )}
+
+              {(profile.location_city || profile.location_state) && (
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '0.375rem' }}>
+                  <span aria-hidden="true">📍 </span>
+                  <span>
+                    {[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
+                    {profile.willing_to_travel && ' · Will travel'}
+                  </span>
+                </p>
+              )}
+
+              {profile.years_of_experience && (
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '0.5rem' }}>
+                  {profile.years_of_experience} year{profile.years_of_experience === 1 ? '' : 's'} of experience
                 </p>
               )}
 
@@ -182,13 +199,18 @@ export default function ProfilePage() {
                 <button
                   onClick={handleEndorse}
                   disabled={endorsing}
-                  className={`mt-4 px-6 py-2 rounded-lg transition ${
-                    hasEndorsed
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                  className={`btn btn-sm ${hasEndorsed ? 'btn-ghost' : 'btn-primary'}`}
+                  style={{ marginTop: '0.5rem' }}
+                  aria-pressed={hasEndorsed}
+                  aria-label={hasEndorsed ? `Remove endorsement for ${displayName}` : `Endorse ${displayName}`}
                 >
-                  {endorsing ? 'Updating...' : (hasEndorsed ? '✓ Endorsed' : 'Endorse')}
+                  {endorsing ? (
+                    <><span className="spinner" aria-hidden="true" style={{ width: 14, height: 14, borderWidth: 2 }} /> Updating…</>
+                  ) : hasEndorsed ? (
+                    '✓ Endorsed'
+                  ) : (
+                    'Endorse'
+                  )}
                 </button>
               )}
             </div>
@@ -196,126 +218,179 @@ export default function ProfilePage() {
 
           {/* Specialties */}
           {profile.specialties && profile.specialties.length > 0 && (
-            <div className="mb-6">
-              <h2 className="font-bold text-lg mb-2">Specialties</h2>
-              <div className="flex flex-wrap gap-2">
-                {profile.specialties.map((specialty, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full"
-                  >
-                    {specialty}
-                  </span>
+            <section aria-label="Specialties" style={{ marginBottom: '1.25rem' }}>
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.625rem' }}>
+                Specialties
+              </h2>
+              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                {profile.specialties.map((s, i) => (
+                  <li key={i}><span className="tag tag-blue">{s}</span></li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </section>
           )}
 
           {/* Bio */}
           {profile.bio && (
-            <div className="mb-6">
-              <h2 className="font-bold text-lg mb-2">About</h2>
-              <p className="text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
-            </div>
+            <section aria-label="About" style={{ marginBottom: '1.25rem' }}>
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                About
+              </h2>
+              <p style={{ color: 'var(--color-text)', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{profile.bio}</p>
+            </section>
           )}
 
-          {/* Contact Info (for logged-in members) */}
-          {currentUser && (
-            <div className="mb-6">
-              <h2 className="font-bold text-lg mb-2">Contact Information</h2>
-              <div className="grid md:grid-cols-2 gap-3">
+          {/* Brag section */}
+          {((profile.certifications && profile.certifications.length > 0) || profile.languages?.length) && (
+            <section aria-label="Credentials and languages" style={{ marginBottom: '1.25rem' }}>
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.625rem' }}>
+                Brag About Yourself!
+              </h2>
+              {profile.certifications && profile.certifications.length > 0 && (
+                <div style={{ marginBottom: '0.625rem' }}>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                    Credentials &amp; Certifications
+                  </p>
+                  <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                    {profile.certifications.map((c, i) => (
+                      <li key={i}><span className="tag tag-yellow">{c}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {profile.languages && profile.languages.length > 0 && (
                 <div>
-                  <span className="font-medium">Email:</span>{' '}
-                  <a href={`mailto:${profile.email}`} className="text-blue-600 hover:underline">
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                    Languages
+                  </p>
+                  <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                    {profile.languages.map((l, i) => (
+                      <li key={i}><span className="tag tag-gray">{l}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Content creator captioning */}
+          {profile.has_captioning != null && profile.specialties?.includes('Content Creator') && (
+            <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
+              {profile.has_captioning
+                ? '✓ Content includes captions'
+                : 'Content does not currently include captions'}
+            </p>
+          )}
+
+          {/* Contact info — members only */}
+          {currentUser && (
+            <section aria-label="Contact information" style={{ marginBottom: '1.25rem' }}>
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.625rem' }}>
+                Contact
+              </h2>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                <li>
+                  <a href={`mailto:${profile.email}`} style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
                     {profile.email}
                   </a>
-                </div>
+                </li>
                 {profile.phone && (
-                  <div>
-                    <span className="font-medium">Phone:</span>{' '}
-                    <a href={`tel:${profile.phone}`} className="text-blue-600 hover:underline">
+                  <li>
+                    <a href={`tel:${profile.phone}`} style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
                       {profile.phone}
                     </a>
-                  </div>
+                  </li>
                 )}
                 {profile.website && (
-                  <div>
-                    <span className="font-medium">Website:</span>{' '}
-                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {profile.website}
+                  <li>
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+                      Website
                     </a>
-                  </div>
+                  </li>
                 )}
                 {profile.linkedin_url && (
-                  <div>
-                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      LinkedIn Profile →
+                  <li>
+                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+                      LinkedIn
                     </a>
-                  </div>
+                  </li>
                 )}
                 {profile.instagram_url && (
-                  <div>
-                    <a href={profile.instagram_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      Instagram →
+                  <li>
+                    <a href={profile.instagram_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+                      Instagram
                     </a>
-                  </div>
+                  </li>
                 )}
-              </div>
-            </div>
+              </ul>
+            </section>
           )}
 
-          {/* Endorsements */}
-          <div>
-            <h2 className="font-bold text-lg mb-4">
-              Endorsements ({endorsements.length})
-            </h2>
-            
-            {endorsements.length > 0 ? (
-              <div className="space-y-4">
-                {endorsements.map((endorsement) => (
-                  <div key={endorsement.id} className="flex items-start p-4 bg-gray-50 rounded-lg">
-                    {endorsement.endorser.avatar_url ? (
-                      <img
-                        src={endorsement.endorser.avatar_url}
-                        alt={endorsement.endorser.full_name}
-                        className="w-12 h-12 rounded-full mr-4"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4 text-lg font-bold text-blue-600">
-                        {endorsement.endorser.full_name.charAt(0)}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-medium">
-                        {endorsement.endorser.display_name || endorsement.endorser.full_name}
-                      </p>
-                      {endorsement.note && (
-                        <p className="text-gray-600 text-sm mt-1">{endorsement.note}</p>
-                      )}
-                      <p className="text-gray-400 text-xs mt-1">
-                        {new Date(endorsement.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No endorsements yet.</p>
-            )}
-          </div>
+          {!currentUser && (
+            <div className="alert alert-info" style={{ marginBottom: '1.25rem' }}>
+              <Link href="/login" style={{ color: 'var(--aac-blue)', fontWeight: 600, textDecoration: 'underline' }}>
+                Log in
+              </Link>{' '}
+              to see full contact information.
+            </div>
+          )}
         </div>
 
-        <div className="text-center">
-          <Link href="/directory" className="text-blue-600 hover:underline mr-4">
-            ← Back to Public Directory
+        {/* Endorsements */}
+        <div className="content-card">
+          <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.35rem', marginBottom: '1rem' }}>
+            Endorsements
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>
+              ({endorsements.length})
+            </span>
+          </h2>
+
+          {endorsements.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {endorsements.map((e) => {
+                const eName = e.endorser.display_name || e.endorser.full_name;
+                return (
+                  <li key={e.id} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <Link href={`/profile/${e.endorser.id}`} aria-label={`View ${eName}'s profile`}>
+                      <div className="member-avatar" style={{ width: 44, height: 44, minWidth: 44, fontSize: '1.1rem', textDecoration: 'none' }} aria-hidden="true">
+                        {e.endorser.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={e.endorser.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          eName.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                    </Link>
+                    <div>
+                      <Link href={`/profile/${e.endorser.id}`} style={{ fontWeight: 600, color: 'var(--aac-blue)', textDecoration: 'none' }}>
+                        {eName}
+                      </Link>
+                      {e.note && <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', margin: '0.25rem 0 0' }}>{e.note}</p>}
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', margin: '0.2rem 0 0' }}>
+                        {new Date(e.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p style={{ color: 'var(--color-text-muted)' }}>No endorsements yet.</p>
+          )}
+        </div>
+
+        {/* Back links */}
+        <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <Link href="/directory" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
+            ← Public Directory
           </Link>
           {currentUser && (
-            <Link href="/members" className="text-blue-600 hover:underline">
-              View Member Directory →
+            <Link href="/members" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
+              Member Directory →
             </Link>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
