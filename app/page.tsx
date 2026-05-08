@@ -1,58 +1,39 @@
-import Link from 'next/link';
-
 export default function Home() {
   return (
     <main
-      aria-label="Artistic Accessibility Collective — Home"
-      style={{ background: 'var(--aac-blue)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1.5rem' }}
+      style={{ background: 'var(--aac-blue)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' }}
     >
-      {/* Landing image — the full Canva design, scales to fit any screen */}
-      <h1 style={{ margin: '0 0 2.5rem' }}>
+      {/* Visible heading for screen readers — the image carries the visual heading */}
+      <h1 className="sr-only">Artistic Accessibility Collective — together, together</h1>
+
+      <figure style={{ margin: 0, maxWidth: '900px', width: '100%' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/landing.png"
-          alt="Artistic Accessibility Collective — training &amp; staffing, art, resources, education, join us, consulting — together, together"
-          style={{ width: '100%', maxWidth: '860px', height: 'auto', display: 'block', margin: '0 auto' }}
+          alt="Artistic Accessibility Collective"
+          aria-describedby="landing-description"
+          style={{ width: '100%', height: 'auto', display: 'block', margin: '0 auto' }}
         />
-      </h1>
+        <figcaption id="landing-description" className="sr-only">
+          A hand-illustrated landing page on a deep blue background. The
+          organization name, Artistic Accessibility Collective, is set across
+          three lines in bold, chunky, hand-lettered white block letters with
+          a soft drop shadow. Six rounded white speech bubbles with black
+          outlines surround the name, each containing a word or phrase in
+          cursive blue handwriting describing what the Collective does:
+          training and staffing, art, resources, education, join us, and
+          consulting. Beneath the name, a flowing white handwritten tagline
+          reads, together, together. At the bottom, the contact email is
+          displayed in spaced white capital letters: contact at
+          artisticaccessibility dot com.
+        </figcaption>
+      </figure>
 
-      {/* Nav buttons */}
-      <nav aria-label="Main actions">
-        <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', listStyle: 'none', padding: 0, margin: 0 }}>
-          <li>
-            <Link href="/submit" className="btn btn-on-blue btn-lg">
-              Test the Registry
-            </Link>
-          </li>
-          <li>
-            <Link href="/login" className="btn btn-outline-white btn-lg">
-              Member Login
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" className="btn btn-outline-white btn-lg">
-              Contact Us
-            </Link>
-          </li>
-        </ul>
-      </nav>
-
-      {/* Contact email — real link for accessibility and search engines (also shown in the image) */}
-      <p style={{ marginTop: '1.5rem' }}>
-        <a
-          href="mailto:contact@artisticaccessibility.com"
-          style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8125rem', textDecoration: 'underline', letterSpacing: '0.08em' }}
-        >
-          contact@artisticaccessibility.com
-        </a>
-      </p>
-
-      {/* Admin — hidden in plain sight */}
-      <p style={{ marginTop: '0.5rem' }}>
-        <Link href="/admin" style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', textDecoration: 'underline' }}>
-          Admin
-        </Link>
-      </p>
+      {/* Real, focusable contact link — visually hidden because the email is shown in the image,
+          but keyboard and screen reader users get an actual link they can activate. */}
+      <a href="mailto:contact@artisticaccessibility.com" className="sr-only">
+        Email us at contact@artisticaccessibility.com
+      </a>
     </main>
   );
 }
