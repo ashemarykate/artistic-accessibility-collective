@@ -1,35 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Profile } from '@/lib/supabase';
+import { supabase, type Profile, type InviteCode, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes';
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
   const [approvedProfiles, setApprovedProfiles] = useState<Profile[]>([]);
   const [rejectedProfiles, setRejectedProfiles] = useState<Profile[]>([]);
+  const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [activeTab, setActiveTab] = useState<Tab>('pending');
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [emailStatus, setEmailStatus] = useState<Record<string, 'sent' | 'error'>>({});
+  const [generatingCodes, setGeneratingCodes] = useState(false);
+  const [generateCount, setGenerateCount] = useState(10);
 
-  useEffect(() => {
-    checkAdmin();
-  }, []);
+  useEffect(() => { checkAdmin(); }, []);
 
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+    if (!user) { router.push('/login'); return; }
 
-    setUser(user);
-
-    // Check if user is admin
     const { data: adminData } = await supabase
       .from('admin_users')
       .select('*')
@@ -43,352 +40,464 @@ export default function AdminDashboard() {
     }
 
     setIsAdmin(true);
-    fetchProfiles();
+    fetchAll();
   };
 
-  const fetchProfiles = async () => {
+  const fetchAll = async () => {
     setLoading(true);
     try {
-      const { data: pending } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
-      const { data: approved } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('status', 'approved')
-        .order('approved_at', { ascending: false });
-
-      const { data: rejected } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('status', 'rejected')
-        .order('updated_at', { ascending: false });
-
-      setPendingProfiles(pending || []);
-      setApprovedProfiles(approved || []);
-      setRejectedProfiles(rejected || []);
-    } catch (error) {
-      console.error('Error fetching profiles:', error);
+      const [pending, approved, rejected, codes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('status', 'approved').order('approved_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('status', 'rejected').order('updated_at', { ascending: false }),
+        supabase.from('invite_codes').select('*').order('created_at', { ascending: false }),
+      ]);
+      setPendingProfiles(pending.data || []);
+      setApprovedProfiles(approved.data || []);
+      setRejectedProfiles(rejected.data || []);
+      setInviteCodes(codes.data || []);
+    } catch (err) {
+      console.error('Admin fetch error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleApprove = async (profileId: string) => {
-    try {
-      // Get current user's profile to use as approved_by
-      const { data: adminProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: adminProfile } = await supabase
+      .from('profiles').select('id').eq('user_id', user!.id).single();
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          status: 'approved',
-          approved_at: new Date().toISOString(),
-          approved_by: adminProfile?.id || null,
-        })
-        .eq('id', profileId);
+    await supabase.from('profiles').update({
+      status: 'approved',
+      approved_at: new Date().toISOString(),
+      approved_by: adminProfile?.id,
+    }).eq('id', profileId);
 
-      if (error) throw error;
-
-      alert('Profile approved!');
-      fetchProfiles();
-    } catch (error) {
-      console.error('Error approving profile:', error);
-      alert('Error approving profile. Please try again.');
-    }
+    fetchAll();
   };
 
   const handleReject = async (profileId: string) => {
-    const reason = prompt('Reason for rejection (optional):');
-    
+    if (!confirm('Reject this profile?')) return;
+    await supabase.from('profiles').update({ status: 'rejected' }).eq('id', profileId);
+    fetchAll();
+  };
+
+  const handleTogglePublic = async (profileId: string, current: boolean) => {
+    await supabase.from('profiles').update({ public_visible: !current }).eq('id', profileId);
+    fetchAll();
+  };
+
+  const handleSendLoginEmail = async (profileId: string) => {
+    setSendingEmail(profileId);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          status: 'rejected',
-          admin_notes: reason || 'Rejected',
-        })
-        .eq('id', profileId);
-
-      if (error) throw error;
-
-      alert('Profile rejected.');
-      fetchProfiles();
-    } catch (error) {
-      console.error('Error rejecting profile:', error);
-      alert('Error rejecting profile. Please try again.');
+      const res = await fetch('/api/send-login-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId }),
+      });
+      if (res.ok) {
+        setEmailStatus((prev) => ({ ...prev, [profileId]: 'sent' }));
+      } else {
+        setEmailStatus((prev) => ({ ...prev, [profileId]: 'error' }));
+      }
+    } catch {
+      setEmailStatus((prev) => ({ ...prev, [profileId]: 'error' }));
+    } finally {
+      setSendingEmail(null);
     }
   };
 
-  const togglePublicVisibility = async (profileId: string, currentValue: boolean) => {
+  const handleGenerateCodes = async () => {
+    setGeneratingCodes(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          public_visible: !currentValue,
-        })
-        .eq('id', profileId);
-
+      const { data, error } = await supabase.rpc('generate_invite_codes', { count: generateCount });
       if (error) throw error;
-
-      fetchProfiles();
-    } catch (error) {
-      console.error('Error updating visibility:', error);
-      alert('Error updating visibility. Please try again.');
+      fetchAll();
+    } catch (err) {
+      console.error('Generate codes error:', err);
+      alert('Error generating codes. Make sure migration v2 has been run.');
+    } finally {
+      setGeneratingCodes(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
   };
+
+  const copyAllUnused = () => {
+    const unused = inviteCodes.filter((c) => !c.used).map((c) => c.code).join('\n');
+    navigator.clipboard.writeText(unused);
+  };
+
+  const profilesNeedingUpdate = approvedProfiles.filter(
+    (p) => (p.profile_version ?? 1) < REQUIRED_PROFILE_VERSION
+  );
+
+  const tabs: { id: Tab; label: string; count?: number }[] = [
+    { id: 'pending', label: 'Pending', count: pendingProfiles.length },
+    { id: 'approved', label: 'Approved', count: approvedProfiles.length },
+    { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
+    { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
+  ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading admin dashboard...</div>
+      <div className="loading-screen">
+        <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
+        <span>Loading admin…</span>
       </div>
     );
   }
 
-  if (!isAdmin) {
-    return null;
+  return (
+    <main>
+      <header className="site-header">
+        <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <nav className="site-nav" aria-label="Main navigation">
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin Dashboard</span>
+          <button
+            onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+            className="btn btn-outline-white btn-sm"
+          >
+            Sign Out
+          </button>
+        </nav>
+      </header>
+
+      <div className="page-container-wide" style={{ paddingTop: '2rem' }}>
+        <h1 className="font-display" style={{ color: 'var(--aac-white)', fontSize: '2rem', marginBottom: '0.5rem' }}>
+          Admin Dashboard
+        </h1>
+
+        {/* Profile version alert */}
+        {profilesNeedingUpdate.length > 0 && (
+          <div className="alert alert-warning" role="status" style={{ marginBottom: '1.5rem' }}>
+            <strong>{profilesNeedingUpdate.length} approved profile{profilesNeedingUpdate.length !== 1 ? 's' : ''}</strong> {profilesNeedingUpdate.length === 1 ? 'has' : 'have'} not yet updated to the current profile version.
+            Members will see a banner prompting them to update when they log in.
+          </div>
+        )}
+
+        {/* Tab nav */}
+        <div
+          role="tablist"
+          aria-label="Admin sections"
+          style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`panel-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className="btn btn-sm"
+              style={{
+                background: activeTab === tab.id ? 'var(--aac-white)' : 'rgba(255,255,255,0.12)',
+                color: activeTab === tab.id ? 'var(--aac-blue)' : 'var(--aac-white)',
+                border: 'none',
+                fontWeight: activeTab === tab.id ? 700 : 500,
+              }}
+            >
+              {tab.label}
+              {tab.count != null && (
+                <span
+                  style={{
+                    marginLeft: '0.375rem',
+                    background: activeTab === tab.id ? 'var(--aac-blue)' : 'rgba(255,255,255,0.3)',
+                    color: activeTab === tab.id ? 'var(--aac-white)' : 'var(--aac-white)',
+                    borderRadius: '999px',
+                    padding: '0 6px',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                  aria-label={`${tab.count} ${tab.label.toLowerCase()}`}
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Panels */}
+        {(activeTab === 'pending' || activeTab === 'approved' || activeTab === 'rejected') && (
+          <div id={`panel-${activeTab}`} role="tabpanel">
+            <ProfileList
+              profiles={
+                activeTab === 'pending' ? pendingProfiles
+                : activeTab === 'approved' ? approvedProfiles
+                : rejectedProfiles
+              }
+              status={activeTab}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onTogglePublic={handleTogglePublic}
+              onSendLoginEmail={handleSendLoginEmail}
+              sendingEmail={sendingEmail}
+              emailStatus={emailStatus}
+            />
+          </div>
+        )}
+
+        {activeTab === 'invite-codes' && (
+          <div id="panel-invite-codes" role="tabpanel">
+            <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                Generate Invite Codes
+              </h2>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="form-group" style={{ flex: '0 1 160px' }}>
+                  <label htmlFor="gen-count" className="form-label">How many?</label>
+                  <input
+                    id="gen-count"
+                    type="number"
+                    className="form-input"
+                    min={1}
+                    max={100}
+                    value={generateCount}
+                    onChange={(e) => setGenerateCount(Number(e.target.value))}
+                  />
+                </div>
+                <button
+                  onClick={handleGenerateCodes}
+                  className="btn btn-primary"
+                  disabled={generatingCodes}
+                  style={{ marginBottom: '0.375rem' }}
+                >
+                  {generatingCodes ? (
+                    <><span className="spinner" aria-hidden="true" style={{ width: 16, height: 16, borderWidth: 2 }} /> Generating…</>
+                  ) : (
+                    `Generate ${generateCount} Code${generateCount !== 1 ? 's' : ''}`
+                  )}
+                </button>
+                {inviteCodes.some((c) => !c.used) && (
+                  <button onClick={copyAllUnused} className="btn btn-outline" style={{ marginBottom: '0.375rem' }}>
+                    Copy All Unused Codes
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="content-card">
+              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                All Codes
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.875rem', fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>
+                  {inviteCodes.filter((c) => !c.used).length} unused · {inviteCodes.filter((c) => c.used).length} used
+                </span>
+              </h2>
+
+              {inviteCodes.length === 0 ? (
+                <p style={{ color: 'var(--color-text-muted)' }}>No codes yet. Generate some above.</p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }} aria-label="Invite codes">
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
+                        <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Code</th>
+                        <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Assigned To</th>
+                        <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Status</th>
+                        <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {inviteCodes.map((code) => (
+                        <tr key={code.id} style={{ borderBottom: '1px solid var(--color-border)', opacity: code.used ? 0.55 : 1 }}>
+                          <td style={{ padding: '0.625rem 0.75rem' }}>
+                            <code style={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '0.08em', fontSize: '0.95rem' }}>
+                              {code.code}
+                            </code>
+                          </td>
+                          <td style={{ padding: '0.625rem 0.75rem', color: 'var(--color-text-muted)' }}>
+                            {code.assigned_to_name
+                              ? <>{code.assigned_to_name}{code.assigned_to_email && <span style={{ display: 'block', fontSize: '0.8rem' }}>{code.assigned_to_email}</span>}</>
+                              : <span style={{ color: '#ccc' }}>—</span>
+                            }
+                          </td>
+                          <td style={{ padding: '0.625rem 0.75rem' }}>
+                            {code.used ? (
+                              <span className="tag tag-gray">Used</span>
+                            ) : (
+                              <span className="tag tag-green">Available</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '0.625rem 0.75rem' }}>
+                            {!code.used && (
+                              <button
+                                onClick={() => copyCode(code.code)}
+                                className="btn btn-ghost btn-sm"
+                                aria-label={`Copy code ${code.code}`}
+                              >
+                                Copy
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+// ── Profile list sub-component ───────────────────────────────────────────────
+
+function ProfileList({
+  profiles,
+  status,
+  onApprove,
+  onReject,
+  onTogglePublic,
+  onSendLoginEmail,
+  sendingEmail,
+  emailStatus,
+}: {
+  profiles: Profile[];
+  status: 'pending' | 'approved' | 'rejected';
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  onTogglePublic: (id: string, current: boolean) => void;
+  onSendLoginEmail: (id: string) => void;
+  sendingEmail: string | null;
+  emailStatus: Record<string, 'sent' | 'error'>;
+}) {
+  if (profiles.length === 0) {
+    return (
+      <div className="content-card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+        No {status} profiles.
+      </div>
+    );
   }
 
-  const currentProfiles = activeTab === 'pending' 
-    ? pendingProfiles 
-    : activeTab === 'approved' 
-    ? approvedProfiles 
-    : rejectedProfiles;
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage profile submissions and approvals</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-          >
-            Log Out
-          </button>
-        </div>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {profiles.map((p) => {
+        const name = p.display_name || p.full_name;
+        const needsUpdate = (p.profile_version ?? 1) < REQUIRED_PROFILE_VERSION;
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-yellow-600 mb-2">
-              {pendingProfiles.length}
-            </div>
-            <div className="text-gray-600">Pending Review</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {approvedProfiles.length}
-            </div>
-            <div className="text-gray-600">Approved</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="text-3xl font-bold text-red-600 mb-2">
-              {rejectedProfiles.length}
-            </div>
-            <div className="text-gray-600">Rejected</div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="border-b flex">
-            <button
-              onClick={() => setActiveTab('pending')}
-              className={`px-6 py-4 font-medium ${
-                activeTab === 'pending'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Pending ({pendingProfiles.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('approved')}
-              className={`px-6 py-4 font-medium ${
-                activeTab === 'approved'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Approved ({approvedProfiles.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('rejected')}
-              className={`px-6 py-4 font-medium ${
-                activeTab === 'rejected'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Rejected ({rejectedProfiles.length})
-            </button>
-          </div>
-        </div>
-
-        {/* Profile List */}
-        <div className="space-y-4">
-          {currentProfiles.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center text-gray-500">
-              No {activeTab} profiles.
-            </div>
-          ) : (
-            currentProfiles.map((profile) => (
-              <div key={profile.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2">{profile.full_name}</h3>
-                    <p className="text-gray-600 mb-2">{profile.email}</p>
-                    
-                    {profile.specialties && profile.specialties.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {profile.specialties.map((specialty, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded-full"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {profile.location_city && profile.location_state && (
-                      <p className="text-sm text-gray-500 mb-2">
-                        📍 {profile.location_city}, {profile.location_state}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="ml-4 text-right">
-                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                      profile.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                      profile.status === 'approved' ? 'bg-green-100 text-green-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {profile.status.toUpperCase()}
-                    </div>
-                    {profile.status === 'approved' && (
-                      <div className="mt-2">
-                        <label className="flex items-center text-sm">
-                          <input
-                            type="checkbox"
-                            checked={profile.public_visible}
-                            onChange={() => togglePublicVisibility(profile.id, profile.public_visible)}
-                            className="mr-2"
-                          />
-                          Public Visible
-                        </label>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {profile.bio && (
-                  <div className="mb-4">
-                    <span className="font-medium">Bio:</span>
-                    <p className="text-gray-700 mt-1">{profile.bio}</p>
-                  </div>
-                )}
-
-                {profile.submission_notes && (
-                  <div className="mb-4">
-                    <span className="font-medium">Submission Notes:</span>
-                    <p className="text-gray-700 mt-1">{profile.submission_notes}</p>
-                  </div>
-                )}
-
-                {profile.admin_notes && (
-                  <div className="mb-4">
-                    <span className="font-medium">Admin Notes:</span>
-                    <p className="text-gray-700 mt-1">{profile.admin_notes}</p>
-                  </div>
-                )}
-
-                <div className="text-sm text-gray-500 mb-4">
-                  Submitted: {new Date(profile.created_at).toLocaleString()}
-                  {profile.approved_at && (
-                    <> • Approved: {new Date(profile.approved_at).toLocaleString()}</>
+        return (
+          <li key={p.id} className="content-card">
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 240 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+                  <Link
+                    href={`/profile/${p.id}`}
+                    className="font-display"
+                    style={{ color: 'var(--aac-blue)', fontSize: '1.15rem', textDecoration: 'none' }}
+                  >
+                    {name}
+                  </Link>
+                  {p.pronouns && (
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{p.pronouns}</span>
+                  )}
+                  {needsUpdate && status === 'approved' && (
+                    <span className="tag tag-yellow" style={{ fontSize: '0.75rem' }}>Needs profile update</span>
                   )}
                 </div>
 
-                {activeTab === 'pending' && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleApprove(profile.id)}
-                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(profile.id)}
-                      className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                    >
-                      ✗ Reject
-                    </button>
-                    <Link
-                      href={`/profile/${profile.id}`}
-                      className="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-                    >
-                      View Full Profile
-                    </Link>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                  {p.email}
+                  {p.phone && ` · ${p.phone}`}
+                </p>
+
+                {(p.location_city || p.location_state) && (
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.375rem' }}>
+                    {[p.location_city, p.location_state].filter(Boolean).join(', ')}
+                  </p>
+                )}
+
+                {p.specialties && p.specialties.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '0.5rem' }}>
+                    {p.specialties.map((s, i) => <span key={i} className="tag tag-blue">{s}</span>)}
                   </div>
                 )}
 
-                {activeTab === 'approved' && (
-                  <div className="flex gap-3">
-                    <Link
-                      href={`/profile/${profile.id}`}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                    >
-                      View Full Profile
-                    </Link>
-                    <button
-                      onClick={() => handleReject(profile.id)}
-                      className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                    >
-                      Revoke Approval
-                    </button>
+                {p.certifications && p.certifications.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '0.5rem' }}>
+                    {p.certifications.map((c, i) => <span key={i} className="tag tag-yellow">{c}</span>)}
                   </div>
                 )}
 
-                {activeTab === 'rejected' && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleApprove(profile.id)}
-                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                    >
-                      Approve Now
-                    </button>
+                {p.bio && (
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '0.375rem', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    {p.bio}
+                  </p>
+                )}
+
+                {p.submission_notes && (
+                  <div className="alert alert-info" style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>
+                    <strong>Notes:</strong> {p.submission_notes}
                   </div>
+                )}
+
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                  Submitted {new Date(p.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                  {p.invite_code_used && ` · Code: ${p.invite_code_used}`}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 160 }}>
+                {status === 'pending' && (
+                  <>
+                    <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm">
+                      Approve
+                    </button>
+                    <button onClick={() => onReject(p.id)} className="btn btn-danger btn-sm">
+                      Reject
+                    </button>
+                  </>
+                )}
+
+                {status === 'approved' && (
+                  <>
+                    <button
+                      onClick={() => onTogglePublic(p.id, p.public_visible)}
+                      className={`btn btn-sm ${p.public_visible ? 'btn-outline' : 'btn-ghost'}`}
+                    >
+                      {p.public_visible ? '● Public' : '○ Private'}
+                    </button>
+
+                    <button
+                      onClick={() => onSendLoginEmail(p.id)}
+                      disabled={sendingEmail === p.id || emailStatus[p.id] === 'sent'}
+                      className="btn btn-outline btn-sm"
+                      aria-label={`Send login setup email to ${name}`}
+                    >
+                      {sendingEmail === p.id ? (
+                        <><span className="spinner" aria-hidden="true" style={{ width: 14, height: 14, borderWidth: 2 }} /> Sending…</>
+                      ) : emailStatus[p.id] === 'sent' ? (
+                        '✓ Email Sent'
+                      ) : emailStatus[p.id] === 'error' ? (
+                        '✗ Failed'
+                      ) : (
+                        'Send Login Email'
+                      )}
+                    </button>
+
+                    <button onClick={() => onReject(p.id)} className="btn btn-ghost btn-sm">
+                      Revoke
+                    </button>
+                  </>
+                )}
+
+                {status === 'rejected' && (
+                  <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm">
+                    Re-approve
+                  </button>
                 )}
               </div>
-            ))
-          )}
-        </div>
-
-        <div className="mt-12 text-center">
-          <Link href="/" className="text-blue-600 hover:underline">
-            ← Back to Home
-          </Link>
-        </div>
-      </div>
-    </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -2,80 +2,66 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Artistic Accessibility Collective
+    <main aria-label="Artistic Accessibility Collective — Home">
+      <section
+        aria-label="Welcome"
+        style={{ background: 'var(--aac-blue)', minHeight: '100vh', padding: '4rem 1.5rem 3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+      >
+        <div style={{ maxWidth: '860px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
+          {/* Logo is the h1 — alt text is read as the page title by screen readers */}
+          <h1 style={{ margin: '0 0 2.5rem' }}>
+            <img
+              src="/images/wordmark.svg"
+              alt="Artistic Accessibility Collective — the name is set in bold, chunky hand-lettered block letters with a warm, playful energy, paired with the tagline 'together, together' in a loose, flowing handwritten script"
+              style={{ width: '100%', maxWidth: '900px', height: 'auto', display: 'block', margin: '0 auto' }}
+            />
           </h1>
-          <p className="text-xl text-gray-600">
-            Connecting accessibility professionals and building community
-          </p>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-blue-600">Professional Registry</h2>
-            <p className="text-gray-600 mb-6">
-              Find ASL interpreters, captioners, audio describers, and accessibility specialists.
-            </p>
-            <div className="space-y-3">
-              <Link 
-                href="/directory" 
-                className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition"
-              >
-                Browse Directory
-              </Link>
-              <Link 
-                href="/submit" 
-                className="block w-full bg-gray-100 text-gray-800 text-center py-3 rounded-lg hover:bg-gray-200 transition"
-              >
-                Join the Registry
-              </Link>
-            </div>
-          </div>
+          {/* Nav buttons — each has clear, descriptive text */}
+          <nav aria-label="Main actions">
+            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', listStyle: 'none', padding: 0, margin: 0 }}>
+              <li>
+                <Link href="/submit" className="btn btn-on-blue btn-lg">
+                  Test the Registry
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="btn btn-outline-white btn-lg">
+                  Member Login
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="btn btn-outline-white btn-lg">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </nav>
 
-          <div className="bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-green-600">For Members</h2>
-            <p className="text-gray-600 mb-6">
-              Access the full member directory, endorse colleagues, and connect.
-            </p>
-            <div className="space-y-3">
-              <Link 
-                href="/members" 
-                className="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition"
-              >
-                Member Directory
-              </Link>
-              <Link 
-                href="/login" 
-                className="block w-full bg-gray-100 text-gray-800 text-center py-3 rounded-lg hover:bg-gray-200 transition"
-              >
-                Log In
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
-          <h3 className="font-bold text-lg mb-2">Administrator Access</h3>
-          <Link 
-            href="/admin" 
-            className="text-blue-600 hover:underline"
+          {/* Secondary links — low visual priority but fully accessible */}
+          <ul
+            aria-label="Additional links"
+            style={{ marginTop: '4rem', display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', listStyle: 'none', padding: 0 }}
           >
-            Admin Dashboard →
-          </Link>
+            <li>
+              <Link href="/admin" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
+                Admin
+              </Link>
+            </li>
+            <li>
+              <a
+                href="https://artisticaccessibility.com/"
+                style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Artistic Accessibility Home
+                <span className="sr-only"> (opens in new tab)</span>
+              </a>
+            </li>
+          </ul>
         </div>
-
-        <div className="mt-8 text-center">
-          <Link 
-            href="/contact" 
-            className="text-gray-600 hover:text-gray-900 underline"
-          >
-            Contact Us
-          </Link>
-        </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
