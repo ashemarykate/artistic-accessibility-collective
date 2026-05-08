@@ -32,10 +32,10 @@ The app is currently in **beta testing** with ~50 invited testers. The database 
 All design tokens are CSS custom properties in `app/globals.css`.
 
 **Brand colors:**
-- `--aac-blue: #2952C8` — primary blue, used for headings, buttons, links
+- `--aac-blue: #263590` — primary blue, used for headings, buttons, links
 - `--aac-navy: #0d1e4a` — dark navy, used as page backgrounds on some pages
-- `--aac-blue-dark: #1a3280`
-- `--aac-blue-light: #dde6ff`
+- `--aac-blue-dark: #1a2568`
+- `--aac-blue-light: #d8dcf5`
 - `--aac-yellow: #f5d84a` — focus ring color
 - `--aac-cream: #f8f7f4` — default page background
 
