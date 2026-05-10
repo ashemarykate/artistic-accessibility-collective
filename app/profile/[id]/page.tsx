@@ -110,8 +110,8 @@ export default function ProfilePage() {
           <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '1rem' }}>
             Profile Not Found
           </h1>
-          <Link href="/directory" className="btn btn-primary">
-            ← Browse Directory
+          <Link href="/collective" className="btn btn-primary">
+            ← Browse Members
           </Link>
         </div>
       </main>
@@ -132,7 +132,6 @@ export default function ProfilePage() {
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/directory" className="nav-link">Directory</Link>
           {currentUser && <Link href="/collective" className="nav-link">The Collective</Link>}
           {currentUser && <Link href="/feedback" className="nav-link">Share Feedback</Link>}
           {!currentUser && <Link href="/login" className="nav-link">Log In</Link>}
@@ -381,12 +380,9 @@ export default function ProfilePage() {
 
         {/* Back links */}
         <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <Link href="/directory" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
-            ← Public Directory
-          </Link>
           {currentUser && (
             <Link href="/collective" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
-              The Collective →
+              ← The Collective
             </Link>
           )}
         </div>

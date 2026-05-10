@@ -144,6 +144,19 @@ This project targets **WCAG 2.1 AA**. Key patterns already implemented:
 
 ---
 
+## Test Accounts (Supabase)
+
+Two accounts exist in Supabase for local testing. Both have password `justtestit`.
+
+| Email | Role | Goes to |
+|---|---|---|
+| `mk-admin@artisticaccessibility.com` | super_admin | `/admin` |
+| `mk-member@artisticaccessibility.com` | member | `/collective` |
+
+Both have approved individual profiles already inserted.
+
+---
+
 ## Admin Setup (not yet done)
 
 After migrations are run:
