@@ -16,6 +16,11 @@ export default function MemberDirectory() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
 
   useEffect(() => {
+    document.title = 'Member Directory — Artistic Accessibility Collective';
+    return () => { document.title = 'Artistic Accessibility Collective'; };
+  }, []);
+
+  useEffect(() => {
     checkAuthAndFetch();
   }, []);
 
@@ -77,19 +82,20 @@ export default function MemberDirectory() {
 
   if (loading) {
     return (
-      <div className="loading-screen" aria-live="polite" aria-label="Loading member directory">
-        <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
-        <span>Loading members…</span>
-      </div>
+      <main className="page-wrapper">
+        <div className="loading-screen" role="status" aria-label="Loading member directory">
+          <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
+          <span>Loading members…</span>
+        </div>
+      </main>
     );
   }
 
   return (
-    <main>
+    <main className="page-wrapper">
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/directory" className="nav-link">Public Directory</Link>
           <Link href="/feedback" className="nav-link">Share Feedback</Link>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}

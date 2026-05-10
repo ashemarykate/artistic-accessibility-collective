@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase, type Profile, type InviteCode, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -20,6 +20,13 @@ export default function AdminDashboard() {
   const [emailStatus, setEmailStatus] = useState<Record<string, 'sent' | 'error'>>({});
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [generateCount, setGenerateCount] = useState(10);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    document.title = 'Admin Dashboard — Artistic Accessibility Collective';
+    return () => { document.title = 'Artistic Accessibility Collective'; };
+  }, []);
 
   useEffect(() => { checkAdmin(); }, []);
 
@@ -34,8 +41,8 @@ export default function AdminDashboard() {
       .single();
 
     if (!adminData) {
-      alert('You do not have admin access.');
-      router.push('/');
+      setAccessError('You do not have permission to view this page.');
+      setLoading(false);
       return;
     }
 
@@ -131,6 +138,19 @@ export default function AdminDashboard() {
     navigator.clipboard.writeText(unused);
   };
 
+  const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+    const count = tabs.length;
+    let next = index;
+    if (e.key === 'ArrowRight') next = (index + 1) % count;
+    else if (e.key === 'ArrowLeft') next = (index - 1 + count) % count;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = count - 1;
+    else return;
+    e.preventDefault();
+    setActiveTab(tabs[next].id);
+    tabRefs.current[next]?.focus();
+  };
+
   const profilesNeedingUpdate = approvedProfiles.filter(
     (p) => (p.profile_version ?? 1) < REQUIRED_PROFILE_VERSION
   );
@@ -142,19 +162,32 @@ export default function AdminDashboard() {
     { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
   ];
 
+  if (accessError) {
+    return (
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div role="alert" style={{ color: 'var(--aac-white)', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>{accessError}</p>
+          <a href="/" className="btn btn-outline-white">Go Home</a>
+        </div>
+      </main>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="loading-screen">
-        <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
-        <span>Loading admin…</span>
-      </div>
+      <main className="page-wrapper">
+        <div className="loading-screen" role="status" aria-label="Loading admin dashboard">
+          <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
+          <span>Loading admin…</span>
+        </div>
+      </main>
     );
   }
 
   return (
     <main>
       <header className="site-header">
-        <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin Dashboard</span>
           <button
@@ -185,13 +218,17 @@ export default function AdminDashboard() {
           aria-label="Admin sections"
           style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}
         >
-          {tabs.map((tab) => (
+          {tabs.map((tab, index) => (
             <button
               key={tab.id}
+              id={`tab-${tab.id}`}
               role="tab"
               aria-selected={activeTab === tab.id}
               aria-controls={`panel-${tab.id}`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
+              ref={(el) => { tabRefs.current[index] = el; }}
               onClick={() => setActiveTab(tab.id)}
+              onKeyDown={(e) => handleTabKeyDown(e, index)}
               className="btn btn-sm"
               style={{
                 background: activeTab === tab.id ? 'var(--aac-white)' : 'rgba(255,255,255,0.12)',
@@ -206,7 +243,7 @@ export default function AdminDashboard() {
                   style={{
                     marginLeft: '0.375rem',
                     background: activeTab === tab.id ? 'var(--aac-blue)' : 'rgba(255,255,255,0.3)',
-                    color: activeTab === tab.id ? 'var(--aac-white)' : 'var(--aac-white)',
+                    color: 'var(--aac-white)',
                     borderRadius: '999px',
                     padding: '0 6px',
                     fontSize: '0.75rem',
@@ -223,7 +260,7 @@ export default function AdminDashboard() {
 
         {/* Panels */}
         {(activeTab === 'pending' || activeTab === 'approved' || activeTab === 'rejected') && (
-          <div id={`panel-${activeTab}`} role="tabpanel">
+          <div id={`panel-${activeTab}`} role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
             <ProfileList
               profiles={
                 activeTab === 'pending' ? pendingProfiles
@@ -242,7 +279,7 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'invite-codes' && (
-          <div id="panel-invite-codes" role="tabpanel">
+          <div id="panel-invite-codes" role="tabpanel" aria-labelledby="tab-invite-codes">
             <div className="content-card" style={{ marginBottom: '1.5rem' }}>
               <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
                 Generate Invite Codes
@@ -447,10 +484,10 @@ function ProfileList({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 160 }}>
                 {status === 'pending' && (
                   <>
-                    <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm">
+                    <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm" aria-label={`Approve ${name}`}>
                       Approve
                     </button>
-                    <button onClick={() => onReject(p.id)} className="btn btn-danger btn-sm">
+                    <button onClick={() => onReject(p.id)} className="btn btn-danger btn-sm" aria-label={`Reject ${name}`}>
                       Reject
                     </button>
                   </>
@@ -461,8 +498,10 @@ function ProfileList({
                     <button
                       onClick={() => onTogglePublic(p.id, p.public_visible)}
                       className={`btn btn-sm ${p.public_visible ? 'btn-outline' : 'btn-ghost'}`}
+                      aria-pressed={p.public_visible}
+                      aria-label={`${name} is ${p.public_visible ? 'public' : 'private'} — click to make ${p.public_visible ? 'private' : 'public'}`}
                     >
-                      {p.public_visible ? '● Public' : '○ Private'}
+                      {p.public_visible ? 'Public' : 'Private'}
                     </button>
 
                     <button
@@ -474,22 +513,22 @@ function ProfileList({
                       {sendingEmail === p.id ? (
                         <><span className="spinner" aria-hidden="true" style={{ width: 14, height: 14, borderWidth: 2 }} /> Sending…</>
                       ) : emailStatus[p.id] === 'sent' ? (
-                        '✓ Email Sent'
+                        'Email Sent'
                       ) : emailStatus[p.id] === 'error' ? (
-                        '✗ Failed'
+                        'Failed — retry?'
                       ) : (
                         'Send Login Email'
                       )}
                     </button>
 
-                    <button onClick={() => onReject(p.id)} className="btn btn-ghost btn-sm">
+                    <button onClick={() => onReject(p.id)} className="btn btn-ghost btn-sm" aria-label={`Revoke access for ${name}`}>
                       Revoke
                     </button>
                   </>
                 )}
 
                 {status === 'rejected' && (
-                  <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm">
+                  <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm" aria-label={`Re-approve ${name}`}>
                     Re-approve
                   </button>
                 )}
