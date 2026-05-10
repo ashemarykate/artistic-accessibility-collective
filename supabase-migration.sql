@@ -209,15 +209,21 @@ CREATE POLICY "Public profiles readable"
   ON profiles FOR SELECT
   USING (status = 'approved' AND public_visible = true);
 
+-- Security definer function avoids infinite recursion (policies on profiles
+-- cannot safely subquery profiles directly)
+CREATE OR REPLACE FUNCTION is_approved_member()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles
+    WHERE user_id = auth.uid()
+    AND status = 'approved'
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 CREATE POLICY "Members see all approved profiles"
   ON profiles FOR SELECT
   USING (
-    status = 'approved' 
-    AND EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE user_id = auth.uid() 
-      AND status = 'approved'
-    )
+    status = 'approved' AND is_approved_member()
   );
 
 CREATE POLICY "Admins can do everything with profiles"
