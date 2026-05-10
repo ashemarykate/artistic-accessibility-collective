@@ -195,7 +195,7 @@ export default function FeedbackPage() {
             together, together
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/members" className="btn btn-primary">Member Directory</Link>
+            <Link href="/collective" className="btn btn-primary">The Collective</Link>
             <Link href={`/profile/${profile.id}`} className="btn btn-ghost">My Profile</Link>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function FeedbackPage() {
       <header className="site-header">
         <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/members" className="nav-link">Members</Link>
+          <Link href="/collective" className="nav-link">The Collective</Link>
           <Link href={`/profile/${profile.id}`} className="nav-link">My Profile</Link>
         </nav>
       </header>
@@ -271,7 +271,7 @@ export default function FeedbackPage() {
                   'Submit Feedback'
                 )}
               </button>
-              <Link href="/members" className="btn btn-ghost">Skip for now</Link>
+              <Link href="/collective" className="btn btn-ghost">Skip for now</Link>
             </div>
           </form>
         </div>
