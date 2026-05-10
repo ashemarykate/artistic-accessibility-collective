@@ -19,6 +19,17 @@ export default function Login() {
     setMessageType(type);
   };
 
+  // Routes a logged-in user to /admin if they're an admin, otherwise /collective.
+  const routeAfterLogin = async (userId: string) => {
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    router.push(adminData ? '/admin' : '/collective');
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -45,9 +56,11 @@ export default function Login() {
             .update({ user_id: user.id })
             .eq('id', unlinked.id);
         }
-      }
 
-      router.push('/members');
+        await routeAfterLogin(user.id);
+      } else {
+        router.push('/collective');
+      }
     } catch (err: any) {
       showMsg(err.message || 'Could not log in. Please check your email and password.', 'error');
     } finally {
@@ -65,7 +78,12 @@ export default function Login() {
     showMsg('');
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+      // Send the user back to /auth/callback after they click the link;
+      // the callback page reads the session and routes them to /admin or /collective.
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
       if (error) throw error;
       showMsg("We've sent a login link to your email. Check your inbox (and spam just in case).");
     } catch (err: any) {

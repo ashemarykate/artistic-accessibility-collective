@@ -133,7 +133,7 @@ export default function ProfilePage() {
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/directory" className="nav-link">Directory</Link>
-          {currentUser && <Link href="/members" className="nav-link">Members</Link>}
+          {currentUser && <Link href="/collective" className="nav-link">The Collective</Link>}
           {currentUser && <Link href="/feedback" className="nav-link">Share Feedback</Link>}
           {!currentUser && <Link href="/login" className="nav-link">Log In</Link>}
         </nav>
@@ -385,8 +385,8 @@ export default function ProfilePage() {
             ← Public Directory
           </Link>
           {currentUser && (
-            <Link href="/members" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
-              Member Directory →
+            <Link href="/collective" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9375rem', textDecoration: 'underline' }}>
+              The Collective →
             </Link>
           )}
         </div>
