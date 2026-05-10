@@ -329,10 +329,13 @@ export default function SubmitProfile() {
         .select('id')
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile insert error:', profileError);
+        throw new Error(profileError.message || 'Profile insert failed');
+      }
 
       if (testerSelfDescription || testerCollaboratorInfo || testerFeatureInterests.length > 0 || testerOtherFeedback) {
-        await supabase.from('tester_feedback').insert({
+        const { error: feedbackError } = await supabase.from('tester_feedback').insert({
           profile_id: profileData.id,
           tester_round: 1,
           missing_profile_info: testerSelfDescription.trim() || null,
@@ -340,6 +343,7 @@ export default function SubmitProfile() {
           community_feature_wish: testerFeatureInterests.length > 0 ? testerFeatureInterests.join(', ') : null,
           additional_feedback: testerOtherFeedback.trim() || null,
         });
+        if (feedbackError) console.error('Feedback insert error:', feedbackError);
       }
 
       if (code !== 'AAAC-TEST') {
@@ -353,7 +357,8 @@ export default function SubmitProfile() {
       setStep('success');
     } catch (err) {
       console.error('Submission error:', err);
-      setFormError('Something went wrong submitting your profile. Please try again.');
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setFormError(`Something went wrong submitting your profile. Error: ${message}`);
     } finally {
       setLoading(false);
     }

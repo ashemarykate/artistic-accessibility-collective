@@ -21,6 +21,10 @@ export default function AdminDashboard() {
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [generateCount, setGenerateCount] = useState(10);
   const [accessError, setAccessError] = useState<string | null>(null);
+  const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
+  const [assignName, setAssignName] = useState('');
+  const [assignEmail, setAssignEmail] = useState('');
+  const [savingAssign, setSavingAssign] = useState(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
@@ -136,6 +140,29 @@ export default function AdminDashboard() {
   const copyAllUnused = () => {
     const unused = inviteCodes.filter((c) => !c.used).map((c) => c.code).join('\n');
     navigator.clipboard.writeText(unused);
+  };
+
+  const startAssign = (code: InviteCode) => {
+    setEditingCodeId(code.id);
+    setAssignName(code.assigned_to_name || '');
+    setAssignEmail(code.assigned_to_email || '');
+  };
+
+  const cancelAssign = () => {
+    setEditingCodeId(null);
+    setAssignName('');
+    setAssignEmail('');
+  };
+
+  const saveAssign = async (codeId: string) => {
+    setSavingAssign(true);
+    await supabase.from('invite_codes').update({
+      assigned_to_name: assignName.trim() || null,
+      assigned_to_email: assignEmail.trim() || null,
+    }).eq('id', codeId);
+    setSavingAssign(false);
+    cancelAssign();
+    fetchAll();
   };
 
   const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
@@ -347,10 +374,56 @@ export default function AdminDashboard() {
                             </code>
                           </td>
                           <td style={{ padding: '0.625rem 0.75rem', color: 'var(--color-text-muted)' }}>
-                            {code.assigned_to_name
-                              ? <>{code.assigned_to_name}{code.assigned_to_email && <span style={{ display: 'block', fontSize: '0.8rem' }}>{code.assigned_to_email}</span>}</>
-                              : <span style={{ color: '#ccc' }}>—</span>
-                            }
+                            {editingCodeId === code.id ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                                <input
+                                  type="text"
+                                  className="form-input"
+                                  style={{ fontSize: '0.875rem', padding: '0.25rem 0.5rem' }}
+                                  placeholder="Name"
+                                  value={assignName}
+                                  onChange={(e) => setAssignName(e.target.value)}
+                                  aria-label="Assign to name"
+                                />
+                                <input
+                                  type="email"
+                                  className="form-input"
+                                  style={{ fontSize: '0.875rem', padding: '0.25rem 0.5rem' }}
+                                  placeholder="Email (optional)"
+                                  value={assignEmail}
+                                  onChange={(e) => setAssignEmail(e.target.value)}
+                                  aria-label="Assign to email"
+                                />
+                                <div style={{ display: 'flex', gap: '0.375rem' }}>
+                                  <button
+                                    onClick={() => saveAssign(code.id)}
+                                    disabled={savingAssign}
+                                    className="btn btn-primary btn-sm"
+                                  >
+                                    {savingAssign ? 'Saving…' : 'Save'}
+                                  </button>
+                                  <button onClick={cancelAssign} className="btn btn-ghost btn-sm">
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => startAssign(code)}
+                                className="btn btn-ghost btn-sm"
+                                style={{ textAlign: 'left', padding: '0.25rem 0.5rem', height: 'auto' }}
+                                aria-label={code.assigned_to_name ? `Edit assignment for ${code.code}` : `Assign ${code.code} to someone`}
+                              >
+                                {code.assigned_to_name ? (
+                                  <span>
+                                    {code.assigned_to_name}
+                                    {code.assigned_to_email && <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{code.assigned_to_email}</span>}
+                                  </span>
+                                ) : (
+                                  <span style={{ color: 'var(--color-text-muted)', fontStyle: 'italic' }}>+ Assign to someone</span>
+                                )}
+                              </button>
+                            )}
                           </td>
                           <td style={{ padding: '0.625rem 0.75rem' }}>
                             {code.used ? (
