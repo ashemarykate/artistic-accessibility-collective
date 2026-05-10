@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [assignEmail, setAssignEmail] = useState('');
   const [savingAssign, setSavingAssign] = useState(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const assignNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = 'Admin Dashboard — Artistic Accessibility Collective';
@@ -146,6 +147,7 @@ export default function AdminDashboard() {
     setEditingCodeId(code.id);
     setAssignName(code.assigned_to_name || '');
     setAssignEmail(code.assigned_to_email || '');
+    setTimeout(() => assignNameRef.current?.focus(), 0);
   };
 
   const cancelAssign = () => {
@@ -377,6 +379,7 @@ export default function AdminDashboard() {
                             {editingCodeId === code.id ? (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                                 <input
+                                  ref={assignNameRef}
                                   type="text"
                                   className="form-input"
                                   style={{ fontSize: '0.875rem', padding: '0.25rem 0.5rem' }}

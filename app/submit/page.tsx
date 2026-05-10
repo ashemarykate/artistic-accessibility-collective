@@ -357,8 +357,7 @@ export default function SubmitProfile() {
       setStep('success');
     } catch (err) {
       console.error('Submission error:', err);
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setFormError(`Something went wrong submitting your profile. Error: ${message}`);
+      setFormError('Something went wrong submitting your profile. Please try again or email us at contact@artisticaccessibility.com.');
     } finally {
       setLoading(false);
     }
