@@ -1,4 +1,16 @@
+'use client';
+import { useEffect } from 'react';
+
 export default function Home() {
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = '#263590';
+    document.body.style.backgroundColor = '#263590';
+    return () => {
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
+
   return (
     <main
       style={{ background: 'var(--aac-blue)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem' }}
