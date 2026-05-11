@@ -38,6 +38,11 @@ export type Profile = {
   admin_notes?: string;
   profile_version?: number;
   invite_code_used?: string;
+  profile_type?: 'individual' | 'business';
+  avatar_alt?: string;
+  accessibility_features?: string[];
+  services_provided?: string;
+  email_public?: boolean;
 };
 
 export type Endorsement = {

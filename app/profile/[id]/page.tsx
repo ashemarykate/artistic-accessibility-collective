@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -19,6 +19,14 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [endorsing, setEndorsing] = useState(false);
   const [hasEndorsed, setHasEndorsed] = useState(false);
+  const [photoFormOpen, setPhotoFormOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  const [photoAlt, setPhotoAlt] = useState('');
+  const [photoAltError, setPhotoAltError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const photoAltRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { fetchData(); }, [profileId]);
 
@@ -94,6 +102,67 @@ export default function ProfilePage() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Photo must be under 5MB.');
+      return;
+    }
+    setUploadError('');
+    setPendingFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPendingPreview(reader.result as string);
+      setTimeout(() => photoAltRef.current?.focus(), 0);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePhotoSave = async () => {
+    if (!pendingFile || !profile) return;
+    if (!photoAlt.trim()) {
+      setPhotoAltError('Please describe yourself in this photo — this helps screen reader users.');
+      photoAltRef.current?.focus();
+      return;
+    }
+    setPhotoAltError('');
+    setUploading(true);
+    try {
+      const ext = pendingFile.name.split('.').pop();
+      const path = `${profile.id}/avatar.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('profile-photos')
+        .upload(path, pendingFile, { upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: { publicUrl } } = supabase.storage.from('profile-photos').getPublicUrl(path);
+      const { error: updateErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl, avatar_alt: photoAlt.trim() })
+        .eq('id', profile.id);
+      if (updateErr) throw updateErr;
+      setPhotoFormOpen(false);
+      setPendingFile(null);
+      setPendingPreview(null);
+      setPhotoAlt('');
+      await fetchData();
+    } catch (err) {
+      console.error('Photo upload error:', err);
+      setUploadError('Something went wrong uploading your photo. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const cancelPhotoUpload = () => {
+    setPhotoFormOpen(false);
+    setPendingFile(null);
+    setPendingPreview(null);
+    setPhotoAlt('');
+    setPhotoAltError('');
+    setUploadError('');
+  };
+
   if (loading) {
     return (
       <div className="loading-screen" aria-live="polite" aria-label="Loading profile">
@@ -154,16 +223,110 @@ export default function ProfilePage() {
         <div className="content-card" style={{ marginBottom: '1.5rem' }}>
           {/* Profile header */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-            <div
-              className="member-avatar member-avatar-lg"
-              aria-hidden="true"
-              role="img"
-            >
-              {profile.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                initial
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="member-avatar member-avatar-lg">
+                {profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.avatar_alt || `Photo of ${displayName}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <span aria-hidden="true">{initial}</span>
+                )}
+              </div>
+
+              {isOwnProfile && !photoFormOpen && (
+                <button
+                  onClick={() => setPhotoFormOpen(true)}
+                  className="btn btn-ghost btn-sm"
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  {profile.avatar_url ? 'Change photo' : '+ Add photo'}
+                </button>
+              )}
+
+              {isOwnProfile && photoFormOpen && (
+                <div style={{ width: 200, marginTop: '0.25rem' }}>
+                  {!pendingPreview ? (
+                    <label style={{ display: 'block', cursor: 'pointer' }}>
+                      <span className="btn btn-ghost btn-sm" style={{ fontSize: '0.8rem', display: 'block', textAlign: 'center' }}>
+                        Choose photo
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="sr-only"
+                        aria-label="Choose a photo to upload"
+                      />
+                    </label>
+                  ) : (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={pendingPreview}
+                        alt="Preview of your chosen photo"
+                        style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: '50%', display: 'block', margin: '0 auto 0.75rem' }}
+                      />
+                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                        <label htmlFor="photo-alt" className="form-label" style={{ fontSize: '0.8125rem' }}>
+                          Describe yourself in this photo <span aria-hidden="true" style={{ color: 'var(--color-error)' }}>*</span>
+                        </label>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                          This description is read aloud by screen readers.
+                        </p>
+                        <input
+                          id="photo-alt"
+                          ref={photoAltRef}
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '0.875rem' }}
+                          value={photoAlt}
+                          onChange={(e) => setPhotoAlt(e.target.value)}
+                          aria-required="true"
+                          aria-invalid={!!photoAltError}
+                          aria-describedby={photoAltError ? 'photo-alt-error' : undefined}
+                          placeholder="e.g. smiling in a blue jacket outdoors"
+                        />
+                        {photoAltError && (
+                          <p id="photo-alt-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
+                            {photoAltError}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {uploadError && (
+                    <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.8125rem', marginBottom: '0.5rem' }}>
+                      {uploadError}
+                    </p>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
+                    {pendingPreview && (
+                      <button
+                        onClick={handlePhotoSave}
+                        disabled={uploading}
+                        className="btn btn-primary btn-sm"
+                        style={{ fontSize: '0.8125rem' }}
+                      >
+                        {uploading ? (
+                          <><span className="spinner" aria-hidden="true" style={{ width: 12, height: 12, borderWidth: 2 }} /> Saving…</>
+                        ) : 'Save photo'}
+                      </button>
+                    )}
+                    <button
+                      onClick={cancelPhotoUpload}
+                      className="btn btn-ghost btn-sm"
+                      style={{ fontSize: '0.8125rem' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 

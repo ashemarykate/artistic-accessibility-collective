@@ -175,11 +175,14 @@ export default function MemberDirectory() {
               Showing {filtered.length} of {profiles.length} member{profiles.length !== 1 ? 's' : ''}
             </p>
 
+            <p className="sr-only">
+              Member profiles are displayed as contact cards. Ivory cards are individual members; blue cards are businesses. Each card shows name, location, and specialties. Click any card to view the full profile.
+            </p>
             <ul
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '1rem',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                gap: '1.25rem',
                 listStyle: 'none',
                 padding: 0,
                 margin: 0,
@@ -187,47 +190,54 @@ export default function MemberDirectory() {
             >
               {filtered.map((p) => {
                 const name = p.display_name || p.full_name;
+                const isBusiness = p.profile_type === 'business';
                 return (
                   <li key={p.id}>
-                    <Link href={`/profile/${p.id}`} className="member-card" aria-label={`View ${name}'s profile`}>
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                        <div className="member-avatar" aria-hidden="true">
-                          {p.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                          ) : (
-                            name.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p className="font-display" style={{ fontSize: '1.1rem', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {name}
-                          </p>
-                          {p.pronouns && (
-                            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>{p.pronouns}</p>
-                          )}
-                          {(p.location_city || p.location_state) && (
-                            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
-                              <span aria-hidden="true">📍 </span>
-                              {[p.location_city, p.location_state].filter(Boolean).join(', ')}
+                    <Link
+                      href={`/profile/${p.id}`}
+                      className={`contact-card ${isBusiness ? 'contact-card-business' : 'contact-card-individual'}`}
+                      aria-label={`View ${name}'s profile`}
+                    >
+                      <div className="contact-card-stripe" aria-hidden="true" />
+                      <div className="contact-card-body">
+                        <div style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start', marginBottom: '0.875rem' }}>
+                          <div
+                            className="member-avatar"
+                            aria-hidden="true"
+                            style={{ width: 52, height: 52, minWidth: 52, fontSize: '1.25rem', flexShrink: 0 }}
+                          >
+                            {p.avatar_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                            ) : (
+                              name.charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p className="font-display" style={{ fontSize: '1.075rem', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {name}
                             </p>
-                          )}
-                          {p.specialties && p.specialties.length > 0 && (
-                            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', listStyle: 'none', padding: 0, margin: '0 0 0.5rem' }}>
-                              {p.specialties.slice(0, 3).map((s, i) => (
-                                <li key={i}><span className="tag tag-blue">{s}</span></li>
-                              ))}
-                              {p.specialties.length > 3 && (
-                                <li><span className="tag tag-gray">+{p.specialties.length - 3} more</span></li>
-                              )}
-                            </ul>
-                          )}
-                          {p.endorsement_count > 0 && (
-                            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                              {p.endorsement_count} endorsement{p.endorsement_count !== 1 ? 's' : ''}
-                            </p>
-                          )}
+                            {p.pronouns && (
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.125rem' }}>{p.pronouns}</p>
+                            )}
+                            {(p.location_city || p.location_state) && (
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                <span aria-hidden="true">📍 </span>
+                                {[p.location_city, p.location_state].filter(Boolean).join(', ')}
+                              </p>
+                            )}
+                          </div>
                         </div>
+                        {p.specialties && p.specialties.length > 0 && (
+                          <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                            {p.specialties.slice(0, 3).map((s, i) => (
+                              <li key={i}><span className="tag tag-yellow">{s}</span></li>
+                            ))}
+                            {p.specialties.length > 3 && (
+                              <li><span className="tag tag-gray">+{p.specialties.length - 3} more</span></li>
+                            )}
+                          </ul>
+                        )}
                       </div>
                     </Link>
                   </li>
