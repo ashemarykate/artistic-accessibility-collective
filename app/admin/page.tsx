@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
+import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -565,7 +565,7 @@ function ProfileList({
               <div style={{ flex: 1, minWidth: 240 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
                   <Link
-                    href={`/profile/${p.id}`}
+                    href={profileHref(p)}
                     className="font-display"
                     style={{ color: 'var(--aac-blue)', fontSize: '1.15rem', textDecoration: 'none' }}
                   >

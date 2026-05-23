@@ -131,7 +131,7 @@ CREATE POLICY "Admins manage all feedback"
 -- ============================================
 
 CREATE OR REPLACE FUNCTION generate_invite_codes(count INTEGER)
-RETURNS TABLE(code TEXT) AS $$
+RETURNS TABLE(generated_code TEXT) AS $$
 DECLARE
   new_code TEXT;
   i INTEGER;
