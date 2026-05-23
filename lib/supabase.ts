@@ -43,6 +43,27 @@ export type Profile = {
   accessibility_features?: string[];
   services_provided?: string;
   email_public?: boolean;
+  highlights?: string;
+  video_links?: string[];
+  activities?: string[];
+  profile_bg_color?: string;
+  top_8_ids?: string[];
+  username?: string;
+};
+
+/** Returns the canonical profile URL, using the vanity username when set. */
+export function profileHref(profile: Pick<Profile, 'id' | 'username'>): string {
+  return `/profile/${profile.username ?? profile.id}`;
+}
+
+export type Message = {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  body: string;
+  read: boolean;
+  created_at: string;
+  expires_at: string;
 };
 
 export type Endorsement = {

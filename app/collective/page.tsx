@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Profile } from '@/lib/supabase';
+import { supabase, type Profile, profileHref } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -194,7 +194,7 @@ export default function MemberDirectory() {
                 return (
                   <li key={p.id}>
                     <Link
-                      href={`/profile/${p.id}`}
+                      href={profileHref(p)}
                       className={`contact-card ${isBusiness ? 'contact-card-business' : 'contact-card-individual'}`}
                       aria-label={`View ${name}'s profile`}
                     >
