@@ -5,7 +5,7 @@ import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts';
 type FeedbackWithProfile = TesterFeedback & { profile: Pick<Profile, 'full_name' | 'email' | 'profile_type'> | null };
 
 export default function AdminDashboard() {
@@ -196,6 +196,7 @@ export default function AdminDashboard() {
     { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
     { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
     { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
+    { id: 'resource-contacts', label: 'Resource Contacts' },
   ];
 
   if (accessError) {
@@ -466,6 +467,12 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'resource-contacts' && (
+          <div id="panel-resource-contacts" role="tabpanel" aria-labelledby="tab-resource-contacts">
+            <ResourceContactsPanel />
+          </div>
+        )}
+
         {activeTab === 'feedback' && (
           <div id="panel-feedback" role="tabpanel" aria-labelledby="tab-feedback">
             {feedbackEntries.length === 0 ? (
@@ -521,6 +528,126 @@ export default function AdminDashboard() {
         )}
       </div>
     </main>
+  );
+}
+
+// ── Resource Contacts sub-component ─────────────────────────────────────────
+
+type ResourceContact = {
+  name: string;
+  website: string;
+  phone?: string;
+  email?: string;
+  note?: string;
+  category: string;
+};
+
+const RESOURCE_CONTACTS: ResourceContact[] = [
+  // Audio Description
+  { category: 'Audio Description', name: 'DCMP (Described and Captioned Media Program)', website: 'dcmp.org', note: 'Free described/captioned media for students with disabilities' },
+  { category: 'Audio Description', name: 'GBH Media Access Group', website: 'wgbh.org/foundation/media-access', note: 'Pioneer in audio description and captioning standards' },
+  { category: 'Audio Description', name: 'ACB Audio Description Project', website: 'adp.acb.org', note: 'American Council of the Blind — AD standards and resources' },
+  { category: 'Audio Description', name: 'YouDescribe', website: 'youdescribe.org', note: 'Volunteer-driven audio description for YouTube videos' },
+  { category: 'Audio Description', name: 'VocalEye', website: 'vocaleye.ca', note: 'Live audio description for theatre and events (Canada)' },
+  // Captioning & CART
+  { category: 'Captioning & CART', name: 'HLAA (Hearing Loss Association of America)', website: 'hearingloss.org', note: 'Advocates for captioning access and hearing loop standards' },
+  // Theater & Live Performance
+  { category: 'Theater & Live Performance', name: 'Graeae Theatre Company', website: 'graeae.org/accessibility', note: 'UK disabled-led theater company; accessibility guidance' },
+  { category: 'Theater & Live Performance', name: 'Kennedy Center — VSA', website: 'kennedy-center.org/education/vsa', note: 'Arts and disability education programs' },
+  { category: 'Theater & Live Performance', name: 'Think Outside the Vox', website: 'thinkoutsidethevox.org', note: 'Accessibility in performing arts spaces' },
+  // Film & Media
+  { category: 'Film & Media', name: 'FWD-Doc (Documentary Filmmakers with Disabilities)', website: 'fwd-doc.org', note: 'Disability inclusion in documentary filmmaking' },
+  { category: 'Film & Media', name: 'Inevitable Foundation', website: 'inevitablefoundation.com', note: 'Grants and support for disabled screenwriters' },
+  { category: 'Film & Media', name: 'IDA (International Documentary Association)', website: 'documentary.org', note: 'Fiscal sponsorship and resources for documentary filmmakers' },
+  // Live Events & Festivals
+  { category: 'Live Events & Festivals', name: 'Attitude is Everything', website: 'attitudeiseverything.org.uk', note: 'UK charity improving live music access for Deaf and disabled fans' },
+  { category: 'Live Events & Festivals', name: 'Cultural Access Collaborative', website: 'culturalaccesscollaborative.org', note: 'Consulting and research on cultural access' },
+  // Digital & Web Accessibility
+  { category: 'Digital & Web Accessibility', name: 'WebAIM (Web Accessibility In Mind)', website: 'webaim.org', note: 'WCAG guides, screen reader surveys, contrast checker' },
+  { category: 'Digital & Web Accessibility', name: 'TPGi (The Paciello Group)', website: 'tpgi.com', note: 'Accessibility consulting and Colour Contrast Analyser' },
+  { category: 'Digital & Web Accessibility', name: 'Deque (axe)', website: 'deque.com', note: 'axe DevTools browser extension for automated a11y testing' },
+  { category: 'Digital & Web Accessibility', name: 'NV Access (NVDA)', website: 'nvaccess.org', note: 'Free, open-source NVDA screen reader for Windows' },
+  // Disability Justice
+  { category: 'Disability Justice', name: 'Sins Invalid', website: 'sinsinvalid.org', note: 'Disability justice performance project centering BIPOC and LGBTQ+ disabled artists' },
+  { category: 'Disability Justice', name: 'Disability Visibility Project', website: 'disabilityvisibilityproject.com', note: 'Online community and media for disabled people' },
+  { category: 'Disability Justice', name: 'RespectAbility', website: 'respectability.org', note: 'Disability inclusion in entertainment, employment, and policy' },
+  // Deaf Culture & ASL
+  { category: 'Deaf Culture & ASL', name: 'NAD (National Association of the Deaf)', website: 'nad.org', note: 'Largest Deaf civil rights organization in the US' },
+  { category: 'Deaf Culture & ASL', name: 'Gallaudet University Press', website: 'gallaudet.edu/gallaudet-university-press', note: 'Premier publisher of Deaf culture, sign linguistics, and ASL resources' },
+  // Legal & Policy
+  { category: 'Legal & Policy', name: 'ADA National Network', website: 'adata.org', phone: '1-800-949-4232', note: 'Free ADA guidance and technical assistance; 10 regional centers' },
+  { category: 'Legal & Policy', name: 'Pacific ADA Center', website: 'adapacific.org', note: 'Regional ADA center for CA, AZ, NV, HI, and Pacific Basin' },
+];
+
+const CONTACT_CATEGORIES = [
+  'Audio Description',
+  'Captioning & CART',
+  'Theater & Live Performance',
+  'Film & Media',
+  'Live Events & Festivals',
+  'Digital & Web Accessibility',
+  'Disability Justice',
+  'Deaf Culture & ASL',
+  'Legal & Policy',
+];
+
+function ResourceContactsPanel() {
+  return (
+    <div>
+      <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
+          Contact and reference information for organizations whose resources appear in the public Resources directory. For internal use — not displayed to members.
+        </p>
+      </div>
+
+      {CONTACT_CATEGORIES.map((cat) => {
+        const contacts = RESOURCE_CONTACTS.filter((c) => c.category === cat);
+        if (contacts.length === 0) return null;
+        return (
+          <div key={cat} className="content-card" style={{ marginBottom: '1.25rem' }}>
+            <h2 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '0.875rem' }}>
+              {cat}
+            </h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }} aria-label={`${cat} contacts`}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
+                    <th style={{ textAlign: 'left', padding: '0.375rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>Organization</th>
+                    <th style={{ textAlign: 'left', padding: '0.375rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Website</th>
+                    <th style={{ textAlign: 'left', padding: '0.375rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Phone / Email</th>
+                    <th style={{ textAlign: 'left', padding: '0.375rem 0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contacts.map((c, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid var(--color-border)', background: i % 2 === 1 ? 'var(--aac-blue-light)' : undefined }}>
+                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap' }}>{c.name}</td>
+                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                        <a
+                          href={`https://${c.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}
+                          aria-label={`${c.name} website (opens in new tab)`}
+                        >
+                          {c.website}
+                        </a>
+                      </td>
+                      <td style={{ padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                        {c.phone && <span>{c.phone}</span>}
+                        {c.email && <a href={`mailto:${c.email}`} style={{ color: 'var(--aac-blue)' }}>{c.email}</a>}
+                        {!c.phone && !c.email && <span style={{ color: 'var(--color-border)' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{c.note || ''}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
