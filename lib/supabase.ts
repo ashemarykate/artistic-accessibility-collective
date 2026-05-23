@@ -56,6 +56,23 @@ export type Profile = {
   fav_tv?: string[];
   mood?: string;
   community_interests?: string[];
+  // v6 professional fields
+  work_category?: string;
+  event_sizes?: string[];
+  availability_status?: string;
+  timezone?: string;
+  communication_style?: string[];
+  work_samples_url?: string;
+  new_to_roles?: string[];
+  education?: string;
+  rate_info?: string;
+  career_highlights?: string;
+  fun_fact?: string;
+  favorite_event?: string;
+  software_skills?: string[];
+  preferred_contact?: string;
+  experience_level?: string;
+  is_student?: boolean;
 };
 
 /** Returns the canonical profile URL, using the vanity username when set. */

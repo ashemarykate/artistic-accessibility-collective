@@ -380,6 +380,49 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   text-decoration: none;
 }
 
+/* Student member badge — warm amber, stands out positively */
+.ms-student-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fff3cd;
+  border: 1px solid #e0a800;
+  color: #6b4400;
+  font-size: 0.6875rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  font-family: var(--font-body);
+}
+
+/* Availability badge — color-coded like a traffic light */
+.ms-avail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+}
+.ms-avail-available  { background: #d4f0e0; border-color: #7dd6a4; color: #155e38; }
+.ms-avail-soon       { background: #fff8d4; border-color: #e0c840; color: #6b5200; }
+.ms-avail-inquiry    { background: var(--aac-blue-light); border-color: #a0b0e8; color: var(--aac-blue-dark); }
+.ms-avail-unavailable{ background: #fde8e6; border-color: #f5b7b1; color: var(--color-error); }
+
+/* Experience level badge */
+.ms-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6875rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  border: 1px solid var(--ms-border);
+  background: var(--ms-row-alt);
+  color: var(--aac-blue-dark);
+}
+
 /* Profile URL box */
 .ms-profile-url {
   background: var(--ms-row-alt);
