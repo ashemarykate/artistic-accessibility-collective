@@ -5,68 +5,91 @@ import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, pro
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type EndorsementWithProfile = Endorsement & { endorser: Profile };
+type EndorsementWithEndorser = Endorsement & { endorser: Profile };
 
 const USERNAME_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
-// Returns true if a hex color is dark enough to need white text on top of it.
-function isDark(hex: string): boolean {
-  const c = hex.replace('#', '');
-  const r = parseInt(c.slice(0, 2), 16);
-  const g = parseInt(c.slice(2, 4), 16);
-  const b = parseInt(c.slice(4, 6), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function parseVideoUrl(url: string): { embedUrl: string; label: string } | null {
+  const ytId = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/
+  )?.[1];
+  if (ytId) return { embedUrl: `https://www.youtube.com/embed/${ytId}?rel=0`, label: 'YouTube video' };
+  const vmId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+  if (vmId) return { embedUrl: `https://player.vimeo.com/video/${vmId}`, label: 'Vimeo video' };
+  return null;
 }
 
-// Myspace-era section accent colors — each section gets its own personality.
-const S = {
-  highlights: '#263590',
-  about:      '#7c3aed',
-  whatIDo:    '#059669',
-  top8:       '#dc2626',
-  videos:     '#d97706',
-  certs:      '#1d4ed8',
-  activities: '#db2777',
-  languages:  '#0891b2',
-  contact:    '#374151',
-};
+function availClass(status: string): string {
+  if (status === 'Available Now') return 'ms-avail-badge ms-avail-available';
+  if (status.startsWith('Booking')) return 'ms-avail-badge ms-avail-soon';
+  if (status === 'Not Available') return 'ms-avail-badge ms-avail-unavailable';
+  return 'ms-avail-badge ms-avail-inquiry';
+}
 
-function SectionCard({ color, emoji, title, children }: {
-  color: string;
-  emoji?: string;
-  title: string;
+function availDot(status: string): string {
+  if (status === 'Available Now') return '🟢';
+  if (status.startsWith('Booking')) return '🟡';
+  if (status === 'Not Available') return '🔴';
+  return '🔵';
+}
+
+function levelLabel(level: string): string {
+  return (
+    { student: 'Student', entry: 'Entry Level', mid: 'Mid Level', seasoned: 'Seasoned Professional' }[level] ?? level
+  );
+}
+
+// ── MsBox ────────────────────────────────────────────────────────────────────
+
+function MsBox({
+  header,
+  headerEl,
+  action,
+  children,
+}: {
+  header?: string;
+  headerEl?: React.ReactNode;
+  action?: { label: string; onClick?: () => void; href?: string; srLabel?: string };
   children: React.ReactNode;
 }) {
   return (
-    <div className="content-card" style={{ padding: '1rem 1.25rem' }}>
-      <h2
-        className="font-display"
-        style={{
-          color,
-          fontSize: '1.25rem',
-          marginBottom: '0.75rem',
-          paddingBottom: '0.5rem',
-          borderBottom: `3px solid ${color}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.375rem',
-        }}
-      >
-        {emoji && <span aria-hidden="true">{emoji}</span>}
-        {title}
-      </h2>
+    <div className="ms-box">
+      <div className="ms-box-header">
+        <span>{headerEl ?? header}</span>
+        {action && (
+          action.href ? (
+            <a href={action.href} target={action.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+              [{action.label}]
+              {action.srLabel && <span className="sr-only">{action.srLabel}</span>}
+            </a>
+          ) : action.onClick ? (
+            <button
+              onClick={action.onClick}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+            >
+              [{action.label}]
+              {action.srLabel && <span className="sr-only">{action.srLabel}</span>}
+            </button>
+          ) : null
+        )}
+      </div>
       {children}
     </div>
   );
 }
 
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function ProfilePage() {
-  const params  = useParams();
-  const router  = useRouter();
-  const slug    = params.username as string; // may be a vanity username OR a UUID (fallback)
+  const params = useParams();
+  const router = useRouter();
+  const slug   = params.username as string;
 
   const [profile,            setProfile]            = useState<Profile | null>(null);
-  const [endorsements,       setEndorsements]        = useState<EndorsementWithProfile[]>([]);
+  const [endorsements,       setEndorsements]        = useState<EndorsementWithEndorser[]>([]);
+  const [goTos,              setGoTos]               = useState<Profile[]>([]);
   const [currentUser,        setCurrentUser]         = useState<any>(null);
   const [currentUserProfile, setCurrentUserProfile]  = useState<Profile | null>(null);
   const [loading,            setLoading]             = useState(true);
@@ -74,12 +97,12 @@ export default function ProfilePage() {
   const [hasEndorsed,        setHasEndorsed]         = useState(false);
 
   // Username setup state
-  const [usernameFormOpen,    setUsernameFormOpen]    = useState(false);
-  const [usernameInput,       setUsernameInput]       = useState('');
-  const [usernameAvailable,   setUsernameAvailable]   = useState<boolean | null>(null);
-  const [usernameChecking,    setUsernameChecking]     = useState(false);
-  const [usernameSaving,      setUsernameSaving]       = useState(false);
-  const [usernameError,       setUsernameError]       = useState('');
+  const [usernameFormOpen,  setUsernameFormOpen]  = useState(false);
+  const [usernameInput,     setUsernameInput]     = useState('');
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameChecking,  setUsernameChecking]  = useState(false);
+  const [usernameSaving,    setUsernameSaving]    = useState(false);
+  const [usernameError,     setUsernameError]     = useState('');
   const usernameInputRef = useRef<HTMLInputElement>(null);
 
   // Photo upload state
@@ -97,7 +120,7 @@ export default function ProfilePage() {
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
-  useEffect(() => { fetchData(); }, [slug]);
+  useEffect(() => { fetchData(); }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
     try {
@@ -106,12 +129,11 @@ export default function ProfilePage() {
 
       if (user) {
         const { data: up } = await supabase
-          .from('profiles').select('*')
-          .eq('user_id', user.id).eq('status', 'approved').single();
+          .from('profiles').select('*').eq('user_id', user.id).eq('status', 'approved').single();
         setCurrentUserProfile(up);
       }
 
-      // Try by vanity username first, fall back to UUID so old links keep working.
+      // Try vanity username first, fall back to UUID.
       let { data: profileData } = await supabase
         .from('profiles').select('*').eq('username', slug).maybeSingle();
       if (!profileData) {
@@ -122,19 +144,27 @@ export default function ProfilePage() {
       if (!profileData) throw new Error('Profile not found');
       setProfile(profileData);
 
-      // Redirect to canonical username URL if we loaded via UUID and username exists
+      // Redirect to canonical username URL if loaded via UUID
       if (profileData.username && slug !== profileData.username) {
         router.replace(`/profile/${profileData.username}`);
         return;
       }
 
-      const { data: endorsementsData, error: endorsementsError } = await supabase
+      // People who have endorsed this profile ("People Who Love To Work With Me")
+      const { data: endorsementsData } = await supabase
         .from('endorsements')
         .select('*, endorser:profiles!endorser_id(*)')
         .eq('endorsed_id', profileData.id);
-      if (endorsementsError) throw endorsementsError;
-      setEndorsements(endorsementsData as EndorsementWithProfile[]);
+      setEndorsements((endorsementsData ?? []) as EndorsementWithEndorser[]);
 
+      // Profiles this person has endorsed ("Go-To's")
+      const { data: goToData } = await supabase
+        .from('endorsements')
+        .select('*, endorsed:profiles!endorsed_id(*)')
+        .eq('endorser_id', profileData.id);
+      setGoTos(((goToData ?? []) as any[]).map((e) => e.endorsed).filter(Boolean));
+
+      // Has current user already endorsed this profile?
       if (user && endorsementsData) {
         const { data: up2 } = await supabase
           .from('profiles').select('id').eq('user_id', user.id).single();
@@ -142,7 +172,8 @@ export default function ProfilePage() {
           setHasEndorsed(endorsementsData.some((e: any) => e.endorser_id === up2.id));
         }
       }
-      // Auto-open username form if this is the member's own profile and they haven't set one
+
+      // Auto-open username form if own profile and no username set yet
       if (profileData && !profileData.username) {
         setUsernameFormOpen(true);
       }
@@ -172,8 +203,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Username availability check
-
   const checkUsername = async (value: string) => {
     if (!value || !USERNAME_RE.test(value)) { setUsernameAvailable(null); return; }
     setUsernameChecking(true);
@@ -188,7 +217,6 @@ export default function ProfilePage() {
     setUsernameInput(clean);
     setUsernameError('');
     setUsernameAvailable(null);
-    // Debounce the availability check
     clearTimeout((handleUsernameChange as any)._t);
     (handleUsernameChange as any)._t = setTimeout(() => checkUsername(clean), 500);
   };
@@ -264,6 +292,7 @@ export default function ProfilePage() {
   };
 
   // ── Loading / not-found guards ───────────────────────────────────────────
+
   if (loading) {
     return (
       <main className="page-wrapper">
@@ -289,245 +318,129 @@ export default function ProfilePage() {
   }
 
   // ── Derived values ───────────────────────────────────────────────────────
-  const isOwnProfile    = currentUserProfile?.id === profile.id;
-  const canEndorse      = !!(currentUserProfile && !isOwnProfile);
+
+  const isOwnProfile       = currentUserProfile?.id === profile.id;
+  const canEndorse         = !!(currentUserProfile && !isOwnProfile);
   const needsVersionUpdate = isOwnProfile && (profile.profile_version ?? 1) < REQUIRED_PROFILE_VERSION;
-  const displayName     = profile.display_name || profile.full_name;
-  const initial         = displayName.charAt(0).toUpperCase();
-
-  // Background & contrast
-  const bgColor  = profile.profile_bg_color || '#263590';
-  const darkBg   = isDark(bgColor);
-  const onBgText = darkBg ? '#ffffff' : '#111111';
-
-  // Top 8: first 8 endorsers (manual pinning comes in Phase 2)
-  const top8 = endorsements.slice(0, 8);
-
-  const locationParts = [profile.location_city, profile.location_state].filter(Boolean);
+  const displayName        = profile.display_name || profile.full_name;
+  const firstName          = displayName.split(' ')[0];
+  const initial            = displayName.charAt(0).toUpperCase();
+  const bgColor            = profile.profile_bg_color || '#263590';
+  const lovedByCount       = endorsements.length;
+  const lovedByPreview     = endorsements.slice(0, 3);
+  const goTosPreview       = goTos.slice(0, 6);
+  const endorsementsWithNotes = endorsements.filter(e => e.note);
+  const availStatus        = profile.availability_status || 'By Inquiry';
+  const expLevel           = profile.experience_level || 'entry';
 
   // ── Render ───────────────────────────────────────────────────────────────
-  return (
-    <main style={{ background: bgColor, minHeight: '100vh', paddingBottom: '4rem' }}>
 
-      {/* ── Header bar ── */}
-      <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="" />
-        </Link>
-        <nav className="site-nav" aria-label="Main navigation">
-          {currentUser  && <Link href="/collective" className="nav-link">The Collective</Link>}
-          {currentUser  && <Link href="/feedback"   className="nav-link">Share Feedback</Link>}
-          {!currentUser && <Link href="/login"      className="nav-link">Log In</Link>}
-        </nav>
+  return (
+    <main style={{ background: bgColor, minHeight: '100vh', paddingBottom: '24px' }}>
+
+      {/* ── Header ── */}
+      <header>
+        <div className="site-header">
+          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo-across-blue-bg.svg" alt="" />
+          </Link>
+          <nav className="site-nav" aria-label="Main navigation">
+            {currentUser  && <Link href="/collective" className="nav-link">The Collective</Link>}
+            {currentUser  && <Link href="/feedback"   className="nav-link">Share Feedback</Link>}
+            {!currentUser && <Link href="/directory"  className="nav-link">Directory</Link>}
+            {!currentUser && <Link href="/login"      className="nav-link">Log In</Link>}
+          </nav>
+        </div>
       </header>
 
+      {/* ── Profile version update banner ── */}
+      {needsVersionUpdate && (
+        <div role="alert" style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.8125rem', textAlign: 'center', padding: '6px 12px', borderBottom: '1px solid #fcd34d' }}>
+          <strong>Your profile has new fields available.</strong>{' '}
+          <Link href={`${profileHref(profile)}/edit`} style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
+            Update your profile →
+          </Link>
+        </div>
+      )}
+
       {/* ── Profile grid ── */}
-      <div style={{
-        maxWidth: '1100px',
-        margin: '0 auto',
-        padding: '1.5rem 1rem',
-        display: 'flex',
-        gap: '1.25rem',
-        alignItems: 'flex-start',
-        flexWrap: 'wrap',
-      }}>
+      <div style={{ maxWidth: '980px', margin: '0 auto', padding: '12px 10px', display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-        {/* ══════════════════════════════════════════
+        {/* ════════════════════════════════════
             LEFT SIDEBAR
-        ══════════════════════════════════════════ */}
-        <aside
-          aria-label="Profile info"
-          style={{ width: '268px', minWidth: '268px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}
-        >
+        ════════════════════════════════════ */}
+        <aside aria-label="Profile sidebar" style={{ width: '280px', minWidth: '280px', flexShrink: 0 }}>
 
-          {/* ── Profile photo card ── */}
-          <div className="content-card" style={{ padding: '1rem' }}>
+          {/* ── Photo + basic info ── */}
+          <MsBox
+            headerEl={
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                {displayName}
+                {profile.is_student && (
+                  <span className="ms-student-badge" aria-label="Student member">🎓 Student</span>
+                )}
+              </span>
+            }
+            action={isOwnProfile ? { label: 'edit profile', href: `${profileHref(profile)}/edit` } : undefined}
+          >
+            <div style={{ padding: '8px' }}>
 
-            {/* Square photo with coloured border */}
-            <div
-              style={{
-                width: '100%',
-                aspectRatio: '1 / 1',
-                border: `5px solid ${bgColor}`,
-                borderRadius: '6px',
-                overflow: 'hidden',
-                marginBottom: '0.75rem',
-                background: 'var(--aac-blue-light)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {profile.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.avatar_alt || `Photo of ${displayName}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  style={{ fontSize: '5rem', fontWeight: 700, color: 'var(--aac-blue)', lineHeight: 1 }}
-                >
-                  {initial}
-                </span>
-              )}
-            </div>
-
-            {/* ── Username / profile URL setup ── */}
-            {isOwnProfile && (
-              <div style={{ marginBottom: '0.75rem' }}>
-                {!usernameFormOpen ? (
-                  <div style={{ background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.625rem 0.75rem', fontSize: '0.8125rem' }}>
-                    {profile.username ? (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                        <span style={{ color: 'var(--color-text-muted)', wordBreak: 'break-all' }}>
-                          /profile/<strong style={{ color: 'var(--aac-blue)' }}>{profile.username}</strong>
-                        </span>
-                        <button
-                          onClick={() => { setUsernameInput(profile.username ?? ''); setUsernameFormOpen(true); setTimeout(() => usernameInputRef.current?.focus(), 0); }}
-                          className="btn btn-ghost btn-sm"
-                          style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-                        >
-                          Change
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => { setUsernameFormOpen(true); setTimeout(() => usernameInputRef.current?.focus(), 0); }}
-                        className="btn btn-primary btn-sm"
-                        style={{ width: '100%', fontSize: '0.8125rem' }}
-                      >
-                        ✏️ Set your profile URL
-                      </button>
-                    )}
-                  </div>
+              {/* Square photo */}
+              <div style={{ width: '100%', aspectRatio: '1/1', border: '2px solid #fff', outline: '1px solid var(--ms-border)', overflow: 'hidden', background: 'var(--aac-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
+                {pendingPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={pendingPreview} alt="Preview of your chosen photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : profile.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.avatar_url} alt={profile.avatar_alt || `Photo of ${displayName}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.75rem', fontSize: '0.8125rem' }}>
-                    <label htmlFor="username-input" className="form-label" style={{ fontSize: '0.8125rem', marginBottom: '0.375rem', display: 'block' }}>
-                      Choose your profile URL
-                    </label>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem', lineHeight: 1.4 }}>
-                      3–30 characters. Letters, numbers, hyphens, underscores.
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #d1d5db', borderRadius: '5px', padding: '0.375rem 0.5rem', marginBottom: '0.375rem', gap: '0.25rem' }}>
-                      <span style={{ color: 'var(--color-text-muted)', userSelect: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>/profile/</span>
-                      <input
-                        id="username-input"
-                        ref={usernameInputRef}
-                        type="text"
-                        value={usernameInput}
-                        onChange={(e) => handleUsernameChange(e.target.value)}
-                        placeholder="your-name"
-                        maxLength={30}
-                        style={{ border: 'none', outline: 'none', flex: 1, fontSize: '0.875rem', minWidth: 0 }}
-                        aria-describedby={usernameError ? 'username-error' : 'username-hint'}
-                        aria-invalid={!!usernameError || usernameAvailable === false}
-                      />
-                    </div>
-
-                    {/* Availability feedback */}
-                    {usernameInput.length >= 3 && (
-                      <p
-                        id="username-hint"
-                        aria-live="polite"
-                        style={{
-                          fontSize: '0.75rem',
-                          marginBottom: '0.375rem',
-                          color: usernameChecking
-                            ? 'var(--color-text-muted)'
-                            : usernameAvailable === true
-                            ? '#059669'
-                            : usernameAvailable === false
-                            ? 'var(--color-error)'
-                            : 'var(--color-text-muted)',
-                        }}
-                      >
-                        {usernameChecking
-                          ? 'Checking…'
-                          : usernameAvailable === true
-                          ? '✓ Available!'
-                          : usernameAvailable === false
-                          ? '✗ Already taken'
-                          : ''}
-                      </p>
-                    )}
-
-                    {usernameError && (
-                      <p id="username-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginBottom: '0.375rem' }}>
-                        {usernameError}
-                      </p>
-                    )}
-
-                    <div style={{ display: 'flex', gap: '0.375rem' }}>
-                      <button
-                        onClick={handleUsernameSave}
-                        disabled={usernameSaving || usernameAvailable === false || !usernameInput || !USERNAME_RE.test(usernameInput)}
-                        className="btn btn-primary btn-sm"
-                        style={{ fontSize: '0.8rem', flex: 1 }}
-                      >
-                        {usernameSaving ? 'Saving…' : 'Save'}
-                      </button>
-                      {profile.username && (
-                        <button onClick={() => setUsernameFormOpen(false)} className="btn btn-ghost btn-sm" style={{ fontSize: '0.8rem' }}>
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  <span aria-hidden="true" style={{ fontSize: '5rem', fontWeight: 700, color: 'var(--aac-blue)', lineHeight: 1 }}>
+                    {initial}
+                  </span>
                 )}
               </div>
-            )}
 
-            {/* Photo upload controls */}
-            {isOwnProfile && !photoFormOpen && (
-              <button
-                onClick={() => setPhotoFormOpen(true)}
-                className="btn btn-ghost btn-sm"
-                style={{ width: '100%', marginBottom: '0.75rem', fontSize: '0.8125rem' }}
-              >
-                {profile.avatar_url ? 'Change photo' : '+ Add photo'}
-              </button>
-            )}
+              {/* Photo upload controls */}
+              {isOwnProfile && !photoFormOpen && (
+                <button
+                  onClick={() => setPhotoFormOpen(true)}
+                  className="btn btn-ghost btn-sm"
+                  style={{ width: '100%', marginBottom: '6px', fontSize: '0.75rem' }}
+                >
+                  {profile.avatar_url ? 'Change photo' : '+ Add photo'}
+                </button>
+              )}
 
-            {isOwnProfile && photoFormOpen && (
-              <div style={{ marginBottom: '0.75rem' }}>
-                {!pendingPreview ? (
-                  <label style={{ display: 'block', cursor: 'pointer' }}>
-                    <span className="btn btn-ghost btn-sm" style={{ display: 'block', textAlign: 'center', fontSize: '0.8125rem' }}>
-                      Choose photo
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="sr-only"
-                      aria-label="Choose a photo to upload"
-                    />
-                  </label>
-                ) : (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={pendingPreview}
-                      alt="Preview of your chosen photo"
-                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, display: 'block', margin: '0 auto 0.625rem' }}
-                    />
-                    <div className="form-group" style={{ marginBottom: '0.625rem' }}>
-                      <label htmlFor="photo-alt" className="form-label" style={{ fontSize: '0.8125rem' }}>
+              {isOwnProfile && photoFormOpen && (
+                <div style={{ marginBottom: '8px', padding: '6px', background: 'var(--aac-blue-light)', border: '1px solid var(--ms-border)' }}>
+                  {!pendingPreview ? (
+                    <label style={{ display: 'block', cursor: 'pointer' }}>
+                      <span className="btn btn-ghost btn-sm" style={{ display: 'block', textAlign: 'center', fontSize: '0.75rem' }}>
+                        Choose photo
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="sr-only"
+                        aria-label="Choose a photo to upload"
+                      />
+                    </label>
+                  ) : (
+                    <div className="form-group" style={{ marginBottom: '6px' }}>
+                      <label htmlFor="photo-alt" className="form-label" style={{ fontSize: '0.75rem' }}>
                         Describe this photo <span aria-hidden="true" style={{ color: 'var(--color-error)' }}>*</span>
                       </label>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem', lineHeight: 1.5 }}>
-                        1–2 sentences: what you look like, your expression, where you are.
+                      <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
+                        1–2 sentences describing what you look like in the photo.
                       </p>
                       <input
                         id="photo-alt"
                         ref={photoAltRef}
                         type="text"
                         className="form-input"
-                        style={{ fontSize: '0.875rem' }}
+                        style={{ fontSize: '0.8125rem' }}
                         value={photoAlt}
                         onChange={(e) => setPhotoAlt(e.target.value)}
                         aria-required="true"
@@ -536,169 +449,408 @@ export default function ProfilePage() {
                         placeholder="e.g. smiling in a blue jacket outdoors"
                       />
                       {photoAltError && (
-                        <p id="photo-alt-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.8125rem', marginTop: '0.25rem' }}>
+                        <p id="photo-alt-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginTop: '3px' }}>
                           {photoAltError}
                         </p>
                       )}
                     </div>
-                  </>
-                )}
-                {uploadError && (
-                  <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.8125rem', marginBottom: '0.5rem' }}>
-                    {uploadError}
-                  </p>
-                )}
-                <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
-                  {pendingPreview && (
-                    <button onClick={handlePhotoSave} disabled={uploading} className="btn btn-primary btn-sm" style={{ fontSize: '0.8125rem' }}>
-                      {uploading ? <><span className="spinner" aria-hidden="true" style={{ width: 12, height: 12, borderWidth: 2 }} /> Saving…</> : 'Save'}
-                    </button>
                   )}
-                  <button onClick={cancelPhotoUpload} className="btn btn-ghost btn-sm" style={{ fontSize: '0.8125rem' }}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Name & pronouns */}
-            <h1 className="font-display" style={{ color: 'var(--aac-navy)', fontSize: '1.375rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
-              {displayName}
-            </h1>
-            {profile.pronouns && (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-                {profile.pronouns}
-              </p>
-            )}
-            {locationParts.length > 0 && (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-                <span aria-hidden="true">📍 </span>
-                {locationParts.join(', ')}
-                {profile.willing_to_travel && ' · Will travel'}
-              </p>
-            )}
-
-            {/* Stats box */}
-            <div
-              style={{
-                background: 'var(--aac-blue-light)',
-                borderRadius: '6px',
-                padding: '0.625rem 0.75rem',
-                margin: '0.75rem 0',
-                fontSize: '0.8125rem',
-                color: 'var(--color-text-muted)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.2rem',
-              }}
-            >
-              <div>
-                <strong style={{ color: 'var(--color-text)' }}>Member since</strong>{' '}
-                {new Date(profile.created_at).getFullYear()}
-              </div>
-              <div>
-                <strong style={{ color: 'var(--color-text)' }}>{endorsements.length}</strong>{' '}
-                endorsement{endorsements.length !== 1 ? 's' : ''}
-              </div>
-              {profile.years_of_experience != null && (
-                <div>
-                  <strong style={{ color: 'var(--color-text)' }}>{profile.years_of_experience}</strong>{' '}
-                  yr{profile.years_of_experience !== 1 ? 's' : ''} experience
+                  {uploadError && (
+                    <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      {uploadError}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {pendingPreview && (
+                      <button onClick={handlePhotoSave} disabled={uploading} className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem', flex: 1 }}>
+                        {uploading ? 'Saving…' : 'Save photo'}
+                      </button>
+                    )}
+                    <button onClick={cancelPhotoUpload} className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', flex: 1 }}>
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* Action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {/* Availability badge */}
+              <div style={{ textAlign: 'center', marginBottom: '5px' }}>
+                <span className={availClass(availStatus)}>
+                  <span aria-hidden="true">{availDot(availStatus)}</span>
+                  {availStatus}
+                </span>
+              </div>
+
+              <div style={{ textAlign: 'center', marginBottom: '6px' }}>
+                <span className="ms-level-badge" aria-label={`Experience level: ${levelLabel(expLevel)}`}>
+                  {levelLabel(expLevel)}
+                </span>
+              </div>
+
+              {profile.pronouns && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>{profile.pronouns}</p>
+              )}
+              {(profile.location_city || profile.location_state) && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
+                  <span aria-hidden="true">📍 </span>
+                  {[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
+                  {profile.willing_to_travel && ' · Will travel'}
+                </p>
+              )}
+              {profile.timezone && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
+                  <span aria-hidden="true">🕐 </span>{profile.timezone}
+                </p>
+              )}
+              {profile.mood && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '4px 0' }}>
+                  Mood: <em>{profile.mood}</em>
+                </p>
+              )}
+
+              <div className="ms-stats-row" style={{ marginTop: '8px' }}>
+                <div className="ms-stat">
+                  <strong>{lovedByCount}</strong>
+                  loved by
+                </div>
+                {profile.years_of_experience != null && (
+                  <div className="ms-stat">
+                    <strong>{profile.years_of_experience}</strong>
+                    yrs exp
+                  </div>
+                )}
+              </div>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
+                Member since: <strong>{profile.member_since_display || 'Summer 2026'}</strong>
+              </p>
+            </div>
+          </MsBox>
+
+          {/* ── Contacting ── */}
+          <MsBox header={`Contacting ${firstName}`}>
+            <div className="ms-action-grid">
+              {currentUser && !isOwnProfile ? (
+                <button
+                  disabled
+                  className="ms-action-link"
+                  aria-label={`Send ${firstName} a message (coming soon)`}
+                  aria-disabled="true"
+                  style={{ opacity: 0.55, cursor: 'not-allowed', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                >
+                  <span className="ms-action-link-icon" aria-hidden="true">✉️</span>
+                  Send Message
+                </button>
+              ) : !currentUser ? (
+                <Link href="/login" className="ms-action-link" aria-label={`Log in to message ${firstName}`}>
+                  <span className="ms-action-link-icon" aria-hidden="true">✉️</span>
+                  Send Message
+                </Link>
+              ) : null}
+
               {canEndorse && (
                 <button
                   onClick={handleEndorse}
                   disabled={endorsing}
-                  className={`btn btn-sm ${hasEndorsed ? 'btn-ghost' : 'btn-primary'}`}
-                  style={{ width: '100%' }}
+                  className="ms-action-link"
+                  aria-label={hasEndorsed ? `Remove ${firstName} from your Favorites` : `Add ${firstName} to your Favorites`}
                   aria-pressed={hasEndorsed}
-                  aria-label={hasEndorsed ? `Remove endorsement for ${displayName}` : `Endorse ${displayName}`}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
                 >
-                  {endorsing
-                    ? <><span className="spinner" aria-hidden="true" style={{ width: 14, height: 14, borderWidth: 2 }} /> Updating…</>
-                    : hasEndorsed ? '✓ Endorsed' : '⭐ Endorse'
-                  }
+                  <span className="ms-action-link-icon" aria-hidden="true">{hasEndorsed ? '★' : '☆'}</span>
+                  {endorsing ? 'Updating…' : hasEndorsed ? 'Remove Favorite' : 'Add to Favorites'}
                 </button>
               )}
-              {currentUser && !isOwnProfile && (
-                <button
-                  disabled
-                  className="btn btn-ghost btn-sm"
-                  style={{ width: '100%', opacity: 0.55 }}
-                  aria-disabled="true"
-                >
-                  💬 Message <span style={{ fontSize: '0.75rem' }}>(coming soon)</span>
-                </button>
-              )}
-            </div>
-          </div>
 
-          {/* ── Contact card (members only) ── */}
-          {currentUser && (profile.email || profile.website || profile.linkedin_url || profile.instagram_url) && (
-            <div className="content-card" style={{ padding: '1rem' }}>
-              <h2
-                className="font-display"
-                style={{
-                  color: S.contact,
-                  fontSize: '1rem',
-                  marginBottom: '0.625rem',
-                  paddingBottom: '0.375rem',
-                  borderBottom: `2px solid ${S.contact}`,
-                }}
-              >
-                Contact
-              </h2>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.875rem' }}>
-                {profile.email_public !== false && (
-                  <li>
-                    <a href={`mailto:${profile.email}`} style={{ color: 'var(--aac-blue)', textDecoration: 'underline', wordBreak: 'break-all' }}>
-                      ✉️ {profile.email}
-                    </a>
-                  </li>
-                )}
-                {profile.phone && (
-                  <li>
-                    <a href={`tel:${profile.phone}`} style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-                      📞 {profile.phone}
-                    </a>
-                  </li>
-                )}
-                {profile.website && (
-                  <li>
-                    <a href={profile.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-                      🌐 Website
-                    </a>
-                  </li>
-                )}
-                {profile.linkedin_url && (
-                  <li>
-                    <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-                      💼 LinkedIn
-                    </a>
-                  </li>
-                )}
-                {profile.instagram_url && (
-                  <li>
-                    <a href={profile.instagram_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-                      📸 Instagram
-                    </a>
-                  </li>
-                )}
-              </ul>
+              {profile.work_samples_url && (
+                <a
+                  href={profile.work_samples_url.startsWith('http') ? profile.work_samples_url : `https://${profile.work_samples_url}`}
+                  className="ms-action-link"
+                  aria-label={`View ${firstName}'s work samples`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="ms-action-link-icon" aria-hidden="true">🎥</span>
+                  Work Samples
+                </a>
+              )}
             </div>
+            <div style={{ padding: '4px 8px 6px', borderTop: '1px solid var(--ms-border)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+              {profile.preferred_contact && (
+                <>Preferred contact: <strong style={{ color: 'var(--aac-blue)' }}>{profile.preferred_contact}</strong></>
+              )}
+              {profile.communication_style && profile.communication_style.length > 0 && (
+                <span> · {profile.communication_style[0]}</span>
+              )}
+            </div>
+          </MsBox>
+
+          {/* ── People Who Love To Work With Me ── */}
+          {lovedByCount > 0 && (
+            <MsBox
+              header="People Who Love To Work With Me"
+              action={{ label: `see all ${lovedByCount}`, href: '#', srLabel: ` people who love to work with ${firstName}` }}
+            >
+              <div style={{ padding: '6px 8px' }}>
+                <p className="sr-only">
+                  {lovedByPreview.map(e => e.endorser.display_name || e.endorser.full_name).join(', ')}
+                  {lovedByCount > 3 && ` and ${lovedByCount - 3} others`} have added {firstName} as a Favorite.
+                </p>
+                <div aria-hidden="true" style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
+                  {lovedByPreview.map((e) => {
+                    const eName  = e.endorser.display_name || e.endorser.full_name;
+                    const eInit  = eName.charAt(0).toUpperCase();
+                    return (
+                      <Link
+                        key={e.id}
+                        href={profileHref(e.endorser)}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        style={{ display: 'block', textDecoration: 'none', flex: '1' }}
+                      >
+                        <div style={{ width: '100%', aspectRatio: '1/1', background: 'var(--aac-blue-light)', border: '1px solid var(--ms-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700, color: 'var(--aac-blue)', overflow: 'hidden' }}>
+                          {e.endorser.avatar_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={e.endorser.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : eInit}
+                        </div>
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--aac-blue)', display: 'block', textAlign: 'center', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {eName.split(' ')[0]}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+                {/* Accessible nav list */}
+                <nav aria-label={`People who love to work with ${firstName}`} style={{ marginBottom: '4px' }}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '2px 8px' }}>
+                    {lovedByPreview.map((e) => {
+                      const eName = e.endorser.display_name || e.endorser.full_name;
+                      return (
+                        <li key={e.id}>
+                          <Link href={profileHref(e.endorser)} style={{ fontSize: '0.75rem' }}>⭐ {eName}</Link>
+                        </li>
+                      );
+                    })}
+                    {lovedByCount > 3 && (
+                      <li><span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>+ {lovedByCount - 3} more</span></li>
+                    )}
+                  </ul>
+                </nav>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Profile URL ── */}
+          {isOwnProfile && (
+            <MsBox header="Profile URL:">
+              <div className="ms-box-body">
+                {!usernameFormOpen ? (
+                  <>
+                    {profile.username ? (
+                      <p className="ms-profile-url">/profile/<strong>{profile.username}</strong></p>
+                    ) : (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 4px' }}>
+                        You don&apos;t have a custom URL yet.
+                      </p>
+                    )}
+                    <p style={{ marginTop: '4px', fontSize: '0.75rem' }}>
+                      <button
+                        onClick={() => { setUsernameInput(profile.username ?? ''); setUsernameFormOpen(true); setTimeout(() => usernameInputRef.current?.focus(), 0); }}
+                        className="ms-edit-link"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', padding: 0 }}
+                      >
+                        [ {profile.username ? 'change URL' : 'set your URL'} ]
+                      </button>
+                    </p>
+                  </>
+                ) : (
+                  <div>
+                    <label htmlFor="username-input" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '3px' }}>
+                      Choose your profile URL
+                    </label>
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
+                      3–30 chars. Letters, numbers, hyphens, underscores.
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #d1d5db', padding: '3px 6px', marginBottom: '3px', gap: '2px' }}>
+                      <span style={{ color: 'var(--color-text-muted)', userSelect: 'none', fontSize: '0.6875rem', whiteSpace: 'nowrap' }}>/profile/</span>
+                      <input
+                        id="username-input"
+                        ref={usernameInputRef}
+                        type="text"
+                        value={usernameInput}
+                        onChange={(e) => handleUsernameChange(e.target.value)}
+                        placeholder="your-name"
+                        maxLength={30}
+                        style={{ border: 'none', outline: 'none', flex: 1, fontSize: '0.8125rem', minWidth: 0 }}
+                        aria-describedby={usernameError ? 'username-error' : 'username-hint'}
+                        aria-invalid={!!usernameError || usernameAvailable === false}
+                      />
+                    </div>
+                    {usernameInput.length >= 3 && (
+                      <p
+                        id="username-hint"
+                        aria-live="polite"
+                        style={{ fontSize: '0.6875rem', marginBottom: '3px', color: usernameChecking ? 'var(--color-text-muted)' : usernameAvailable === true ? '#059669' : usernameAvailable === false ? 'var(--color-error)' : 'var(--color-text-muted)' }}
+                      >
+                        {usernameChecking ? 'Checking…' : usernameAvailable === true ? '✓ Available!' : usernameAvailable === false ? '✗ Already taken' : ''}
+                      </p>
+                    )}
+                    {usernameError && (
+                      <p id="username-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.6875rem', marginBottom: '3px' }}>
+                        {usernameError}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        onClick={handleUsernameSave}
+                        disabled={usernameSaving || usernameAvailable === false || !usernameInput || !USERNAME_RE.test(usernameInput)}
+                        className="btn btn-primary btn-sm"
+                        style={{ fontSize: '0.75rem', flex: 1 }}
+                      >
+                        {usernameSaving ? 'Saving…' : 'Save'}
+                      </button>
+                      {profile.username && (
+                        <button onClick={() => setUsernameFormOpen(false)} className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }}>
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Interests table ── */}
+          {(
+            (profile.activities && profile.activities.length > 0) ||
+            (profile.fav_books && profile.fav_books.length > 0) ||
+            (profile.fav_movies && profile.fav_movies.length > 0) ||
+            (profile.fav_music && profile.fav_music.length > 0) ||
+            (profile.fav_tv && profile.fav_tv.length > 0) ||
+            (profile.languages && profile.languages.length > 0)
+          ) && (
+            <MsBox
+              header={`${firstName}'s Interests`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '4px' }}>
+                <table className="ms-table">
+                  <caption className="sr-only">{displayName}&apos;s interests</caption>
+                  <tbody>
+                    {profile.activities && profile.activities.length > 0 && (
+                      <tr><td>Activities</td><td>{profile.activities.join(', ')}</td></tr>
+                    )}
+                    {profile.fav_books && profile.fav_books.length > 0 && (
+                      <tr><td>Books</td><td>{profile.fav_books.join(', ')}</td></tr>
+                    )}
+                    {profile.fav_movies && profile.fav_movies.length > 0 && (
+                      <tr><td>Movies</td><td>{profile.fav_movies.join(', ')}</td></tr>
+                    )}
+                    {profile.fav_music && profile.fav_music.length > 0 && (
+                      <tr><td>Music</td><td>{profile.fav_music.join(', ')}</td></tr>
+                    )}
+                    {profile.fav_tv && profile.fav_tv.length > 0 && (
+                      <tr><td>TV</td><td>{profile.fav_tv.join(', ')}</td></tr>
+                    )}
+                    {profile.languages && profile.languages.length > 0 && (
+                      <tr><td>Languages</td><td>{profile.languages.join(', ')}</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Links table (members only) ── */}
+          {currentUser && (
+            profile.email || profile.website || profile.linkedin_url || profile.instagram_url ||
+            profile.twitter_url || profile.phone
+          ) && (
+            <MsBox header={`${firstName}'s Links`}>
+              <div style={{ padding: '4px' }}>
+                <table className="ms-table">
+                  <caption className="sr-only">{displayName}&apos;s contact links</caption>
+                  <tbody>
+                    {profile.email_public !== false && profile.email && (
+                      <tr>
+                        <td>Email</td>
+                        <td><a href={`mailto:${profile.email}`} style={{ wordBreak: 'break-all' }}>{profile.email}</a></td>
+                      </tr>
+                    )}
+                    {profile.phone && (
+                      <tr>
+                        <td>Phone</td>
+                        <td><a href={`tel:${profile.phone}`}>{profile.phone}</a></td>
+                      </tr>
+                    )}
+                    {profile.website && (
+                      <tr>
+                        <td>Website</td>
+                        <td>
+                          <a href={profile.website} target="_blank" rel="noopener noreferrer" aria-label={`${displayName}'s website`}>
+                            {profile.website.replace(/^https?:\/\/(www\.)?/, '')}
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                    {profile.work_samples_url && (
+                      <tr>
+                        <td>Work Reel</td>
+                        <td>
+                          <a
+                            href={profile.work_samples_url.startsWith('http') ? profile.work_samples_url : `https://${profile.work_samples_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${displayName}'s work samples`}
+                          >
+                            {profile.work_samples_url.replace(/^https?:\/\/(www\.)?/, '')}
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                    {profile.linkedin_url && (
+                      <tr>
+                        <td>LinkedIn</td>
+                        <td>
+                          <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" aria-label={`${displayName} on LinkedIn`}>
+                            LinkedIn →
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                    {profile.instagram_url && (
+                      <tr>
+                        <td>Instagram</td>
+                        <td>
+                          <a href={profile.instagram_url} target="_blank" rel="noopener noreferrer" aria-label={`${displayName} on Instagram`}>
+                            Instagram →
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                    {profile.twitter_url && (
+                      <tr>
+                        <td>X / Twitter</td>
+                        <td>
+                          <a href={profile.twitter_url} target="_blank" rel="noopener noreferrer" aria-label={`${displayName} on X / Twitter`}>
+                            X →
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </MsBox>
           )}
 
           {!currentUser && (
-            <div className="content-card" style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-              <Link href="/login" style={{ color: 'var(--aac-blue)', fontWeight: 600, textDecoration: 'underline' }}>
+            <div style={{ padding: '8px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)' }}>
+              <Link href="/login" style={{ color: '#fff', fontWeight: 600, textDecoration: 'underline' }}>
                 Log in
               </Link>{' '}
-              to see contact info and message {displayName}.
+              to see contact info and message {firstName}.
             </div>
           )}
 
@@ -706,220 +858,380 @@ export default function ProfilePage() {
           {currentUser && (
             <Link
               href="/collective"
-              style={{ color: onBgText, opacity: 0.75, fontSize: '0.9rem', textDecoration: 'underline', display: 'inline-block', paddingTop: '0.25rem' }}
+              style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8125rem', textDecoration: 'underline', display: 'inline-block', paddingTop: '4px' }}
             >
               ← The Collective
             </Link>
           )}
+
         </aside>
 
-        {/* ══════════════════════════════════════════
+        {/* ════════════════════════════════════
             RIGHT MAIN CONTENT
-        ══════════════════════════════════════════ */}
-        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-
-          {/* Profile version update banner */}
-          {needsVersionUpdate && (
-            <div className="alert alert-warning" role="alert">
-              <strong>Your profile has new fields available.</strong>{' '}
-              <Link href={`${profileHref(profile)}/edit`} style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>
-                Update your profile
-              </Link>{' '}
-              to make sure everything is current.
-            </div>
-          )}
+        ════════════════════════════════════ */}
+        <div id="main-content" style={{ flex: 1, minWidth: '300px' }}>
 
           {/* ── Highlights ── */}
           {profile.highlights && (
-            <SectionCard color={S.highlights} emoji="✨" title="Highlights">
-              <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.75, color: 'var(--color-text)' }}>
-                {profile.highlights}
-              </p>
-            </SectionCard>
+            <MsBox
+              header={`✨ ${firstName}'s Highlights`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                <p style={{ margin: 0, lineHeight: 1.6 }}>{profile.highlights}</p>
+              </div>
+            </MsBox>
           )}
 
-          {/* ── About Me ── */}
-          {profile.bio && (
-            <SectionCard color={S.about} title="About Me">
-              <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.75, color: 'var(--color-text)' }}>
-                {profile.bio}
-              </p>
-            </SectionCard>
+          {/* ── Blurbs (bio + specialties) ── */}
+          {(profile.bio || (profile.specialties && profile.specialties.length > 0)) && (
+            <MsBox
+              header={`${firstName}'s Blurbs`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                {profile.bio && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 4px' }}>About me:</p>
+                    <p style={{ color: 'var(--aac-blue)', lineHeight: 1.6, margin: '0 0 12px', whiteSpace: 'pre-wrap' }}>{profile.bio}</p>
+                  </>
+                )}
+                {profile.specialties && profile.specialties.length > 0 && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 4px' }}>What I do:</p>
+                    <p style={{ color: 'var(--aac-blue)', margin: 0 }}>{profile.specialties.join(' · ')}</p>
+                    {profile.has_captioning != null && profile.specialties.includes('Content Creator') && (
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '6px', margin: '6px 0 0' }}>
+                        {profile.has_captioning ? '✓ Content includes captions' : 'Content does not currently include captions'}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            </MsBox>
           )}
 
-          {/* ── What I Do ── */}
-          {profile.specialties && profile.specialties.length > 0 && (
-            <SectionCard color={S.whatIDo} title="What I Do">
-              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-                {profile.specialties.map((s, i) => (
-                  <li key={i}><span className="tag tag-blue">{s}</span></li>
-                ))}
-              </ul>
-              {profile.has_captioning != null && profile.specialties.includes('Content Creator') && (
-                <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-                  {profile.has_captioning ? '✓ Content includes captions' : 'Content does not currently include captions'}
+          {/* ── Work Details ── */}
+          {(profile.work_category || (profile.event_sizes && profile.event_sizes.length > 0) ||
+            profile.timezone || (profile.communication_style && profile.communication_style.length > 0) ||
+            profile.preferred_contact || profile.rate_info) && (
+            <MsBox
+              header={`${firstName}'s Work Details`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '4px' }}>
+                <table className="ms-table">
+                  <caption className="sr-only">{displayName}&apos;s professional details</caption>
+                  <tbody>
+                    {profile.work_category && (
+                      <tr><td>Role Type</td><td>{profile.work_category}</td></tr>
+                    )}
+                    {profile.event_sizes && profile.event_sizes.length > 0 && (
+                      <tr><td>Event Sizes</td><td>{profile.event_sizes.join(', ')}</td></tr>
+                    )}
+                    <tr>
+                      <td>Availability</td>
+                      <td>
+                        <span className={availClass(availStatus)}>
+                          <span aria-hidden="true">{availDot(availStatus)}</span>
+                          {availStatus}
+                        </span>
+                      </td>
+                    </tr>
+                    {profile.timezone && (
+                      <tr><td>Time Zone</td><td>{profile.timezone}</td></tr>
+                    )}
+                    {profile.communication_style && profile.communication_style.length > 0 && (
+                      <tr><td>Comms Style</td><td>{profile.communication_style.join(' · ')}</td></tr>
+                    )}
+                    {profile.preferred_contact && (
+                      <tr><td>Preferred Contact</td><td>{profile.preferred_contact}</td></tr>
+                    )}
+                    {profile.rate_info && (
+                      <tr><td>Rates</td><td>{profile.rate_info}</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Career Highlights ── */}
+          {profile.career_highlights && (
+            <MsBox
+              header={`🌟 ${firstName}'s Career Highlights`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{profile.career_highlights}</p>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Personality Corner ── */}
+          {(profile.fun_fact || profile.favorite_event) && (
+            <MsBox
+              header={`😄 ${firstName}'s Personality Corner`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                {profile.fun_fact && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Fun fact:</p>
+                    <p style={{ color: 'var(--aac-blue)', margin: '0 0 10px', lineHeight: 1.6 }}>{profile.fun_fact}</p>
+                  </>
+                )}
+                {profile.favorite_event && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Favorite event I&apos;ve ever worked:</p>
+                    <p style={{ color: 'var(--aac-blue)', margin: 0, lineHeight: 1.6 }}>{profile.favorite_event}</p>
+                  </>
+                )}
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Skills & Software ── */}
+          {((profile.software_skills && profile.software_skills.length > 0) ||
+            (profile.new_to_roles && profile.new_to_roles.length > 0)) && (
+            <MsBox
+              header={`💻 ${firstName}'s Skills & Software`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '4px' }}>
+                <table className="ms-table">
+                  <caption className="sr-only">{displayName}&apos;s skills and software</caption>
+                  <tbody>
+                    {profile.software_skills && profile.software_skills.length > 0 && (
+                      <tr><td>Software</td><td>{profile.software_skills.join(', ')}</td></tr>
+                    )}
+                    {profile.new_to_roles && profile.new_to_roles.length > 0 && (
+                      <tr><td>New to / Want to try</td><td>{profile.new_to_roles.join(', ')}</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Education ── */}
+          {profile.education && (
+            <MsBox
+              header={`🎓 ${firstName}'s Education`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{profile.education}</p>
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Go-To's ── */}
+          <MsBox
+            header={`⭐ ${firstName}'s Go-To's`}
+            action={goTos.length > 6 ? { label: `view all ${goTos.length}`, href: '#', srLabel: ` of ${firstName}'s Go-To colleagues` } : undefined}
+          >
+            <div className="ms-box-body">
+              <p style={{ fontSize: '0.75rem', margin: '0 0 8px', color: 'var(--color-text-muted)' }}>
+                Colleagues {firstName} has worked with and recommends.
+              </p>
+              {goTos.length > 0 ? (
+                <>
+                  <p className="sr-only">
+                    {firstName}&apos;s Go-To colleagues: {goTos.map(p => p.display_name || p.full_name).join(', ')}.
+                  </p>
+                  <ul aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', listStyle: 'none', padding: 0, margin: '0 0 8px' }}>
+                    {goTosPreview.map((p) => {
+                      const pName = p.display_name || p.full_name;
+                      const pInit = pName.charAt(0).toUpperCase();
+                      return (
+                        <li key={p.id} style={{ textAlign: 'center' }}>
+                          <Link href={profileHref(p)} tabIndex={-1} aria-hidden="true" style={{ display: 'block', textDecoration: 'none' }}>
+                            <div style={{ width: '100%', aspectRatio: '1/1', background: 'var(--aac-blue-light)', border: '1px solid var(--ms-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 700, color: 'var(--aac-blue)', overflow: 'hidden' }}>
+                              {p.avatar_url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : pInit}
+                            </div>
+                            <span style={{ fontSize: '0.6875rem', color: 'var(--aac-blue)', display: 'block', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {pName.split(' ')[0]}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                    {Array.from({ length: Math.max(0, 6 - goTosPreview.length) }).map((_, i) => (
+                      <li key={`e${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
+                        <div style={{ width: '100%', aspectRatio: '1/1', border: '1px dashed #c8d3f0', background: '#f0f2fc' }} />
+                        <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>—</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <nav aria-label={`${firstName}'s Go-To colleagues`}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '3px 12px' }}>
+                      {goTosPreview.map((p) => {
+                        const pName = p.display_name || p.full_name;
+                        return (
+                          <li key={p.id}>
+                            <Link href={profileHref(p)} style={{ fontSize: '0.75rem' }}>⭐ {pName}</Link>
+                          </li>
+                        );
+                      })}
+                      {goTos.length > 6 && (
+                        <li>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>+ {goTos.length - 6} more</span>
+                        </li>
+                      )}
+                    </ul>
+                  </nav>
+                </>
+              ) : (
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
+                  No Go-To&apos;s added yet.
                 </p>
               )}
-            </SectionCard>
-          )}
-
-          {/* ── Top 8 ── */}
-          <SectionCard color={S.top8} title="Top 8">
-            {top8.length > 0 ? (
-              <>
-                {/* Screen reader summary */}
-                <p className="sr-only">
-                  {displayName}&apos;s top endorsers: {top8.map(e => e.endorser.display_name || e.endorser.full_name).join(', ')}.
-                </p>
-
-                <ul
-                  aria-hidden="true"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: '0.75rem',
-                    listStyle: 'none',
-                    padding: 0,
-                    margin: 0,
-                  }}
-                >
-                  {top8.map((e) => {
-                    const eName = e.endorser.display_name || e.endorser.full_name;
-                    const eInit  = eName.charAt(0).toUpperCase();
-                    return (
-                      <li key={e.id} style={{ textAlign: 'center' }}>
-                        <Link href={profileHref(e.endorser)} tabIndex={0} aria-label={`View ${eName}'s profile`} style={{ textDecoration: 'none', display: 'block' }}>
-                          <div
-                            style={{
-                              width: '100%',
-                              aspectRatio: '1 / 1',
-                              border: '2px solid #e5e7eb',
-                              borderRadius: '4px',
-                              overflow: 'hidden',
-                              marginBottom: '0.375rem',
-                              background: 'var(--aac-blue-light)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            {e.endorser.avatar_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={e.endorser.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <span style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--aac-blue)' }}>
-                                {eInit}
-                              </span>
-                            )}
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', fontWeight: 600, display: 'block', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {eName.split(' ')[0]}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-
-                  {/* Empty placeholder slots */}
-                  {Array.from({ length: Math.max(0, 8 - top8.length) }).map((_, i) => (
-                    <li key={`empty-${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
-                      <div style={{ width: '100%', aspectRatio: '1 / 1', border: '2px dashed #d1d5db', borderRadius: '4px', background: '#f9fafb', marginBottom: '0.375rem' }} />
-                      <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>—</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {endorsements.length > 8 && (
-                  <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>
-                    <span style={{ color: S.top8, fontWeight: 600 }}>
-                      + {endorsements.length - 8} more endorsement{endorsements.length - 8 !== 1 ? 's' : ''}
-                    </span>
-                  </p>
-                )}
-              </>
-            ) : (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
-                No endorsements yet.{canEndorse && ' Be the first!'}
-              </p>
-            )}
-          </SectionCard>
+            </div>
+          </MsBox>
 
           {/* ── Videos ── */}
           {profile.video_links && profile.video_links.length > 0 && (
-            <SectionCard color={S.videos} emoji="🎬" title="Videos">
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {profile.video_links.map((url, i) => (
-                  <li key={i}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.625rem',
-                        padding: '0.625rem 0.875rem',
-                        background: '#fef3c7',
-                        borderRadius: '6px',
-                        color: S.videos,
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>▶</span>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {url.replace(/^https?:\/\/(www\.)?/, '')}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </SectionCard>
+            <MsBox
+              header={`🎬 ${firstName}'s Videos`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {profile.video_links.map((url, i) => {
+                    const embed = parseVideoUrl(url);
+                    return embed ? (
+                      <div key={i}>
+                        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', border: '1px solid var(--ms-border)' }}>
+                          <iframe
+                            src={embed.embedUrl}
+                            title={`${embed.label} — ${displayName}`}
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            loading="lazy"
+                          />
+                        </div>
+                        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '3px 0 0' }}>
+                          <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                        </p>
+                      </div>
+                    ) : (
+                      <div key={i} style={{ padding: '6px 8px', background: '#fff8d4', border: '1px solid #e0c840', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span aria-hidden="true" style={{ color: '#d97706', fontWeight: 'bold' }}>▶</span>
+                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#d97706', fontSize: '0.8125rem' }}>{url}</a>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </MsBox>
           )}
 
           {/* ── Trainings & Certifications ── */}
           {profile.certifications && profile.certifications.length > 0 && (
-            <SectionCard color={S.certs} emoji="📚" title="Trainings &amp; Certifications">
-              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-                {profile.certifications.map((c, i) => (
-                  <li key={i}><span className="tag tag-yellow">{c}</span></li>
-                ))}
-              </ul>
-            </SectionCard>
+            <MsBox header={`📚 ${firstName}'s Trainings & Certifications`}>
+              <div className="ms-box-body">
+                <ul style={{ margin: 0, padding: '0 0 0 18px', lineHeight: 1.9 }}>
+                  {profile.certifications.map((c, i) => (
+                    <li key={i} style={{ color: 'var(--aac-blue)' }}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            </MsBox>
           )}
 
-          {/* ── Activities & Interests ── */}
-          {profile.activities && profile.activities.length > 0 && (
-            <SectionCard color={S.activities} emoji="🎵" title="Activities &amp; Interests">
-              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-                {profile.activities.map((a, i) => (
-                  <li key={i}>
-                    <span
-                      className="tag"
-                      style={{ background: '#fce7f3', color: '#9d174d', border: '1px solid #f9a8d4' }}
-                    >
-                      {a}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </SectionCard>
+          {/* ── Community Interests ── */}
+          {profile.community_interests && profile.community_interests.length > 0 && (
+            <MsBox header={`🌱 ${firstName}'s Community Interests`}>
+              <div className="ms-box-body">
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 6px' }}>
+                  Features {firstName} would love to see on the Collective:
+                </p>
+                <ul style={{ margin: 0, padding: '0 0 0 18px', lineHeight: 1.9 }}>
+                  {profile.community_interests.map((c, i) => <li key={i}>{c}</li>)}
+                </ul>
+              </div>
+            </MsBox>
           )}
 
-          {/* ── Languages ── */}
-          {profile.languages && profile.languages.length > 0 && (
-            <SectionCard color={S.languages} title="Languages">
-              <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-                {profile.languages.map((l, i) => (
-                  <li key={i}><span className="tag tag-gray">{l}</span></li>
-                ))}
-              </ul>
-            </SectionCard>
+          {/* ── What People Say (endorsements with notes) ── */}
+          {endorsementsWithNotes.length > 0 && (
+            <MsBox
+              header={`💬 What People Say About ${firstName}`}
+              action={canEndorse && !hasEndorsed ? { label: 'Add a Note', onClick: handleEndorse, srLabel: ` about ${firstName}` } : undefined}
+            >
+              <div className="ms-box-body">
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 8px' }}>
+                  Displaying <strong>{endorsementsWithNotes.length}</strong> of{' '}
+                  <strong>{lovedByCount}</strong> note{lovedByCount !== 1 ? 's' : ''}
+                </p>
+                {endorsementsWithNotes.map((e) => {
+                  const eName = e.endorser.display_name || e.endorser.full_name;
+                  const eInit = eName.charAt(0).toUpperCase();
+                  return (
+                    <div key={e.id} className="ms-comment-row">
+                      <Link href={profileHref(e.endorser)} aria-label={`View ${eName}'s profile`} style={{ display: 'block', flexShrink: 0 }}>
+                        <div className="ms-comment-avatar" style={{ background: 'var(--aac-blue-light)', overflow: 'hidden' }}>
+                          {e.endorser.avatar_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={e.endorser.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <span aria-hidden="true">{eInit}</span>
+                          )}
+                        </div>
+                      </Link>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: '0 0 2px' }}>
+                          <Link href={profileHref(e.endorser)} style={{ fontWeight: 'bold', color: 'var(--aac-blue)', textDecoration: 'none' }}>
+                            ⭐ {eName}
+                          </Link>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginLeft: '8px' }}>
+                            {new Date(e.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        </p>
+                        <p style={{ margin: 0, lineHeight: 1.5 }}>{e.note}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── If no notes yet but there are endorsers, show encouragement ── */}
+          {lovedByCount > 0 && endorsementsWithNotes.length === 0 && (
+            <MsBox header={`💬 What People Say About ${firstName}`}>
+              <div className="ms-box-body">
+                <p style={{ color: 'var(--color-text-muted)', margin: 0, fontSize: '0.875rem' }}>
+                  {firstName} has {lovedByCount} Favorite{lovedByCount !== 1 ? 's' : ''} — no notes yet.{' '}
+                  {canEndorse && !hasEndorsed && 'Be the first to leave one!'}
+                </p>
+              </div>
+            </MsBox>
           )}
 
         </div>{/* end right main */}
       </div>{/* end profile grid */}
+
+      {/* ── Footer ── */}
+      <footer aria-label="Site footer" className="ms-footer" style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+        <nav aria-label="Footer links" style={{ display: 'inline' }}>
+          <Link href="/" style={{ color: 'inherit' }}>Home</Link>
+          <span className="ms-footer-pipe" aria-hidden="true">|</span>
+          <Link href="/contact" style={{ color: 'inherit' }}>Contact Us</Link>
+          <span className="ms-footer-pipe" aria-hidden="true">|</span>
+          <Link href="/collective" style={{ color: 'inherit' }}>The Collective</Link>
+        </nav>
+        <br />
+        <span style={{ marginTop: '4px', display: 'block' }}>
+          ©{new Date().getFullYear()} Artistic Accessibility Collective. All Rights Reserved.
+        </span>
+      </footer>
+
     </main>
   );
 }
