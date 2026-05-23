@@ -945,6 +945,19 @@ export default function ResourcesPage() {
   const [userFavs, setUserFavs]         = useState<Set<string>>(new Set());
   const [favPending, setFavPending]     = useState<Set<string>>(new Set());
 
+  // Submission form state
+  const [showSubmitForm, setShowSubmitForm]     = useState(false);
+  const [submitName, setSubmitName]             = useState('');
+  const [submitUrl, setSubmitUrl]               = useState('');
+  const [submitCategory, setSubmitCategory]     = useState('');
+  const [submitDescription, setSubmitDescription] = useState('');
+  const [submitTags, setSubmitTags]             = useState<string[]>([]);
+  const [submitterName, setSubmitterName]       = useState('');
+  const [submitterEmail, setSubmitterEmail]     = useState('');
+  const [submitLoading, setSubmitLoading]       = useState(false);
+  const [submitStatus, setSubmitStatus]         = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitError, setSubmitError]           = useState('');
+
   // ── Load auth + favorites on mount ────────────────────────────────────────
   useEffect(() => {
     loadFavoritesData();
@@ -1013,6 +1026,53 @@ export default function ResourcesPage() {
 
     setFavPending((prev) => { const next = new Set(prev); next.delete(slug); return next; });
   }, [userId, userFavs, favPending]);
+
+  // ── Submit a resource ────────────────────────────────────────────────────────
+  const handleResourceSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!submitName.trim() || !submitUrl.trim()) {
+      setSubmitError('Resource name and URL are required.');
+      return;
+    }
+    setSubmitLoading(true);
+    setSubmitError('');
+
+    const { error } = await supabase.from('resource_submissions').insert({
+      resource_name:     submitName.trim(),
+      resource_url:      submitUrl.trim(),
+      description:       submitDescription.trim() || null,
+      category:          submitCategory || null,
+      special_tags:      submitTags,
+      submitter_name:    submitterName.trim() || null,
+      submitter_email:   submitterEmail.trim() || null,
+      submitter_user_id: userId || null,
+    });
+
+    if (error) {
+      setSubmitError('Something went wrong. Please try again.');
+      setSubmitLoading(false);
+      return;
+    }
+
+    setSubmitStatus('success');
+    setSubmitLoading(false);
+    // Reset form
+    setSubmitName(''); setSubmitUrl(''); setSubmitCategory('');
+    setSubmitDescription(''); setSubmitTags([]);
+    setSubmitterName(''); setSubmitterEmail('');
+  }, [submitName, submitUrl, submitCategory, submitDescription, submitTags, submitterName, submitterEmail, userId]);
+
+  const toggleSubmitTag = (tag: string) => {
+    setSubmitTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const openSubmitForm = () => {
+    setShowSubmitForm(true);
+    setSubmitStatus('idle');
+    setSubmitError('');
+  };
 
   // ── Filtering + sorting ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -1101,14 +1161,24 @@ export default function ResourcesPage() {
         <div className="ms-box" style={{ marginBottom: '0' }}>
           <div className="ms-box-header">
             <span>Search & Filter</span>
-            {search && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#b8ccff', fontSize: '0.6875rem', padding: 0 }}
+                >
+                  [clear]
+                </button>
+              )}
               <button
-                onClick={() => setSearch('')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#b8ccff', fontSize: '0.6875rem', padding: 0 }}
+                onClick={() => { setShowSubmitForm((v) => !v); setSubmitStatus('idle'); }}
+                aria-expanded={showSubmitForm}
+                aria-controls="suggest-form"
+                style={{ background: 'none', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '4px', cursor: 'pointer', color: '#fff', fontSize: '0.6875rem', padding: '2px 8px', fontWeight: 600, whiteSpace: 'nowrap' }}
               >
-                [clear]
+                {showSubmitForm ? '✕ Close' : '✚ Suggest a Resource'}
               </button>
-            )}
+            </div>
           </div>
           <div style={{ padding: '8px 10px' }}>
             <label htmlFor="resource-search" className="sr-only">Search resources</label>
@@ -1178,6 +1248,182 @@ export default function ResourcesPage() {
                 ♥ Popular
               </button>
             </div>
+
+            {/* ── Suggest a Resource form ─────────────────────────────── */}
+            {showSubmitForm && (
+              <div
+                id="suggest-form"
+                style={{ marginTop: '12px', borderTop: '1px solid var(--ms-border)', paddingTop: '12px' }}
+              >
+                <p style={{ fontWeight: 'bold', fontSize: '0.8125rem', color: 'var(--aac-blue-dark)', marginBottom: '2px' }}>
+                  ✚ Suggest a Resource
+                </p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '10px' }}>
+                  Know a free resource that belongs here? Share it — every suggestion is reviewed before being added.
+                </p>
+
+                {submitStatus === 'success' ? (
+                  <div role="status" style={{ background: '#d4f0e0', border: '1px solid #7dd6a4', borderRadius: '4px', padding: '10px 12px', fontSize: '0.8125rem', color: '#1a5e38' }}>
+                    <strong>Thank you!</strong> Your suggestion has been received. We&apos;ll review it and add it if it&apos;s a good fit.{' '}
+                    <button
+                      onClick={() => { setSubmitStatus('idle'); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1a5e38', textDecoration: 'underline', font: 'inherit', padding: 0 }}
+                    >
+                      Suggest another
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleResourceSubmit} noValidate aria-label="Suggest a resource form">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+
+                      {/* Resource name */}
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label htmlFor="sub-name" className="form-label form-label-required" style={{ fontSize: '0.75rem' }}>
+                          Resource Name
+                        </label>
+                        <input
+                          id="sub-name"
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '0.8125rem' }}
+                          placeholder="e.g. DCMP Captioning Key"
+                          value={submitName}
+                          onChange={(e) => setSubmitName(e.target.value)}
+                          required
+                          aria-required="true"
+                        />
+                      </div>
+
+                      {/* URL */}
+                      <div className="form-group">
+                        <label htmlFor="sub-url" className="form-label form-label-required" style={{ fontSize: '0.75rem' }}>
+                          URL
+                        </label>
+                        <input
+                          id="sub-url"
+                          type="url"
+                          className="form-input"
+                          style={{ fontSize: '0.8125rem' }}
+                          placeholder="https://…"
+                          value={submitUrl}
+                          onChange={(e) => setSubmitUrl(e.target.value)}
+                          required
+                          aria-required="true"
+                        />
+                      </div>
+
+                      {/* Category */}
+                      <div className="form-group">
+                        <label htmlFor="sub-category" className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Best Category
+                        </label>
+                        <select
+                          id="sub-category"
+                          className="form-input"
+                          style={{ fontSize: '0.8125rem' }}
+                          value={submitCategory}
+                          onChange={(e) => setSubmitCategory(e.target.value)}
+                        >
+                          <option value="">— pick one —</option>
+                          {CATEGORIES.map((c) => (
+                            <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>
+                          ))}
+                          <option value="other">Other / Not sure</option>
+                        </select>
+                      </div>
+
+                      {/* Description */}
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label htmlFor="sub-desc" className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Why is it valuable? <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(the more detail, the better)</span>
+                        </label>
+                        <textarea
+                          id="sub-desc"
+                          className="form-input form-textarea"
+                          rows={3}
+                          style={{ fontSize: '0.8125rem' }}
+                          placeholder="What does it cover? Who is it for? What makes it worth adding?"
+                          value={submitDescription}
+                          onChange={(e) => setSubmitDescription(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Special tags */}
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+                          <legend className="form-label" style={{ fontSize: '0.75rem', marginBottom: '6px' }}>
+                            Special tags <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(check all that apply)</span>
+                          </legend>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {['Disabled Voice', 'Deaf-Centered', 'Open Access'].map((tag) => (
+                              <label key={tag} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', cursor: 'pointer' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={submitTags.includes(tag)}
+                                  onChange={() => toggleSubmitTag(tag)}
+                                  style={{ accentColor: 'var(--aac-blue)' }}
+                                />
+                                <TagBadge tag={tag} />
+                              </label>
+                            ))}
+                          </div>
+                        </fieldset>
+                      </div>
+
+                      {/* Divider */}
+                      <div style={{ gridColumn: '1 / -1', borderTop: '1px dashed var(--ms-border)', margin: '2px 0' }} />
+
+                      {/* Submitter info — optional */}
+                      <div className="form-group">
+                        <label htmlFor="sub-person-name" className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Your Name <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(optional)</span>
+                        </label>
+                        <input
+                          id="sub-person-name"
+                          type="text"
+                          className="form-input"
+                          style={{ fontSize: '0.8125rem' }}
+                          placeholder="So we can credit you!"
+                          value={submitterName}
+                          onChange={(e) => setSubmitterName(e.target.value)}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="sub-person-email" className="form-label" style={{ fontSize: '0.75rem' }}>
+                          Your Email <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(optional)</span>
+                        </label>
+                        <input
+                          id="sub-person-email"
+                          type="email"
+                          className="form-input"
+                          style={{ fontSize: '0.8125rem' }}
+                          placeholder="In case we have questions"
+                          value={submitterEmail}
+                          onChange={(e) => setSubmitterEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {submitError && (
+                      <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.8125rem', marginTop: '6px' }}>
+                        {submitError}
+                      </p>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                      <button type="submit" className="btn btn-primary btn-sm" disabled={submitLoading}>
+                        {submitLoading
+                          ? <><span className="spinner" aria-hidden="true" style={{ width: 14, height: 14, borderWidth: 2 }} /> Submitting…</>
+                          : 'Submit Suggestion'}
+                      </button>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSubmitForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

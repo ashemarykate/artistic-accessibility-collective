@@ -5,7 +5,21 @@ import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions';
+
+type ResourceSubmission = {
+  id: string;
+  resource_name: string;
+  resource_url: string;
+  description: string | null;
+  category: string | null;
+  special_tags: string[];
+  submitter_name: string | null;
+  submitter_email: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  admin_notes: string | null;
+  created_at: string;
+};
 type FeedbackWithProfile = TesterFeedback & { profile: Pick<Profile, 'full_name' | 'email' | 'profile_type'> | null };
 
 export default function AdminDashboard() {
@@ -24,6 +38,7 @@ export default function AdminDashboard() {
   const [accessError, setAccessError] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackWithProfile[]>([]);
+  const [resourceSubmissions, setResourceSubmissions] = useState<ResourceSubmission[]>([]);
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [assignName, setAssignName] = useState('');
   const [assignEmail, setAssignEmail] = useState('');
@@ -61,18 +76,20 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [pending, approved, rejected, codes, feedback] = await Promise.all([
+      const [pending, approved, rejected, codes, feedback, submissions] = await Promise.all([
         supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'approved').order('approved_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'rejected').order('updated_at', { ascending: false }),
         supabase.from('invite_codes').select('*').order('created_at', { ascending: false }),
         supabase.from('tester_feedback').select('*, profile:profiles(full_name, email, profile_type)').order('created_at', { ascending: false }),
+        supabase.from('resource_submissions').select('*').order('created_at', { ascending: false }),
       ]);
       setPendingProfiles(pending.data || []);
       setApprovedProfiles(approved.data || []);
       setRejectedProfiles(rejected.data || []);
       setInviteCodes(codes.data || []);
       setFeedbackEntries((feedback.data || []) as FeedbackWithProfile[]);
+      setResourceSubmissions((submissions.data || []) as ResourceSubmission[]);
     } catch (err) {
       console.error('Admin fetch error:', err);
     } finally {
@@ -196,6 +213,7 @@ export default function AdminDashboard() {
     { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
     { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
     { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
+    { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
     { id: 'resource-contacts', label: 'Resource Contacts' },
   ];
 
@@ -467,6 +485,22 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'resource-submissions' && (
+          <div id="panel-resource-submissions" role="tabpanel" aria-labelledby="tab-resource-submissions">
+            <ResourceSubmissionsPanel
+              submissions={resourceSubmissions}
+              onStatusChange={async (id, status, notes) => {
+                await supabase.from('resource_submissions').update({
+                  status,
+                  admin_notes: notes || null,
+                  reviewed_at: new Date().toISOString(),
+                }).eq('id', id);
+                fetchAll();
+              }}
+            />
+          </div>
+        )}
+
         {activeTab === 'resource-contacts' && (
           <div id="panel-resource-contacts" role="tabpanel" aria-labelledby="tab-resource-contacts">
             <ResourceContactsPanel />
@@ -528,6 +562,163 @@ export default function AdminDashboard() {
         )}
       </div>
     </main>
+  );
+}
+
+// ── Resource Submissions sub-component ───────────────────────────────────────
+
+const CATEGORY_LABELS: Record<string, string> = {
+  'audio-description': '🎙️ Audio Description',
+  'captioning':        '💬 Captioning & CART',
+  'theater':           '🎭 Theater & Live Performance',
+  'film':              '🎬 Film & Video Production',
+  'live-events':       '🎪 Live Events & Festivals',
+  'digital':           '💻 Digital & Web Accessibility',
+  'disability-justice':'✊ Disability Justice',
+  'deaf-culture':      '👐 Deaf Culture & ASL',
+  'representation':    '📽️ Disability Representation in Media',
+  'legal':             '⚖️ Legal & Policy',
+  'other':             'Other / Not sure',
+};
+
+function ResourceSubmissionsPanel({
+  submissions,
+  onStatusChange,
+}: {
+  submissions: ResourceSubmission[];
+  onStatusChange: (id: string, status: 'approved' | 'rejected', notes?: string) => void;
+}) {
+  const [notesById, setNotesById] = useState<Record<string, string>>({});
+
+  const pending  = submissions.filter((s) => s.status === 'pending');
+  const approved = submissions.filter((s) => s.status === 'approved');
+  const rejected = submissions.filter((s) => s.status === 'rejected');
+
+  const renderGroup = (items: ResourceSubmission[], label: string) => {
+    if (items.length === 0) return null;
+    return (
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '0.75rem' }}>
+          {label} <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>({items.length})</span>
+        </h2>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {items.map((s) => (
+            <li key={s.id} className="content-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
+                    {s.resource_name}
+                  </p>
+                  <a
+                    href={s.resource_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--aac-blue)', fontSize: '0.8125rem', wordBreak: 'break-all' }}
+                  >
+                    {s.resource_url}
+                  </a>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.375rem' }}>
+                    {s.category && (
+                      <span className="tag tag-blue" style={{ fontSize: '0.75rem' }}>
+                        {CATEGORY_LABELS[s.category] ?? s.category}
+                      </span>
+                    )}
+                    {(s.special_tags ?? []).map((t) => (
+                      <span key={t} className="tag tag-yellow" style={{ fontSize: '0.75rem' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                  {new Date(s.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+
+              {s.description && (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text)', marginBottom: '0.5rem', lineHeight: 1.5 }}>
+                  {s.description}
+                </p>
+              )}
+
+              {(s.submitter_name || s.submitter_email) && (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  Submitted by {s.submitter_name && <strong>{s.submitter_name}</strong>}
+                  {s.submitter_name && s.submitter_email && ' · '}
+                  {s.submitter_email && (
+                    <a href={`mailto:${s.submitter_email}`} style={{ color: 'var(--aac-blue)' }}>{s.submitter_email}</a>
+                  )}
+                </p>
+              )}
+
+              {s.admin_notes && (
+                <div className="alert alert-info" style={{ fontSize: '0.8125rem', marginBottom: '0.5rem' }}>
+                  <strong>Notes:</strong> {s.admin_notes}
+                </div>
+              )}
+
+              {s.status === 'pending' && (
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--color-border)' }}>
+                  <div className="form-group" style={{ flex: '1 1 240px', marginBottom: 0 }}>
+                    <label htmlFor={`notes-${s.id}`} className="form-label" style={{ fontSize: '0.75rem' }}>
+                      Admin notes <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>(optional)</span>
+                    </label>
+                    <input
+                      id={`notes-${s.id}`}
+                      type="text"
+                      className="form-input"
+                      style={{ fontSize: '0.8125rem' }}
+                      placeholder="Reason for decision, follow-up needed, etc."
+                      value={notesById[s.id] ?? ''}
+                      onChange={(e) => setNotesById((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                    />
+                  </div>
+                  <button
+                    onClick={() => onStatusChange(s.id, 'approved', notesById[s.id])}
+                    className="btn btn-primary btn-sm"
+                    aria-label={`Approve suggestion: ${s.resource_name}`}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    onClick={() => onStatusChange(s.id, 'rejected', notesById[s.id])}
+                    className="btn btn-danger btn-sm"
+                    aria-label={`Reject suggestion: ${s.resource_name}`}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+
+              {s.status === 'approved' && (
+                <p style={{ fontSize: '0.75rem', color: '#1a5e38', fontWeight: 600, marginTop: '0.375rem' }}>
+                  ✓ Approved — remember to add this to the resources page code!
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  if (submissions.length === 0) {
+    return (
+      <div className="content-card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+        No resource suggestions yet. They&apos;ll appear here when members or visitors submit them.
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
+          Community-submitted resource suggestions. <strong>Approved suggestions still need to be manually added to the resources page code</strong> — the approval just records your decision and lets you track what&apos;s been vetted.
+        </p>
+      </div>
+      {renderGroup(pending, '⏳ Pending Review')}
+      {renderGroup(approved, '✓ Approved')}
+      {renderGroup(rejected, '✗ Rejected')}
+    </div>
   );
 }
 
