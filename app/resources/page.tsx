@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -9,10 +10,10 @@ type ResourceType = 'standard' | 'tool' | 'guide' | 'org' | 'media' | 'course';
 
 type Resource = {
   name: string;
-  url: string;
+  url: string;          // also used as the stable resource_slug in the DB
   description: string;
   type: ResourceType;
-  tags?: string[]; // e.g. ['FREE', 'Open Access', 'Deaf-Centered']
+  tags?: string[];      // e.g. ['FREE', 'Open Access', 'Deaf-Centered']
 };
 
 type Category = {
@@ -103,7 +104,7 @@ const CATEGORIES: Category[] = [
       },
       {
         name: 'DCMP Professional Development Courses',
-        url: 'https://dcmp.org',
+        url: 'https://dcmp.org/learn',
         description: 'Free courses on accessible media in the classroom, educational interpreting, captioning and video description. No admission requirements.',
         type: 'course',
         tags: ['FREE'],
@@ -359,7 +360,7 @@ const CATEGORIES: Category[] = [
       {
         name: 'Accessible Filmmaking Guide',
         url: 'https://accessiblefilmmaking.wordpress.com',
-        description: 'Academic and practical guide by Dr. Pablo Romero-Fresco (University of Vigo) and Dr. Louise Fryer (UCL). Covers accessible and inclusive filmmaking practices and processes.',
+        description: 'Academic and practical guide by Dr. Pablo Romero-Fresco and Dr. Louise Fryer. Covers accessible and inclusive filmmaking practices and processes.',
         type: 'guide',
         tags: ['FREE', 'Open Access'],
       },
@@ -641,7 +642,7 @@ const CATEGORIES: Category[] = [
       },
       {
         name: 'Sins Invalid',
-        url: 'https://sinsinvalid.org',
+        url: 'https://sinsinvalid.org/about',
         description: 'Home organization for Disability Justice as a framework. Free resources, videos, articles, performance videos from annual showcases, and the Skin Tooth and Bone PDF.',
         type: 'org',
         tags: ['FREE', 'Disabled Voice'],
@@ -762,7 +763,7 @@ const CATEGORIES: Category[] = [
       },
       {
         name: 'Disability Visibility Project — Essays & Media',
-        url: 'https://disabilityvisibilityproject.com',
+        url: 'https://disabilityvisibilityproject.com/essays',
         description: 'Curated by Alice Wong. Disability media criticism and cultural commentary — an excellent source of first-person responses to disability representation.',
         type: 'org',
         tags: ['FREE', 'Disabled Voice'],
@@ -776,7 +777,7 @@ const CATEGORIES: Category[] = [
       },
       {
         name: 'Sins Invalid Performance Videos',
-        url: 'https://sinsinvalid.org',
+        url: 'https://sinsinvalid.org/performances',
         description: 'Free video archives of annual performance showcases presenting disability justice as art, performance, and political practice. Among the most important documentation of disability-led artistic work.',
         type: 'media',
         tags: ['FREE', 'Disabled Voice'],
@@ -873,12 +874,147 @@ function TagBadge({ tag }: { tag: string }) {
   return <span style={{ ...style, background: '#fff8c0', borderColor: '#e0c840', color: '#6b5200' }}>{tag}</span>;
 }
 
+// ── Heart / favorite button ───────────────────────────────────────────────────
+
+function FavoriteButton({
+  slug,
+  count,
+  isFaved,
+  isLoggedIn,
+  onToggle,
+}: {
+  slug: string;
+  count: number;
+  isFaved: boolean;
+  isLoggedIn: boolean;
+  onToggle: (slug: string) => void;
+}) {
+  if (!isLoggedIn) {
+    return (
+      <span
+        title="Log in to save favorites"
+        aria-label={count > 0 ? `${count} member${count !== 1 ? 's' : ''} saved this resource. Log in to save it too.` : 'Log in to save this resource'}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'rgba(0,0,0,0.2)', fontSize: '0.75rem', cursor: 'default', userSelect: 'none', flexShrink: 0 }}
+      >
+        <span aria-hidden="true">♡</span>
+        {count > 0 && <span style={{ fontSize: '0.6875rem' }}>{count}</span>}
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => onToggle(slug)}
+      aria-label={isFaved ? `Remove from favorites (${count} saved)` : `Save to favorites${count > 0 ? ` (${count} saved)` : ''}`}
+      aria-pressed={isFaved}
+      title={isFaved ? 'Remove from favorites' : 'Save to favorites'}
+      style={{
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '3px',
+        color: isFaved ? '#be123c' : 'rgba(0,0,0,0.3)',
+        fontSize: '0.75rem',
+        padding: '2px 4px',
+        borderRadius: '4px',
+        lineHeight: 1,
+        flexShrink: 0,
+        transition: 'color 0.15s',
+      }}
+      onMouseEnter={(e) => { if (!isFaved) (e.currentTarget as HTMLElement).style.color = '#be123c'; }}
+      onMouseLeave={(e) => { if (!isFaved) (e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.3)'; }}
+    >
+      <span aria-hidden="true" style={{ fontSize: '0.9rem' }}>{isFaved ? '♥' : '♡'}</span>
+      {count > 0 && <span style={{ fontSize: '0.6875rem', fontWeight: 600 }}>{count}</span>}
+    </button>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResourcesPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch]               = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [sortPopular, setSortPopular]     = useState(false);
 
+  // Favorites state
+  const [userId, setUserId]             = useState<string | null>(null);
+  const [favCounts, setFavCounts]       = useState<Record<string, number>>({});
+  const [userFavs, setUserFavs]         = useState<Set<string>>(new Set());
+  const [favPending, setFavPending]     = useState<Set<string>>(new Set());
+
+  // ── Load auth + favorites on mount ────────────────────────────────────────
+  useEffect(() => {
+    loadFavoritesData();
+  }, []);
+
+  const loadFavoritesData = useCallback(async () => {
+    // Fetch all counts in one query
+    const { data: counts } = await supabase
+      .from('resource_favorites')
+      .select('resource_slug');
+
+    if (counts) {
+      const tally: Record<string, number> = {};
+      for (const row of counts) {
+        tally[row.resource_slug] = (tally[row.resource_slug] ?? 0) + 1;
+      }
+      setFavCounts(tally);
+    }
+
+    // Check if logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setUserId(user.id);
+
+    // Fetch this user's favorites
+    const { data: mine } = await supabase
+      .from('resource_favorites')
+      .select('resource_slug')
+      .eq('user_id', user.id);
+
+    if (mine) {
+      setUserFavs(new Set(mine.map((r) => r.resource_slug)));
+    }
+  }, []);
+
+  // ── Toggle favorite ────────────────────────────────────────────────────────
+  const toggleFavorite = useCallback(async (slug: string) => {
+    if (!userId || favPending.has(slug)) return;
+
+    setFavPending((prev) => new Set(prev).add(slug));
+    const isFaved = userFavs.has(slug);
+
+    // Optimistic update
+    setUserFavs((prev) => {
+      const next = new Set(prev);
+      if (isFaved) next.delete(slug); else next.add(slug);
+      return next;
+    });
+    setFavCounts((prev) => ({
+      ...prev,
+      [slug]: Math.max(0, (prev[slug] ?? 0) + (isFaved ? -1 : 1)),
+    }));
+
+    // Persist
+    if (isFaved) {
+      await supabase
+        .from('resource_favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('resource_slug', slug);
+    } else {
+      await supabase
+        .from('resource_favorites')
+        .insert({ user_id: userId, resource_slug: slug });
+    }
+
+    setFavPending((prev) => { const next = new Set(prev); next.delete(slug); return next; });
+  }, [userId, userFavs, favPending]);
+
+  // ── Filtering + sorting ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return ALL_RESOURCES.filter((r) => {
@@ -902,7 +1038,18 @@ export default function ResourcesPage() {
     return CATEGORIES;
   }, [search, activeCategory, filtered]);
 
+  // Sort a resource list by popularity when that toggle is on
+  const sortResources = useCallback((resources: Resource[]) => {
+    if (!sortPopular) return resources;
+    return [...resources].sort((a, b) => {
+      const ca = favCounts[a.url] ?? 0;
+      const cb = favCounts[b.url] ?? 0;
+      return cb - ca;
+    });
+  }, [sortPopular, favCounts]);
+
   const totalCount = ALL_RESOURCES.length;
+  const isLoggedIn = userId !== null;
 
   return (
     <main style={{ background: 'var(--aac-blue)', minHeight: '100vh', paddingBottom: '24px' }}>
@@ -940,6 +1087,13 @@ export default function ResourcesPage() {
           <TagBadge tag="FREE" />
           <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.6875rem', marginLeft: '4px' }}>All resources are free unless otherwise noted.</span>
         </div>
+
+        {/* Favorites note for logged-out visitors */}
+        {!isLoggedIn && (
+          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.75rem', marginBottom: '4px' }}>
+            <a href="/login" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline' }}>Log in</a> to save favorites and see what your colleagues recommend most. ♡
+          </p>
+        )}
       </div>
 
       {/* Search + category nav */}
@@ -967,39 +1121,62 @@ export default function ResourcesPage() {
               onChange={(e) => setSearch(e.target.value)}
               style={{ marginBottom: '8px' }}
             />
-            {/* Category filter buttons */}
-            <div role="group" aria-label="Filter by category" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              <button
-                onClick={() => setActiveCategory('all')}
-                className="btn btn-sm"
-                style={{
-                  background: activeCategory === 'all' ? 'var(--aac-blue)' : 'var(--aac-white)',
-                  color: activeCategory === 'all' ? 'var(--aac-white)' : 'var(--aac-blue)',
-                  border: '1px solid var(--ms-border)',
-                  minHeight: '32px',
-                  fontSize: '0.6875rem',
-                }}
-                aria-pressed={activeCategory === 'all'}
-              >
-                All ({totalCount})
-              </button>
-              {CATEGORIES.map((cat) => (
+
+            {/* Filter + sort row */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+              <div role="group" aria-label="Filter by category" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', flex: 1 }}>
                 <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
+                  onClick={() => setActiveCategory('all')}
                   className="btn btn-sm"
                   style={{
-                    background: activeCategory === cat.id ? 'var(--aac-blue)' : 'var(--aac-white)',
-                    color: activeCategory === cat.id ? 'var(--aac-white)' : 'var(--aac-blue)',
+                    background: activeCategory === 'all' ? 'var(--aac-blue)' : 'var(--aac-white)',
+                    color: activeCategory === 'all' ? 'var(--aac-white)' : 'var(--aac-blue)',
                     border: '1px solid var(--ms-border)',
                     minHeight: '32px',
                     fontSize: '0.6875rem',
                   }}
-                  aria-pressed={activeCategory === cat.id}
+                  aria-pressed={activeCategory === 'all'}
                 >
-                  {cat.emoji} {cat.title} ({cat.resources.length})
+                  All ({totalCount})
                 </button>
-              ))}
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
+                    className="btn btn-sm"
+                    style={{
+                      background: activeCategory === cat.id ? 'var(--aac-blue)' : 'var(--aac-white)',
+                      color: activeCategory === cat.id ? 'var(--aac-white)' : 'var(--aac-blue)',
+                      border: '1px solid var(--ms-border)',
+                      minHeight: '32px',
+                      fontSize: '0.6875rem',
+                    }}
+                    aria-pressed={activeCategory === cat.id}
+                  >
+                    {cat.emoji} {cat.title} ({cat.resources.length})
+                  </button>
+                ))}
+              </div>
+
+              {/* Popular sort toggle — separated visually */}
+              <button
+                onClick={() => setSortPopular((v) => !v)}
+                className="btn btn-sm"
+                aria-pressed={sortPopular}
+                title="Sort by most favorited by members"
+                style={{
+                  background: sortPopular ? '#be123c' : 'var(--aac-white)',
+                  color: sortPopular ? '#fff' : '#be123c',
+                  border: `1px solid ${sortPopular ? '#be123c' : '#f9a8d4'}`,
+                  minHeight: '32px',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                  alignSelf: 'flex-start',
+                }}
+              >
+                ♥ Popular
+              </button>
             </div>
           </div>
         </div>
@@ -1031,10 +1208,14 @@ export default function ResourcesPage() {
           </div>
         ) : (
           visibleCategories.map((cat) => {
-            const catResources = search
+            const rawResources = search
               ? filtered.filter((r) => r.categoryId === cat.id)
               : cat.resources;
-            if (catResources.length === 0) return null;
+            if (rawResources.length === 0) return null;
+            const catResources = sortResources(rawResources);
+
+            // Count how many resources in this category have any favorites
+            const catFavTotal = rawResources.reduce((sum, r) => sum + (favCounts[r.url] ?? 0), 0);
 
             return (
               <section key={cat.id} aria-labelledby={`cat-${cat.id}`}>
@@ -1045,6 +1226,11 @@ export default function ResourcesPage() {
                       <span style={{ fontWeight: 'normal', color: '#b8ccff', marginLeft: '6px', fontSize: '0.6875rem' }}>
                         {catResources.length} resource{catResources.length !== 1 ? 's' : ''}
                       </span>
+                      {catFavTotal > 0 && (
+                        <span style={{ fontWeight: 'normal', color: '#fca5a5', marginLeft: '6px', fontSize: '0.6875rem' }}>
+                          · ♥ {catFavTotal} save{catFavTotal !== 1 ? 's' : ''}
+                        </span>
+                      )}
                     </span>
                   </div>
 
@@ -1055,40 +1241,52 @@ export default function ResourcesPage() {
 
                   {/* Resources list */}
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {catResources.map((resource, i) => (
-                      <li
-                        key={resource.name}
-                        style={{
-                          padding: '8px 10px',
-                          borderBottom: i < catResources.length - 1 ? '1px solid var(--ms-border)' : 'none',
-                          background: i % 2 === 0 ? '#fff' : 'var(--ms-row-alt)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap', marginBottom: '3px' }}>
-                          {/* Type badge */}
-                          <span className={`tag ${TYPE_CLASS[resource.type]}`} style={{ fontSize: '0.625rem', flexShrink: 0, marginTop: '1px' }}>
-                            {TYPE_LABELS[resource.type]}
-                          </span>
-                          {/* Name / link */}
-                          <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ fontWeight: 'bold', fontSize: '0.8125rem', color: 'var(--aac-blue)', flex: 1, minWidth: '200px' }}
-                          >
-                            {resource.name}
-                            <span className="sr-only"> (opens in new tab)</span>
-                          </a>
-                          {/* Extra tags */}
-                          {resource.tags && resource.tags.filter(t => t !== 'FREE').map((tag) => (
-                            <TagBadge key={tag} tag={tag} />
-                          ))}
-                        </div>
-                        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
-                          {resource.description}
-                        </p>
-                      </li>
-                    ))}
+                    {catResources.map((resource, i) => {
+                      const count  = favCounts[resource.url] ?? 0;
+                      const isFaved = userFavs.has(resource.url);
+                      return (
+                        <li
+                          key={resource.url}
+                          style={{
+                            padding: '8px 10px',
+                            borderBottom: i < catResources.length - 1 ? '1px solid var(--ms-border)' : 'none',
+                            background: i % 2 === 0 ? '#fff' : 'var(--ms-row-alt)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap', marginBottom: '3px' }}>
+                            {/* Type badge */}
+                            <span className={`tag ${TYPE_CLASS[resource.type]}`} style={{ fontSize: '0.625rem', flexShrink: 0, marginTop: '1px' }}>
+                              {TYPE_LABELS[resource.type]}
+                            </span>
+                            {/* Name / link */}
+                            <a
+                              href={resource.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ fontWeight: 'bold', fontSize: '0.8125rem', color: 'var(--aac-blue)', flex: 1, minWidth: '200px' }}
+                            >
+                              {resource.name}
+                              <span className="sr-only"> (opens in new tab)</span>
+                            </a>
+                            {/* Extra tags */}
+                            {resource.tags && resource.tags.filter(t => t !== 'FREE').map((tag) => (
+                              <TagBadge key={tag} tag={tag} />
+                            ))}
+                            {/* Favorite button */}
+                            <FavoriteButton
+                              slug={resource.url}
+                              count={count}
+                              isFaved={isFaved}
+                              isLoggedIn={isLoggedIn}
+                              onToggle={toggleFavorite}
+                            />
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
+                            {resource.description}
+                          </p>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </section>
