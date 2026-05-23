@@ -94,17 +94,17 @@ export default function Login() {
   };
 
   return (
-    <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
+    <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>
-        <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.25rem', textAlign: 'center' }}>
+        <h1 style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem', textAlign: 'center' }}>
           Member Login
         </h1>
-        <p className="font-accent-italic" style={{ color: 'var(--color-text-muted)', textAlign: 'center', marginBottom: '1.75rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.75rem' }}>
           welcome back
         </p>
 

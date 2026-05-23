@@ -7,6 +7,48 @@ import { useRouter } from 'next/navigation';
 
 type ProfileWithEndorsements = Profile & { endorsement_count: number };
 
+// ── Specialty category → tag color ───────────────────────────────────────────
+// interpreter (yellow) · artistic (rose) · event (green) · educator (blue) · other (gray)
+function specialtyTagClass(specialty: string): string {
+  const s = specialty.toLowerCase();
+
+  // Educators first (Sign Language Instructor overlaps with interpreter keywords)
+  if (
+    s.includes('instructor') || s.includes('teacher') || s.includes('trainer') ||
+    s.includes('educator') || s.includes('professor') || s.includes('coach') ||
+    s.includes('speaker')
+  ) return 'tag-blue';
+
+  // ASL / Communication Access Interpreters & Captioners
+  if (
+    s.includes('asl') || s.includes('interpreter') || s.includes('transliterator') ||
+    s.includes('captioner') || s.includes('cart') || s.includes('cdi') ||
+    s.includes('audio describ') || s.includes('tactile') || s.includes('deafblind') ||
+    s.includes('communication access') || s.includes('cued speech') ||
+    s.includes('oral translit')
+  ) return 'tag-yellow';
+
+  // Event / Production Staff (including film)
+  if (
+    s.includes('event') || s.includes('production') || s.includes('front of house') ||
+    s.includes('back of house') || s.includes('foh') || s.includes('boh') ||
+    s.includes('stage') || s.includes('film') || s.includes('camera') ||
+    s.includes('lighting') || s.includes('sound') || s.includes('crew') ||
+    s.includes('coordinator')
+  ) return 'tag-green';
+
+  // Artistic / Performance
+  if (
+    s.includes('actor') || s.includes('comedian') || s.includes('comic') ||
+    s.includes('artist') || s.includes('performer') || s.includes('musician') ||
+    s.includes('dancer') || s.includes('choreograph') || s.includes('content creator') ||
+    s.includes('director') || s.includes('playwright') || s.includes('writer')
+  ) return 'tag-rose';
+
+  // Everything else
+  return 'tag-gray';
+}
+
 export default function MemberDirectory() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<ProfileWithEndorsements[]>([]);
@@ -109,10 +151,10 @@ export default function MemberDirectory() {
 
       <div className="page-container-wide" style={{ paddingTop: '2.5rem' }}>
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-white)', fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', marginBottom: '0.25rem' }}>
+          <h1 style={{ color: 'var(--aac-blue-dark)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem', fontWeight: 'bold' }}>
             Member Directory
           </h1>
-          <p className="font-accent-italic" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1rem' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
             {profiles.length} member{profiles.length !== 1 ? 's' : ''} · visible to logged-in members only
           </p>
         </div>
@@ -170,7 +212,7 @@ export default function MemberDirectory() {
             <p
               aria-live="polite"
               aria-atomic="true"
-              style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.875rem', marginBottom: '1rem' }}
+              style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', marginBottom: '0.75rem' }}
             >
               Showing {filtered.length} of {profiles.length} member{profiles.length !== 1 ? 's' : ''}
             </p>
@@ -208,13 +250,13 @@ export default function MemberDirectory() {
                           >
                             {p.avatar_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                              <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
                               name.charAt(0).toUpperCase()
                             )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <p className="font-display" style={{ fontSize: '1.075rem', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <p style={{ fontSize: '0.9375rem', fontWeight: 'bold', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {name}
                             </p>
                             {p.pronouns && (
@@ -231,7 +273,7 @@ export default function MemberDirectory() {
                         {p.specialties && p.specialties.length > 0 && (
                           <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', listStyle: 'none', padding: 0, margin: 0 }}>
                             {p.specialties.slice(0, 3).map((s, i) => (
-                              <li key={i}><span className="tag tag-yellow">{s}</span></li>
+                              <li key={i}><span className={`tag ${specialtyTagClass(s)}`}>{s}</span></li>
                             ))}
                             {p.specialties.length > 3 && (
                               <li><span className="tag tag-gray">+{p.specialties.length - 3} more</span></li>

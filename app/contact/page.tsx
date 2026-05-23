@@ -100,8 +100,7 @@ export default function ContactPage() {
           <h1
             ref={successHeadingRef}
             tabIndex={-1}
-            className="font-display"
-            style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.5rem', outline: 'none' }}
+            style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.5rem', outline: 'none' }}
           >
             Message Sent!
           </h1>
@@ -127,7 +126,7 @@ export default function ContactPage() {
       </Link>
 
       <div className="content-card" style={{ maxWidth: '560px', width: '100%' }}>
-        <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem', textAlign: 'center' }}>
+        <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem', textAlign: 'center' }}>
           Contact Us
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', textAlign: 'center', marginBottom: '1.75rem' }}>

@@ -168,7 +168,7 @@ export default function FeedbackPage() {
     return (
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '420px', textAlign: 'center' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
+          <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
             Members Only
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
@@ -185,7 +185,7 @@ export default function FeedbackPage() {
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '500px', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
-          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.75rem' }}>
+          <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.75rem' }}>
             Thank you!
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
@@ -204,7 +204,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <main>
+    <main className="page-wrapper">
       <header className="site-header">
         <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
@@ -215,10 +215,10 @@ export default function FeedbackPage() {
 
       <div className="page-container" style={{ maxWidth: '680px', paddingTop: '2.5rem', paddingBottom: '4rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-white)', fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', marginBottom: '0.5rem' }}>
+          <h1 style={{ color: 'var(--aac-blue-dark)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 'bold', marginBottom: '0.5rem' }}>
             Help Us Build Something Better
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: '1rem', maxWidth: '520px', margin: '0 auto' }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', maxWidth: '520px', margin: '0 auto' }}>
             You&apos;re in the first wave. Your answers directly shape what this platform becomes —
             there&apos;s no wrong answer, only useful ones.
           </p>
@@ -241,7 +241,7 @@ export default function FeedbackPage() {
             {QUESTIONS.map((q, i) => (
               <div key={q.id} className="form-group" style={{ marginBottom: '1.75rem' }}>
                 <label htmlFor={q.id} className="form-label" style={{ fontSize: '1rem', lineHeight: 1.45 }}>
-                  <span style={{ color: 'var(--aac-blue)', fontFamily: 'var(--font-display)', marginRight: '0.4rem' }}>
+                  <span style={{ color: 'var(--aac-blue)', fontWeight: 'bold', marginRight: '0.4rem' }}>
                     {i + 1}.
                   </span>
                   {q.label}

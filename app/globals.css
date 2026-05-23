@@ -675,6 +675,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 .tag-yellow { background: #fff8c0; color: #6b5200; border-color: #e0c840; }
 .tag-green  { background: #d4f0e0; color: #1a5e38; border-color: #7dd6a4; }
 .tag-gray   { background: #e8ecf5; color: var(--color-text-muted); border-color: var(--ms-border); }
+.tag-rose   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
 
 /* ============================================
    MEMBER CARDS (directory grid)

@@ -308,7 +308,7 @@ export default function ProfilePage() {
     return (
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100vh' }}>
         <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '1rem' }}>
+          <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
             Profile Not Found
           </h1>
           <Link href="/collective" className="btn btn-primary">← Browse Members</Link>

@@ -376,7 +376,7 @@ export default function SubmitProfile() {
         </Link>
 
         <div className="content-card" style={{ maxWidth: '460px', width: '100%', textAlign: 'center' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '2rem', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.5rem' }}>
             Test the Registry
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '1.05rem' }}>
@@ -487,7 +487,7 @@ export default function SubmitProfile() {
         </Link>
         <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3.5rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
-          <h1 ref={successHeadingRef} tabIndex={-1} className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '2rem', marginBottom: '0.75rem', outline: 'none' }}>
+          <h1 ref={successHeadingRef} tabIndex={-1} style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.75rem', outline: 'none' }}>
             You&apos;re in!
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
@@ -556,8 +556,7 @@ export default function SubmitProfile() {
           <h1
             ref={formHeadingRef}
             tabIndex={-1}
-            className="font-display"
-            style={{ color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.25rem', textAlign: 'center', outline: 'none' }}
+            style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '0.25rem', textAlign: 'center', outline: 'none' }}
           >
             {profileType === 'business' ? 'Business Registration' : 'Join the Registry'}
           </h1>

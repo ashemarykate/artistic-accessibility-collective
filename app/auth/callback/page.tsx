@@ -77,7 +77,7 @@ export default function AuthCallback() {
     return (
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
         <div className="content-card" style={{ maxWidth: '440px', width: '100%', textAlign: 'center' }}>
-          <h1 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
+          <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
             Sign-in didn&apos;t finish
           </h1>
           <p className="alert alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>

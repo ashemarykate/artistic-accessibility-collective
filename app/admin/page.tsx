@@ -200,7 +200,7 @@ export default function AdminDashboard() {
 
   if (accessError) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <main style={{ background: 'var(--aac-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <div role="alert" style={{ color: 'var(--aac-white)', textAlign: 'center' }}>
           <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>{accessError}</p>
           <a href="/" className="btn btn-outline-white">Go Home</a>
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
       </header>
 
       <div className="page-container-wide" style={{ paddingTop: '2rem' }}>
-        <h1 className="font-display" style={{ color: 'var(--aac-white)', fontSize: '2rem', marginBottom: '0.5rem' }}>
+        <h1 style={{ color: 'var(--aac-blue-dark)', fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
           Admin Dashboard
         </h1>
 
@@ -267,9 +267,9 @@ export default function AdminDashboard() {
               onKeyDown={(e) => handleTabKeyDown(e, index)}
               className="btn btn-sm"
               style={{
-                background: activeTab === tab.id ? 'var(--aac-white)' : 'rgba(255,255,255,0.12)',
-                color: activeTab === tab.id ? 'var(--aac-blue)' : 'var(--aac-white)',
-                border: 'none',
+                background: activeTab === tab.id ? 'var(--aac-blue)' : 'var(--aac-white)',
+                color: activeTab === tab.id ? 'var(--aac-white)' : 'var(--aac-blue)',
+                border: '1px solid var(--ms-border)',
                 fontWeight: activeTab === tab.id ? 700 : 500,
               }}
             >
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
                 <span
                   style={{
                     marginLeft: '0.375rem',
-                    background: activeTab === tab.id ? 'var(--aac-blue)' : 'rgba(255,255,255,0.3)',
+                    background: activeTab === tab.id ? 'rgba(255,255,255,0.25)' : 'var(--aac-blue)',
                     color: 'var(--aac-white)',
                     borderRadius: '999px',
                     padding: '0 6px',
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
         {activeTab === 'invite-codes' && (
           <div id="panel-invite-codes" role="tabpanel" aria-labelledby="tab-invite-codes">
             <div className="content-card" style={{ marginBottom: '1.5rem' }}>
-              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
+              <h2 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '1rem' }}>
                 Generate Invite Codes
               </h2>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="content-card">
-              <h2 className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
+              <h2 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '1rem' }}>
                 All Codes
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.875rem', fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '0.5rem' }}>
                   {inviteCodes.filter((c) => !c.used).length} unused · {inviteCodes.filter((c) => c.used).length} used
@@ -491,7 +491,7 @@ export default function AdminDashboard() {
                     <li key={f.id} className="content-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
                         <div>
-                          <p className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.125rem' }}>{name}</p>
+                          <p style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '0.125rem' }}>{name}</p>
                           <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
                             {f.profile?.email} · <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>{type}</span>
                           </p>
@@ -566,8 +566,7 @@ function ProfileList({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
                   <Link
                     href={profileHref(p)}
-                    className="font-display"
-                    style={{ color: 'var(--aac-blue)', fontSize: '1.15rem', textDecoration: 'none' }}
+                    style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem', textDecoration: 'none' }}
                   >
                     {name}
                   </Link>
