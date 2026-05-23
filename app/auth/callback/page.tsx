@@ -64,7 +64,7 @@ export default function AuthCallback() {
         .maybeSingle();
 
       if (cancelled) return;
-      router.replace(adminData ? '/admin' : '/collective');
+      router.replace(adminData ? '/admin' : '/members');
     };
 
     finishSignIn();

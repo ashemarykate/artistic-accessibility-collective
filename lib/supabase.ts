@@ -80,15 +80,58 @@ export function profileHref(profile: Pick<Profile, 'id' | 'username'>): string {
   return `/profile/${profile.username ?? profile.id}`;
 }
 
+/** A conversation between two members. profile_a_id is always the lexicographically smaller UUID. */
+export type Conversation = {
+  id: string;
+  profile_a_id: string;
+  profile_b_id: string;
+  last_message_at: string;
+  created_at: string;
+};
+
+/** A single message inside a conversation. */
 export type Message = {
   id: string;
-  sender_id: string;
-  recipient_id: string;
+  conversation_id: string;
+  sender_profile_id: string;
   body: string;
-  read: boolean;
-  created_at: string;
-  expires_at: string;
+  sent_at: string;
+  read_at: string | null;
+  sender_deleted: boolean;
+  recipient_deleted: boolean;
 };
+
+/**
+ * Returns the id of the conversation between two profiles, creating it if it
+ * does not yet exist. Always normalises the pair so the smaller UUID is
+ * profile_a_id (matching the DB CHECK constraint).
+ */
+export async function getOrCreateConversation(
+  profileIdA: string,
+  profileIdB: string,
+): Promise<string | null> {
+  // Normalise ordering to match DB CHECK (profile_a_id::text < profile_b_id::text)
+  const [aId, bId] = [profileIdA, profileIdB].sort() as [string, string];
+
+  // Try to find an existing conversation
+  const { data: existing } = await supabase
+    .from('conversations')
+    .select('id')
+    .eq('profile_a_id', aId)
+    .eq('profile_b_id', bId)
+    .maybeSingle();
+
+  if (existing) return existing.id;
+
+  // Create a new one
+  const { data: created } = await supabase
+    .from('conversations')
+    .insert({ profile_a_id: aId, profile_b_id: bId })
+    .select('id')
+    .single();
+
+  return created?.id ?? null;
+}
 
 export type Endorsement = {
   id: string;

@@ -837,6 +837,168 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 }
 
 /* ============================================
+   MEMBER HUB — nav cards
+   ============================================ */
+
+/* Clickable card wrapper used on the member hub */
+.ms-nav-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+.ms-nav-card .ms-box {
+  height: 100%;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.ms-nav-card:hover .ms-box,
+.ms-nav-card:focus-visible .ms-box {
+  border-color: var(--aac-blue);
+  box-shadow: 0 2px 8px rgba(38, 53, 144, 0.18);
+}
+.ms-nav-card:focus-visible {
+  outline: 3px solid var(--aac-yellow);
+  outline-offset: 2px;
+}
+
+/* Unread message count badge in navigation */
+.ms-unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #be123c;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin-left: 5px;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* ============================================
+   MESSAGING — inbox conversation list
+   ============================================ */
+
+.msg-conv-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ms-border);
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  transition: background 0.1s;
+  cursor: pointer;
+}
+.msg-conv-item:hover,
+.msg-conv-item:focus-visible {
+  background: var(--ms-row-alt);
+}
+.msg-conv-item:focus-visible {
+  outline: 3px solid var(--aac-yellow);
+  outline-offset: -2px;
+}
+.msg-conv-item.unread {
+  background: #f0f4ff;
+}
+.msg-conv-item.unread:hover {
+  background: #e4eaff;
+}
+
+.msg-conv-name {
+  font-weight: bold;
+  font-size: 0.875rem;
+  color: var(--aac-navy);
+}
+.msg-conv-preview {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 380px;
+}
+.msg-conv-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.msg-unread-dot {
+  width: 9px;
+  height: 9px;
+  min-width: 9px;
+  border-radius: 50%;
+  background: #be123c;
+  margin-top: 5px;
+}
+
+/* ============================================
+   MESSAGING — thread / conversation view
+   ============================================ */
+
+/* The scrollable log of messages */
+.msg-thread-log {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 10px;
+  min-height: 200px;
+  overflow-y: auto;
+}
+
+/* One message row — wraps bubble + sender label */
+.msg-row {
+  display: flex;
+  flex-direction: column;
+  max-width: 72%;
+}
+.msg-row-mine   { align-self: flex-end;  align-items: flex-end; }
+.msg-row-theirs { align-self: flex-start; align-items: flex-start; }
+
+/* The text bubble */
+.msg-bubble {
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  word-break: break-word;
+}
+.msg-bubble-mine {
+  background: var(--aac-blue);
+  color: #fff;
+  border-color: var(--aac-blue-dark);
+}
+.msg-bubble-theirs {
+  background: #fff;
+  color: var(--aac-navy);
+  border-color: var(--ms-border);
+}
+
+/* Sender name + timestamp shown below each bubble */
+.msg-meta {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+  padding: 0 2px;
+}
+
+/* Reply form */
+.msg-reply-form {
+  border-top: 2px solid var(--ms-border);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--ms-row-alt);
+}
+
+/* ============================================
    MOBILE RESPONSIVE
    ============================================ */
 

@@ -530,16 +530,14 @@ export default function ProfilePage() {
           <MsBox header={`Contacting ${firstName}`}>
             <div className="ms-action-grid">
               {currentUser && !isOwnProfile ? (
-                <button
-                  disabled
+                <Link
+                  href={`/messages?to=${profile.id}`}
                   className="ms-action-link"
-                  aria-label={`Send ${firstName} a message (coming soon)`}
-                  aria-disabled="true"
-                  style={{ opacity: 0.55, cursor: 'not-allowed', background: 'none', border: 'none', width: '100%', textAlign: 'left' }}
+                  aria-label={`Send ${firstName} a message`}
                 >
                   <span className="ms-action-link-icon" aria-hidden="true">✉️</span>
                   Send Message
-                </button>
+                </Link>
               ) : !currentUser ? (
                 <Link href="/login" className="ms-action-link" aria-label={`Log in to message ${firstName}`}>
                   <span className="ms-action-link-icon" aria-hidden="true">✉️</span>

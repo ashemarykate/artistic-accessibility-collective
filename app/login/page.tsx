@@ -27,7 +27,7 @@ export default function Login() {
       .eq('user_id', userId)
       .maybeSingle();
 
-    router.push(adminData ? '/admin' : '/collective');
+    router.push(adminData ? '/admin' : '/members');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
