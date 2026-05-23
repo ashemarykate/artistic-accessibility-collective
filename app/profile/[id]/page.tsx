@@ -28,6 +28,11 @@ export default function ProfilePage() {
   const [uploadError, setUploadError] = useState('');
   const photoAltRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    document.title = 'Profile — Artistic Accessibility Collective';
+    return () => { document.title = 'Artistic Accessibility Collective'; };
+  }, []);
+
   useEffect(() => { fetchData(); }, [profileId]);
 
   const fetchData = async () => {
@@ -165,10 +170,12 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="loading-screen" aria-live="polite" aria-label="Loading profile">
-        <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
-        <span>Loading profile…</span>
-      </div>
+      <main className="page-wrapper">
+        <div className="loading-screen" role="status" aria-label="Loading profile">
+          <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
+          <span>Loading profile…</span>
+        </div>
+      </main>
     );
   }
 
@@ -199,7 +206,7 @@ export default function ProfilePage() {
     <main className="page-wrapper" style={{ padding: '0 0 4rem' }}>
       {/* Header bar */}
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           {currentUser && <Link href="/collective" className="nav-link">The Collective</Link>}
           {currentUser && <Link href="/feedback" className="nav-link">Share Feedback</Link>}

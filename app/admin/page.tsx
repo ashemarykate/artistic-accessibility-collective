@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { supabase, type Profile, type InviteCode, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
+import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_PROFILE_VERSION } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback';
+type FeedbackWithProfile = TesterFeedback & { profile: Pick<Profile, 'full_name' | 'email' | 'profile_type'> | null };
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -21,6 +22,8 @@ export default function AdminDashboard() {
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [generateCount, setGenerateCount] = useState(10);
   const [accessError, setAccessError] = useState<string | null>(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackWithProfile[]>([]);
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [assignName, setAssignName] = useState('');
   const [assignEmail, setAssignEmail] = useState('');
@@ -58,16 +61,18 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [pending, approved, rejected, codes] = await Promise.all([
+      const [pending, approved, rejected, codes, feedback] = await Promise.all([
         supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'approved').order('approved_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'rejected').order('updated_at', { ascending: false }),
         supabase.from('invite_codes').select('*').order('created_at', { ascending: false }),
+        supabase.from('tester_feedback').select('*, profile:profiles(full_name, email, profile_type)').order('created_at', { ascending: false }),
       ]);
       setPendingProfiles(pending.data || []);
       setApprovedProfiles(approved.data || []);
       setRejectedProfiles(rejected.data || []);
       setInviteCodes(codes.data || []);
+      setFeedbackEntries((feedback.data || []) as FeedbackWithProfile[]);
     } catch (err) {
       console.error('Admin fetch error:', err);
     } finally {
@@ -122,13 +127,14 @@ export default function AdminDashboard() {
 
   const handleGenerateCodes = async () => {
     setGeneratingCodes(true);
+    setGenerateError(null);
     try {
-      const { data, error } = await supabase.rpc('generate_invite_codes', { count: generateCount });
+      const { error } = await supabase.rpc('generate_invite_codes', { count: generateCount });
       if (error) throw error;
       fetchAll();
     } catch (err) {
       console.error('Generate codes error:', err);
-      alert('Error generating codes. Make sure migration v2 has been run.');
+      setGenerateError('Error generating codes. Make sure migration v2 has been run.');
     } finally {
       setGeneratingCodes(false);
     }
@@ -189,6 +195,7 @@ export default function AdminDashboard() {
     { id: 'approved', label: 'Approved', count: approvedProfiles.length },
     { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
     { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
+    { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
   ];
 
   if (accessError) {
@@ -338,6 +345,9 @@ export default function AdminDashboard() {
                     `Generate ${generateCount} Code${generateCount !== 1 ? 's' : ''}`
                   )}
                 </button>
+                {generateError && (
+                  <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.875rem', width: '100%' }}>{generateError}</p>
+                )}
                 {inviteCodes.some((c) => !c.used) && (
                   <button onClick={copyAllUnused} className="btn btn-outline" style={{ marginBottom: '0.375rem' }}>
                     Copy All Unused Codes
@@ -455,6 +465,60 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === 'feedback' && (
+          <div id="panel-feedback" role="tabpanel" aria-labelledby="tab-feedback">
+            {feedbackEntries.length === 0 ? (
+              <div className="content-card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                No feedback submitted yet.
+              </div>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {feedbackEntries.map((f) => {
+                  const name = f.profile?.full_name || 'Unknown';
+                  const type = f.profile?.profile_type === 'business' ? 'Business' : 'Individual';
+                  const fields = [
+                    { label: 'What would make this most useful?', value: f.missing_profile_info },
+                    { label: 'How would you use this at work?', value: f.work_use_case },
+                    { label: 'Community features interested in', value: f.community_feature_wish },
+                    { label: 'Additional feedback', value: f.additional_feedback },
+                    { label: 'Most useful feature', value: f.most_useful_feature },
+                    { label: 'Why would you recommend?', value: f.recommend_reason },
+                    { label: 'Confusing aspects', value: f.confusing_aspects },
+                    { label: 'Resources wanted', value: f.resources_wanted },
+                  ].filter((row) => row.value);
+                  return (
+                    <li key={f.id} className="content-card">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                        <div>
+                          <p className="font-display" style={{ color: 'var(--aac-blue)', fontSize: '1.1rem', marginBottom: '0.125rem' }}>{name}</p>
+                          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+                            {f.profile?.email} · <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>{type}</span>
+                          </p>
+                        </div>
+                        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                          {new Date(f.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                      {fields.length === 0 ? (
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>No answers recorded.</p>
+                      ) : (
+                        <dl style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', margin: 0 }}>
+                          {fields.map((row, i) => (
+                            <div key={i}>
+                              <dt style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>{row.label}</dt>
+                              <dd style={{ margin: 0, color: 'var(--color-text)', fontSize: '0.9375rem', lineHeight: 1.6 }}>{row.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
@@ -509,6 +573,11 @@ function ProfileList({
                   </Link>
                   {p.pronouns && (
                     <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{p.pronouns}</span>
+                  )}
+                  {p.profile_type && (
+                    <span className={`tag ${p.profile_type === 'business' ? 'tag-blue' : 'tag-gray'}`} style={{ fontSize: '0.75rem' }}>
+                      {p.profile_type === 'business' ? 'Business' : 'Individual'}
+                    </span>
                   )}
                   {needsUpdate && status === 'approved' && (
                     <span className="tag tag-yellow" style={{ fontSize: '0.75rem' }}>Needs profile update</span>
