@@ -1,57 +1,18 @@
 'use client';
 
 /**
- * DEV PREVIEW ONLY — not linked from anywhere in the app.
- * Visit localhost:3000/dev to see the profile layout with sample data.
- * Safe to leave in the codebase; it's just a static design sandbox.
+ * DEV PREVIEW — visit localhost:3000/dev
+ * No auth required. Shows full Myspace-style profile with sample data.
  */
 
 import Link from 'next/link';
-
-const S = {
-  highlights: '#263590',
-  about:      '#7c3aed',
-  whatIDo:    '#059669',
-  top8:       '#dc2626',
-  videos:     '#d97706',
-  certs:      '#1d4ed8',
-  activities: '#db2777',
-  languages:  '#0891b2',
-  contact:    '#374151',
-};
-
-function SectionCard({ color, emoji, title, children }: {
-  color: string; emoji?: string; title: string; children: React.ReactNode;
-}) {
-  return (
-    <div className="content-card" style={{ padding: '1rem 1.25rem' }}>
-      <h2
-        className="font-display"
-        style={{
-          color,
-          fontSize: '1.25rem',
-          marginBottom: '0.75rem',
-          paddingBottom: '0.5rem',
-          borderBottom: `3px solid ${color}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.375rem',
-        }}
-      >
-        {emoji && <span aria-hidden="true">{emoji}</span>}
-        <span dangerouslySetInnerHTML={{ __html: title }} />
-      </h2>
-      {children}
-    </div>
-  );
-}
 
 const SAMPLE = {
   name:        'Jordan Rivera',
   username:    'jordan-rivera',
   pronouns:    'they/them',
   location:    'Austin, TX',
-  memberSince: 2024,
+  memberSince: '01/15/2024',
   endorsements: 12,
   experience:  8,
   bgColor:     '#263590',
@@ -59,15 +20,15 @@ const SAMPLE = {
   bio:         "I've spent the last 8 years making live experiences accessible to everyone in the room — from intimate theatre to 80,000-person music festivals. I believe accessibility isn't a checklist, it's a craft.\n\nCurrently based in Austin but I go where the work is.",
   specialties: ['ASL Interpreter', 'CART Captioner', 'Event Accessibility Coordinator'],
   top8: [
-    { name: 'Maya Chen',     initial: 'M' },
-    { name: 'Sam Okafor',    initial: 'S' },
-    { name: 'Alex Torres',   initial: 'A' },
-    { name: 'Riley Park',    initial: 'R' },
-    { name: 'Devon Walsh',   initial: 'D' },
-    { name: 'Casey Kim',     initial: 'C' },
+    { name: 'Maya Chen',   initial: 'M', color: '#d8dcf5' },
+    { name: 'Sam Okafor',  initial: 'S', color: '#d4f0e0' },
+    { name: 'Alex Torres', initial: 'A', color: '#fce7f3' },
+    { name: 'Riley Park',  initial: 'R', color: '#fef3c7' },
+    { name: 'Devon Walsh', initial: 'D', color: '#e0e7ff' },
+    { name: 'Casey Kim',   initial: 'C', color: '#cffafe' },
   ],
   videos: [
-    'youtube.com/watch?v=dQw4w9WgXcQ',
+    'youtube.com/watch?v=example1',
     'vimeo.com/123456789',
   ],
   certifications: [
@@ -80,183 +41,364 @@ const SAMPLE = {
   languages:  ['ASL', 'English', 'Spanish', 'PSE'],
 };
 
-const COLORS = ['#d8dcf5', '#fce7f3', '#d1fae5', '#fef3c7', '#e0e7ff', '#cffafe'];
+const bgColor = SAMPLE.bgColor;
 
 export default function DevPreview() {
-  const bgColor = SAMPLE.bgColor;
-
   return (
-    <main style={{ background: bgColor, minHeight: '100vh', paddingBottom: '4rem' }}>
+    <main style={{ background: bgColor, minHeight: '100vh', paddingBottom: '24px' }}>
 
-      {/* Dev banner */}
-      <div style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.8125rem', fontWeight: 700, textAlign: 'center', padding: '0.375rem', letterSpacing: '0.05em' }}>
-        ⚠️ DEV PREVIEW — sample data only — <a href="/" style={{ color: 'inherit', textDecoration: 'underline' }}>back to home</a>
+      {/* ── Dev banner ── */}
+      <div style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center', padding: '4px', letterSpacing: '0.05em', fontFamily: 'Verdana, sans-serif' }}>
+        ⚠️ DEV PREVIEW — sample data only —{' '}
+        <a href="/" style={{ color: 'inherit' }}>back to home</a>
       </div>
 
-      {/* Header */}
-      <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="" />
-        </Link>
-        <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/collective" className="nav-link">The Collective</Link>
-        </nav>
+      {/* ── Header: logo bar + pipe nav ── */}
+      <header>
+        <div className="site-header">
+          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/logo-across-blue-bg.svg" alt="" />
+          </Link>
+          <nav className="site-nav" aria-label="Main navigation">
+            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/collective" className="nav-link">Directory</Link>
+            <Link href="/contact" className="nav-link">Contact</Link>
+            <Link href="/login" className="nav-link">Sign In</Link>
+          </nav>
+        </div>
       </header>
 
-      {/* Profile grid */}
+      {/* ── Profile grid ── */}
       <div style={{
-        maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1rem',
-        display: 'flex', gap: '1.25rem', alignItems: 'flex-start', flexWrap: 'wrap',
+        maxWidth: '960px', margin: '0 auto', padding: '12px 10px',
+        display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap',
       }}>
 
-        {/* ── LEFT SIDEBAR ── */}
-        <aside style={{ width: '268px', minWidth: '268px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        {/* ════════════════════════════════
+            LEFT SIDEBAR — 240px
+        ════════════════════════════════ */}
+        <aside style={{ width: '240px', minWidth: '240px', flexShrink: 0 }}>
 
-          <div className="content-card" style={{ padding: '1rem' }}>
-            {/* Square photo */}
-            <div style={{
-              width: '100%', aspectRatio: '1 / 1',
-              border: `5px solid ${bgColor}`, borderRadius: '6px',
-              overflow: 'hidden', marginBottom: '0.75rem',
-              background: 'var(--aac-blue-light)',
-            }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/placeholder-profile.jpg"
-                alt="Four accessibility professionals posing together at SXSW 2026 in front of a yellow sponsor backdrop"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
-                onError={(e) => {
-                  // Fallback if photo isn't saved yet
-                  (e.target as HTMLImageElement).style.display = 'none';
-                  (e.target as HTMLImageElement).parentElement!.style.display = 'flex';
-                  (e.target as HTMLImageElement).parentElement!.style.alignItems = 'center';
-                  (e.target as HTMLImageElement).parentElement!.style.justifyContent = 'center';
-                  (e.target as HTMLImageElement).parentElement!.innerHTML = '<span style="font-size:5rem;font-weight:700;color:var(--aac-blue)">J</span>';
-                }}
-              />
+          {/* Profile photo + name box */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name}</span>
+              <span style={{ fontWeight: 'normal', fontSize: '0.6875rem', opacity: 0.8 }}>[ <a href="#">edit profile</a> ]</span>
             </div>
+            <div style={{ padding: '8px' }}>
 
-            {/* URL chip */}
-            <div style={{ background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.5rem 0.75rem', marginBottom: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-              /profile/<strong style={{ color: 'var(--aac-blue)' }}>{SAMPLE.username}</strong>
-            </div>
+              {/* Square photo */}
+              <div style={{ position: 'relative', marginBottom: '6px' }}>
+                <div style={{
+                  width: '100%', aspectRatio: '1 / 1',
+                  border: '2px solid #fff',
+                  outline: '1px solid var(--ms-border)',
+                  overflow: 'hidden',
+                  background: 'var(--aac-blue-light)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/placeholder-profile.jpg"
+                    alt="Four accessibility professionals posing at SXSW 2026"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+                    onError={(e) => {
+                      const el = e.target as HTMLImageElement;
+                      el.style.display = 'none';
+                      el.parentElement!.innerHTML = '<span style="font-size:4rem;font-weight:700;color:var(--aac-blue)">J</span>';
+                    }}
+                  />
+                </div>
+                {/* Online badge */}
+                <div style={{ marginTop: '4px', textAlign: 'center' }}>
+                  <span className="ms-online-badge">Online Now!</span>
+                </div>
+              </div>
 
-            <h1 className="font-display" style={{ color: 'var(--aac-navy)', fontSize: '1.375rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
-              {SAMPLE.name}
-            </h1>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>{SAMPLE.pronouns}</p>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-              <span aria-hidden="true">📍 </span>{SAMPLE.location}
-            </p>
+              {/* Pronouns + location */}
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>{SAMPLE.pronouns}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>📍 {SAMPLE.location}</p>
 
-            {/* Stats */}
-            <div style={{ background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.625rem 0.75rem', margin: '0.75rem 0', fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-              <div><strong style={{ color: 'var(--color-text)' }}>Member since</strong> {SAMPLE.memberSince}</div>
-              <div><strong style={{ color: 'var(--color-text)' }}>{SAMPLE.endorsements}</strong> endorsements</div>
-              <div><strong style={{ color: 'var(--color-text)' }}>{SAMPLE.experience}</strong> yrs experience</div>
-            </div>
+              {/* Stats row */}
+              <div className="ms-stats-row" style={{ marginTop: '8px' }}>
+                <div className="ms-stat">
+                  <strong>{SAMPLE.endorsements}</strong>
+                  endorsements
+                </div>
+                <div className="ms-stat">
+                  <strong>{SAMPLE.experience} yrs</strong>
+                  experience
+                </div>
+              </div>
 
-            {/* Action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button className="btn btn-primary btn-sm" style={{ width: '100%' }}>⭐ Endorse</button>
-              <button className="btn btn-ghost btn-sm" style={{ width: '100%', opacity: 0.55 }} disabled>
-                💬 Message <span style={{ fontSize: '0.75rem' }}>(coming soon)</span>
-              </button>
+              {/* Member since + last login */}
+              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>
+                Member Since: {SAMPLE.memberSince}<br />
+                Last Login: Today
+              </p>
             </div>
           </div>
 
-          {/* Contact card */}
-          <div className="content-card" style={{ padding: '1rem' }}>
-            <h2 className="font-display" style={{ color: S.contact, fontSize: '1rem', marginBottom: '0.625rem', paddingBottom: '0.375rem', borderBottom: `2px solid ${S.contact}` }}>
-              Contact
-            </h2>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.875rem' }}>
-              <li><a href="#" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>✉️ jordan@example.com</a></li>
-              <li><a href="#" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>🌐 Website</a></li>
-              <li><a href="#" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>💼 LinkedIn</a></li>
-              <li><a href="#" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>📸 Instagram</a></li>
-            </ul>
+          {/* Contacting box */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>Contacting {SAMPLE.name.split(' ')[0]}</span>
+            </div>
+            <div className="ms-action-grid">
+              <a href="#" className="ms-action-link">
+                <span className="ms-action-link-icon" aria-hidden="true">✉️</span>
+                Send Message
+              </a>
+              <a href="#" className="ms-action-link">
+                <span className="ms-action-link-icon" aria-hidden="true">⭐</span>
+                Endorse
+              </a>
+              <a href="#" className="ms-action-link">
+                <span className="ms-action-link-icon" aria-hidden="true">➡️</span>
+                Forward to Friend
+              </a>
+              <a href="#" className="ms-action-link">
+                <span className="ms-action-link-icon" aria-hidden="true">❤️</span>
+                Add to Favorites
+              </a>
+            </div>
           </div>
 
-          <Link href="/" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem', textDecoration: 'underline', paddingTop: '0.25rem' }}>
-            ← The Collective
-          </Link>
+          {/* Profile URL box */}
+          <div className="ms-box">
+            <div className="ms-box-header"><span>Profile URL:</span></div>
+            <div className="ms-box-body">
+              <p className="ms-profile-url">
+                /profile/<strong>{SAMPLE.username}</strong>
+              </p>
+              <p style={{ marginTop: '4px' }}>
+                <a href="#" className="ms-edit-link">[ change URL ]</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Interests (left sidebar table) */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name.split(' ')[0]}&apos;s Interests</span>
+              <a href="#">[edit]</a>
+            </div>
+            <div style={{ padding: '6px' }}>
+              <table className="ms-table" role="presentation">
+                <tbody>
+                  <tr>
+                    <td>General</td>
+                    <td>Accessibility advocacy, live events, disability community</td>
+                  </tr>
+                  <tr>
+                    <td>Activities</td>
+                    <td>
+                      {SAMPLE.activities.map((a, i) => (
+                        <span key={i}>
+                          <a href="#" style={{ color: 'var(--aac-blue)', textDecoration: 'none' }}>{a}</a>
+                          {i < SAMPLE.activities.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Languages</td>
+                    <td>{SAMPLE.languages.join(', ')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Links / Contact */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name.split(' ')[0]}&apos;s Links</span>
+            </div>
+            <div style={{ padding: '6px' }}>
+              <table className="ms-table" role="presentation">
+                <tbody>
+                  <tr><td>Email</td><td><a href="#">jordan@example.com</a></td></tr>
+                  <tr><td>Website</td><td><a href="#">jordsworks.com</a></td></tr>
+                  <tr><td>LinkedIn</td><td><a href="#">@jordanrivera</a></td></tr>
+                  <tr><td>Instagram</td><td><a href="#">@jords.asl</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </aside>
 
-        {/* ── RIGHT MAIN ── */}
-        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        {/* ════════════════════════════════
+            RIGHT MAIN CONTENT
+        ════════════════════════════════ */}
+        <div style={{ flex: 1, minWidth: '300px' }}>
 
-          <SectionCard color={S.highlights} emoji="✨" title="Highlights">
-            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.75, color: 'var(--color-text)' }}>{SAMPLE.highlights}</p>
-          </SectionCard>
+          {/* Highlights */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>✨ {SAMPLE.name.split(' ')[0]}&apos;s Highlights</span>
+              <a href="#">[edit]</a>
+            </div>
+            <div className="ms-box-body">
+              <p style={{ margin: 0, lineHeight: 1.6 }}>{SAMPLE.highlights}</p>
+            </div>
+          </div>
 
-          <SectionCard color={S.about} title="About Me">
-            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.75, color: 'var(--color-text)' }}>{SAMPLE.bio}</p>
-          </SectionCard>
+          {/* Blurbs — About Me / What I Do */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name.split(' ')[0]}&apos;s Blurbs</span>
+              <a href="#">[edit]</a>
+            </div>
+            <div className="ms-box-body">
+              <p style={{ fontWeight: 'bold', marginBottom: '4px', marginTop: 0 }}>About me:</p>
+              <p style={{ margin: '0 0 12px', color: 'var(--aac-blue)', lineHeight: 1.6 }}>{SAMPLE.bio}</p>
+              <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>What I do:</p>
+              <p style={{ margin: 0, color: 'var(--aac-blue)' }}>
+                {SAMPLE.specialties.join(' · ')}
+              </p>
+            </div>
+          </div>
 
-          <SectionCard color={S.whatIDo} title="What I Do">
-            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {SAMPLE.specialties.map((s, i) => <li key={i}><span className="tag tag-blue">{s}</span></li>)}
-            </ul>
-          </SectionCard>
+          {/* Friend Space — Top 8 */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name.split(' ')[0]}&apos;s Friend Space</span>
+              <a href="#">[view all {SAMPLE.endorsements}]</a>
+            </div>
+            <div className="ms-box-body">
+              <p style={{ margin: '0 0 8px', fontSize: '0.75rem' }}>
+                <strong>{SAMPLE.name.split(' ')[0]}</strong> has{' '}
+                <strong>{SAMPLE.endorsements}</strong> endorsements.
+              </p>
 
-          <SectionCard color={S.top8} title="Top 8">
-            <p className="sr-only">Top endorsers: {SAMPLE.top8.map(e => e.name).join(', ')}</p>
-            <ul aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {SAMPLE.top8.map((e, i) => (
-                <li key={i} style={{ textAlign: 'center' }}>
-                  <div style={{ width: '100%', aspectRatio: '1/1', border: '2px solid #e5e7eb', borderRadius: '4px', background: COLORS[i % COLORS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.375rem' }}>
-                    <span style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--aac-blue)' }}>{e.initial}</span>
+              {/* Screen reader version */}
+              <p className="sr-only">
+                Top endorsers: {SAMPLE.top8.map(e => e.name).join(', ')} and {SAMPLE.endorsements - SAMPLE.top8.length} more.
+              </p>
+
+              <div className="ms-friend-grid" aria-hidden="true">
+                {SAMPLE.top8.map((f, i) => (
+                  <div key={i} className="ms-friend-cell">
+                    <a href="#" style={{ display: 'block', textDecoration: 'none' }}>
+                      <div
+                        className="ms-friend-photo"
+                        style={{
+                          background: f.color,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.5rem',
+                          fontWeight: 'bold',
+                          color: 'var(--aac-blue)',
+                          height: '100%',
+                          minHeight: '60px',
+                        }}
+                      >
+                        {f.initial}
+                      </div>
+                      <span className="ms-friend-name">{f.name.split(' ')[0]}</span>
+                    </a>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', fontWeight: 600, display: 'block', lineHeight: 1.3 }}>{e.name.split(' ')[0]}</span>
-                </li>
-              ))}
-              {/* 2 empty slots */}
-              {[0, 1].map((i) => (
-                <li key={`empty-${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
-                  <div style={{ width: '100%', aspectRatio: '1/1', border: '2px dashed #d1d5db', borderRadius: '4px', background: '#f9fafb', marginBottom: '0.375rem' }} />
-                  <span style={{ fontSize: '0.75rem', color: '#d1d5db' }}>—</span>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
+                ))}
+                {/* 2 empty slots */}
+                {[0, 1].map(i => (
+                  <div key={`empty-${i}`} className="ms-friend-cell" aria-hidden="true">
+                    <div className="ms-friend-photo" style={{ minHeight: '60px', background: '#f0f2fc', border: '1px dashed var(--ms-border)' }} />
+                    <span className="ms-friend-name" style={{ color: 'var(--ms-border)' }}>—</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
-          <SectionCard color={S.videos} emoji="🎬" title="Videos">
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Videos */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>🎬 {SAMPLE.name.split(' ')[0]}&apos;s Videos</span>
+              <a href="#">[add video]</a>
+            </div>
+            <div className="ms-box-body">
               {SAMPLE.videos.map((url, i) => (
-                <li key={i}>
-                  <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.625rem 0.875rem', background: '#fef3c7', borderRadius: '6px', color: S.videos, textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>
-                    <span aria-hidden="true">▶</span>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</span>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', padding: '5px 8px', background: '#fff8d4', border: '1px solid #e0c840' }}>
+                  <span aria-hidden="true" style={{ color: '#d97706', fontWeight: 'bold' }}>▶</span>
+                  <a href="#" style={{ color: '#d97706', textDecoration: 'none', fontSize: '0.8125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {url}
                   </a>
-                </li>
+                </div>
               ))}
-            </ul>
-          </SectionCard>
+            </div>
+          </div>
 
-          <SectionCard color={S.certs} emoji="📚" title="Trainings &amp; Certifications">
-            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {SAMPLE.certifications.map((c, i) => <li key={i}><span className="tag tag-yellow">{c}</span></li>)}
-            </ul>
-          </SectionCard>
+          {/* Trainings & Certifications */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>📚 {SAMPLE.name.split(' ')[0]}&apos;s Trainings &amp; Certifications</span>
+            </div>
+            <div className="ms-box-body">
+              <ul style={{ margin: 0, padding: '0 0 0 16px', lineHeight: 1.8 }}>
+                {SAMPLE.certifications.map((c, i) => (
+                  <li key={i} style={{ color: 'var(--aac-blue)' }}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-          <SectionCard color={S.activities} emoji="🎵" title="Activities &amp; Interests">
-            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {SAMPLE.activities.map((a, i) => (
-                <li key={i}><span className="tag" style={{ background: '#fce7f3', color: '#9d174d', border: '1px solid #f9a8d4' }}>{a}</span></li>
+          {/* Friends Comments */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <span>{SAMPLE.name.split(' ')[0]}&apos;s Endorsement Comments</span>
+              <a href="#">[Add Comment]</a>
+            </div>
+            <div className="ms-box-body">
+              <p style={{ fontSize: '0.75rem', marginBottom: '8px', color: 'var(--color-text-muted)' }}>
+                Displaying <strong>2</strong> of <strong>{SAMPLE.endorsements}</strong> comments —{' '}
+                <a href="#">View all</a>
+              </p>
+
+              {/* Sample comment rows */}
+              {[
+                { name: 'Maya Chen', initial: 'M', color: '#d8dcf5', date: '5/18/2026 2:14 PM', text: "Jordan interpreted our entire SXSW panel and it was the most seamlessly accessible event I've ever been part of. Absolute professional." },
+                { name: 'Sam Okafor', initial: 'S', color: '#d4f0e0', date: '4/02/2026 10:30 AM', text: 'Best CART captioner I have worked with in 10 years. Fast, accurate, and genuinely invested in making the experience great for everyone.' },
+              ].map((c, i) => (
+                <div key={i} className="ms-comment-row">
+                  <a href="#" aria-label={`View ${c.name}'s profile`}>
+                    <div className="ms-comment-avatar" style={{ background: c.color }}>
+                      {c.initial}
+                    </div>
+                  </a>
+                  <div>
+                    <p style={{ margin: '0 0 2px' }}>
+                      <a href="#" style={{ fontWeight: 'bold', color: 'var(--aac-blue)', textDecoration: 'none' }}>{c.name}</a>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginLeft: '8px' }}>{c.date}</span>
+                    </p>
+                    <p style={{ margin: 0, color: 'var(--color-text)', lineHeight: 1.5 }}>{c.text}</p>
+                  </div>
+                </div>
               ))}
-            </ul>
-          </SectionCard>
+            </div>
+          </div>
 
-          <SectionCard color={S.languages} title="Languages">
-            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {SAMPLE.languages.map((l, i) => <li key={i}><span className="tag tag-gray">{l}</span></li>)}
-            </ul>
-          </SectionCard>
+        </div>{/* end right main */}
+      </div>{/* end grid */}
 
-        </div>
-      </div>
+      {/* ── Myspace-style footer ── */}
+      <footer className="ms-footer" style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.65)', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+        <a href="#" style={{ color: 'rgba(255,255,255,0.65)' }}>About</a>
+        <span className="ms-footer-pipe">|</span>
+        <a href="#" style={{ color: 'rgba(255,255,255,0.65)' }}>FAQ</a>
+        <span className="ms-footer-pipe">|</span>
+        <a href="#" style={{ color: 'rgba(255,255,255,0.65)' }}>Safety Tips</a>
+        <span className="ms-footer-pipe">|</span>
+        <a href="/contact" style={{ color: 'rgba(255,255,255,0.65)' }}>Contact Us</a>
+        <span className="ms-footer-pipe">|</span>
+        <a href="#" style={{ color: 'rgba(255,255,255,0.65)' }}>Report Inappropriate Content</a>
+        <br />
+        <span style={{ marginTop: '4px', display: 'block' }}>©2024 Artistic Accessibility Collective. All Rights Reserved.</span>
+      </footer>
+
     </main>
   );
 }
