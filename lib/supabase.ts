@@ -49,6 +49,13 @@ export type Profile = {
   profile_bg_color?: string;
   top_8_ids?: string[];
   username?: string;
+  member_since_display?: string;
+  fav_books?: string[];
+  fav_movies?: string[];
+  fav_music?: string[];
+  fav_tv?: string[];
+  mood?: string;
+  community_interests?: string[];
 };
 
 /** Returns the canonical profile URL, using the vanity username when set. */
