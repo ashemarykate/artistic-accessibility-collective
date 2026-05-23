@@ -138,6 +138,7 @@ export default function MemberDirectory() {
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
+          <Link href="/resources" className="nav-link">Resources</Link>
           <Link href="/feedback" className="nav-link">Share Feedback</Link>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
