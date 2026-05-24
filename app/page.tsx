@@ -223,7 +223,7 @@ export default function Home() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/canva-home.svg"
+              src="/images/landing.png"
               alt="Artistic Accessibility Collective — together, together"
               style={{
                 width: '100%',
