@@ -4,26 +4,111 @@ import Link from 'next/link';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
-const LISTINGS = [
-  { time: '12:00 AM', channel: 'AAC-1', title: 'Crip Camp (2020)', desc: 'Documentary' },
-  { time: '1:30 AM',  channel: 'AAC-2', title: 'Sound and Fury', desc: 'Documentary' },
-  { time: '3:00 AM',  channel: 'AAC-1', title: 'Far from Heaven', desc: 'Drama' },
-  { time: '4:45 AM',  channel: 'AAC-3', title: 'The Sessions (2012)', desc: 'Drama' },
-  { time: '6:30 AM',  channel: 'AAC-2', title: 'Sins Invalid: An Unashamed Claim', desc: 'Documentary' },
-  { time: '8:00 AM',  channel: 'AAC-1', title: 'Children of a Lesser God', desc: 'Drama' },
-  { time: '9:45 AM',  channel: 'AAC-4', title: 'Disability After Dark Podcast', desc: 'Talk' },
-  { time: '11:00 AM', channel: 'AAC-3', title: 'Speechless (Season 1)', desc: 'Comedy' },
-  { time: '12:00 PM', channel: 'AAC-1', title: 'Reid My Mind Radio Marathon', desc: 'Radio/Podcast' },
-  { time: '2:00 PM',  channel: 'AAC-2', title: 'My Left Foot', desc: 'Drama' },
-  { time: '3:45 PM',  channel: 'AAC-1', title: 'Tell Me Everything: Blind & Visually Impaired', desc: 'Documentary' },
-  { time: '5:30 PM',  channel: 'AAC-3', title: 'The L Word — Accessibility Edition', desc: 'TBD' },
-  { time: '7:00 PM',  channel: 'AAC-1', title: 'Deaf West: Spring Awakening Live', desc: 'Performance' },
-  { time: '9:00 PM',  channel: 'AAC-2', title: 'Kinetic Light: Wired', desc: 'Dance Film' },
-  { time: '10:30 PM', channel: 'AAC-1', title: 'TBA — Member Curated Pick', desc: 'Film' },
-  { time: '11:59 PM', channel: 'AAC-4', title: 'Sign Off', desc: 'Coming Soon' },
+// ─── Design Tokens ───────────────────────────────────────────────
+const C = {
+  bg:       '#0a3bb8',
+  bgDeep:   '#062586',
+  bgRow:    '#1c1f8c',
+  bgRow2:   '#2d1664',
+  bgCh:     '#08032e',
+  yellow:   '#fcdd2c',
+  yellowD:  '#fbcc1c',
+  white:    '#ffffff',
+  soft:     '#c8d5ff',
+  cyan:     '#22e5d6',
+  magenta:  '#ff3b8d',
+  red:      '#ff4040',
+  green:    '#4dff7c',
+  sans:     '"Arial Narrow", Arial, "Helvetica Neue", Helvetica, sans-serif',
+  mono:     '"Courier New", Courier, monospace',
+};
+
+// ─── Grid data ───────────────────────────────────────────────────
+type ShowCell = {
+  title: string;
+  kind: string;
+  isNew?: boolean;
+  isLive?: boolean;
+  isFree?: boolean;
+  span?: number;
+};
+type Channel = {
+  num: string;
+  call: string;
+  shows: ShowCell[];
+};
+
+const CHANNELS: Channel[] = [
+  {
+    num: '01', call: 'DOCS',
+    shows: [
+      { title: 'Crip Camp', kind: 'Documentary', isFree: true },
+      { title: 'Sound and Fury', kind: 'Documentary' },
+      { title: 'Sins Invalid: Unashamed Claim', kind: 'Documentary', isNew: true },
+      { title: 'Tell Me Everything', kind: 'Doc', isFree: true },
+      { title: 'The Waiting Room', kind: 'Documentary' },
+    ],
+  },
+  {
+    num: '02', call: 'PERF',
+    shows: [
+      { title: 'Deaf West: Spring Awakening', kind: 'Performance', span: 2, isLive: true },
+      { title: 'Kinetic Light: Wired', kind: 'Dance Film' },
+      { title: 'Axis Dance Co.', kind: 'Performance', isFree: true },
+      { title: 'TBA — Member Pick', kind: 'TBD' },
+    ],
+  },
+  {
+    num: '03', call: 'DRAM',
+    shows: [
+      { title: 'Children of a Lesser God', kind: 'Drama' },
+      { title: 'The Sessions', kind: 'Drama' },
+      { title: 'My Left Foot', kind: 'Drama' },
+      { title: 'Far from Heaven', kind: 'Drama' },
+      { title: 'Speechless S1', kind: 'Comedy' },
+    ],
+  },
+  {
+    num: '04', call: 'POD',
+    shows: [
+      { title: 'Disability Visibility Project', kind: 'Podcast', isFree: true, span: 2, isNew: true },
+      { title: 'Reid My Mind Radio', kind: 'Podcast', isFree: true },
+      { title: 'Disability After Dark', kind: 'Talk' },
+      { title: 'The Accessible Stall', kind: 'Podcast', isFree: true },
+    ],
+  },
+  {
+    num: '05', call: 'SHRT',
+    shows: [
+      { title: 'Blind Ambition (Short)', kind: 'Short Film', isFree: true },
+      { title: 'Access Is Love', kind: 'Short', isFree: true, isNew: true },
+      { title: 'Sign Off (AAC)', kind: 'Short', isFree: true },
+      { title: 'Open Channel', kind: 'Coming Soon', span: 2 },
+    ],
+  },
+  {
+    num: '06', call: 'INTL',
+    shows: [
+      { title: 'Graeae Theatre Collection', kind: 'Performance', span: 2 },
+      { title: 'DADAA Intl', kind: 'Various', isFree: true },
+      { title: 'Disability Arts Online', kind: 'Archive', isFree: true },
+      { title: 'MORE COMING', kind: 'TBD' },
+    ],
+  },
 ];
 
 const MEDIA_TYPES = ['Film', 'TV Show', 'Documentary', 'Short Film', 'Performance Recording', 'Other'];
+
+const TICKER_ITEMS = [
+  'COMING SOON: THE CINEMA',
+  'CAPTIONS ON ALL CONTENT',
+  'AUDIO DESCRIPTION WHERE AVAILABLE',
+  'MEMBER CURATED PICKS',
+  'CRIP CAMP NOW STREAMING',
+  'SUGGEST A FILM BELOW',
+  'DEAF WEST: SPRING AWAKENING',
+  'DISABILITY VISIBILITY PROJECT',
+];
 
 export default function CinemaPage() {
   const [notifyEmail, setNotifyEmail] = useState('');
@@ -33,7 +118,7 @@ export default function CinemaPage() {
   const [suggestStatus, setSuggestStatus] = useState<FormStatus>('idle');
 
   const [clock, setClock] = useState('');
-  const [scrollPos, setScrollPos] = useState(0);
+  const [scrollPx, setScrollPx] = useState(0);
 
   useEffect(() => {
     const tick = () =>
@@ -43,10 +128,15 @@ export default function CinemaPage() {
     return () => clearInterval(id);
   }, []);
 
+  // Vertical grid scroll
+  const ROW_H = 68;
+  const totalRows = CHANNELS.length;
+  const totalScrollH = totalRows * ROW_H;
+
   useEffect(() => {
-    const id = setInterval(() => setScrollPos((p) => p + 1), 40);
+    const id = setInterval(() => setScrollPx((p) => (p + 1) % totalScrollH), 50);
     return () => clearInterval(id);
-  }, []);
+  }, [totalScrollH]);
 
   async function handleNotify(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +174,7 @@ export default function CinemaPage() {
           message: [
             `Title: ${suggest.title.trim()}`,
             suggest.type ? `Type: ${suggest.type}` : '',
-            suggest.why.trim() ? `Why they're recommending it: ${suggest.why.trim()}` : '',
+            suggest.why.trim() ? `Why: ${suggest.why.trim()}` : '',
             suggest.name.trim() ? `From: ${suggest.name.trim()}` : '',
             suggest.email.trim() ? `Email: ${suggest.email.trim()}` : '',
           ].filter(Boolean).join('\n'),
@@ -96,108 +186,227 @@ export default function CinemaPage() {
     }
   }
 
-  const ROW_H = 38;
-  const totalH = LISTINGS.length * ROW_H;
-  const offset = scrollPos % totalH;
-
-  const inputStyle: React.CSSProperties = {
-    background: '#060f1e',
-    border: '1px solid #2a5a9f',
-    color: '#d0e8ff',
-    fontFamily: 'Arial, sans-serif',
-    fontSize: 13,
-    padding: '8px 12px',
+  const inputBase: React.CSSProperties = {
+    background: C.bgDeep,
+    border: `1px solid rgba(252,221,44,0.3)`,
+    color: C.white,
+    fontFamily: C.sans,
+    fontSize: 14,
+    padding: '9px 12px',
     width: '100%',
     boxSizing: 'border-box',
-    borderRadius: 3,
   };
+
+  // Double channels for seamless loop
+  const loopedChannels = [...CHANNELS, ...CHANNELS];
 
   return (
     <main
       style={{
         minHeight: '100vh',
-        background: '#0b1a2e',
+        background: C.bgDeep,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 16px',
-        fontFamily: '"Arial Narrow", Arial, sans-serif',
-        color: '#e8f4ff',
-        position: 'relative',
-        overflow: 'hidden',
+        padding: '0 0 40px',
+        fontFamily: C.sans,
+        color: C.white,
       }}
     >
       <h1 className="sr-only">The Cinema — Artistic Accessibility Collective</h1>
 
-      {/* Static noise overlay */}
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 10, opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`, backgroundSize: '256px 256px' }} />
+      {/* ── Main TV panel ──────────────────────────────────────── */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 860,
+          margin: '24px 16px 0',
+          border: `3px solid ${C.yellow}`,
+          boxShadow: `0 0 60px rgba(10,59,184,0.6), 0 4px 40px rgba(0,0,0,0.7)`,
+          position: 'relative',
+          /* CRT scanline texture */
+          backgroundImage: `repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px)`,
+        }}
+      >
 
-      {/* TV Guide panel */}
-      <div style={{ width: '100%', maxWidth: 720, border: '3px solid #1a4a8f', borderRadius: 4, overflow: 'hidden', boxShadow: '0 0 60px rgba(30,80,200,0.35), 0 4px 30px rgba(0,0,0,0.6)', position: 'relative', zIndex: 1 }}>
-
-        {/* Channel header */}
-        <div aria-hidden="true" style={{ background: 'linear-gradient(to right, #0b3a8f 0%, #1a5cbf 50%, #0b3a8f 100%)', borderBottom: '2px solid #2a7fff', padding: '6px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <svg width="22" height="18" viewBox="0 0 22 18" aria-hidden="true">
-              <rect x="1" y="4" width="20" height="13" rx="1" fill="none" stroke="#7ab8ff" strokeWidth="1.5" />
-              <line x1="4" y1="4" x2="7" y2="1" stroke="#7ab8ff" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="18" y1="4" x2="15" y2="1" stroke="#7ab8ff" strokeWidth="1.5" strokeLinecap="round" />
-              <rect x="8" y="14.5" width="6" height="2" rx="1" fill="#7ab8ff" />
-            </svg>
-            <span style={{ color: '#7ab8ff', fontWeight: 'bold', fontSize: 14, letterSpacing: '0.08em' }}>THE CINEMA</span>
-            <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }}>Channel 42</span>
+        {/* ── Status bar ───────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr auto',
+            alignItems: 'center',
+            gap: 16,
+            padding: '5px 14px',
+            background: C.bgDeep,
+            borderBottom: `2px solid ${C.yellow}`,
+            fontFamily: C.mono,
+            fontSize: 11,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: C.yellow,
+          }}
+        >
+          {/* Logo mark */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 13, letterSpacing: '0.04em' }}>
+            <span style={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '6px 0 6px 10px', borderColor: `transparent transparent transparent ${C.yellow}`, display: 'inline-block' }} />
+            AAC CINEMA
           </div>
-          <div style={{ color: '#7ab8ff', fontSize: 13, fontFamily: 'monospace', letterSpacing: '0.1em' }}>{clock}</div>
+
+          {/* Scrolling ticker */}
+          <div style={{ overflow: 'hidden', position: 'relative', height: 15 }}>
+            <div className="cinema-ticker" style={{ display: 'inline-block', whiteSpace: 'nowrap', color: C.white }}>
+              {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+                <span key={i} style={{ padding: '0 24px', color: i % 3 === 1 ? C.magenta : C.white }}>◆ {item}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Clock */}
+          <div style={{ color: C.yellow, fontSize: 12, letterSpacing: '0.1em' }}>{clock}</div>
         </div>
 
-        {/* Scrolling listings */}
-        <div aria-hidden="true" style={{ height: 152, overflow: 'hidden', background: '#060f1e', borderBottom: '2px solid #1a4a8f', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #060f1e, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to top, #060f1e, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-          <div style={{ transform: `translateY(-${offset}px)`, willChange: 'transform' }}>
-            {[...LISTINGS, ...LISTINGS].map((item, i) => (
-              <div key={i} style={{ height: ROW_H, display: 'flex', alignItems: 'center', borderBottom: '1px solid rgba(30,80,180,0.35)', padding: '0 12px', gap: 12, background: i % 2 === 0 ? 'rgba(15,40,100,0.4)' : 'transparent' }}>
-                <span style={{ color: '#7ab8ff', fontFamily: 'monospace', fontSize: 12, minWidth: 60, flexShrink: 0 }}>{item.time}</span>
-                <span style={{ color: '#4a8adf', fontSize: 11, minWidth: 52, flexShrink: 0, fontWeight: 'bold', letterSpacing: '0.04em' }}>{item.channel}</span>
-                <span style={{ color: '#d0e8ff', fontSize: 13, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</span>
-                <span style={{ color: 'rgba(160,200,255,0.5)', fontSize: 11, flexShrink: 0 }}>{item.desc}</span>
+        {/* ── Grid header / time bar ───────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '100px repeat(5, 1fr)',
+            background: C.yellow,
+            color: C.bgDeep,
+            borderBottom: `3px solid ${C.bgDeep}`,
+            fontFamily: C.sans,
+            fontWeight: 900,
+            fontSize: 16,
+          }}
+        >
+          <div style={{ background: C.bgCh, color: C.yellow, padding: '8px 10px', textAlign: 'center', borderRight: `3px solid ${C.yellow}`, fontFamily: C.mono, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            CH
+          </div>
+          {['NOW ON', 'UP NEXT', 'LATER', 'TONIGHT', 'COMING SOON'].map((slot, i) => (
+            <div key={i} style={{ padding: '8px 12px', borderRight: i < 4 ? `2px solid ${C.bgDeep}` : 'none', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              {slot}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Scrolling grid ───────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{ height: 204, overflow: 'hidden', background: C.bgRow, position: 'relative' }}
+        >
+          {/* fade top/bottom */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 32, background: `linear-gradient(to bottom, ${C.bgDeep}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 32, background: `linear-gradient(to top, ${C.bgDeep}, transparent)`, zIndex: 2, pointerEvents: 'none' }} />
+
+          <div style={{ transform: `translateY(-${scrollPx}px)`, willChange: 'transform' }}>
+            {loopedChannels.map((ch, rowIdx) => (
+              <div
+                key={rowIdx}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '100px repeat(5, 1fr)',
+                  borderBottom: `2px solid ${C.bgCh}`,
+                  minHeight: ROW_H,
+                  background: rowIdx % 2 === 0 ? C.bgRow : C.bgRow2,
+                  backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 4px)',
+                }}
+              >
+                {/* Channel column */}
+                <div
+                  style={{
+                    background: C.bgCh,
+                    color: C.yellow,
+                    padding: '8px 10px',
+                    display: 'grid',
+                    gridTemplateRows: 'auto auto',
+                    alignContent: 'center',
+                    rowGap: 2,
+                    borderRight: `3px solid ${C.yellow}`,
+                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 4px)',
+                  }}
+                >
+                  <div style={{ fontWeight: 900, fontSize: 24, lineHeight: 1, letterSpacing: '-0.02em', color: C.yellowD, textShadow: `0 0 8px rgba(252,204,28,0.45)` }}>
+                    {ch.num}
+                  </div>
+                  <div style={{ fontFamily: C.mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.cyan, textTransform: 'uppercase', textShadow: `0 0 6px rgba(34,229,214,0.35)` }}>
+                    {ch.call}
+                  </div>
+                </div>
+
+                {/* Show cells */}
+                {ch.shows.slice(0, 5).map((show, si) => (
+                  <div
+                    key={si}
+                    style={{
+                      gridColumn: show.span ? `span ${show.span}` : undefined,
+                      padding: '8px 12px',
+                      borderRight: `1.5px solid rgba(252,221,44,0.2)`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      gap: 2,
+                      position: 'relative',
+                      color: C.white,
+                    }}
+                  >
+                    {show.isNew && (
+                      <span style={{ position: 'absolute', top: 5, right: 5, background: C.magenta, color: C.white, fontFamily: C.mono, fontWeight: 700, fontSize: 8, padding: '1px 4px', letterSpacing: '0.14em' }}>NEW</span>
+                    )}
+                    {show.isLive && (
+                      <span style={{ position: 'absolute', top: 5, right: 5, background: C.red, color: C.white, fontFamily: C.mono, fontWeight: 700, fontSize: 8, padding: '1px 4px', letterSpacing: '0.14em' }}>● LIVE</span>
+                    )}
+                    <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.15, letterSpacing: '-0.005em' }}>
+                      {show.title}{show.isFree && <span style={{ color: C.yellow }}> ★</span>}
+                    </div>
+                    <div style={{ fontFamily: C.mono, fontWeight: 700, fontSize: 10, letterSpacing: '0.12em', color: C.cyan, textTransform: 'uppercase', textShadow: `0 0 4px rgba(34,229,214,0.25)` }}>
+                      {show.kind}
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Main content */}
-        <div style={{ background: '#0b1a2e', padding: '28px 28px 32px' }}>
+        {/* ── ON AIR badge + main content ──────────────────────── */}
+        <div style={{ background: C.bg, padding: '24px 28px 28px', backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 3px)' }}>
 
-          <div aria-hidden="true" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #b83232, #e04444)', color: 'white', fontSize: 10, fontWeight: 'bold', letterSpacing: '0.15em', padding: '3px 10px', marginBottom: 16, borderRadius: 2, boxShadow: '0 2px 8px rgba(180,50,50,0.4)' }}>
-            ● ON THE AIR SOON
+          <div aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.magenta, color: C.white, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', padding: '4px 10px', marginBottom: 18, fontFamily: C.mono, textTransform: 'uppercase' }}>
+            <span className="cinema-blink-dot" style={{ width: 7, height: 7, borderRadius: '50%', background: C.white, display: 'inline-block' }} />
+            ON AIR SOON
           </div>
 
-          {/* About section */}
+          {/* About */}
           <section aria-label="About The Cinema" style={{ marginBottom: 24 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 'bold', color: '#d0e8ff', margin: '0 0 12px', lineHeight: 1.2, letterSpacing: '0.02em' }}>
-              THE CINEMA
+            <h2 style={{ fontFamily: C.sans, fontWeight: 900, fontSize: 32, lineHeight: 0.95, letterSpacing: '-0.02em', color: C.white, margin: '0 0 4px', textShadow: `0 2px 0 ${C.bgDeep}, 0 0 24px rgba(252,221,44,0.18)` }}>
+              THE <span style={{ color: C.yellow }}>CINEMA</span>
             </h2>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: '#a0c8f0', margin: '0 0 12px' }}>
-              A film and video library curated by and for the disability arts community.
-              Documentaries, short films, dance films, performance recordings — with a focus on
-              work that is actually accessible (captioned, audio described, or both).
+            <p style={{ fontFamily: C.mono, fontSize: 10, color: C.cyan, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>
+              Ch. 42 — Disability Arts Film & Video
             </p>
-            <p style={{ fontSize: 15, lineHeight: 1.8, color: '#a0c8f0', margin: 0 }}>
-              Think: Crip Camp, Deaf West on Broadway, Kinetic Light, Sins Invalid, and everything
-              your professor never put on the syllabus. Member picks welcome.
+            <p style={{ fontSize: 15, lineHeight: 1.75, color: C.soft, margin: '0 0 10px' }}>
+              A curated film and video library for the disability arts community. Documentaries, short films, dance
+              films, performance recordings — with a focus on work that is actually accessible: captioned, audio
+              described, or both.
+            </p>
+            <p style={{ fontSize: 15, lineHeight: 1.75, color: C.soft, margin: 0 }}>
+              Think: <em>Crip Camp</em>, Deaf West on Broadway, Kinetic Light, Sins Invalid — and everything your
+              professor never put on the syllabus. Member picks welcome. ★ = free to stream.
             </p>
           </section>
 
-          {/* Notify form */}
-          <section aria-label="Get notified when The Cinema launches" style={{ background: 'rgba(10,30,80,0.6)', border: '1px solid #1a4a8f', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 13, color: '#7ab8ff', margin: '0 0 12px', fontWeight: 'bold', letterSpacing: '0.05em' }}>
-              📺 Notify me when The Cinema opens
+          {/* ── Notify me form ────────────────────────────────── */}
+          <section
+            aria-label="Get notified when The Cinema launches"
+            style={{ background: C.bgDeep, border: `2px solid ${C.yellow}`, padding: '20px', marginBottom: 20 }}
+          >
+            <h2 style={{ fontFamily: C.mono, fontSize: 11, color: C.yellow, margin: '0 0 14px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              ▶ Notify me when The Cinema opens
             </h2>
             {notifyStatus === 'success' ? (
-              <div role="status" aria-live="polite" style={{ background: 'rgba(30,100,50,0.3)', border: '1px solid #2a8f4a', padding: '12px 16px', color: '#7ae8a0', fontSize: 14, borderRadius: 3 }}>
-                You&apos;re on the list! We&apos;ll let you know when The Cinema is ready to stream.
+              <div role="status" aria-live="polite" style={{ background: 'rgba(77,255,124,0.12)', border: `1px solid ${C.green}`, padding: '12px 16px', color: C.green, fontSize: 14, fontFamily: C.mono, letterSpacing: '0.05em' }}>
+                ✓ You&apos;re on the list! We&apos;ll let you know when The Cinema is ready to stream.
               </div>
             ) : (
               <form onSubmit={handleNotify} noValidate style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -211,44 +420,60 @@ export default function CinemaPage() {
                   required
                   disabled={notifyStatus === 'loading'}
                   className="cinema-input"
-                  style={{ flex: 1, minWidth: 200, background: '#060f1e', border: '1px solid #2a5a9f', borderRight: 'none', color: '#d0e8ff', fontFamily: 'Arial, sans-serif', fontSize: 14, padding: '10px 14px', borderRadius: '3px 0 0 3px' }}
+                  style={{ ...inputBase, flex: 1, minWidth: 200, borderRight: 'none' }}
                 />
                 <button
                   type="submit"
                   disabled={notifyStatus === 'loading' || !notifyEmail.trim()}
                   className="cinema-btn"
-                  style={{ background: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'rgba(30,80,180,0.4)' : 'linear-gradient(to bottom, #2a6ad4, #1a4abf)', color: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'rgba(160,200,255,0.5)' : '#fff', border: '1px solid #2a5a9f', fontWeight: 'bold', fontSize: 13, padding: '10px 18px', cursor: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'default' : 'pointer', whiteSpace: 'nowrap', borderRadius: '0 3px 3px 0', letterSpacing: '0.03em' }}
+                  style={{
+                    background: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'rgba(252,221,44,0.2)' : C.yellow,
+                    color: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'rgba(252,221,44,0.5)' : C.bgDeep,
+                    border: `1px solid ${C.yellow}`,
+                    borderLeft: 'none',
+                    fontWeight: 900,
+                    fontSize: 13,
+                    padding: '9px 18px',
+                    cursor: (notifyStatus === 'loading' || !notifyEmail.trim()) ? 'default' : 'pointer',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '0.04em',
+                    fontFamily: C.sans,
+                    textTransform: 'uppercase',
+                  }}
                 >
-                  {notifyStatus === 'loading' ? 'Sending...' : 'Subscribe'}
+                  {notifyStatus === 'loading' ? 'Sending…' : 'Subscribe'}
                 </button>
                 {notifyStatus === 'error' && (
-                  <p role="alert" style={{ color: '#ff8888', fontSize: 12, margin: '8px 0 0', width: '100%' }}>
-                    Something went wrong — please try again or email us directly.
+                  <p role="alert" style={{ color: C.red, fontFamily: C.mono, fontSize: 11, margin: '8px 0 0', width: '100%', letterSpacing: '0.05em' }}>
+                    ✗ Something went wrong — please try again or email us directly.
                   </p>
                 )}
               </form>
             )}
           </section>
 
-          {/* Suggest a film */}
-          <section aria-label="Suggest a film or TV show" style={{ background: 'rgba(10,30,80,0.4)', border: '1px solid #1a4a8f', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 13, color: '#7ab8ff', margin: '0 0 4px', fontWeight: 'bold', letterSpacing: '0.05em' }}>
-              🎬 Suggest a Film or TV Show
+          {/* ── Suggest a film ────────────────────────────────── */}
+          <section
+            aria-label="Suggest a film or TV show"
+            style={{ background: C.bgDeep, border: `1px solid rgba(252,221,44,0.35)`, padding: '20px', marginBottom: 24 }}
+          >
+            <h2 style={{ fontFamily: C.mono, fontSize: 11, color: C.yellow, margin: '0 0 4px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+              ▶ Suggest a Film or TV Show
             </h2>
-            <p style={{ fontSize: 12, color: 'rgba(160,200,255,0.6)', margin: '0 0 16px' }}>
+            <p style={{ fontFamily: C.mono, fontSize: 10, color: C.soft, margin: '0 0 16px', letterSpacing: '0.06em' }}>
               What should every disability arts person watch?
             </p>
 
             {suggestStatus === 'success' ? (
-              <div role="status" aria-live="polite" style={{ background: 'rgba(30,100,50,0.3)', border: '1px solid #2a8f4a', padding: '12px 16px', color: '#7ae8a0', fontSize: 14, borderRadius: 3 }}>
-                Suggestion received — thank you! We&apos;ll add it to the screening queue.
+              <div role="status" aria-live="polite" style={{ background: 'rgba(77,255,124,0.12)', border: `1px solid ${C.green}`, padding: '12px 16px', color: C.green, fontSize: 14, fontFamily: C.mono, letterSpacing: '0.05em' }}>
+                ✓ Suggestion received — thank you! We&apos;ll add it to the screening queue.
               </div>
             ) : (
               <form onSubmit={handleSuggest} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="cinema-grid-2">
                   <div>
-                    <label htmlFor="cinema-suggest-title" style={{ display: 'block', fontSize: 11, color: 'rgba(120,180,255,0.8)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                      TITLE <span aria-hidden="true">*</span><span className="sr-only">(required)</span>
+                    <label htmlFor="cinema-suggest-title" style={{ display: 'block', fontFamily: C.mono, fontSize: 10, color: C.cyan, marginBottom: 5, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Title <span aria-hidden="true">*</span><span className="sr-only">(required)</span>
                     </label>
                     <input
                       id="cinema-suggest-title"
@@ -259,12 +484,12 @@ export default function CinemaPage() {
                       required
                       disabled={suggestStatus === 'loading'}
                       className="cinema-input"
-                      style={inputStyle}
+                      style={inputBase}
                     />
                   </div>
                   <div>
-                    <label htmlFor="cinema-suggest-type" style={{ display: 'block', fontSize: 11, color: 'rgba(120,180,255,0.8)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                      TYPE <span style={{ opacity: 0.6 }}>(optional)</span>
+                    <label htmlFor="cinema-suggest-type" style={{ display: 'block', fontFamily: C.mono, fontSize: 10, color: C.cyan, marginBottom: 5, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Type <span style={{ opacity: 0.6 }}>(optional)</span>
                     </label>
                     <select
                       id="cinema-suggest-type"
@@ -272,7 +497,7 @@ export default function CinemaPage() {
                       onChange={(e) => setSuggest((s) => ({ ...s, type: e.target.value }))}
                       disabled={suggestStatus === 'loading'}
                       className="cinema-input"
-                      style={{ ...inputStyle, appearance: 'none' }}
+                      style={{ ...inputBase, appearance: 'none' }}
                     >
                       <option value="">Select type…</option>
                       {MEDIA_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -281,8 +506,8 @@ export default function CinemaPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="cinema-suggest-why" style={{ display: 'block', fontSize: 11, color: 'rgba(120,180,255,0.8)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                    WHY THIS ONE? <span style={{ opacity: 0.6 }}>(optional)</span>
+                  <label htmlFor="cinema-suggest-why" style={{ display: 'block', fontFamily: C.mono, fontSize: 10, color: C.cyan, marginBottom: 5, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    Why this one? <span style={{ opacity: 0.6 }}>(optional)</span>
                   </label>
                   <textarea
                     id="cinema-suggest-why"
@@ -292,14 +517,14 @@ export default function CinemaPage() {
                     rows={3}
                     disabled={suggestStatus === 'loading'}
                     className="cinema-input"
-                    style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
+                    style={{ ...inputBase, resize: 'vertical', lineHeight: 1.6 }}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="cinema-grid-2">
                   <div>
-                    <label htmlFor="cinema-suggest-name" style={{ display: 'block', fontSize: 11, color: 'rgba(120,180,255,0.8)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                      YOUR NAME <span style={{ opacity: 0.6 }}>(optional)</span>
+                    <label htmlFor="cinema-suggest-name" style={{ display: 'block', fontFamily: C.mono, fontSize: 10, color: C.cyan, marginBottom: 5, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Your Name <span style={{ opacity: 0.6 }}>(optional)</span>
                     </label>
                     <input
                       id="cinema-suggest-name"
@@ -309,12 +534,12 @@ export default function CinemaPage() {
                       placeholder="Name"
                       disabled={suggestStatus === 'loading'}
                       className="cinema-input"
-                      style={inputStyle}
+                      style={inputBase}
                     />
                   </div>
                   <div>
-                    <label htmlFor="cinema-suggest-email" style={{ display: 'block', fontSize: 11, color: 'rgba(120,180,255,0.8)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                      YOUR EMAIL <span style={{ opacity: 0.6 }}>(optional)</span>
+                    <label htmlFor="cinema-suggest-email" style={{ display: 'block', fontFamily: C.mono, fontSize: 10, color: C.cyan, marginBottom: 5, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                      Your Email <span style={{ opacity: 0.6 }}>(optional)</span>
                     </label>
                     <input
                       id="cinema-suggest-email"
@@ -324,77 +549,122 @@ export default function CinemaPage() {
                       placeholder="your@email.com"
                       disabled={suggestStatus === 'loading'}
                       className="cinema-input"
-                      style={inputStyle}
+                      style={inputBase}
                     />
                   </div>
                 </div>
 
-                <div>
+                <div style={{ paddingTop: 4 }}>
                   <button
                     type="submit"
                     disabled={suggestStatus === 'loading' || !suggest.title.trim()}
                     className="cinema-btn"
-                    style={{ background: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'rgba(30,80,180,0.4)' : 'linear-gradient(to bottom, #2a6ad4, #1a4abf)', color: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'rgba(160,200,255,0.5)' : '#fff', border: '1px solid #2a5a9f', fontWeight: 'bold', fontSize: 13, padding: '10px 20px', cursor: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'default' : 'pointer', borderRadius: 3, letterSpacing: '0.03em' }}
+                    style={{
+                      background: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'rgba(252,221,44,0.2)' : C.yellow,
+                      color: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'rgba(252,221,44,0.5)' : C.bgDeep,
+                      border: `2px solid ${C.yellow}`,
+                      fontWeight: 900,
+                      fontSize: 13,
+                      padding: '10px 22px',
+                      cursor: (suggestStatus === 'loading' || !suggest.title.trim()) ? 'default' : 'pointer',
+                      letterSpacing: '0.04em',
+                      fontFamily: C.sans,
+                      textTransform: 'uppercase',
+                    }}
                   >
-                    {suggestStatus === 'loading' ? 'Sending...' : 'Submit Suggestion'}
+                    {suggestStatus === 'loading' ? 'Sending…' : 'Submit Suggestion'}
                   </button>
                 </div>
 
                 {suggestStatus === 'error' && (
-                  <p role="alert" style={{ color: '#ff8888', fontSize: 12, margin: 0 }}>
-                    Something went wrong — please try again or email us directly.
+                  <p role="alert" style={{ color: C.red, fontFamily: C.mono, fontSize: 11, margin: 0, letterSpacing: '0.05em' }}>
+                    ✗ Something went wrong — please try again or email us directly.
                   </p>
                 )}
               </form>
             )}
           </section>
 
-          {/* Links */}
+          {/* Nav links */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, fontSize: 14 }}>
-            <Link href="/resources" style={{ color: '#7ab8ff', textDecoration: 'none' }} className="cinema-link">
-              Browse Resources in the meantime →
+            <Link href="/resources" className="cinema-link" style={{ color: C.yellow, textDecoration: 'none', fontWeight: 700, letterSpacing: '0.03em' }}>
+              Browse Resources →
             </Link>
-            <Link href="/" style={{ color: 'rgba(160,200,255,0.6)', textDecoration: 'none' }} className="cinema-link">
+            <Link href="/" className="cinema-link" style={{ color: C.soft, textDecoration: 'none' }}>
               ← Back Home
             </Link>
           </div>
         </div>
 
-        {/* Ticker bar */}
-        <div aria-hidden="true" style={{ background: '#071020', borderTop: '2px solid #1a4a8f', padding: '5px 14px', fontSize: 11, color: '#4a8adf', letterSpacing: '0.08em', display: 'flex', gap: 20, overflow: 'hidden', whiteSpace: 'nowrap' }}>
-          <span>◆ COMING SOON ON AAC CINEMA</span>
-          <span>◆ CAPTIONS ON ALL CONTENT</span>
-          <span>◆ AUDIO DESCRIPTION WHERE AVAILABLE</span>
-          <span>◆ MEMBER CURATED</span>
+        {/* ── Bottom ticker bar ────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{
+            background: C.bgCh,
+            borderTop: `2px solid ${C.yellow}`,
+            padding: '5px 14px',
+            overflow: 'hidden',
+            display: 'flex',
+            gap: 0,
+          }}
+        >
+          <div className="cinema-ticker-bottom" style={{ display: 'inline-block', whiteSpace: 'nowrap', fontFamily: C.mono, fontSize: 11, letterSpacing: '0.1em', color: C.yellow }}>
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+              <span key={i} style={{ padding: '0 20px', color: i % 4 === 2 ? C.cyan : C.yellow }}>◆ {item}</span>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* ── CSS ─────────────────────────────────────────────────── */}
       <style>{`
-        .cinema-link:hover,
-        .cinema-link:focus-visible {
-          text-decoration: underline;
-          outline: 2px solid #f5d84a;
-          outline-offset: 3px;
-          border-radius: 2px;
+        @keyframes cinema-scroll-x {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .cinema-ticker {
+          animation: cinema-scroll-x 34s linear infinite;
+        }
+        .cinema-ticker-bottom {
+          animation: cinema-scroll-x 42s linear infinite;
+        }
+        @keyframes cinema-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0.15; }
+        }
+        .cinema-blink-dot {
+          animation: cinema-blink 1s steps(2, end) infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cinema-ticker,
+          .cinema-ticker-bottom { animation: none; }
+          .cinema-blink-dot { animation: none; }
         }
         .cinema-input:focus-visible,
         .cinema-input:focus {
-          outline: 2px solid #f5d84a;
+          outline: 3px solid ${C.magenta};
           outline-offset: 0;
-          border-color: #7ab8ff;
+          border-color: ${C.yellow};
         }
         .cinema-btn:focus-visible {
-          outline: 2px solid #f5d84a;
+          outline: 3px solid ${C.magenta};
           outline-offset: 2px;
         }
+        .cinema-link:hover,
+        .cinema-link:focus-visible {
+          text-decoration: underline;
+          outline: 3px solid ${C.magenta};
+          outline-offset: 3px;
+          border-radius: 1px;
+        }
         .cinema-input::placeholder {
-          color: rgba(100,160,220,0.4);
+          color: rgba(200,213,255,0.35);
         }
         .cinema-input option {
-          background: #0b1a2e;
-          color: #d0e8ff;
+          background: #062586;
+          color: #ffffff;
         }
-        @media (max-width: 520px) {
+        @media (max-width: 560px) {
           .cinema-grid-2 { grid-template-columns: 1fr !important; }
         }
       `}</style>
