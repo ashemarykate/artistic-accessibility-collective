@@ -52,6 +52,7 @@ function specialtyTagClass(specialty: string): string {
 export default function MemberDirectory() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<ProfileWithEndorsements[]>([]);
+  const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,6 +99,12 @@ export default function MemberDirectory() {
       );
 
       setProfiles(withCounts);
+
+      // Fetch admin user_ids so we can badge them in the directory
+      const { data: admins } = await supabase
+        .from('admin_users')
+        .select('user_id');
+      setAdminUserIds(new Set((admins ?? []).map((a) => a.user_id)));
     } catch (err) {
       console.error('Error fetching members:', err);
     } finally {
@@ -262,6 +269,11 @@ export default function MemberDirectory() {
                             <p style={{ fontSize: '0.9375rem', fontWeight: 'bold', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {name}
                             </p>
+                            {p.user_id && adminUserIds.has(p.user_id) && (
+                              <p style={{ marginBottom: '0.125rem' }}>
+                                <span className="ms-admin-badge" aria-label="AAC Staff member">✦ AAC Staff</span>
+                              </p>
+                            )}
                             {p.pronouns && (
                               <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.125rem' }}>{p.pronouns}</p>
                             )}

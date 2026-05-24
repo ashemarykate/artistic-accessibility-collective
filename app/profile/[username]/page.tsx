@@ -92,6 +92,7 @@ export default function ProfilePage() {
   const [goTos,              setGoTos]               = useState<Profile[]>([]);
   const [currentUser,        setCurrentUser]         = useState<any>(null);
   const [currentUserProfile, setCurrentUserProfile]  = useState<Profile | null>(null);
+  const [isProfileAdmin,     setIsProfileAdmin]      = useState(false);
   const [loading,            setLoading]             = useState(true);
   const [endorsing,          setEndorsing]           = useState(false);
   const [hasEndorsed,        setHasEndorsed]         = useState(false);
@@ -125,13 +126,12 @@ export default function ProfilePage() {
   const fetchData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push('/login'); return; }
       setCurrentUser(user);
 
-      if (user) {
-        const { data: up } = await supabase
-          .from('profiles').select('*').eq('user_id', user.id).eq('status', 'approved').single();
-        setCurrentUserProfile(up);
-      }
+      const { data: up } = await supabase
+        .from('profiles').select('*').eq('user_id', user.id).eq('status', 'approved').single();
+      setCurrentUserProfile(up);
 
       // Try vanity username first, fall back to UUID.
       let { data: profileData } = await supabase
@@ -143,6 +143,16 @@ export default function ProfilePage() {
       }
       if (!profileData) throw new Error('Profile not found');
       setProfile(profileData);
+
+      // Check whether this profile belongs to an admin
+      if (profileData.user_id) {
+        const { data: adminRow } = await supabase
+          .from('admin_users')
+          .select('user_id')
+          .eq('user_id', profileData.user_id)
+          .maybeSingle();
+        setIsProfileAdmin(!!adminRow);
+      }
 
       // Redirect to canonical username URL if loaded via UUID
       if (profileData.username && slug !== profileData.username) {
@@ -377,6 +387,9 @@ export default function ProfilePage() {
             headerEl={
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 {displayName}
+                {isProfileAdmin && (
+                  <span className="ms-admin-badge" aria-label="AAC Staff member">✦ AAC Staff</span>
+                )}
                 {profile.is_student && (
                   <span className="ms-student-badge" aria-label="Student member">🎓 Student</span>
                 )}

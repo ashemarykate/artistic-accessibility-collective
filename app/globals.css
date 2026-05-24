@@ -184,6 +184,25 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   margin-bottom: 10px;
 }
 
+/* Text emoticons inside box headers — monospace so they look typed */
+.ms-emoticon {
+  font-family: monospace;
+  font-style: normal;
+  letter-spacing: -0.02em;
+}
+
+/* Headings inside box headers inherit the header's styling */
+.ms-box-header h2,
+.ms-box-header h3 {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+
 /* The colored title bar at the top of each section */
 .ms-box-header {
   background: linear-gradient(to bottom, var(--ms-header-from), var(--ms-header-to));
@@ -392,6 +411,21 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   font-weight: bold;
   padding: 2px 7px;
   font-family: var(--font-body);
+}
+
+/* AAC Staff badge — shown on admin profiles in the directory and profile page */
+.ms-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--aac-blue);
+  border: 1px solid var(--aac-blue-dark);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
 }
 
 /* Availability badge — color-coded like a traffic light */
@@ -796,6 +830,23 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
    MYSPACE-STYLE PAGE FOOTER
    ============================================ */
 
+/* ── Member hub 3-column layout ─────────────────────────────────────────────── */
+.ms-hub-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap: 8px;
+  align-items: flex-start;
+  max-width: 980px;
+  margin: 8px auto;
+  padding: 0 8px 24px;
+}
+
+@media (max-width: 720px) {
+  .ms-hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .ms-footer {
   text-align: center;
   padding: 12px;
@@ -810,6 +861,33 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 }
 .ms-footer a:hover { text-decoration: underline; }
 .ms-footer-pipe { margin: 0 4px; }
+
+/* ── Hub interactive rows and cards ─────────────────────────────────────────── */
+
+/* Background-highlight rows: control panel links, conv previews, resource links,
+   recently-joined rows. Hover AND keyboard focus both get the highlight so
+   keyboard-only users see the same visual feedback as mouse users. */
+.ms-hub-row:hover,
+.ms-hub-row:focus-visible {
+  background: var(--aac-blue-light);
+}
+
+/* Unread conversation rows have a tinted base background;
+   hover/focus still overrides it via the rule above (higher specificity wins
+   because :hover/:focus-visible are pseudo-classes). */
+.ms-conv-row-unread {
+  background: #f0f4ff;
+}
+
+/* Directory grid cards: border highlights on hover and keyboard focus */
+.ms-dir-card {
+  border: 1px solid var(--ms-border);
+  transition: border-color 0.1s ease;
+}
+.ms-dir-card:hover,
+.ms-dir-card:focus-visible {
+  border-color: var(--aac-blue);
+}
 
 /* ============================================
    UTILITIES

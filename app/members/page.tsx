@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { supabase, type Profile, profileHref } from '@/lib/supabase';
+import { supabase, type Profile, type Conversation, type Message, profileHref } from '@/lib/supabase';
+import { RESOURCE_BY_SLUG } from '@/lib/resources-data';
+import { EnvelopeIcon, PersonBubbleIcon, PersonStarIcon, PeopleIcon, FavoritesStarIcon, PersonPlusIcon, WrenchIcon, PencilIcon, MonitorPlayIcon, ListIcon, LiveCameraIcon, LocationPinIcon } from '@/app/components/PixelIcons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -19,16 +21,30 @@ function relativeDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+// ── Conversation preview row ──────────────────────────────────────────────────
+
+type ConvPreview = {
+  id: string;
+  other: Pick<Profile, 'id' | 'full_name' | 'display_name' | 'avatar_url' | 'username'>;
+  lastMessage: Message | null;
+  unread: boolean;
+};
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MemberHub() {
   const router = useRouter();
 
-  const [profile,      setProfile]      = useState<Profile | null>(null);
-  const [loading,      setLoading]      = useState(true);
-  const [unreadCount,  setUnreadCount]  = useState(0);
-  const [memberCount,  setMemberCount]  = useState(0);
-  const [newMembers,   setNewMembers]   = useState<Profile[]>([]);
+  const [profile,       setProfile]       = useState<Profile | null>(null);
+  const [loading,       setLoading]       = useState(true);
+  const [unreadCount,   setUnreadCount]   = useState(0);
+  const [memberCount,   setMemberCount]   = useState(0);
+  const [recentMembers, setRecentMembers] = useState<Profile[]>([]);
+  const [allMembers,    setAllMembers]    = useState<Profile[]>([]);
+  const [isAdmin,       setIsAdmin]       = useState(false);
+  const [convPreviews,  setConvPreviews]  = useState<ConvPreview[]>([]);
+  const [savedResources, setSavedResources] = useState<{ slug: string; name: string; categoryTitle: string; categoryEmoji: string }[]>([]);
+  const [adminUserIds,  setAdminUserIds]  = useState<Set<string>>(new Set());
 
   useEffect(() => {
     document.title = 'My Collective — Artistic Accessibility Collective';
@@ -48,44 +64,132 @@ export default function MemberHub() {
       .eq('status', 'approved')
       .maybeSingle();
 
-    if (!profileData) { router.push('/login'); return; }
-    setProfile(profileData);
+    // TEMP: local preview fallback — remove before deploy
+    const resolvedProfile = profileData ?? {
+      id: 'preview', user_id: user.id, full_name: 'Mary Kate Ashe',
+      display_name: null, pronouns: 'she/her', username: 'mkashe',
+      location_city: 'Chicago', location_state: 'IL', location_country: 'US',
+      avatar_url: null, status: 'approved', approved_at: new Date().toISOString(),
+      public_visible: true, email_public: false,
+      specialties: ['Creative Accessibility Designer', 'Educator'],
+      certifications: [], languages: ['English', 'ASL'],
+      years_of_experience: 12, bio: null, website: null, linkedin: null, instagram: null,
+      profile_type: 'individual', is_student: false, has_captioning: false,
+    } as any;
+    setProfile(resolvedProfile);
 
-    // Fetch member count + recently joined (one call, limit 6)
-    const { data: recentMembers, count } = await supabase
+    // Admin check
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setIsAdmin(!!adminData);
+
+    // All admin user IDs (for staff badge in directory widget)
+    const { data: admins } = await supabase.from('admin_users').select('user_id');
+    setAdminUserIds(new Set((admins ?? []).map((a) => a.user_id)));
+
+    // Members: count + recently joined (right sidebar) + directory grid
+    const { data: members, count } = await supabase
       .from('profiles')
       .select('*', { count: 'exact' })
       .eq('status', 'approved')
-      .eq('public_visible', true)
       .order('approved_at', { ascending: false })
-      .limit(6);
+      .limit(20);
 
     setMemberCount(count ?? 0);
-    setNewMembers(recentMembers ?? []);
+    const memberList = (members ?? []).filter((m) => m.id !== resolvedProfile.id);
+    setRecentMembers(memberList.slice(0, 3));
+    setAllMembers(memberList.slice(0, 12));
 
-    // Fetch unread message count.
-    // Unread = messages in my conversations that I didn't send + haven't been read.
-    // Guard with try/catch in case the messages table doesn't exist yet
-    // (migration not yet run).
+    // Messaging (wrapped in try/catch — safe before migration runs)
     try {
       const { data: myConvs } = await supabase
         .from('conversations')
-        .select('id')
-        .or(`profile_a_id.eq.${profileData.id},profile_b_id.eq.${profileData.id}`);
+        .select('*')
+        .or(`profile_a_id.eq.${resolvedProfile.id},profile_b_id.eq.${resolvedProfile.id}`)
+        .order('last_message_at', { ascending: false })
+        .limit(4);
 
       if (myConvs && myConvs.length > 0) {
-        const convIds = myConvs.map((c) => c.id);
+        const convIds = myConvs.map((c: Conversation) => c.id);
+
+        // Fetch unread count
         const { count: unread } = await supabase
           .from('messages')
           .select('id', { count: 'exact', head: true })
           .in('conversation_id', convIds)
           .is('read_at', null)
-          .neq('sender_profile_id', profileData.id);
-
+          .neq('sender_profile_id', resolvedProfile.id);
         setUnreadCount(unread ?? 0);
+
+        // Fetch latest message per conversation + other profile
+        const otherIds = myConvs.map((c: Conversation) =>
+          c.profile_a_id === resolvedProfile.id ? c.profile_b_id : c.profile_a_id
+        );
+
+        const [{ data: otherProfiles }, { data: lastMsgs }] = await Promise.all([
+          supabase.from('profiles')
+            .select('id, full_name, display_name, avatar_url, username')
+            .in('id', otherIds),
+          supabase.from('messages')
+            .select('*')
+            .in('conversation_id', convIds)
+            .order('sent_at', { ascending: false }),
+        ]);
+
+        const otherMap = Object.fromEntries(
+          (otherProfiles ?? []).map((p: any) => [p.id, p])
+        );
+
+        // Group last messages by conversation
+        const lastMsgByConv: Record<string, Message> = {};
+        for (const m of (lastMsgs ?? []) as Message[]) {
+          if (!lastMsgByConv[m.conversation_id]) {
+            lastMsgByConv[m.conversation_id] = m;
+          }
+        }
+
+        const previews: ConvPreview[] = myConvs
+          .slice(0, 3)
+          .map((c: Conversation) => {
+            const otherId = c.profile_a_id === resolvedProfile.id ? c.profile_b_id : c.profile_a_id;
+            const lastMsg = lastMsgByConv[c.id] ?? null;
+            const unreadMsg = lastMsg && lastMsg.sender_profile_id !== resolvedProfile.id && !lastMsg.read_at;
+            return {
+              id: c.id,
+              other: otherMap[otherId] ?? { id: otherId, full_name: 'Member', display_name: null, avatar_url: null, username: null },
+              lastMessage: lastMsg,
+              unread: !!unreadMsg,
+            };
+          });
+        setConvPreviews(previews);
       }
     } catch {
-      // Messages table not yet created — show 0 unread
+      // Messages table not yet created
+    }
+
+    // Saved resources — fetch slugs and look up names from shared resource data
+    try {
+      const { data: favRows } = await supabase
+        .from('resource_favorites')
+        .select('resource_slug')
+        .eq('user_id', user.id);
+
+      if (favRows) {
+        const resolved = favRows
+          .map((row) => {
+            const info = RESOURCE_BY_SLUG[row.resource_slug];
+            return info
+              ? { slug: row.resource_slug, name: info.name, categoryTitle: info.categoryTitle, categoryEmoji: info.categoryEmoji }
+              : null;
+          })
+          .filter(Boolean) as { slug: string; name: string; categoryTitle: string; categoryEmoji: string }[];
+        setSavedResources(resolved);
+      }
+    } catch {
+      // resource_favorites not yet created
     }
 
     setLoading(false);
@@ -106,9 +210,9 @@ export default function MemberHub() {
 
   if (!profile) return null;
 
-  const name      = profile.display_name || profile.full_name;
-  const firstName = name.split(' ')[0];
-  const initial   = name.charAt(0).toUpperCase();
+  const displayName = profile.display_name || profile.full_name;
+  const firstName   = displayName.split(' ')[0];
+  const initial     = displayName.charAt(0).toUpperCase();
 
   return (
     <main className="page-wrapper">
@@ -128,237 +232,468 @@ export default function MemberHub() {
           </Link>
           <Link href="/collective" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
+          {isAdmin && <Link href="/admin" className="nav-link">Admin</Link>}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
             className="btn btn-outline-white btn-sm"
-            aria-label="Sign out of your account"
+            aria-label="Sign out"
           >
             Sign Out
           </button>
         </nav>
       </header>
 
-      <div className="page-container-wide" style={{ paddingTop: '2rem', paddingBottom: '3rem' }}>
+      {/* ── Hello bar ──────────────────────────────────────────────────── */}
+      <div style={{ background: 'var(--aac-cream)', borderBottom: '1px solid var(--ms-border)', padding: '6px 12px' }}>
+        <h1 style={{ fontWeight: 'bold', fontSize: '1.125rem', color: 'var(--aac-navy)', margin: 0 }}>
+          Hello, {firstName}!
+        </h1>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+          My URL:{' '}
+          <Link href={profileHref(profile)} style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+            artisticaccessibility.com/profile/{profile.username ?? profile.id.slice(0, 8)}
+          </Link>
+          {' · '}
+          <Link href="/profile/edit" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+            <PencilIcon />Edit Profile
+          </Link>
+        </p>
+      </div>
 
-        {/* ── Welcome banner ──────────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-          <div
-            className="member-avatar member-avatar-lg"
-            aria-hidden="true"
-          >
-            {profile.avatar_url
-              ? /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : initial}
-          </div>
-          <div>
-            <h1 style={{ color: 'var(--aac-blue-dark)', fontWeight: 'bold', fontSize: 'clamp(1.25rem, 3.5vw, 1.875rem)', marginBottom: '0.25rem' }}>
-              Welcome back, {firstName}!
-            </h1>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
-              {profile.pronouns && <>{profile.pronouns} · </>}
-              {[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
-            </p>
-          </div>
-        </div>
+      {/* ── Three-column layout ────────────────────────────────────────── */}
+      <div className="ms-hub-grid">
 
-        {/* ── Quick-nav cards ─────────────────────────────────────────── */}
-        <section aria-label="Quick navigation">
-          <ul
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-              gap: '1rem',
-              listStyle: 'none',
-              padding: 0,
-              margin: '0 0 2.5rem',
-            }}
-          >
-            {/* Messages */}
-            <li>
-              <Link
-                href="/messages"
-                className="ms-nav-card"
-                aria-label={unreadCount > 0 ? `Messages — ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}` : 'Messages — no unread messages'}
-              >
-                <div className="ms-box" style={{ height: '100%' }}>
-                  <div className="ms-box-header">
-                    <span>📬 Messages</span>
-                    {unreadCount > 0 && (
-                      <span
-                        style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 7px', fontSize: '0.75rem', fontWeight: 700 }}
-                        aria-hidden="true"
-                      >
-                        {unreadCount} new
-                      </span>
-                    )}
-                  </div>
-                  <div className="ms-box-body" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '8px 10px' }}>
-                    {unreadCount > 0
-                      ? `You have ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}.`
-                      : 'Your inbox is all caught up.'}
-                  </div>
+        {/* ════════════════ LEFT SIDEBAR ════════════════ */}
+        <aside aria-label="Profile sidebar">
+
+          {/* Profile card */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header" style={{ fontSize: '0.8rem' }}>
+              <h2>
+                {displayName}
+                {isAdmin && (
+                  <span className="ms-admin-badge" style={{ marginLeft: '4px' }} aria-label="AAC Staff">✦ Staff</span>
+                )}
+              </h2>
+            </div>
+            <div style={{ padding: '8px', textAlign: 'center' }}>
+              <Link href={profileHref(profile)} aria-label="View my profile">
+                <div
+                  className="member-avatar"
+                  aria-hidden="true"
+                  style={{ width: 80, height: 80, fontSize: '2rem', margin: '0 auto 6px' }}
+                >
+                  {profile.avatar_url
+                    ? /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : initial}
                 </div>
               </Link>
-            </li>
-
-            {/* My Profile */}
-            <li>
-              <Link
-                href={profileHref(profile)}
-                className="ms-nav-card"
-                aria-label="View my public profile"
-              >
-                <div className="ms-box" style={{ height: '100%' }}>
-                  <div className="ms-box-header">👤 My Profile</div>
-                  <div className="ms-box-body" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '8px 10px' }}>
-                    View and update your public profile — specialties, bio, links, and more.
-                  </div>
-                </div>
-              </Link>
-            </li>
-
-            {/* Directory */}
-            <li>
-              <Link
-                href="/collective"
-                className="ms-nav-card"
-                aria-label={`Member directory — ${memberCount} member${memberCount !== 1 ? 's' : ''}`}
-              >
-                <div className="ms-box" style={{ height: '100%' }}>
-                  <div className="ms-box-header">
-                    <span>👥 Member Directory</span>
-                    {memberCount > 0 && (
-                      <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.6875rem' }}>
-                        {memberCount}
-                      </span>
-                    )}
-                  </div>
-                  <div className="ms-box-body" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '8px 10px' }}>
-                    Browse and connect with accessibility professionals across the Collective.
-                  </div>
-                </div>
-              </Link>
-            </li>
-
-            {/* Resources */}
-            <li>
-              <Link
-                href="/resources"
-                className="ms-nav-card"
-                aria-label="Free accessibility resource directory"
-              >
-                <div className="ms-box" style={{ height: '100%' }}>
-                  <div className="ms-box-header">📚 Resources</div>
-                  <div className="ms-box-body" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '8px 10px' }}>
-                    Free tools, guides, and organizations — save your favorites and suggest new ones.
-                  </div>
-                </div>
-              </Link>
-            </li>
-
-            {/* Feedback */}
-            <li>
-              <Link
-                href="/feedback"
-                className="ms-nav-card"
-                aria-label="Share tester feedback"
-              >
-                <div className="ms-box" style={{ height: '100%' }}>
-                  <div className="ms-box-header">💬 Share Feedback</div>
-                  <div className="ms-box-body" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', padding: '8px 10px' }}>
-                    You&apos;re a founding member. Your feedback directly shapes what this becomes.
-                  </div>
-                </div>
-              </Link>
-            </li>
-          </ul>
-        </section>
-
-        {/* ── Recently joined ─────────────────────────────────────────── */}
-        {newMembers.length > 0 && (
-          <section aria-labelledby="new-members-heading">
-            <div className="ms-box">
-              <div className="ms-box-header" id="new-members-heading">
-                🌟 Recently Joined
-              </div>
-              <div style={{ padding: '10px' }}>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '12px' }}>
-                  The newest members of the Collective — say hello!
+              {profile.pronouns && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '2px' }}>{profile.pronouns}</p>
+              )}
+              {(profile.location_city || profile.location_state) && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+                  <span aria-hidden="true">📍 </span>{[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
                 </p>
-                <ul
-                  aria-label="Recently joined members"
+              )}
+              {profile.approved_at && (
+                <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                  Member since{' '}
+                  <time dateTime={profile.approved_at}>
+                    {new Date(profile.approved_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                  </time>
+                </p>
+              )}
+              <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <Link href={profileHref(profile)} className="btn btn-primary btn-sm" style={{ width: '100%', textAlign: 'center', fontSize: '0.75rem' }}>
+                  View Profile
+                </Link>
+                <Link href="/profile/edit" className="btn btn-ghost btn-sm" style={{ width: '100%', textAlign: 'center', fontSize: '0.75rem' }}>
+                  <PencilIcon />Edit Profile
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Control panel */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little lavender wrench emoticon"><WrenchIcon /></span> Control Panel</h2>
+            </div>
+            <nav aria-label="Member navigation" style={{ padding: '4px 0' }}>
+              {[
+                { href: '/messages', label: '📬 Messages', badge: unreadCount > 0 ? unreadCount : null },
+                { href: '/collective', label: '👥 Directory', badge: null },
+                { href: '/resources', label: '📚 Resources', badge: null },
+                { href: '/feedback', label: '💬 Feedback', badge: null },
+                ...(isAdmin ? [{ href: '/admin', label: '⚙️ Admin', badge: null }] : []),
+              ].map(({ href, label, badge }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="ms-hub-row"
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                    gap: '10px',
-                    listStyle: 'none',
-                    padding: 0,
-                    margin: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--aac-navy)',
+                    textDecoration: 'none', borderBottom: '1px solid var(--ms-border)',
                   }}
                 >
-                  {newMembers.map((m) => {
+                  <span>{label}</span>
+                  {badge !== null && (
+                    <span
+                      style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700 }}
+                      aria-label={`${badge} unread`}
+                    >
+                      {badge}
+                    </span>
+                  )}
+                </Link>
+              ))}
+              <button
+                onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+                className="ms-hub-row"
+                style={{
+                  display: 'block', width: '100%', textAlign: 'left',
+                  padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--color-text-muted)',
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                }}
+              >
+                🔒 Sign Out
+              </button>
+            </nav>
+          </div>
+
+        </aside>
+
+        {/* ════════════════ CENTER COLUMN ════════════════ */}
+        <div role="region" aria-label="Your hub">
+
+          {/* Messages preview */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2>
+                <span role="img" aria-label="little pink envelope emoticon"><EnvelopeIcon /></span>{' '}
+                Messages
+                {unreadCount > 0 && (
+                  <span
+                    style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700, marginLeft: '6px' }}
+                    aria-label={`${unreadCount} unread`}
+                  >
+                    {unreadCount} new
+                  </span>
+                )}
+              </h2>
+              <Link href="/messages" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>view all</Link>
+            </div>
+            <div style={{ padding: '4px 0' }}>
+              {convPreviews.length === 0 ? (
+                <div style={{ padding: '12px 10px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                    No messages yet — find a member and say hello!
+                  </p>
+                  <Link href="/collective" className="btn btn-primary btn-sm">Browse Members</Link>
+                </div>
+              ) : (
+                convPreviews.map((conv) => {
+                  const otherName = conv.other.display_name || conv.other.full_name;
+                  return (
+                    <Link
+                      key={conv.id}
+                      href={`/messages/${conv.id}`}
+                      aria-label={`Conversation with ${otherName}${conv.unread ? ' — unread' : ''}`}
+                      className={`ms-hub-row${conv.unread ? ' ms-conv-row-unread' : ''}`}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: '7px 10px', textDecoration: 'none',
+                        borderBottom: '1px solid var(--ms-border)',
+                      }}
+                    >
+                      <div className="member-avatar" aria-hidden="true" style={{ width: 30, height: 30, minWidth: 30, fontSize: '0.8rem', flexShrink: 0 }}>
+                        {conv.other.avatar_url
+                          ? /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={conv.other.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : otherName.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontWeight: conv.unread ? 700 : 400, fontSize: '0.8125rem', color: 'var(--aac-navy)', marginBottom: '1px' }}>
+                          {conv.unread && <span className="msg-unread-dot" aria-hidden="true" style={{ marginRight: '4px' }} />}
+                          {otherName}
+                        </p>
+                        {conv.lastMessage && (
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {conv.lastMessage.sender_profile_id === profile.id ? 'You: ' : ''}
+                            {conv.lastMessage.body}
+                          </p>
+                        )}
+                      </div>
+                      {conv.lastMessage && (
+                        <time style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          {relativeDate(conv.lastMessage.sent_at)}
+                        </time>
+                      )}
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Discussion board — coming soon */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little yellow person with speech bubble emoticon"><PersonBubbleIcon /></span> Discussion Board</h2>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+                Coming Soon
+              </span>
+            </div>
+            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+                A community space for questions, announcements, and conversations across the Collective. Coming in a future update.
+              </p>
+            </div>
+          </div>
+
+          {/* Job board — coming soon */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little orange person with star emoticon"><PersonStarIcon /></span> Job Board</h2>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+                Coming Soon
+              </span>
+            </div>
+            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+                Gig postings, contract opportunities, and full-time roles in arts accessibility — posted by and for Collective members.
+              </p>
+            </div>
+          </div>
+
+          {/* Mini directory */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <h2>
+                <span role="img" aria-label="little green group of people emoticon"><PeopleIcon /></span>{' '}
+                Member Directory
+                {memberCount > 0 && (
+                  <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.6875rem', marginLeft: '6px' }}>{memberCount} members</span>
+                )}
+              </h2>
+              <Link href="/collective" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>view all</Link>
+            </div>
+            <div style={{ padding: '8px' }}>
+              {allMembers.length === 0 ? (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '12px 0' }}>
+                  No other members yet.
+                </p>
+              ) : (
+                <ul
+                  aria-label="Member directory preview"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))',
+                    gap: '6px',
+                    listStyle: 'none', padding: 0, margin: 0,
+                  }}
+                >
+                  {allMembers.map((m) => {
                     const mName = m.display_name || m.full_name;
-                    // Skip own card
-                    if (m.id === profile.id) return null;
+                    const isStaff = m.user_id ? adminUserIds.has(m.user_id) : false;
                     return (
                       <li key={m.id}>
                         <Link
                           href={profileHref(m)}
                           aria-label={`View ${mName}'s profile`}
+                          className="ms-dir-card"
                           style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '10px 8px',
-                            border: '1px solid var(--ms-border)',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                            padding: '6px 4px', textDecoration: 'none',
                             background: 'var(--aac-cream)',
-                            textDecoration: 'none',
-                            transition: 'border-color 0.12s, box-shadow 0.12s',
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.borderColor = 'var(--aac-blue)';
-                            (e.currentTarget as HTMLElement).style.boxShadow = '2px 2px 6px rgba(38,53,144,0.15)';
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.borderColor = 'var(--ms-border)';
-                            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                           }}
                         >
-                          <div
-                            className="member-avatar"
-                            aria-hidden="true"
-                            style={{ width: 48, height: 48, fontSize: '1.1rem' }}
-                          >
+                          <div className="member-avatar" aria-hidden="true" style={{ width: 44, height: 44, fontSize: '1rem' }}>
                             {m.avatar_url
                               ? /* eslint-disable-next-line @next/next/no-img-element */
                                 <img src={m.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               : mName.charAt(0).toUpperCase()}
                           </div>
-                          <div style={{ textAlign: 'center' }}>
-                            <p style={{ fontWeight: 'bold', fontSize: '0.8125rem', color: 'var(--aac-navy)', marginBottom: '2px', lineHeight: 1.3 }}>
-                              {mName}
-                            </p>
-                            {m.pronouns && (
-                              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{m.pronouns}</p>
-                            )}
-                            {m.approved_at && (
-                              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
-                                Joined <time dateTime={m.approved_at}>{relativeDate(m.approved_at)}</time>
-                              </p>
-                            )}
-                          </div>
+                          <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--aac-navy)', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                            {mName}
+                          </p>
+                          {isStaff && (
+                            <span className="ms-admin-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="AAC Staff">✦ Staff</span>
+                          )}
                         </Link>
                       </li>
                     );
                   })}
                 </ul>
+              )}
+            </div>
+          </div>
+
+          {/* Learning Portal — coming soon */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little purple monitor with play button emoticon"><MonitorPlayIcon /></span> Learning Portal</h2>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+                Coming Soon
+              </span>
+            </div>
+            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+                Custom learning videos built for Collective members — skill-building, industry knowledge, and professional development, right here in your hub.
+              </p>
+            </div>
+          </div>
+
+          {/* Upcoming Live Events — coming soon */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little magenta camera with live dot emoticon"><LiveCameraIcon /></span> Upcoming Live Events</h2>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+                Coming Soon
+              </span>
+            </div>
+            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+                Virtual events, webinars, and live sessions hosted by and for the Collective — streamed directly to members.
+              </p>
+            </div>
+          </div>
+
+          {/* Upcoming In-Person Events — coming soon */}
+          <div className="ms-box">
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little amber location pin emoticon"><LocationPinIcon /></span> Upcoming In-Person Events</h2>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+                Coming Soon
+              </span>
+            </div>
+            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+                Workshops, meetups, and gatherings happening near you — connect with Collective members in real life.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ════════════════ RIGHT SIDEBAR ════════════════ */}
+        <aside aria-label="Right sidebar">
+
+          {/* Saved resources */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little gold star emoticon"><FavoritesStarIcon /></span> My Resources</h2>
+              <Link href="/resources" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>all</Link>
+            </div>
+            {savedResources.length === 0 ? (
+              <div style={{ padding: '10px' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                  You haven&apos;t saved any resources yet. Heart the ones you love!
+                </p>
+                <Link href="/resources" className="btn btn-primary btn-sm" style={{ width: '100%', textAlign: 'center', fontSize: '0.75rem' }}>
+                  Browse Resources
+                </Link>
+              </div>
+            ) : (
+              <div style={{ padding: '4px 0' }}>
+                {savedResources.map((res) => (
+                  <a
+                    key={res.slug}
+                    href={res.slug}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${res.name} — opens in new tab`}
+                    className="ms-hub-row"
+                    style={{
+                      display: 'block',
+                      padding: '6px 10px',
+                      borderBottom: '1px solid var(--ms-border)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-blue)', lineHeight: 1.3, marginBottom: '1px' }}>
+                      {res.name}
+                    </p>
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                      {res.categoryEmoji} {res.categoryTitle}
+                    </p>
+                  </a>
+                ))}
+                <div style={{ padding: '8px 10px' }}>
+                  <Link href="/resources" style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+                    Browse all resources →
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* My Lists — coming soon */}
+          <div className="ms-box" style={{ marginBottom: '8px' }}>
+            <div className="ms-box-header">
+              <h2><span role="img" aria-label="little blue bulleted list emoticon"><ListIcon /></span> My Lists</h2>
+            </div>
+            <div style={{ padding: '10px' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                Save custom lists of members — by specialty, location, language, or anyone you want to find again fast.
+              </p>
+              <Link href="/my-lists" className="btn btn-primary btn-sm" style={{ width: '100%', textAlign: 'center', fontSize: '0.75rem' }}>
+                Tell us what you&apos;d want →
+              </Link>
+            </div>
+          </div>
+
+          {/* Recently joined */}
+          {recentMembers.length > 0 && (
+            <div className="ms-box">
+              <div className="ms-box-header">
+                <h2><span role="img" aria-label="little green person with plus sign emoticon"><PersonPlusIcon /></span> New Members</h2>
+                <Link href="/collective" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>all</Link>
+              </div>
+              <div style={{ padding: '4px 0' }}>
+                {recentMembers.map((m) => {
+                  const mName = m.display_name || m.full_name;
+                  return (
+                    <Link
+                      key={m.id}
+                      href={profileHref(m)}
+                      aria-label={`View ${mName}'s profile`}
+                      className="ms-hub-row"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '7px',
+                        padding: '6px 8px', textDecoration: 'none',
+                        borderBottom: '1px solid var(--ms-border)',
+                      }}
+                    >
+                      <div className="member-avatar" aria-hidden="true" style={{ width: 32, height: 32, minWidth: 32, fontSize: '0.875rem', flexShrink: 0 }}>
+                        {m.avatar_url
+                          ? /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={m.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : mName.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {mName}
+                        </p>
+                        {m.approved_at && (
+                          <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                            <time dateTime={m.approved_at}>{relativeDate(m.approved_at)}</time>
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
-          </section>
-        )}
-      </div>
+          )}
+
+        </aside>
+
+      </div>{/* end ms-hub-grid */}
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">

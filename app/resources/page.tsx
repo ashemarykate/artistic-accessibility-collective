@@ -6,23 +6,7 @@ import Link from 'next/link';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ResourceType = 'standard' | 'tool' | 'guide' | 'org' | 'media' | 'course';
-
-type Resource = {
-  name: string;
-  url: string;          // also used as the stable resource_slug in the DB
-  description: string;
-  type: ResourceType;
-  tags?: string[];      // e.g. ['FREE', 'Open Access', 'Deaf-Centered']
-};
-
-type Category = {
-  id: string;
-  title: string;
-  emoji: string;
-  description: string;
-  resources: Resource[];
-};
+import { CATEGORIES, ALL_RESOURCES, type ResourceType, type Resource, type Category } from '@/lib/resources-data';
 
 // ── Type tag helpers ──────────────────────────────────────────────────────────
 
@@ -44,9 +28,9 @@ const TYPE_CLASS: Record<ResourceType, string> = {
   course:   'tag-blue',
 };
 
-// ── Resource data ─────────────────────────────────────────────────────────────
+// ── Stale inline data removed — all resource data lives in lib/resources-data.ts ──
 
-const CATEGORIES: Category[] = [
+const _CATEGORIES_REMOVED_PLACEHOLDER: Category[] = [
   {
     id: 'audio-description',
     title: 'Audio Description',
@@ -850,11 +834,9 @@ const CATEGORIES: Category[] = [
   },
 ];
 
-// ── All resources flat list for search ───────────────────────────────────────
-
-const ALL_RESOURCES = CATEGORIES.flatMap((cat) =>
-  cat.resources.map((r) => ({ ...r, categoryId: cat.id, categoryTitle: cat.title }))
-);
+// The inline definition above is superseded by the import from lib/resources-data.ts.
+// All live data is in lib/resources-data.ts — this block can be deleted.
+void _CATEGORIES_REMOVED_PLACEHOLDER;
 
 // ── Tag badge ─────────────────────────────────────────────────────────────────
 
@@ -945,6 +927,9 @@ export default function ResourcesPage() {
   const [userFavs, setUserFavs]         = useState<Set<string>>(new Set());
   const [favPending, setFavPending]     = useState<Set<string>>(new Set());
 
+  // Member-submitted approved resources (loaded from DB)
+  const [memberResources, setMemberResources]   = useState<Resource[]>([]);
+
   // Submission form state
   const [showSubmitForm, setShowSubmitForm]     = useState(false);
   const [submitName, setSubmitName]             = useState('');
@@ -958,12 +943,24 @@ export default function ResourcesPage() {
   const [submitStatus, setSubmitStatus]         = useState<'idle' | 'success' | 'error'>('idle');
   const [submitError, setSubmitError]           = useState('');
 
-  // ── Load auth + favorites on mount ────────────────────────────────────────
-  useEffect(() => {
-    loadFavoritesData();
-  }, []);
-
   const loadFavoritesData = useCallback(async () => {
+    // Load member-submitted approved resources
+    const { data: submissions } = await supabase
+      .from('resource_submissions')
+      .select('resource_name, resource_url, description, special_tags')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+
+    if (submissions && submissions.length > 0) {
+      setMemberResources(submissions.map((s) => ({
+        name:        s.resource_name,
+        url:         s.resource_url,
+        description: s.description || '',
+        type:        'org' as ResourceType,
+        tags:        s.special_tags || [],
+      })));
+    }
+
     // Fetch all counts in one query
     const { data: counts } = await supabase
       .from('resource_favorites')
@@ -977,7 +974,7 @@ export default function ResourcesPage() {
       setFavCounts(tally);
     }
 
-    // Check if logged in
+    // Load favorites only if logged in — page is public for everyone
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setUserId(user.id);
@@ -992,6 +989,11 @@ export default function ResourcesPage() {
       setUserFavs(new Set(mine.map((r) => r.resource_slug)));
     }
   }, []);
+
+  // ── Load favorites on mount ───────────────────────────────────────────────
+  useEffect(() => {
+    loadFavoritesData();
+  }, [loadFavoritesData]);
 
   // ── Toggle favorite ────────────────────────────────────────────────────────
   const toggleFavorite = useCallback(async (slug: string) => {
@@ -1037,6 +1039,11 @@ export default function ResourcesPage() {
     setSubmitLoading(true);
     setSubmitError('');
 
+    const isMember = userId !== null;
+    // Members' submissions are marked approved and go live immediately (shown in member-submitted section).
+    // Non-members' submissions are pending and go to admin review before appearing.
+    const status = isMember ? 'approved' : 'pending';
+
     const { error } = await supabase.from('resource_submissions').insert({
       resource_name:     submitName.trim(),
       resource_url:      submitUrl.trim(),
@@ -1046,12 +1053,31 @@ export default function ResourcesPage() {
       submitter_name:    submitterName.trim() || null,
       submitter_email:   submitterEmail.trim() || null,
       submitter_user_id: userId || null,
+      status,
     });
 
     if (error) {
       setSubmitError('Something went wrong. Please try again.');
       setSubmitLoading(false);
       return;
+    }
+
+    // If member submitted: notify admin by email
+    if (isMember) {
+      try {
+        await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name:    submitterName.trim() || 'A member',
+            email:   submitterEmail.trim() || 'member@artisticaccessibility.com',
+            subject: `New member-submitted resource: ${submitName.trim()}`,
+            message: `A member submitted a new resource — it is now live on the Resources page.\n\nResource: ${submitName.trim()}\nURL: ${submitUrl.trim()}\nSuggested category: ${submitCategory || 'Not specified'}\nDescription: ${submitDescription.trim() || 'None provided'}\nSubmitter: ${submitterName.trim() || 'Anonymous'} (${submitterEmail.trim() || 'no email'})\n\nReview or remove in the admin panel if needed.`,
+          }),
+        });
+      } catch {
+        // Non-fatal — the submission is already saved; admin notification is best-effort
+      }
     }
 
     setSubmitStatus('success');
@@ -1135,7 +1161,7 @@ export default function ResourcesPage() {
           📚 Accessibility Resource Directory
         </h1>
         <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8125rem', marginBottom: '10px' }}>
-          {totalCount} free resources across {CATEGORIES.length} categories — compiled May 2026 · all verified free to access
+          {totalCount} free resources organized by region — compiled May 2026 · all verified free to access
         </p>
 
         {/* Tag legend */}
@@ -1264,7 +1290,11 @@ export default function ResourcesPage() {
 
                 {submitStatus === 'success' ? (
                   <div role="status" style={{ background: '#d4f0e0', border: '1px solid #7dd6a4', borderRadius: '4px', padding: '10px 12px', fontSize: '0.8125rem', color: '#1a5e38' }}>
-                    <strong>Thank you!</strong> Your suggestion has been received. We&apos;ll review it and add it if it&apos;s a good fit.{' '}
+                    {userId !== null ? (
+                      <><strong>Your resource is live!</strong> It&apos;s been added to the directory and admin has been notified. Thank you for contributing.</>
+                    ) : (
+                      <><strong>Thank you!</strong> Your suggestion has been received and will be reviewed before being added. We appreciate the contribution.</>
+                    )}{' '}
                     <button
                       onClick={() => { setSubmitStatus('idle'); }}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1a5e38', textDecoration: 'underline', font: 'inherit', padding: 0 }}
@@ -1540,6 +1570,70 @@ export default function ResourcesPage() {
           })
         )}
       </div>
+
+      {/* Member-submitted resources section */}
+      {memberResources.length > 0 && (
+        <div style={{ maxWidth: '980px', margin: '0 auto', padding: '0 10px' }}>
+          <section aria-labelledby="member-submitted-heading">
+            <div className="ms-box">
+              <div className="ms-box-header">
+                <span id="member-submitted-heading">
+                  ✨ Member-Submitted Resources
+                  <span style={{ fontWeight: 'normal', color: '#b8ccff', marginLeft: '6px', fontSize: '0.6875rem' }}>
+                    {memberResources.length} resource{memberResources.length !== 1 ? 's' : ''}
+                  </span>
+                </span>
+              </div>
+              <div style={{ padding: '5px 10px 0', borderBottom: '1px solid var(--ms-border)', background: 'var(--ms-row-alt)' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 5px' }}>
+                  Resources submitted by Collective members — reviewed and added directly. Have one to add?{' '}
+                  <button onClick={openSubmitForm} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--aac-blue)', textDecoration: 'underline', font: 'inherit', padding: 0, fontSize: 'inherit' }}>
+                    Suggest a resource above.
+                  </button>
+                </p>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {memberResources.map((resource, i) => {
+                  const count  = favCounts[resource.url] ?? 0;
+                  const isFaved = userFavs.has(resource.url);
+                  return (
+                    <li
+                      key={resource.url}
+                      style={{
+                        padding: '8px 10px',
+                        borderBottom: i < memberResources.length - 1 ? '1px solid var(--ms-border)' : 'none',
+                        background: i % 2 === 0 ? '#fff' : 'var(--ms-row-alt)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap', marginBottom: '3px' }}>
+                        <span className="tag tag-green" style={{ fontSize: '0.625rem', flexShrink: 0, marginTop: '1px' }}>Member Pick</span>
+                        <a
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontWeight: 'bold', fontSize: '0.8125rem', color: 'var(--aac-blue)', flex: 1, minWidth: '200px' }}
+                        >
+                          {resource.name}
+                          <span className="sr-only"> (opens in new tab)</span>
+                        </a>
+                        {resource.tags && resource.tags.filter(t => t !== 'FREE').map((tag) => (
+                          <TagBadge key={tag} tag={tag} />
+                        ))}
+                        <FavoriteButton slug={resource.url} count={count} isFaved={isFaved} isLoggedIn={isLoggedIn} onToggle={toggleFavorite} />
+                      </div>
+                      {resource.description && (
+                        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
+                          {resource.description}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* Footer */}
       <footer aria-label="Site footer" className="ms-footer" style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', borderTop: '1px solid rgba(255,255,255,0.2)', maxWidth: '980px', margin: '16px auto 0' }}>

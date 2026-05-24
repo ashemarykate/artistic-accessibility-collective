@@ -25,6 +25,7 @@ type FeedbackWithProfile = TesterFeedback & { profile: Pick<Profile, 'full_name'
 export default function AdminDashboard() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasMemberProfile, setHasMemberProfile] = useState(false);
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
   const [approvedProfiles, setApprovedProfiles] = useState<Profile[]>([]);
   const [rejectedProfiles, setRejectedProfiles] = useState<Profile[]>([]);
@@ -70,6 +71,16 @@ export default function AdminDashboard() {
     }
 
     setIsAdmin(true);
+
+    // Check whether this admin also has an approved member profile
+    const { data: memberProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('status', 'approved')
+      .maybeSingle();
+    setHasMemberProfile(!!memberProfile);
+
     fetchAll();
   };
 
@@ -244,7 +255,10 @@ export default function AdminDashboard() {
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin Dashboard</span>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
+          {hasMemberProfile && (
+            <Link href="/members" className="nav-link">My Hub</Link>
+          )}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
             className="btn btn-outline-white btn-sm"
