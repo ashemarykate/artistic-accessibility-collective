@@ -18,15 +18,6 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-const SPEECH_BUBBLES = [
-  { text: 'training & staffing', pos: 'top-left' },
-  { text: 'art',                 pos: 'top-right' },
-  { text: 'resources',           pos: 'mid-left' },
-  { text: 'education',           pos: 'mid-right' },
-  { text: 'join us',             pos: 'bot-left' },
-  { text: 'consulting',          pos: 'bot-right' },
-];
-
 // ── Small folder SVG icon ─────────────────────────────────────────────────────
 function FolderIcon({ body, tab }: { body: string; tab: string }) {
   return (
@@ -224,48 +215,24 @@ export default function Home() {
               flex: 1,
               background: 'var(--aac-blue)',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '28px 24px',
-              gap: 20,
-              position: 'relative',
+              overflow: 'hidden',
               minHeight: 400,
             }}
           >
-            {/* Top row of speech bubbles */}
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <SpeechBubble text="training & staffing" tail="down" />
-              <SpeechBubble text="art" tail="down" />
-              <SpeechBubble text="education" tail="down" />
-            </div>
-
-            {/* Logo */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-stacked-white-bg.svg"
-              alt="Artistic Accessibility Collective"
-              style={{ maxWidth: 320, width: '100%', display: 'block' }}
+              src="/images/canva-home.png"
+              alt="Artistic Accessibility Collective — together, together"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                display: 'block',
+              }}
             />
-
-            {/* Bottom row of speech bubbles */}
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <SpeechBubble text="resources" tail="up" />
-              <SpeechBubble text="consulting" tail="up" />
-              <SpeechBubble text="join us" tail="up" />
-            </div>
-
-            {/* Tagline */}
-            <p style={{
-              color: 'rgba(255,255,255,0.88)',
-              fontStyle: 'italic',
-              fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
-              margin: 0,
-              letterSpacing: '0.03em',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-            }}>
-              together, together
-            </p>
           </div>
         </div>
 
@@ -317,71 +284,3 @@ export default function Home() {
   );
 }
 
-// ── Speech bubble component ───────────────────────────────────────────────────
-function SpeechBubble({ text, tail }: { text: string; tail: 'up' | 'down' }) {
-  return (
-    <div
-      style={{
-        position: 'relative',
-        background: '#fff',
-        border: '2px solid #1a1a2e',
-        borderRadius: 18,
-        padding: '6px 16px',
-        color: 'var(--aac-blue)',
-        fontFamily: 'Georgia, "Times New Roman", serif',
-        fontStyle: 'italic',
-        fontSize: 'clamp(0.75rem, 1.5vw, 0.9375rem)',
-        whiteSpace: 'nowrap',
-        boxShadow: '2px 3px 0 rgba(0,0,0,0.25)',
-      }}
-    >
-      {text}
-      {/* Tail */}
-      <span
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          ...(tail === 'down'
-            ? {
-                bottom: -10,
-                borderLeft: '7px solid transparent',
-                borderRight: '7px solid transparent',
-                borderTop: '8px solid #1a1a2e',
-              }
-            : {
-                top: -10,
-                borderLeft: '7px solid transparent',
-                borderRight: '7px solid transparent',
-                borderBottom: '8px solid #1a1a2e',
-              }),
-          width: 0, height: 0, display: 'block',
-        }}
-      />
-      {/* Inner tail (fill color) */}
-      <span
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          ...(tail === 'down'
-            ? {
-                bottom: -7,
-                borderLeft: '5px solid transparent',
-                borderRight: '5px solid transparent',
-                borderTop: '6px solid #fff',
-              }
-            : {
-                top: -7,
-                borderLeft: '5px solid transparent',
-                borderRight: '5px solid transparent',
-                borderBottom: '6px solid #fff',
-              }),
-          width: 0, height: 0, display: 'block',
-        }}
-      />
-    </div>
-  );
-}
