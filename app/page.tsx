@@ -5,10 +5,9 @@ import Link from 'next/link';
 type NavItem = { label: string; href: string; folderColor: string; tabColor: string; external?: boolean };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'The Collective', href: '/collective', folderColor: '#4a80d4', tabColor: '#3a6abf' },
+  { label: 'Resources',      href: '/resources',  folderColor: '#e0a030', tabColor: '#c08020' },
   { label: 'The Library',    href: '/library',    folderColor: '#4aaa7f', tabColor: '#3a8a65' },
   { label: 'The Cinema',     href: '/cinema',     folderColor: '#9a5abf', tabColor: '#7a3a9f' },
-  { label: 'Resources',      href: '/resources',  folderColor: '#e0a030', tabColor: '#c08020' },
   { label: 'Contact Us',     href: '/contact',    folderColor: '#d05a40', tabColor: '#b04030' },
   {
     label: 'Instagram',
@@ -244,9 +243,9 @@ export default function Home() {
             {/* Logo */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo-across-blue-bg.svg"
+              src="/images/logo-stacked-white-bg.svg"
               alt="Artistic Accessibility Collective"
-              style={{ maxWidth: 400, width: '100%', display: 'block' }}
+              style={{ maxWidth: 320, width: '100%', display: 'block' }}
             />
 
             {/* Bottom row of speech bubbles */}
@@ -278,7 +277,7 @@ export default function Home() {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           fontSize: 11, color: '#333',
         }} aria-hidden="true">
-          <span>6 object(s)</span>
+          <span>5 object(s)</span>
           <span>Ready</span>
         </div>
       </div>
@@ -292,18 +291,24 @@ export default function Home() {
         padding: '3px 6px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-      }} aria-hidden="true">
-        <div style={{
-          background: 'linear-gradient(to right, #4caa30, #3a8a20)',
-          borderRadius: 12,
-          padding: '3px 10px 3px 6px',
-          color: 'white', fontWeight: 'bold', fontSize: 12,
-          display: 'flex', alignItems: 'center', gap: 4,
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-        }}>
-          🏁 start
-        </div>
-        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+      }}>
+        <Link
+          href="/collective"
+          style={{
+            background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
+            borderRadius: 12,
+            padding: '3px 12px 3px 8px',
+            color: 'white', fontWeight: 'bold', fontSize: 12,
+            display: 'flex', alignItems: 'center', gap: 5,
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+            textDecoration: 'none',
+          }}
+          aria-label="Collective Members"
+        >
+          <FolderIcon body="#5a9ae4" tab="#3a7abf" />
+          Collective Members
+        </Link>
+        <div aria-hidden="true" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
