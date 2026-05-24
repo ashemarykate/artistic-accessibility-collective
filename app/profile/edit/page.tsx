@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_OPTIONS } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import PhotoUploader from '@/components/PhotoUploader';
 
 // ── Tag input ─────────────────────────────────────────────────────────────────
 
@@ -176,6 +177,7 @@ export default function EditProfilePage() {
   const [instagram,        setInstagram]        = useState('');
   const [publicVisible,    setPublicVisible]    = useState(false);
   const [emailPublic,      setEmailPublic]      = useState(false);
+  const [avatarPath,       setAvatarPath]       = useState<string | null>(null);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -220,6 +222,7 @@ export default function EditProfilePage() {
     setInstagram(data.instagram_url   ?? '');
     setPublicVisible(data.public_visible ?? false);
     setEmailPublic(data.email_public  ?? false);
+    setAvatarPath(data.avatar_url     ?? null);
 
     setLoading(false);
     headingRef.current?.focus();
@@ -391,6 +394,19 @@ export default function EditProfilePage() {
           <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
             <div className="ms-box-header">About You</div>
             <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+
+              {/* Profile photo */}
+              {profile.user_id && (
+                <div className="form-group">
+                  <p className="form-label" style={{ marginBottom: '0.625rem' }}>Profile Photo</p>
+                  <PhotoUploader
+                    userId={profile.user_id}
+                    currentPath={avatarPath}
+                    displayName={displayName || profile.full_name || ''}
+                    onSaved={(newPath) => setAvatarPath(newPath)}
+                  />
+                </div>
+              )}
 
               {/* Display name */}
               <div className="form-group">

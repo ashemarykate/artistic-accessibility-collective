@@ -57,6 +57,8 @@ export const CATEGORIES: Category[] = [
       { name: 'UK Equality Act 2010 Guidance', url: 'https://www.gov.uk/guidance/equality-act-2010-guidance', description: 'Free government guidance on the Equality Act 2010 — the UK\'s single national disability rights law. Key feature: an "anticipatory duty" requires arts organizations to proactively plan for disabled access before an individual asks. Stronger model than the US ADA\'s reactive approach.', type: 'standard', tags: ['FREE'], location: 'United Kingdom' },
 
       { name: 'Accessible Canada Act — Resources', url: 'https://accessible.canada.ca', description: 'Free resources on the Accessible Canada Act (2019) — Canada\'s federal accessibility legislation covering broadcasting, telecommunications, banking, and federal government. The foundation for federal arts organizations and broadcasters in Canada.', type: 'standard', tags: ['FREE'], location: 'Canada' },
+
+      { name: 'ADA Checklist for Existing Facilities', url: 'https://adachecklist.org/checklist', description: 'Free, printable ADA compliance checklist for existing buildings — covers parking, entrances, restrooms, seating, and signage. Developed by the New England ADA Center. The most practical starting point for any arts venue doing a self-assessment of physical access before bringing in a consultant.', type: 'guide', tags: ['FREE'], location: 'United States' },
     ],
   },
 
@@ -137,6 +139,14 @@ export const CATEGORIES: Category[] = [
       { name: 'Audio Description Association UK (ADUK)', url: 'https://adassociation.org.uk', description: 'UK training and standards body for live theater audio description. Guides for describers and theater producers on commissioning and delivering quality live AD — including the specific requirements of the Equality Act 2010.', type: 'org', tags: ['FREE'], location: 'United Kingdom' },
 
       { name: 'Access2Arts', url: 'https://access2arts.org.au', description: 'Adelaide-based Australian organization offering the country\'s most developed professional training in audio description and captioning for the arts. Their 12-week AD course is a leading professional training program in the Asia-Pacific region. Free introductory resources available.', type: 'org', tags: ['FREE'], location: 'Adelaide, SA' },
+
+      { name: 'ArtSpark', url: 'https://artspark.org', description: 'Austin-based nonprofit dedicated to making live arts accessible through audio description. Provides AD services for theater, dance, and live performance in Central Texas, and advocates for audio description as standard practice at arts venues. A community-rooted model for regional AD infrastructure outside major coastal arts centers.', type: 'org', tags: ['FREE'], location: 'Austin, TX' },
+
+      { name: 'Audio Description Training Retreats', url: 'https://www.adtrainingretreats.com', description: 'Virtual professional training in all aspects of audio description — film, television, live performance, and visual art — taught by blind and sighted professionals. Small classes with individual practice time and peer/expert feedback. Graduate network spans 17+ countries. One of the most accessible professional AD training programs available internationally.', type: 'course', tags: ['FREE'] },
+
+      { name: 'Arts Access North Carolina', url: 'https://artsaccessinc.org', description: 'Raleigh-based nonprofit offering annual audio description training, describer workshops, and AD services for arts organizations. One of the clearest regional models in the US for building local AD infrastructure — with an Artist Link directory and community education programs alongside hands-on training.', type: 'org', tags: ['FREE'], location: 'Raleigh, NC' },
+
+      { name: 'Reid My Mind Radio', url: 'https://reidmymind.com', description: 'Podcast and media platform by Thomas Reid — blind filmmaker, audio description narrator, and educator. Widely regarded as the most important ongoing practitioner resource for audio description craft: interviews with AD writers, blind consultants, and filmmakers. Reid was the narrator for the first open AD screening in Sundance history (Joybubbles, 2026). His framing — "better is better" over perfectionism — is essential for small organizations starting out.', type: 'media', tags: ['FREE', 'Disabled Voice'] },
     ],
   },
 
@@ -177,6 +187,12 @@ export const CATEGORIES: Category[] = [
       { name: 'Able Player', url: 'https://ableplayer.github.io', description: 'Free, MIT-licensed, open-source media player with excellent WCAG compliance. Supports audio description tracks, caption tracks (WebVTT, SRT, SBV), chapter navigation, keyboard control, and transcript view. The best free option for organizations hosting video online.', type: 'tool', tags: ['FREE', 'Open Access'] },
 
       { name: 'Ace by DAISY — EPUB Accessibility Checker', url: 'https://daisy.org/activities/software/ace/', description: 'Free, open-source tool from the DAISY Consortium for checking EPUB accessibility compliance (EPUB Accessibility 1.1). Essential for any organization publishing digital books or documents. Works on Mac, Windows, Linux.', type: 'tool', tags: ['FREE', 'Open Access'] },
+
+      { name: 'Accessibility Insights', url: 'https://accessibilityinsights.io', description: 'Free browser extension and desktop app from Microsoft for thorough accessibility testing. FastPass catches common WCAG violations instantly; Assessment mode walks testers through a full WCAG 2.1 AA evaluation with step-by-step guidance. More systematic than axe or WAVE — the best free tool for a complete manual audit.', type: 'tool', tags: ['FREE', 'Open Access'] },
+
+      { name: 'Who Can Use', url: 'https://whocanuse.com', description: 'Free color contrast tool that shows how a color combination affects people with different types of color blindness, low vision, and other visual conditions — not just a pass/fail contrast ratio. Uniquely useful for designers: see the real impact of your palette choices across the disability spectrum before you build.', type: 'tool', tags: ['FREE', 'Open Access'] },
+
+      { name: 'Learn Accessibility — web.dev', url: 'https://web.dev/learn/accessibility/', description: 'Google\'s comprehensive free accessibility course — structured, practical, and kept current. Covers ARIA, keyboard navigation, color and contrast, forms, images, video, and testing. One of the best self-paced learning resources for developers and designers building accessible digital content.', type: 'course', tags: ['FREE', 'Open Access'] },
     ],
   },
 
@@ -228,6 +244,14 @@ export const CATEGORIES: Category[] = [
       { name: 'Accessible Arts NSW', url: 'https://accessiblearts.org.au', description: 'New South Wales-based arts and disability organization. Free training, resources, and advocacy for accessible arts programming in NSW and applicable more broadly across Australia.', type: 'org', tags: ['FREE'], location: 'New South Wales' },
 
       { name: 'Arts Access Aotearoa', url: 'https://artsaccess.org.nz', description: 'New Zealand\'s national organization for arts and disability. Free resources and advocacy for accessible arts, accessible venues, and disability arts programming across Aotearoa New Zealand.', type: 'org', tags: ['FREE'], location: 'New Zealand' },
+
+      { name: 'KultureCity', url: 'https://kulturecity.org', description: 'Sensory accessibility certification and training for venues, sports arenas, cultural institutions, and events. Their Sensory Inclusive™ certification is held by hundreds of NFL stadiums, NBA arenas, museums, and concert halls. Free app lets patrons find certified venues nearby and request sensory bags — provided at no cost at certified locations. Practical and scalable model for neurodivergent and sensory-sensitive audiences.', type: 'org', tags: ['FREE', 'Neurodivergent'], location: 'United States' },
+
+      { name: 'ABLE Ensemble', url: 'https://ableensemble.com', description: 'Chicago-based professional performing arts company creating and performing work by and with artists with disabilities. A leading disability-led theater in the Midwest — one of the clearest examples of disabled artists as full creative agents, not subjects.', type: 'org', tags: ['Disabled Voice'], location: 'Chicago, IL' },
+
+      { name: 'Theater Breaking Through Barriers', url: 'https://tbtb.org', description: 'New York professional theater company (formerly Theatre By The Blind) integrating blind, visually impaired, and sighted artists. Productions build integrated visual description into staging and direction — access as artistic form, not retrofit. Over 50 years of practice.', type: 'org', tags: ['FREE', 'Disabled Voice'], location: 'New York City' },
+
+      { name: 'Arts Midwest Accessibility Center', url: 'https://www.artsmidwest.org/resources/accessibility', description: 'Free resource hub from Arts Midwest covering physical access, communication access, sensory accommodations, digital accessibility, and virtual programming — curated specifically for arts and cultural organizations. Includes links to ADA guidance, captioning how-tos, image description resources, and accessible event planning tools. A strong aggregator for any organization starting its accessibility work.', type: 'guide', tags: ['FREE'], location: 'United States' },
     ],
   },
 
@@ -348,6 +372,12 @@ export const CATEGORIES: Category[] = [
       { name: 'HowlRound — Disability Representation in Storytelling', url: 'https://howlround.com/happenings/disability-representation-storytelling', description: 'Free essays and conversations on disability representation in theater and film, including how disabled artists navigate and push back against representation norms.', type: 'media', tags: ['FREE', 'Disabled Voice'] },
 
       { name: 'Disability Arts International', url: 'https://www.disabilityartsinternational.org', description: 'International platform for disability arts news, artist profiles, and sector development — with significant coverage of Global South and non-Western disability arts traditions often invisible in US/UK-focused resources.', type: 'org', tags: ['FREE'] },
+
+      { name: 'National Disability Theatre', url: 'https://nationaldisabilitytheatre.org', description: 'US professional theater company committed to producing work by and for disabled people in partnership with regional theaters nationwide. Focuses on hiring disabled directors, designers, playwrights, and performers — and on changing systemic hiring practices in professional theater.', type: 'org', tags: ['FREE', 'Disabled Voice'] },
+
+      { name: 'AXIS Dance Company', url: 'https://axisdance.org', description: 'Oakland-based contemporary dance company integrating wheelchair users and standing dancers — one of the longest-running integrated dance companies in the US. Their work makes the strongest possible case that diverse embodiment is not a limitation but an artistic vocabulary: the specificity of different bodies is the aesthetic.', type: 'org', tags: ['FREE', 'Disabled Voice'], location: 'Oakland, CA' },
+
+      { name: 'Disabled and Here', url: 'https://affecttheverb.com/disabledandhere', description: 'Free stock photography and media collection centering disabled Black, Indigenous, and people of color — created by and for disabled BIPOC communities. A direct response to the near-total absence of disabled BIPOC people in stock imagery. Free to download and use. Essential for any organization that wants its visual materials to actually reflect the disability community as it is.', type: 'media', tags: ['FREE', 'Open Access', 'Disabled Voice'] },
     ],
   },
 

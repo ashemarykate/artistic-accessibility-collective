@@ -493,8 +493,11 @@ export default function SubmitProfile() {
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
             Your {profileType === 'business' ? 'listing' : 'application'} has been submitted. We&apos;ll review it and send you a login link so you can come back and see your profile.
           </p>
-          <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '0.9375rem' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.75rem', fontSize: '0.9375rem' }}>
             You won&apos;t need to fill all of this out again — your info will be waiting for you.
+          </p>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '0.875rem', background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.75rem', textAlign: 'left' }}>
+            📷 <strong>Add a profile photo</strong> once you&apos;re approved — just log in and go to Edit Profile. You&apos;ll be able to upload and crop your photo there.
           </p>
           <button onClick={() => router.push('/')} className="btn btn-primary">Back to Home</button>
         </div>
