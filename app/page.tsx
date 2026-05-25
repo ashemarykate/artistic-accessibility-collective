@@ -2,39 +2,50 @@
 import Link from 'next/link';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
-type NavItem = { label: string; href: string; folderColor: string; tabColor: string; external?: boolean };
+type NavItem = { label: string; href: string; icon: string; iconBg: string; external?: boolean };
 
 const RESOURCES_ITEMS: NavItem[] = [
-  { label: 'Accessibility Resources', href: '/resources', folderColor: '#e0a030', tabColor: '#c08020' },
-  { label: 'The Library',             href: '/library',   folderColor: '#4aaa7f', tabColor: '#3a8a65' },
-  { label: 'The Cinema',              href: '/cinema',    folderColor: '#9a5abf', tabColor: '#7a3a9f' },
-  { label: 'Help',                    href: '/help',      folderColor: '#d08030', tabColor: '#b06020' },
+  { label: 'Accessibility Resources', href: '/resources', icon: '♿', iconBg: '#e0a030' },
+  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#4aaa7f' },
+  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#9a5abf' },
+  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#d08030' },
 ];
 
 const COLLECTIVE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',  href: '/contact',  folderColor: '#d05a40', tabColor: '#b04030' },
+  { label: 'Contact Us',    href: '/contact',   icon: '✉️',  iconBg: '#d05a40' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
-    folderColor: '#d44a88',
-    tabColor: '#b03a6a',
+    icon: '📸', iconBg: '#d44a88',
     external: true,
   },
-  { label: 'The Collective', href: '/members',  folderColor: '#3a6abf', tabColor: '#2a5aaf' },
-  { label: 'Make Art',      href: '/make-art', folderColor: '#cc4488', tabColor: '#aa2266' },
+  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#3a6abf' },
+  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#cc4488' },
 ];
 
-// ── Small folder SVG icon ─────────────────────────────────────────────────────
-function FolderIcon({ body, tab }: { body: string; tab: string }) {
+// ── Desktop-style icon ────────────────────────────────────────────────────────
+function NavIcon({ icon, bg }: { icon: string; bg: string }) {
   return (
-    <svg width="20" height="17" viewBox="0 0 20 17" aria-hidden="true" style={{ flexShrink: 0, marginRight: 5, verticalAlign: 'middle' }}>
-      {/* Tab */}
-      <path d="M1,6 L1,15 Q1,16 2,16 L18,16 Q19,16 19,15 L19,6 Z" fill={body} />
-      <path d="M1,6 L1,5 Q1,4 2,4 L7,4 L8.5,6 Z" fill={tab} />
-      {/* Body */}
-      <rect x="1" y="6" width="18" height="10" rx="1" fill={body} />
-      <rect x="1" y="6" width="18" height="3" rx="0" fill={tab} opacity="0.25" />
-    </svg>
+    <span
+      aria-hidden="true"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 22,
+        height: 22,
+        minWidth: 22,
+        background: bg,
+        borderRadius: 3,
+        fontSize: 13,
+        marginRight: 6,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.2)',
+        border: '1px solid rgba(0,0,0,0.18)',
+        flexShrink: 0,
+      }}
+    >
+      {icon}
+    </span>
   );
 }
 
@@ -189,7 +200,7 @@ export default function Home() {
                     style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <FolderIcon body={item.folderColor} tab={item.tabColor} />
+                    <NavIcon icon={item.icon} bg={item.iconBg} />
                     {item.label}
                   </Link>
                 </li>
@@ -209,7 +220,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <FolderIcon body={item.folderColor} tab={item.tabColor} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} />
                       {item.label}
                       <span className="sr-only"> (opens Instagram in new tab)</span>
                     </a>
@@ -219,7 +230,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <FolderIcon body={item.folderColor} tab={item.tabColor} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} />
                       {item.label}
                     </Link>
                   )}
@@ -295,7 +306,7 @@ export default function Home() {
             }}
             aria-label="Member Log In"
           >
-            <FolderIcon body="#5a9ae4" tab="#3a7abf" />
+            <NavIcon icon="🔑" bg="#3a7abf" />
             Member Log In
           </Link>
           <Link
