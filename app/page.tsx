@@ -8,6 +8,7 @@ const RESOURCES_ITEMS: NavItem[] = [
   { label: 'Accessibility Resources', href: '/resources', folderColor: '#e0a030', tabColor: '#c08020' },
   { label: 'The Library',             href: '/library',   folderColor: '#4aaa7f', tabColor: '#3a8a65' },
   { label: 'The Cinema',              href: '/cinema',    folderColor: '#9a5abf', tabColor: '#7a3a9f' },
+  { label: 'Help',                    href: '/help',      folderColor: '#d08030', tabColor: '#b06020' },
 ];
 
 const COLLECTIVE_ITEMS: NavItem[] = [
@@ -19,7 +20,8 @@ const COLLECTIVE_ITEMS: NavItem[] = [
     tabColor: '#b03a6a',
     external: true,
   },
-  { label: 'The Collective', href: '/members', folderColor: '#3a6abf', tabColor: '#2a5aaf' },
+  { label: 'The Collective', href: '/members',  folderColor: '#3a6abf', tabColor: '#2a5aaf' },
+  { label: 'Make Art',      href: '/make-art', folderColor: '#cc4488', tabColor: '#aa2266' },
 ];
 
 // ── Small folder SVG icon ─────────────────────────────────────────────────────
@@ -263,7 +265,7 @@ export default function Home() {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           fontSize: 11, color: '#333',
         }} aria-hidden="true">
-          <span>6 object(s)</span>
+          <span>8 object(s)</span>
           <span>Ready</span>
         </div>
       </div>
