@@ -227,15 +227,15 @@ export default function HelpPage() {
         borderBottom: `3px solid ${red}`,
         padding: '0',
       }}>
-        <div style={{ maxWidth: 780, margin: '0 auto', padding: '20px 20px 0', display: 'flex', alignItems: 'flex-end', gap: 24 }}>
+        <div className="help-header-row" style={{ maxWidth: 780, margin: '0 auto', padding: '20px 20px 0', display: 'flex', alignItems: 'flex-end', gap: 24 }}>
 
           {/* Butler */}
-          <div aria-hidden="true" style={{ flexShrink: 0, marginBottom: -4 }}>
+          <div aria-hidden="true" className="help-infoguy" style={{ flexShrink: 0, marginBottom: -4 }}>
             <InfoGuy size={90} />
           </div>
 
           {/* Brand + search ─────────────────────────────────────── */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ marginBottom: 8 }}>
               <span style={{
                 fontFamily: '"Georgia", serif',
@@ -277,9 +277,9 @@ export default function HelpPage() {
             </p>
 
             <form onSubmit={handleSearch} role="search" aria-label="Site search">
-              <div style={{ display: 'flex', border: `2px solid ${border}`, background: 'white', maxWidth: 560 }}>
-                {/* Tab strip */}
-                <div style={{ display: 'flex', borderRight: `2px solid ${border}`, flexShrink: 0 }}>
+              <div className="help-search-box" style={{ display: 'flex', border: `2px solid ${border}`, background: 'white', maxWidth: 560 }}>
+                {/* Tab strip — hidden on phones via CSS */}
+                <div className="help-tabs" style={{ display: 'flex', borderRight: `2px solid ${border}`, flexShrink: 0 }}>
                   {['All', 'Resources', 'Members', 'Connect'].map((t, i) => (
                     <div
                       key={t}
@@ -306,11 +306,12 @@ export default function HelpPage() {
                   aria-label="Search the Collective"
                   value={query}
                   onChange={e => setQuery(e.target.value)}
-                  placeholder="Type a question, topic, or keyword…"
+                  placeholder="Type a question or keyword…"
                   style={{
                     flex: 1, border: 'none', outline: 'none',
                     padding: '8px 10px', fontSize: 13,
                     fontFamily: font, background: 'white',
+                    minWidth: 0,
                   }}
                 />
                 <button
@@ -319,7 +320,7 @@ export default function HelpPage() {
                     background: red, color: 'white', border: 'none',
                     padding: '0 18px', fontSize: 13, fontWeight: 700,
                     cursor: 'pointer', letterSpacing: '0.05em',
-                    fontFamily: font,
+                    fontFamily: font, flexShrink: 0,
                   }}
                 >
                   Ask!
@@ -561,6 +562,24 @@ export default function HelpPage() {
           background: #990000 !important;
           outline: 2px solid #f5d84a;
           outline-offset: 2px;
+        }
+
+        /* ── Mobile: stack header, hide decorative tabs ── */
+        @media (max-width: 580px) {
+          .help-header-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+          }
+          .help-infoguy {
+            display: none !important;
+          }
+          .help-tabs {
+            display: none !important;
+          }
+          .help-search-box {
+            max-width: 100% !important;
+          }
         }
       `}</style>
     </main>

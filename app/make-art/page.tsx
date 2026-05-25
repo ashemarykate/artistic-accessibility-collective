@@ -73,6 +73,7 @@ export default function MakeArtPage() {
 
   return (
     <div
+      className="make-art-outer"
       style={{
         position: 'fixed',
         inset: 0,
@@ -82,6 +83,15 @@ export default function MakeArtPage() {
       }}
       role="main"
     >
+      <style>{`
+        @media (max-width: 580px) {
+          .make-art-outer {
+            position: static !important;
+            min-height: 100dvh !important;
+            overflow: auto !important;
+          }
+        }
+      `}</style>
       <h1 className="sr-only">Make Art Together — Artistic Accessibility Collective</h1>
 
       {/* ── Starfield ────────────────────────────────────────────────────────── */}
@@ -96,6 +106,7 @@ export default function MakeArtPage() {
 
       {/* ── App Window ───────────────────────────────────────────────────────── */}
       <div
+        className="make-art-window"
         style={{
           position: 'absolute',
           inset: '50% auto auto 50%',
@@ -139,12 +150,13 @@ export default function MakeArtPage() {
         </div>
 
         {/* ── Body: left toolbar + canvas ──────────────────────────────────── */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        <div className="make-art-body" style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
-          {/* ── Left toolbar ─────────────────────────────────────────────── */}
+          {/* ── Left toolbar (vertical on desktop, horizontal strip on mobile) ── */}
           <div
             role="toolbar"
             aria-label="Art tools"
+            className="make-art-toolbar"
             style={{
               background: '#d0d0d0',
               borderRight: '3px solid #888',
@@ -180,7 +192,7 @@ export default function MakeArtPage() {
           </div>
 
           {/* ── Canvas / main content ─────────────────────────────────────── */}
-          <div style={{ flex: 1, background: '#f8f6f0', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          <div className="make-art-canvas" style={{ flex: 1, background: '#f8f6f0', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
 
             {/* Coming soon banner */}
             <div style={{
@@ -366,6 +378,38 @@ export default function MakeArtPage() {
             </div>
           </div>
         </div>
+
+        <style>{`
+          /* ── Mobile: make window fill screen and scroll ── */
+          @media (max-width: 580px) {
+            .make-art-window {
+              position: static !important;
+              transform: none !important;
+              inset: unset !important;
+              width: 100% !important;
+              max-height: none !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+              overflow: visible !important;
+            }
+            /* Stack toolbar horizontally across the top of the canvas */
+            .make-art-body {
+              flex-direction: column !important;
+              overflow: visible !important;
+            }
+            .make-art-toolbar {
+              flex-direction: row !important;
+              flex-wrap: wrap !important;
+              border-right: none !important;
+              border-bottom: 3px solid #888 !important;
+              padding: 3px 4px !important;
+              gap: 3px !important;
+            }
+            .make-art-canvas {
+              overflow: visible !important;
+            }
+          }
+        `}</style>
 
         {/* ── Rainbow palette ───────────────────────────────────────────────── */}
         <div
