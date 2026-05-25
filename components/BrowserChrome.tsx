@@ -24,6 +24,8 @@ interface BrowserChromeProps {
   url: string;
   /** Background of the scrollable content area (transparent by default) */
   contentBg?: string;
+  /** Overrides the theme's outer desktop background color */
+  desktopBg?: string;
   children: React.ReactNode;
 }
 
@@ -31,7 +33,7 @@ interface BrowserChromeProps {
 
 const THEMES = {
   mosaic: {
-    desktop:     '#0e0f1c',           // dark navy — CRT room in the dark
+    desktop:     '#263590',           // AAC blue
     chrome:      '#c3c3c3',
     chromeLight: '#e0e0e0',
     chromeDark:  '#808080',
@@ -48,7 +50,7 @@ const THEMES = {
     borderStyle: '2px solid',         // flat — Mosaic was pre-inset/outset fashion
   },
   netscape: {
-    desktop:     '#008080',           // classic Win95 teal desktop
+    desktop:     '#263590',           // AAC blue
     chrome:      '#c0c0c0',
     chromeLight: '#dfdfdf',
     chromeDark:  '#7a7a7a',
@@ -82,7 +84,7 @@ const THEMES = {
     borderStyle: '2px outset',
   },
   aol: {
-    desktop:     '#00007a',           // AOL signature dark blue
+    desktop:     '#263590',           // AAC blue
     chrome:      '#f0f0f0',
     chromeLight: '#ffffff',
     chromeDark:  '#b0b0b0',
@@ -158,6 +160,7 @@ export default function BrowserChrome({
   title,
   url,
   contentBg,
+  desktopBg,
   children,
 }: BrowserChromeProps) {
   const T = THEMES[variant];
@@ -196,7 +199,7 @@ export default function BrowserChrome({
         aria-hidden="false"
         style={{
           position: 'fixed', inset: 0,
-          background: T.desktop,
+          background: desktopBg ?? T.desktop,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '10px',
           fontFamily: T.font,
@@ -346,6 +349,8 @@ export default function BrowserChrome({
           .retro-chrome-menubar { display: none !important; }
           .retro-chrome-toolbar { flex-wrap: wrap !important; }
         }
+        /* Ensure <main> always fills the browser content area so backgrounds don't cut short */
+        #browser-content > main { flex: 1; }
       `}</style>
     </>
   );

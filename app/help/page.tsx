@@ -114,63 +114,59 @@ const CAT_COLORS: Record<string, { bg: string; fg: string }> = {
   Community:  { bg: '#774400', fg: '#ffffff' },
 };
 
-// ── Butler SVG ────────────────────────────────────────────────────────────────
+// ── InfoGuy SVG — the classic "i" info icon, given a personality ─────────────
 
-function Butler({ size = 120 }: { size?: number }) {
+function InfoGuy({ size = 120 }: { size?: number }) {
   return (
     <svg
       aria-hidden="true"
       width={size}
-      height={size * 1.4}
-      viewBox="0 0 80 112"
+      height={Math.round(size * 1.2)}
+      viewBox="0 0 80 96"
       style={{ display: 'block', flexShrink: 0 }}
     >
-      {/* Top hat brim */}
-      <ellipse cx="40" cy="18" rx="22" ry="4" fill="#1a1a1a" />
-      {/* Top hat body */}
-      <rect x="22" y="2" width="36" height="17" fill="#1a1a1a" rx="2" />
-      {/* Hat band */}
-      <rect x="22" y="16" width="36" height="3" fill="#cc0000" />
-      {/* Head */}
-      <ellipse cx="40" cy="30" rx="15" ry="16" fill="#f5c9a0" stroke="#d4a070" strokeWidth="1" />
-      {/* Eyes */}
-      <ellipse cx="35" cy="28" rx="2.5" ry="3" fill="#2a1a0a" />
-      <ellipse cx="45" cy="28" rx="2.5" ry="3" fill="#2a1a0a" />
-      {/* Eye shine */}
-      <circle cx="36" cy="27" r="0.8" fill="white" />
-      <circle cx="46" cy="27" r="0.8" fill="white" />
-      {/* Nose */}
-      <ellipse cx="40" cy="32" rx="2" ry="1.5" fill="#d4a070" />
+      {/* ── Drop shadow ── */}
+      <ellipse cx="40" cy="94" rx="22" ry="4" fill="rgba(0,0,0,0.12)" />
+
+      {/* ── Main circle body ── */}
+      <circle cx="40" cy="36" r="32" fill="#1864c8" />
+      {/* Inner highlight — gives it the classic icon look */}
+      <ellipse cx="30" cy="20" rx="10" ry="6" fill="white" opacity="0.15" />
+      {/* Thin white ring */}
+      <circle cx="40" cy="36" r="30" fill="none" stroke="white" strokeWidth="1.5" opacity="0.25" />
+
+      {/* ── Face (where the dot of the 'i' would be) ── */}
+      {/* Left eye */}
+      <circle cx="31" cy="24" r="4" fill="white" />
+      <circle cx="32" cy="25" r="2" fill="#0d3a7a" />
+      <circle cx="31" cy="24" r="0.8" fill="white" opacity="0.7" />
+      {/* Right eye */}
+      <circle cx="49" cy="24" r="4" fill="white" />
+      <circle cx="50" cy="25" r="2" fill="#0d3a7a" />
+      <circle cx="49" cy="24" r="0.8" fill="white" opacity="0.7" />
+      {/* Friendly raised eyebrows */}
+      <path d="M27,18 Q31,15 35,17" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <path d="M45,17 Q49,15 53,18" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
       {/* Smile */}
-      <path d="M34,37 Q40,42 46,37" stroke="#8a5a30" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-      {/* Mustache */}
-      <path d="M34,34 Q37,36 40,34 Q43,36 46,34" stroke="#4a3020" strokeWidth="1.5" fill="none" />
-      {/* Collar / shirt */}
-      <path d="M25,46 L40,55 L55,46 L55,46 L40,44 L25,46Z" fill="white" />
-      {/* Bow tie */}
-      <polygon points="34,48 40,52 34,56" fill="#cc0000" />
-      <polygon points="46,48 40,52 46,56" fill="#cc0000" />
-      <circle cx="40" cy="52" r="2" fill="#aa0000" />
-      {/* Jacket */}
-      <path d="M18,110 L18,58 Q25,50 34,48 L40,55 L46,48 Q55,50 62,58 L62,110Z" fill="#1a1a1a" />
-      {/* Lapels */}
-      <path d="M34,48 L28,64 L40,60Z" fill="#2a2a2a" />
-      <path d="M46,48 L52,64 L40,60Z" fill="#2a2a2a" />
-      {/* Shirt front buttons */}
-      <circle cx="40" cy="65" r="1.2" fill="#dddddd" />
-      <circle cx="40" cy="72" r="1.2" fill="#dddddd" />
-      <circle cx="40" cy="79" r="1.2" fill="#dddddd" />
-      {/* Left arm */}
-      <path d="M18,60 Q6,72 8,90" stroke="#1a1a1a" strokeWidth="10" fill="none" strokeLinecap="round" />
-      {/* Right arm — pointing / gesturing */}
-      <path d="M62,60 Q76,66 74,82" stroke="#1a1a1a" strokeWidth="10" fill="none" strokeLinecap="round" />
-      {/* Left glove */}
-      <ellipse cx="7" cy="93" rx="7" ry="5" fill="#f5c9a0" stroke="#d4a070" strokeWidth="1" />
-      {/* Right glove — open hand */}
-      <ellipse cx="75" cy="85" rx="7" ry="5" fill="#f5c9a0" stroke="#d4a070" strokeWidth="1" />
-      {/* Legs */}
-      <rect x="27" y="108" width="11" height="4" fill="#1a1a1a" rx="1" />
-      <rect x="42" y="108" width="11" height="4" fill="#1a1a1a" rx="1" />
+      <path d="M30,35 Q40,44 50,35" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+      {/* ── Bar of the 'i' (the body marking) ── */}
+      <rect x="34" y="44" width="12" height="17" rx="3" fill="white" />
+
+      {/* ── Left arm — pointing outward as if saying "this way!" ── */}
+      <path d="M10,46 Q20,40 28,47" stroke="#1050a8" strokeWidth="8" fill="none" strokeLinecap="round" />
+      <circle cx="9" cy="46" r="5.5" fill="#0d3a7a" />
+
+      {/* ── Right arm — relaxed at side ── */}
+      <path d="M70,50 Q60,46 52,52" stroke="#1050a8" strokeWidth="8" fill="none" strokeLinecap="round" />
+      <circle cx="71" cy="50" r="5.5" fill="#0d3a7a" />
+
+      {/* ── Legs ── */}
+      <path d="M36,67 L30,86" stroke="#1050a8" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <path d="M44,67 L50,86" stroke="#1050a8" strokeWidth="7" fill="none" strokeLinecap="round" />
+      {/* Feet */}
+      <ellipse cx="28" cy="88" rx="8" ry="4" fill="#0d3a7a" />
+      <ellipse cx="52" cy="88" rx="8" ry="4" fill="#0d3a7a" />
     </svg>
   );
 }
@@ -219,7 +215,7 @@ export default function HelpPage() {
   const font   = '"Arial", "Helvetica Neue", Helvetica, sans-serif';
 
   return (
-    <BrowserChrome variant="ie3" title="Help — Ask the Collective" url="http://help.artisticaccessibility.com/">
+    <BrowserChrome variant="ie3" desktopBg="#263590" title="Help — Ask the Collective" url="http://help.artisticaccessibility.com/">
     <main
       style={{ background: cream, minHeight: '100%', fontFamily: font }}
       id="help-main"
@@ -235,7 +231,7 @@ export default function HelpPage() {
 
           {/* Butler */}
           <div aria-hidden="true" style={{ flexShrink: 0, marginBottom: -4 }}>
-            <Butler size={90} />
+            <InfoGuy size={90} />
           </div>
 
           {/* Brand + search ─────────────────────────────────────── */}
@@ -457,7 +453,7 @@ export default function HelpPage() {
             {results.length === 0 ? (
               <div style={{ background: 'white', border: `1px solid ${border}`, padding: '20px 16px' }}>
                 <p style={{ fontSize: 14, color: '#555', marginBottom: 12 }}>
-                  Jeeves couldn&apos;t find a match for that one. Try different words, or browse by category below.
+                  No matches found for that one. Try different words, or browse by category below.
                 </p>
                 <Link href="/contact" style={{ color: navy, fontSize: 13, textDecoration: 'underline' }}>
                   Still stuck? Send us a message directly.
