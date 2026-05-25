@@ -152,19 +152,31 @@ export default function LibraryPage() {
         </div>
 
         {/* Masthead */}
-        <div style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start', marginBottom: 14 }}>
           <div>
-            <a href="/" style={{ display: 'block', textDecoration: 'none' }} aria-label="Artistic Accessibility Collective — Home">
-              <pre aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 18, lineHeight: 1.0, whiteSpace: 'pre', color: C.amber, margin: 0, textShadow: `0 0 2px rgba(255,176,0,0.5), 0 0 10px rgba(255,176,0,0.25)` }}>{`╔═══════════════════════════════════════╗
-║  A R T I S T I C  A C C E S S I B L  ║
-║  I T Y  C O L L E C T I V E          ║
-╚═══════════════════════════════════════╝`}</pre>
+            <a href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
+              ▶ AAC PRESENTS:
             </a>
-            <div style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '8px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4), 0 0 16px rgba(255,176,0,0.3)` }}>
+            <div style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>
               THE LIBRARY
             </div>
-            <div style={{ fontSize: 13, letterSpacing: '0.06em', color: C.amber }}>ONLINE PUBLIC ACCESS CATALOG · DISABILITY ARTS EDITION</div>
+            <div style={{ fontSize: 13, letterSpacing: '0.06em', color: C.amber }}>DISABILITY · ACCESSIBILITY · ARTS EDITION</div>
+
+            {/* Cheeky doodle — visible description for everyone */}
+            <figure role="img" aria-labelledby="lib-doodle-desc" style={{ margin: '16px 0 0', padding: 0 }}>
+              <pre aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 12, lineHeight: 1.3, color: C.green, margin: 0, textShadow: `0 0 5px rgba(77,255,124,0.5)` }}>{` ┌─┬─┬─┐
+ │A│B│C│
+ ├─┼─┼─┤
+ │D│E│F│
+ └─┴─┴─┘
+  \\(°‿°)/
+  FOUND IT`}</pre>
+              <figcaption id="lib-doodle-desc" style={{ marginTop: 7, fontSize: 11, color: C.dim, fontStyle: 'italic', lineHeight: 1.55, maxWidth: 240 }}>
+                A tiny ASCII card catalog, six drawers labeled A through F. Below it, a very small figure throws their arms up — they found exactly what they were looking for. The OPAC has been operational since 1974. We are not saying this is dated. We are saying it is seasoned.
+              </figcaption>
+            </figure>
           </div>
+
           <div style={{ fontSize: 12, lineHeight: 1.9, textAlign: 'right', color: C.dim }}>
             <div><span style={{ color: C.amber }}>HOLDINGS.......:</span> {LIBRARY_ITEMS.length} ITEMS</div>
             <div><span style={{ color: C.amber }}>FREE ACCESS....:</span> {LIBRARY_ITEMS.filter((i) => i.isFree).length} ITEMS</div>
@@ -174,8 +186,8 @@ export default function LibraryPage() {
         </div>
 
         {/* Community framing banner */}
-        <div style={{ padding: '14px 20px', background: C.amber, color: C.bg, textShadow: 'none', fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
-          <strong>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better — whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
+        <div style={{ padding: '14px 20px', background: C.bg, color: C.green, border: `2px solid ${C.green}`, textShadow: `0 0 4px rgba(77,255,124,0.3)`, fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
+          <strong style={{ color: C.green }}>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better — whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
         </div>
 
         {/* Search + filter controls */}
@@ -201,6 +213,13 @@ export default function LibraryPage() {
             />
             FREE ONLY
           </label>
+          <a
+            href="#lib-suggest-form"
+            style={{ background: C.amber, color: C.bg, border: `1px solid ${C.amber}`, fontFamily: C.mono, fontWeight: 700, fontSize: 12, padding: '6px 13px', textDecoration: 'none', letterSpacing: '0.08em', whiteSpace: 'nowrap', textShadow: 'none', display: 'inline-block' }}
+            className="opac-btn"
+          >
+            + SUGGEST A TITLE
+          </a>
           {isFiltering && (
             <button
               onClick={() => { setSearch(''); setActiveCategory(null); setShowFreeOnly(false); }}
@@ -317,7 +336,7 @@ export default function LibraryPage() {
         </div>
 
         {/* Suggest a book */}
-        <div style={{ padding: '20px', border: `1px solid ${C.amber}`, background: C.bg2, marginTop: 14, position: 'relative' }}>
+        <div id="lib-suggest-form" style={{ padding: '20px', border: `1px solid ${C.amber}`, background: C.bg2, marginTop: 14, position: 'relative' }}>
           <div style={{ position: 'absolute', top: -10, left: 16, padding: '0 8px', background: C.bg2, color: C.hi, fontFamily: C.mono, fontSize: 16, letterSpacing: '0.1em' }} aria-hidden="true">── SUGGEST A BOOK OR RESOURCE ──</div>
           <section aria-label="Suggest a book for The Library" style={{ marginTop: 6 }}>
             <p style={{ margin: '0 0 16px', fontSize: 13, color: C.dim, letterSpacing: '0.04em' }}>
