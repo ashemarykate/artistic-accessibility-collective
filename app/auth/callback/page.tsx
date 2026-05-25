@@ -9,14 +9,17 @@ import BrowserChrome from '@/components/BrowserChrome';
 /**
  * Magic-link landing page.
  *
- * When a user clicks the link in their email, Supabase redirects them here
- * with the access token in the URL hash. The Supabase client auto-detects
- * the hash and establishes the session. We then look up whether the user
- * is an admin and forward them to the right place — or surface a clear
- * error message if anything went wrong.
+ * When a user clicks their login email, Supabase redirects here with a PKCE
+ * code in the query string (?code=…). We exchange it explicitly for a session
+ * rather than relying on the async auto-detection in the Supabase client, which
+ * can race with getSession() and accidentally return the previously-cached
+ * session instead of the freshly-minted one.
  *
- * Hash-based tokens never appear in URLs the user sees for long: we
- * `router.replace()` to a clean URL as soon as we know where to go.
+ * After the session is established we:
+ *   1. Link the user's auth ID to their profiles row if it isn't linked yet
+ *      (first-time magic-link sign-in; the RLS policy allows this when
+ *       user_id IS NULL and email matches auth.jwt()->>'email').
+ *   2. Forward them to /admin or /dashboard depending on their role.
  */
 export default function AuthCallback() {
   const router = useRouter();
@@ -26,12 +29,34 @@ export default function AuthCallback() {
     let cancelled = false;
 
     const finishSignIn = async () => {
-      // Give Supabase a tick to consume the hash and establish the session.
-      const { data: sessionData } = await supabase.auth.getSession();
+      // ── 1. Get a valid session ──────────────────────────────────────────────
+      // Prefer the PKCE code from the URL (set by Supabase when emailRedirectTo
+      // is used). Fall back to getSession() in case the client already handled
+      // the exchange (e.g. hash-based implicit flow fallback).
+      let session = null;
 
-      // If the session didn't establish (expired link, malformed URL, etc.)
-      // the user is stuck — give them a clear path back instead of a blank page.
-      if (!sessionData.session) {
+      const code = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('code')
+        : null;
+
+      if (code) {
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchangeError || !data.session) {
+          if (!cancelled) {
+            setError(
+              "We couldn't sign you in. The link may have expired or already been used. Try requesting a new one.",
+            );
+          }
+          return;
+        }
+        session = data.session;
+      } else {
+        // No code param — maybe already exchanged (hash flow) or something else
+        const { data: sessionData } = await supabase.auth.getSession();
+        session = sessionData.session;
+      }
+
+      if (!session) {
         if (!cancelled) {
           setError(
             "We couldn't sign you in. The link may have expired or already been used. Try requesting a new one.",
@@ -40,10 +65,12 @@ export default function AuthCallback() {
         return;
       }
 
-      const userId = sessionData.session.user.id;
+      // ── 2. Link profile to auth user (first magic-link sign-in) ───────────
+      // The profiles row is created during registration with user_id = NULL.
+      // The RLS policy (v14 migration) allows updating it when the email matches.
+      const userId     = session.user.id;
+      const userEmail  = session.user.email;
 
-      // Link any pending profile to this user account, same as password login.
-      const userEmail = sessionData.session.user.email;
       if (userEmail) {
         const { data: unlinked } = await supabase
           .from('profiles')
@@ -54,10 +81,14 @@ export default function AuthCallback() {
           .maybeSingle();
 
         if (unlinked) {
-          await supabase.from('profiles').update({ user_id: userId }).eq('id', unlinked.id);
+          await supabase
+            .from('profiles')
+            .update({ user_id: userId })
+            .eq('id', unlinked.id);
         }
       }
 
+      // ── 3. Route to the right place ────────────────────────────────────────
       const { data: adminData } = await supabase
         .from('admin_users')
         .select('user_id')

@@ -1,19 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'info' | 'error'>('info');
   const [mode, setMode] = useState<'login' | 'magic'>('magic');
+
+  // Show an error message if redirected here with ?error=profile_not_linked
+  useEffect(() => {
+    if (searchParams.get('error') === 'profile_not_linked') {
+      setMessage(
+        "We signed you in but couldn't find your member profile. Please try your login link again, or email contact@artisticaccessibility.com for help."
+      );
+      setMessageType('error');
+    }
+  }, [searchParams]);
 
   const showMsg = (text: string, type: 'info' | 'error' = 'info') => {
     setMessage(text);

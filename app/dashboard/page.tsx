@@ -65,19 +65,17 @@ export default function MemberHub() {
       .eq('status', 'approved')
       .maybeSingle();
 
-    // TEMP: local preview fallback — remove before deploy
-    const resolvedProfile = profileData ?? {
-      id: 'preview', user_id: user.id, full_name: 'Mary Kate Ashe',
-      display_name: null, pronouns: 'she/her', username: 'mkashe',
-      location_city: 'Chicago', location_state: 'IL', location_country: 'US',
-      avatar_url: null, status: 'approved', approved_at: new Date().toISOString(),
-      public_visible: true, email_public: false,
-      specialties: ['Creative Accessibility Designer', 'Educator'],
-      certifications: [], languages: ['English', 'ASL'],
-      years_of_experience: 12, bio: null, website: null, linkedin: null, instagram: null,
-      profile_type: 'individual', is_student: false, has_captioning: false,
-    } as any;
-    setProfile(resolvedProfile);
+    if (!profileData) {
+      // No approved profile linked to this auth account.
+      // This can happen if the magic-link profile-linking step failed
+      // (e.g. before the v14 RLS migration was run). Sign out and send
+      // the user back to login with a clear message.
+      await supabase.auth.signOut();
+      router.replace('/login?error=profile_not_linked');
+      return;
+    }
+    setProfile(profileData);
+    const resolvedProfile = profileData;
 
     // Admin check
     const { data: adminData } = await supabase
