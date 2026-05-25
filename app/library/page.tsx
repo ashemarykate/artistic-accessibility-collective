@@ -115,7 +115,7 @@ export default function LibraryPage() {
     display: 'block',
     color: C.amber,
     fontFamily: C.mono,
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: '0.06em',
     marginBottom: 4,
   };
@@ -128,14 +128,13 @@ export default function LibraryPage() {
         fontFamily: C.mono,
         color: C.amber,
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
       <h1 className="sr-only">The Library — Artistic Accessibility Collective</h1>
 
-      {/* CRT scanline overlay */}
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 61, boxShadow: 'inset 0 0 120px 20px rgba(0,0,0,0.7)' }} />
+      {/* CRT scanline overlay — hidden for high-contrast / reduced-motion users */}
+      <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />
+      <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 61, boxShadow: 'inset 0 0 100px 16px rgba(0,0,0,0.5)' }} />
 
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '18px 24px 60px', position: 'relative', zIndex: 1 }}>
 
@@ -226,7 +225,7 @@ export default function LibraryPage() {
                 <button
                   onClick={() => setActiveCategory(null)}
                   aria-pressed={activeCategory === null}
-                  style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '8px 14px', background: activeCategory === null ? C.amber : 'none', color: activeCategory === null ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 12, letterSpacing: '0.04em', textAlign: 'left', textShadow: 'none' }}
+                  style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '10px 14px', background: activeCategory === null ? C.amber : 'none', color: activeCategory === null ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 13, letterSpacing: '0.04em', textAlign: 'left', textShadow: 'none' }}
                   className="opac-subject-btn"
                 >
                   <span>ALL SUBJECTS</span>
@@ -240,7 +239,7 @@ export default function LibraryPage() {
                       key={cat.id}
                       onClick={() => setActiveCategory(active ? null : cat.id)}
                       aria-pressed={active}
-                      style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '7px 14px', background: active ? C.amber : 'none', color: active ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 11, letterSpacing: '0.04em', textAlign: 'left', textShadow: active ? 'none' : `0 0 4px rgba(255,176,0,0.3)` }}
+                      style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '9px 14px', background: active ? C.amber : 'none', color: active ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 13, letterSpacing: '0.04em', textAlign: 'left', textShadow: active ? 'none' : `0 0 4px rgba(255,176,0,0.3)` }}
                       className="opac-subject-btn"
                     >
                       <span><span style={{ color: active ? C.bg : C.dim, marginRight: 6 }}>{cat.code}</span>{cat.title}</span>
@@ -258,7 +257,7 @@ export default function LibraryPage() {
             <div
               aria-live="polite"
               aria-atomic="true"
-              style={{ padding: '8px 14px', background: C.bg2, border: `1px solid ${C.dim}`, marginBottom: 10, fontSize: 12, color: C.dim, letterSpacing: '0.06em' }}
+              style={{ padding: '8px 14px', background: C.bg2, border: `1px solid ${C.dim}`, marginBottom: 10, fontSize: 13, color: C.dim, letterSpacing: '0.06em' }}
             >
               {isFiltering
                 ? `${filtered.length} RESULT${filtered.length !== 1 ? 'S' : ''} — ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE ITEMS IN FULL CATALOG`
@@ -278,16 +277,16 @@ export default function LibraryPage() {
                   if (items.length === 0) return null;
                   return (
                     <section key={cat.id} aria-labelledby={`cat-${cat.id}`} style={{ marginBottom: 18 }}>
-                      {/* Category header */}
-                      <div
-                        id={`cat-${cat.id}`}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 14px', background: C.bg2, border: `1px solid ${C.amber}`, borderBottom: 'none', fontSize: 12, letterSpacing: '0.1em' }}
-                      >
-                        <span style={{ color: C.hi }}>
+                      {/* Category header — real h2 for screen reader heading navigation */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 14px', background: C.bg2, border: `1px solid ${C.amber}`, borderBottom: 'none' }}>
+                        <h2
+                          id={`cat-${cat.id}`}
+                          style={{ margin: 0, fontFamily: C.mono, fontWeight: 400, fontSize: 13, letterSpacing: '0.1em', color: C.hi }}
+                        >
                           <span style={{ color: C.dim, marginRight: 8 }}>{cat.code}</span>
                           {cat.title.toUpperCase()}
-                        </span>
-                        <span style={{ color: C.dim }}>{items.length} ITEM{items.length !== 1 ? 'S' : ''}</span>
+                        </h2>
+                        <span style={{ color: C.dim, fontFamily: C.mono, fontSize: 13 }}>{items.length} ITEM{items.length !== 1 ? 'S' : ''}</span>
                       </div>
 
                       {/* Item rows */}
@@ -390,6 +389,14 @@ export default function LibraryPage() {
         .opac-subject-btn:hover, .opac-subject-btn:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
         .lib-row-link:hover .lib-row-title, .lib-row-link:focus-visible .lib-row-title { text-decoration: underline; }
         .lib-row-link:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
+        /* Stop blinking animation for users who prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes blink { 0%, 100% { opacity: 1; } }
+        }
+        /* Remove CRT overlays when user has requested more contrast */
+        @media (prefers-contrast: more) {
+          .crt-overlay { display: none !important; }
+        }
         @media (max-width: 780px) {
           .lib-grid { grid-template-columns: 1fr !important; }
         }
@@ -422,18 +429,18 @@ function LibraryRow({ item, idx, total }: { item: LibraryItem; idx: number; tota
     >
       {/* Top row: call num, type badge, title */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 10, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
+        <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
           {cat?.code ?? '--'}-{TYPE_SHORT[item.type] ?? '??'}
         </span>
 
         {item.isEssential && (
-          <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 9, fontWeight: 700, padding: '1px 6px', letterSpacing: '0.14em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
+          <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
             ★
           </span>
         )}
 
         {item.isFree && (
-          <span style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 9, fontWeight: 700, padding: '1px 6px', letterSpacing: '0.14em', textTransform: 'uppercase', flex: '0 0 auto' }}>
+          <span aria-label="Free access" style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto' }}>
             FREE
           </span>
         )}
@@ -447,7 +454,7 @@ function LibraryRow({ item, idx, total }: { item: LibraryItem; idx: number; tota
       </div>
 
       {/* Author + year */}
-      <div style={{ marginTop: 3, fontFamily: C.mono, fontSize: 12, color: C.amber }}>
+      <div style={{ marginTop: 3, fontFamily: C.mono, fontSize: 13, color: C.amber }}>
         {item.author}{item.year ? ` · ${item.year}` : ''}
         {!item.isFree && item.howToAccess && (
           <span style={{ color: C.dim, marginLeft: 10, fontSize: 11 }}>· see how to access →</span>

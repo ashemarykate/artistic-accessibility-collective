@@ -143,7 +143,7 @@ export default function CinemaPage() {
               CLEAR ✕
             </button>
           )}
-          <div aria-live="polite" aria-atomic="true" style={{ fontFamily: C.mono, fontSize: 11, color: 'rgba(255,255,255,0.65)', whiteSpace: 'nowrap' }}>
+          <div aria-live="polite" aria-atomic="true" style={{ fontFamily: C.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap' }}>
             {isFiltering ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : `${CINEMA_ITEMS.length} titles · ${freeCount} free`}
           </div>
         </div>
@@ -167,10 +167,10 @@ export default function CinemaPage() {
                   border: `2px solid ${C.navy}`,
                   fontFamily: C.sans,
                   fontWeight: 900,
-                  fontSize: 10,
-                  padding: '3px 9px',
+                  fontSize: 12,
+                  padding: '4px 10px',
                   cursor: 'pointer',
-                  letterSpacing: '0.1em',
+                  letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                 }}
                 className="cinema-cat-btn"
@@ -191,7 +191,7 @@ export default function CinemaPage() {
               <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black }}>
                 <div style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase', opacity: 0.65 }}>&apos;25&ndash;&apos;26 SEASON</div>
                 <div style={{ fontSize: 13, letterSpacing: '0.14em', fontWeight: 900, marginTop: 4 }}>AAC PRESENTS:</div>
-                <div style={{ fontSize: 42, lineHeight: 0.88, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE<br/>CINEMA</div>
+                <div style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2, whiteSpace: 'nowrap' }}>THE CINEMA</div>
               </div>
               <div style={{ marginTop: 12, borderTop: `2px solid ${C.black}`, paddingTop: 10 }}>
                 <p style={{ margin: '0 0 8px', fontSize: 11, lineHeight: 1.65 }}>
@@ -451,19 +451,19 @@ function ScheduleCell({ item, idx, total }: { item: CinemaItem; idx: number; tot
         </span>
         <div style={{ display: 'flex', gap: 3, flex: '0 0 auto' }}>
           {item.isFree && (
-            <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 9, letterSpacing: '0.12em', background: C.black, color: C.yellow, padding: '1px 4px' }}>FREE★</span>
+            <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', background: C.black, color: C.yellow, padding: '1px 5px' }}>FREE★</span>
           )}
           {item.hasAD && (
-            <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 9, letterSpacing: '0.1em', border: `1px solid ${C.black}`, padding: '0 3px' }}>AD</span>
+            <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>AD</span>
           )}
           {item.hasCaptions && (
-            <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 9, letterSpacing: '0.1em', border: `1px solid ${C.black}`, padding: '0 3px' }}>CC</span>
+            <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>CC</span>
           )}
         </div>
       </div>
 
       {/* Bottom row: creator + platform */}
-      <div style={{ marginTop: 2, fontSize: 11, color: item.isFree ? '#333' : C.gray, lineHeight: 1.3 }}>
+      <div style={{ marginTop: 3, fontSize: 12, color: item.isFree ? '#333' : C.gray, lineHeight: 1.3 }}>
         {creator && <span>{item.director ? 'dir. ' : ''}{creator}</span>}
         {creator && item.platform && item.platform.length > 0 && <span> · </span>}
         {item.platform && item.platform.length > 0 && (

@@ -73,9 +73,9 @@ export default function LibraryItemPage() {
     >
       <h1 className="sr-only">{item.title} — The Library · Artistic Accessibility Collective</h1>
 
-      {/* CRT overlays */}
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 61, boxShadow: 'inset 0 0 120px 20px rgba(0,0,0,0.7)' }} />
+      {/* CRT overlays — hidden for high-contrast / reduced-motion users */}
+      <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />
+      <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 61, boxShadow: 'inset 0 0 100px 16px rgba(0,0,0,0.5)' }} />
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '18px 24px 60px', position: 'relative', zIndex: 1 }}>
 
@@ -114,12 +114,12 @@ export default function LibraryItemPage() {
           <div style={{ borderBottom: `1px solid ${C.amber}`, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ flex: 1 }}>
               {item.isEssential && (
-                <div style={{ display: 'inline-block', background: C.amber, color: C.bg, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', padding: '2px 8px', marginBottom: 8, textTransform: 'uppercase' }}>
+                <div style={{ display: 'inline-block', background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
                   ★ ESSENTIAL
                 </div>
               )}
               {item.isFree && !item.isEssential && (
-                <div style={{ display: 'inline-block', background: C.green, color: C.bg, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', padding: '2px 8px', marginBottom: 8, textTransform: 'uppercase' }}>
+                <div style={{ display: 'inline-block', background: C.green, color: C.bg, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
                   FREE
                 </div>
               )}
@@ -160,7 +160,7 @@ export default function LibraryItemPage() {
               {item.tags.map((tag) => (
                 <span
                   key={tag}
-                  style={{ display: 'inline-block', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 11, padding: '1px 8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}
+                  style={{ display: 'inline-block', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 12, padding: '2px 9px', letterSpacing: '0.08em', textTransform: 'uppercase' }}
                 >
                   {tag}
                 </span>
@@ -172,7 +172,7 @@ export default function LibraryItemPage() {
           <div style={{ padding: '14px 20px' }}>
             {item.isFree && item.url ? (
               <div>
-                <div style={{ fontSize: 12, color: C.amber, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                <div style={{ fontSize: 13, color: C.amber, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
                   ▶ FREE — AVAILABLE NOW
                 </div>
                 <a
@@ -188,7 +188,7 @@ export default function LibraryItemPage() {
               </div>
             ) : item.howToAccess ? (
               <div>
-                <div style={{ fontSize: 12, color: C.amber, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                <div style={{ fontSize: 13, color: C.amber, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
                   ▶ HOW TO ACCESS
                 </div>
                 <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: C.hi }}>{item.howToAccess}</p>
@@ -235,6 +235,10 @@ export default function LibraryItemPage() {
         .opac-link:hover, .opac-link:focus-visible { text-decoration: underline; outline: 2px solid ${C.cyan}; outline-offset: 2px; }
         .opac-fkey:hover, .opac-fkey:focus-visible { background: ${C.amber}; color: ${C.bg}; text-decoration: none; outline: 2px solid ${C.cyan}; }
         .opac-fkey:last-child { border-right: none; }
+        /* Remove CRT overlays for high-contrast users */
+        @media (prefers-contrast: more) {
+          .crt-overlay { display: none !important; }
+        }
         @media (max-width: 640px) {
           [style*="grid-template-columns: 1fr 1fr 1fr"] { grid-template-columns: 1fr !important; text-align: left !important; }
           [style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
