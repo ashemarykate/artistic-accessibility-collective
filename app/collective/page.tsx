@@ -1,7 +1,19 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 import BrowserChrome from '@/components/BrowserChrome';
 
 export default function Collective() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setIsLoggedIn(true);
+    });
+  }, []);
+
   return (
     <BrowserChrome variant="netscape" title="Artistic Accessibility Collective — Welcome" url="http://www.artisticaccessibility.com/collective">
     <main aria-label="Artistic Accessibility Collective — Welcome">
@@ -20,7 +32,7 @@ export default function Collective() {
             />
           </h1>
 
-          {/* Nav buttons — each has clear, descriptive text */}
+          {/* Nav buttons */}
           <nav aria-label="Main actions">
             <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', listStyle: 'none', padding: 0, margin: 0 }}>
               <li>
@@ -41,6 +53,26 @@ export default function Collective() {
             </ul>
           </nav>
 
+          {/* My Resources — shown only when logged in */}
+          {isLoggedIn && (
+            <div style={{ marginTop: '2rem' }}>
+              <Link
+                href="/my-resources"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  color: 'rgba(255,255,255,0.75)',
+                  fontSize: '0.875rem',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: 3,
+                }}
+              >
+                ♥ Open my resources
+              </Link>
+            </div>
+          )}
+
           {/* Secondary links — low visual priority but fully accessible */}
           <ul
             aria-label="Additional links"
@@ -60,6 +92,6 @@ export default function Collective() {
         </div>
       </section>
     </main>
-  </BrowserChrome>
+    </BrowserChrome>
   );
 }

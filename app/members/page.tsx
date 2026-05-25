@@ -273,11 +273,13 @@ export default function MemberDirectory() {
                             <p style={{ fontSize: '0.9375rem', fontWeight: 'bold', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {name}
                             </p>
-                            {p.user_id && adminUserIds.has(p.user_id) && (
-                              <p style={{ marginBottom: '0.125rem' }}>
-                                <span className="ms-admin-badge" aria-label="AAC Staff member">✦ AAC Staff</span>
-                              </p>
-                            )}
+                            <p style={{ marginBottom: '0.125rem' }}>
+                              {p.user_id && adminUserIds.has(p.user_id) ? (
+                                <span className="ms-admin-badge" aria-label="Admin">✦ Admin</span>
+                              ) : (
+                                <span className="ms-member-badge" aria-label="Member">✦ Member</span>
+                              )}
+                            </p>
                             {p.pronouns && (
                               <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.125rem' }}>{p.pronouns}</p>
                             )}

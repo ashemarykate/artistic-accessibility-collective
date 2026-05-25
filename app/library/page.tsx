@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, LIBRARY_CATEGORY_BY_ID, type LibraryItem } from '@/lib/library-data';
 import { supabase } from '@/lib/supabase';
@@ -54,6 +54,12 @@ export default function LibraryPage() {
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [dbItems, setDbItems] = useState<LibraryItem[]>([]);
 
+  // Favorites state
+  const [libUserId,     setLibUserId    ] = useState<string | null>(null);
+  const [libFavSlugs,   setLibFavSlugs  ] = useState<Set<string>>(new Set());
+  const [libFavCounts,  setLibFavCounts ] = useState<Record<string, number>>({});
+  const [libFavPending, setLibFavPending] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     document.title = 'The Library — Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
@@ -70,6 +76,44 @@ export default function LibraryPage() {
         if (data?.length) setDbItems(data.map(dbRowToLibraryItem));
       });
   }, []);
+
+  // Load favorites (counts + user's own saved items)
+  const loadLibFavs = useCallback(async () => {
+    const { data: counts } = await supabase
+      .from('content_favorites')
+      .select('item_slug')
+      .eq('section', 'library');
+    if (counts) {
+      const tally: Record<string, number> = {};
+      for (const row of counts) tally[row.item_slug] = (tally[row.item_slug] ?? 0) + 1;
+      setLibFavCounts(tally);
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setLibUserId(user.id);
+    const { data: mine } = await supabase
+      .from('content_favorites')
+      .select('item_slug')
+      .eq('user_id', user.id)
+      .eq('section', 'library');
+    if (mine) setLibFavSlugs(new Set(mine.map((r) => r.item_slug)));
+  }, []);
+
+  useEffect(() => { loadLibFavs(); }, [loadLibFavs]);
+
+  const toggleLibFav = useCallback(async (slug: string) => {
+    if (!libUserId || libFavPending.has(slug)) return;
+    setLibFavPending((p) => new Set(p).add(slug));
+    const isFaved = libFavSlugs.has(slug);
+    setLibFavSlugs((p) => { const n = new Set(p); isFaved ? n.delete(slug) : n.add(slug); return n; });
+    setLibFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? -1 : 1)) }));
+    if (isFaved) {
+      await supabase.from('content_favorites').delete().eq('user_id', libUserId).eq('section', 'library').eq('item_slug', slug);
+    } else {
+      await supabase.from('content_favorites').insert({ user_id: libUserId, section: 'library', item_slug: slug });
+    }
+    setLibFavPending((p) => { const n = new Set(p); n.delete(slug); return n; });
+  }, [libUserId, libFavSlugs, libFavPending]);
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
@@ -339,7 +383,16 @@ export default function LibraryPage() {
                       {/* Item rows */}
                       <div style={{ border: `1px solid ${C.amber}`, background: C.bg2 }}>
                         {items.map((item, idx) => (
-                          <LibraryRow key={item.slug} item={item} idx={idx} total={items.length} />
+                          <LibraryRow
+                            key={item.slug}
+                            item={item}
+                            idx={idx}
+                            total={items.length}
+                            isFaved={libFavSlugs.has(item.slug)}
+                            favCount={libFavCounts[item.slug] ?? 0}
+                            userId={libUserId}
+                            onToggle={toggleLibFav}
+                          />
                         ))}
                       </div>
                     </section>
@@ -436,6 +489,8 @@ export default function LibraryPage() {
         .opac-subject-btn:hover, .opac-subject-btn:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
         .lib-row-link:hover .lib-row-title, .lib-row-link:focus-visible .lib-row-title { text-decoration: underline; }
         .lib-row-link:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
+        .lib-heart-btn:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: 2px; }
+        .lib-heart-btn:not(:disabled):hover { color: ${C.hi} !important; }
         /* Stop blinking animation for users who prefer reduced motion */
         @media (prefers-reduced-motion: reduce) {
           @keyframes blink { 0%, 100% { opacity: 1; } }
@@ -472,55 +527,86 @@ export default function LibraryPage() {
 
 // ── Row component ──────────────────────────────────────────────────────────────
 
-function LibraryRow({ item, idx, total }: { item: LibraryItem; idx: number; total: number }) {
+function LibraryRow({
+  item, idx, total, isFaved, favCount, userId, onToggle,
+}: {
+  item: LibraryItem; idx: number; total: number;
+  isFaved: boolean; favCount: number; userId: string | null;
+  onToggle: (slug: string) => void;
+}) {
   const cat = LIBRARY_CATEGORY_BY_ID[item.category];
+  const rowBg = idx % 2 === 0 ? C.bg2 : `rgba(255,176,0,0.03)`;
 
   return (
-    <Link
-      href={`/library/${item.slug}`}
-      className="lib-row-link"
+    <div
       style={{
-        display: 'block',
-        padding: '11px 14px',
+        display: 'flex',
+        alignItems: 'stretch',
         borderBottom: idx < total - 1 ? `1px solid rgba(255,176,0,0.18)` : 'none',
-        textDecoration: 'none',
-        background: idx % 2 === 0 ? C.bg2 : `rgba(255,176,0,0.03)`,
-        position: 'relative',
+        background: rowBg,
       }}
     >
-      {/* Top row: call num, type badge, title */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-        <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
-          {cat?.code ?? '--'}-{TYPE_SHORT[item.type] ?? '??'}
-        </span>
-
-        {item.isEssential && (
-          <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
-            ★
+      {/* Main clickable area */}
+      <Link
+        href={`/library/${item.slug}`}
+        className="lib-row-link"
+        style={{ flex: 1, display: 'block', padding: '11px 14px', textDecoration: 'none', position: 'relative' }}
+      >
+        {/* Top row: call num, type badge, title */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+          <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
+            {cat?.code ?? '--'}-{TYPE_SHORT[item.type] ?? '??'}
           </span>
-        )}
 
-        {item.isFree && (
-          <span aria-label="Free access" style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto' }}>
-            FREE
+          {item.isEssential && (
+            <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
+              ★
+            </span>
+          )}
+
+          {item.isFree && (
+            <span aria-label="Free access" style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto' }}>
+              FREE
+            </span>
+          )}
+
+          <span
+            className="lib-row-title"
+            style={{ fontFamily: C.mono, fontSize: 14, color: C.hi, fontWeight: 700, textShadow: `0 0 4px rgba(255,209,102,0.3)`, lineHeight: 1.3 }}
+          >
+            {item.title}
           </span>
-        )}
+        </div>
 
-        <span
-          className="lib-row-title"
-          style={{ fontFamily: C.mono, fontSize: 14, color: C.hi, fontWeight: 700, textShadow: `0 0 4px rgba(255,209,102,0.3)`, lineHeight: 1.3 }}
-        >
-          {item.title}
-        </span>
-      </div>
+        {/* Author + year */}
+        <div style={{ marginTop: 3, fontFamily: C.mono, fontSize: 13, color: C.amber }}>
+          {item.author}{item.year ? ` · ${item.year}` : ''}
+          {!item.isFree && item.howToAccess && (
+            <span style={{ color: C.dim, marginLeft: 10, fontSize: 11 }}>· see how to access →</span>
+          )}
+        </div>
+      </Link>
 
-      {/* Author + year */}
-      <div style={{ marginTop: 3, fontFamily: C.mono, fontSize: 13, color: C.amber }}>
-        {item.author}{item.year ? ` · ${item.year}` : ''}
-        {!item.isFree && item.howToAccess && (
-          <span style={{ color: C.dim, marginLeft: 10, fontSize: 11 }}>· see how to access →</span>
-        )}
-      </div>
-    </Link>
+      {/* Heart / save button */}
+      <button
+        onClick={() => onToggle(item.slug)}
+        disabled={!userId}
+        aria-label={isFaved ? `Remove "${item.title}" from My Library` : `Save "${item.title}" to My Library${favCount > 0 ? ` (${favCount} saved)` : ''}`}
+        aria-pressed={userId ? isFaved : undefined}
+        title={userId ? (isFaved ? 'Remove from My Library' : 'Save to My Library') : 'Log in to save'}
+        className="lib-heart-btn"
+        style={{
+          background: 'none', border: 'none', padding: '0 14px',
+          color: isFaved ? C.amber : C.dim,
+          cursor: userId ? 'pointer' : 'default',
+          fontSize: '15px', fontFamily: C.mono, flexShrink: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
+          minWidth: 36,
+        }}
+      >
+        <span aria-hidden="true">{isFaved ? '♥' : '♡'}</span>
+        {favCount > 0 && <span style={{ fontSize: '9px', lineHeight: 1 }}>{favCount}</span>}
+      </button>
+    </div>
   );
 }

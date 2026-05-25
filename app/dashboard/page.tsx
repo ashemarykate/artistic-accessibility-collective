@@ -275,8 +275,10 @@ export default function MemberHub() {
             <div className="ms-box-header" style={{ fontSize: '0.8rem' }}>
               <h2>
                 {displayName}
-                {isAdmin && (
-                  <span className="ms-admin-badge" style={{ marginLeft: '4px' }} aria-label="AAC Staff">✦ Staff</span>
+                {isAdmin ? (
+                  <span className="ms-admin-badge" style={{ marginLeft: '4px' }} aria-label="Admin">✦ Admin</span>
+                ) : (
+                  <span className="ms-member-badge" style={{ marginLeft: '4px' }} aria-label="Member">✦ Member</span>
                 )}
               </h2>
             </div>
@@ -524,8 +526,10 @@ export default function MemberHub() {
                           <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--aac-navy)', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' }}>
                             {mName}
                           </p>
-                          {isStaff && (
-                            <span className="ms-admin-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="AAC Staff">✦ Staff</span>
+                          {isStaff ? (
+                            <span className="ms-admin-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="Admin">✦ Admin</span>
+                          ) : (
+                            <span className="ms-member-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="Member">✦ Member</span>
                           )}
                         </Link>
                       </li>

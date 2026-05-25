@@ -433,7 +433,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   font-family: var(--font-body);
 }
 
-/* AAC Staff badge — shown on admin profiles in the directory and profile page */
+/* Admin badge — shown on admin profiles in the directory and profile page */
 .ms-admin-badge {
   display: inline-flex;
   align-items: center;
@@ -441,6 +441,21 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: var(--aac-blue);
   border: 1px solid var(--aac-blue-dark);
   color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+/* Member badge — shown on all approved member profiles */
+.ms-member-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--aac-yellow, #f5d84a);
+  border: 1px solid #d4b800;
+  color: var(--aac-navy, #0d1e4a);
   font-size: 0.6875rem;
   font-weight: bold;
   padding: 2px 7px;

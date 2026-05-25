@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { CINEMA_CATEGORIES, CINEMA_ITEMS, type CinemaItem, type CinemaCategory } from '@/lib/cinema-data';
 import { supabase } from '@/lib/supabase';
@@ -61,6 +61,12 @@ export default function CinemaPage() {
   const [suggestStatus,  setSuggestStatus ] = useState<FormStatus>('idle');
   const [dbItems,        setDbItems       ] = useState<CinemaItem[]>([]);
 
+  // Favorites state
+  const [cinUserId,     setCinUserId    ] = useState<string | null>(null);
+  const [cinFavSlugs,   setCinFavSlugs  ] = useState<Set<string>>(new Set());
+  const [cinFavCounts,  setCinFavCounts ] = useState<Record<string, number>>({});
+  const [cinFavPending, setCinFavPending] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     document.title = 'AAC Presents: The Cinema — Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
@@ -77,6 +83,44 @@ export default function CinemaPage() {
         if (data?.length) setDbItems(data.map(dbRowToCinemaItem));
       });
   }, []);
+
+  // Load favorites (counts + user's own saved items)
+  const loadCinFavs = useCallback(async () => {
+    const { data: counts } = await supabase
+      .from('content_favorites')
+      .select('item_slug')
+      .eq('section', 'cinema');
+    if (counts) {
+      const tally: Record<string, number> = {};
+      for (const row of counts) tally[row.item_slug] = (tally[row.item_slug] ?? 0) + 1;
+      setCinFavCounts(tally);
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setCinUserId(user.id);
+    const { data: mine } = await supabase
+      .from('content_favorites')
+      .select('item_slug')
+      .eq('user_id', user.id)
+      .eq('section', 'cinema');
+    if (mine) setCinFavSlugs(new Set(mine.map((r) => r.item_slug)));
+  }, []);
+
+  useEffect(() => { loadCinFavs(); }, [loadCinFavs]);
+
+  const toggleCinFav = useCallback(async (slug: string) => {
+    if (!cinUserId || cinFavPending.has(slug)) return;
+    setCinFavPending((p) => new Set(p).add(slug));
+    const isFaved = cinFavSlugs.has(slug);
+    setCinFavSlugs((p) => { const n = new Set(p); isFaved ? n.delete(slug) : n.add(slug); return n; });
+    setCinFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? -1 : 1)) }));
+    if (isFaved) {
+      await supabase.from('content_favorites').delete().eq('user_id', cinUserId).eq('section', 'cinema').eq('item_slug', slug);
+    } else {
+      await supabase.from('content_favorites').insert({ user_id: cinUserId, section: 'cinema', item_slug: slug });
+    }
+    setCinFavPending((p) => { const n = new Set(p); n.delete(slug); return n; });
+  }, [cinUserId, cinFavSlugs, cinFavPending]);
 
   async function handleSuggest(e: React.FormEvent) {
     e.preventDefault();
@@ -266,7 +310,7 @@ export default function CinemaPage() {
             {LEFT_CATS.map((cat) => {
               const items = byCategory.get(cat.id) ?? [];
               if (activeCategory && activeCategory !== cat.id) return null;
-              return <ScheduleSection key={cat.id} cat={cat} items={items} />;
+              return <ScheduleSection key={cat.id} cat={cat} items={items} favSlugs={cinFavSlugs} favCounts={cinFavCounts} userId={cinUserId} onToggle={toggleCinFav} />;
             })}
           </div>
 
@@ -275,7 +319,7 @@ export default function CinemaPage() {
             {RIGHT_CATS.map((cat) => {
               const items = byCategory.get(cat.id) ?? [];
               if (activeCategory && activeCategory !== cat.id) return null;
-              return <ScheduleSection key={cat.id} cat={cat} items={items} />;
+              return <ScheduleSection key={cat.id} cat={cat} items={items} favSlugs={cinFavSlugs} favCounts={cinFavCounts} userId={cinUserId} onToggle={toggleCinFav} />;
             })}
           </div>
         </div>
@@ -402,6 +446,8 @@ export default function CinemaPage() {
           outline: 3px solid #0c1e3e;
           outline-offset: -2px;
         }
+        .cinema-heart-btn:focus-visible { outline: 3px solid #0c1e3e; outline-offset: 2px; }
+        .cinema-heart-btn:not(:disabled):hover { color: ${C.red} !important; }
         @media (max-width: 680px) {
           .cinema-schedule-grid { grid-template-columns: 1fr !important; }
           .cinema-form-grid { grid-template-columns: 1fr !important; }
@@ -422,7 +468,13 @@ export default function CinemaPage() {
 
 // ── Schedule section component ────────────────────────────────────────────────
 
-function ScheduleSection({ cat, items }: { cat: CinemaCategory; items: CinemaItem[] }) {
+function ScheduleSection({
+  cat, items, favSlugs, favCounts, userId, onToggle,
+}: {
+  cat: CinemaCategory; items: CinemaItem[];
+  favSlugs: Set<string>; favCounts: Record<string, number>;
+  userId: string | null; onToggle: (slug: string) => void;
+}) {
   return (
     <section aria-labelledby={`ch-label-${cat.id}`} style={{ marginBottom: 10 }}>
       {/* Channel header — dark navy like the ABC/CBS/NBC headers in the original */}
@@ -459,7 +511,18 @@ function ScheduleSection({ cat, items }: { cat: CinemaCategory; items: CinemaIte
             No titles match current filters.
           </div>
         ) : (
-          items.map((item, idx) => <ScheduleCell key={item.slug} item={item} idx={idx} total={items.length} />)
+          items.map((item, idx) => (
+            <ScheduleCell
+              key={item.slug}
+              item={item}
+              idx={idx}
+              total={items.length}
+              isFaved={favSlugs.has(item.slug)}
+              favCount={favCounts[item.slug] ?? 0}
+              userId={userId}
+              onToggle={onToggle}
+            />
+          ))
         )}
       </div>
     </section>
@@ -468,66 +531,93 @@ function ScheduleSection({ cat, items }: { cat: CinemaCategory; items: CinemaIte
 
 // ── Individual cell ───────────────────────────────────────────────────────────
 
-function ScheduleCell({ item, idx, total }: { item: CinemaItem; idx: number; total: number }) {
+function ScheduleCell({
+  item, idx, total, isFaved, favCount, userId, onToggle,
+}: {
+  item: CinemaItem; idx: number; total: number;
+  isFaved: boolean; favCount: number; userId: string | null;
+  onToggle: (slug: string) => void;
+}) {
   const creator = item.director || item.creator || '';
   const isEven = idx % 2 === 0;
+  const cellBg = item.isFree ? C.yellow : isEven ? C.white : C.cream;
 
   return (
-    <Link
-      href={`/cinema/${item.slug}`}
-      className="cinema-item-link"
+    <div
       style={{
-        display: 'block',
-        padding: '7px 10px',
+        display: 'flex',
+        alignItems: 'stretch',
         borderBottom: idx < total - 1 ? `1px solid ${C.lgray}` : 'none',
-        background: item.isFree
-          ? C.yellow
-          : isEven
-          ? C.white
-          : C.cream,
-        textDecoration: 'none',
+        background: cellBg,
         color: C.black,
-        position: 'relative',
       }}
     >
-      {/* Top row: title + badges */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5, flexWrap: 'wrap' }}>
-        {item.isEssential && (
+      {/* Main clickable area */}
+      <Link
+        href={`/cinema/${item.slug}`}
+        className="cinema-item-link"
+        style={{ flex: 1, display: 'block', padding: '7px 10px', textDecoration: 'none', color: C.black, position: 'relative' }}
+      >
+        {/* Top row: title + badges */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5, flexWrap: 'wrap' }}>
+          {item.isEssential && (
+            <span
+              aria-label="Essential"
+              title="Essential pick"
+              style={{ flex: '0 0 auto', fontWeight: 900, fontSize: 12, color: item.isFree ? C.black : C.navy, lineHeight: 1.3 }}
+            >★</span>
+          )}
           <span
-            aria-label="Essential"
-            title="Essential pick"
-            style={{ flex: '0 0 auto', fontWeight: 900, fontSize: 12, color: item.isFree ? C.black : C.navy, lineHeight: 1.3 }}
-          >★</span>
-        )}
-        <span
-          className="cinema-item-title"
-          style={{ fontWeight: 900, fontSize: 13, lineHeight: 1.25, letterSpacing: '-0.01em', flex: 1 }}
-        >
-          {item.title}
-          {item.year ? <span style={{ fontWeight: 400, fontSize: 11, marginLeft: 5, opacity: 0.7 }}>({item.year})</span> : null}
-        </span>
-        <div style={{ display: 'flex', gap: 3, flex: '0 0 auto' }}>
-          {item.isFree && (
-            <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', background: C.black, color: C.yellow, padding: '1px 5px' }}>FREE★</span>
-          )}
-          {item.hasAD && (
-            <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>AD</span>
-          )}
-          {item.hasCaptions && (
-            <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>CC</span>
-          )}
+            className="cinema-item-title"
+            style={{ fontWeight: 900, fontSize: 13, lineHeight: 1.25, letterSpacing: '-0.01em', flex: 1 }}
+          >
+            {item.title}
+            {item.year ? <span style={{ fontWeight: 400, fontSize: 11, marginLeft: 5, opacity: 0.7 }}>({item.year})</span> : null}
+          </span>
+          <div style={{ display: 'flex', gap: 3, flex: '0 0 auto' }}>
+            {item.isFree && (
+              <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', background: C.black, color: C.yellow, padding: '1px 5px' }}>FREE★</span>
+            )}
+            {item.hasAD && (
+              <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>AD</span>
+            )}
+            {item.hasCaptions && (
+              <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>CC</span>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Bottom row: creator + platform */}
-      <div style={{ marginTop: 3, fontSize: 12, color: item.isFree ? '#333' : C.gray, lineHeight: 1.3 }}>
-        {creator && <span>{item.director ? 'dir. ' : ''}{creator}</span>}
-        {creator && item.platform && item.platform.length > 0 && <span> · </span>}
-        {item.platform && item.platform.length > 0 && (
-          <span>{item.platform.join(' / ')}</span>
-        )}
-        {item.runtimeMinutes && <span> · {item.runtimeMinutes}m</span>}
-      </div>
-    </Link>
+        {/* Bottom row: creator + platform */}
+        <div style={{ marginTop: 3, fontSize: 12, color: item.isFree ? '#333' : C.gray, lineHeight: 1.3 }}>
+          {creator && <span>{item.director ? 'dir. ' : ''}{creator}</span>}
+          {creator && item.platform && item.platform.length > 0 && <span> · </span>}
+          {item.platform && item.platform.length > 0 && (
+            <span>{item.platform.join(' / ')}</span>
+          )}
+          {item.runtimeMinutes && <span> · {item.runtimeMinutes}m</span>}
+        </div>
+      </Link>
+
+      {/* Heart / save button */}
+      <button
+        onClick={() => onToggle(item.slug)}
+        disabled={!userId}
+        aria-label={isFaved ? `Remove "${item.title}" from My Cinema` : `Save "${item.title}" to My Cinema${favCount > 0 ? ` (${favCount} saved)` : ''}`}
+        aria-pressed={userId ? isFaved : undefined}
+        title={userId ? (isFaved ? 'Remove from My Cinema' : 'Save to My Cinema') : 'Log in to save'}
+        className="cinema-heart-btn"
+        style={{
+          background: 'none', border: 'none', padding: '0 10px',
+          color: isFaved ? C.red : C.lgray,
+          cursor: userId ? 'pointer' : 'default',
+          fontSize: '14px', flexShrink: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
+          minWidth: 30,
+        }}
+      >
+        <span aria-hidden="true">{isFaved ? '♥' : '♡'}</span>
+        {favCount > 0 && <span style={{ fontSize: '9px', lineHeight: 1, color: C.gray }}>{favCount}</span>}
+      </button>
+    </div>
   );
 }

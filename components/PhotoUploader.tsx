@@ -98,7 +98,7 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
   const dialogRef     = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const [signedUrl,    setSignedUrl]    = useState<string | null>(null);
+  const [displayUrl,   setDisplayUrl]   = useState<string | null>(null);
   const [imageSrc,     setImageSrc]     = useState<string | null>(null); // data URL of picked file
   const [crop,         setCrop]         = useState({ x: 0, y: 0 });
   const [zoom,         setZoom]         = useState(1);
@@ -107,13 +107,17 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
   const [uploadError,  setUploadError]  = useState('');
   const [showCropper,  setShowCropper]  = useState(false);
 
-  // ── Load signed URL for existing avatar ────────────────────────────────────
+  // ── Resolve display URL for existing avatar ─────────────────────────────────
+  // avatar_url may be a full https:// URL (stored by either upload path) or an
+  // old-format bare storage path. Handle both gracefully.
   useEffect(() => {
-    if (!currentPath) { setSignedUrl(null); return; }
-    supabase.storage.from('profile-photos')
-      .createSignedUrl(currentPath, 3600)
-      .then(({ data }) => setSignedUrl(data?.signedUrl ?? null))
-      .catch(() => setSignedUrl(null));
+    if (!currentPath) { setDisplayUrl(null); return; }
+    if (currentPath.startsWith('http')) {
+      setDisplayUrl(currentPath);
+    } else {
+      const { data } = supabase.storage.from('profile-photos').getPublicUrl(currentPath);
+      setDisplayUrl(data?.publicUrl ?? null);
+    }
   }, [currentPath]);
 
   // ── Focus trap inside crop modal ───────────────────────────────────────────
@@ -196,19 +200,19 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
 
       if (error) throw error;
 
-      // Update avatar_url in the profiles table
+      // Get the permanent public URL and store that — consistent with the
+      // inline photo uploader on the profile view page.
+      const { data: pub } = supabase.storage.from('profile-photos').getPublicUrl(storagePath);
+      const publicUrl = pub?.publicUrl ?? storagePath;
+
+      // Update avatar_url in the profiles table with the full public URL
       await supabase
         .from('profiles')
-        .update({ avatar_url: storagePath })
+        .update({ avatar_url: publicUrl })
         .eq('user_id', userId);
 
-      // Refresh the signed URL for display
-      const { data: signed } = await supabase.storage
-        .from('profile-photos')
-        .createSignedUrl(storagePath, 3600);
-      setSignedUrl(signed?.signedUrl ?? null);
-
-      onSaved(storagePath);
+      setDisplayUrl(publicUrl);
+      onSaved(publicUrl);
       closeCropper();
     } catch (err) {
       console.error('Photo upload error:', err);
@@ -224,10 +228,10 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
       {/* ── Avatar display + upload button ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
         {/* Avatar circle */}
-        {signedUrl ? (
+        {displayUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={signedUrl}
+            src={displayUrl}
             alt={`Profile photo for ${displayName}`}
             style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid var(--aac-blue-light)' }}
           />
@@ -241,9 +245,9 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
             type="button"
             className="btn btn-outline btn-sm"
             onClick={() => { setUploadError(''); fileInputRef.current?.click(); }}
-            aria-label={signedUrl ? 'Change profile photo' : 'Upload profile photo'}
+            aria-label={displayUrl ? 'Change profile photo' : 'Upload profile photo'}
           >
-            {signedUrl ? '📷 Change Photo' : '📷 Upload Photo'}
+            {displayUrl ? '📷 Change Photo' : '📷 Upload Photo'}
           </button>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.375rem' }}>
             JPG or PNG · Max 10 MB · You&apos;ll crop it before it saves

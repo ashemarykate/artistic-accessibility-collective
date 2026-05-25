@@ -393,8 +393,10 @@ export default function ProfilePage() {
             headerEl={
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 {displayName}
-                {isProfileAdmin && (
-                  <span className="ms-admin-badge" aria-label="AAC Staff member">✦ AAC Staff</span>
+                {isProfileAdmin ? (
+                  <span className="ms-admin-badge" aria-label="Admin">✦ Admin</span>
+                ) : (
+                  <span className="ms-member-badge" aria-label="Member">✦ Member</span>
                 )}
                 {profile.is_student && (
                   <span className="ms-student-badge" aria-label="Student member">🎓 Student</span>
