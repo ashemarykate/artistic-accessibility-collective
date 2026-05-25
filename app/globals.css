@@ -113,7 +113,7 @@ a:hover { color: var(--aac-blue-dark); }
 /* Skip navigation — hidden until focused */
 .skip-nav {
   position: fixed;
-  top: -100%;
+  top: -9999px;
   left: 0;
   background: var(--aac-navy);
   color: var(--aac-white);
@@ -1106,5 +1106,75 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   }
   .ms-action-grid {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Mobile touch improvements ───────────────────────────────────────────────
+   On phones, make tappable things generously sized. Applies to all interactive
+   elements that might not already have explicit height/padding rules.         */
+@media (max-width: 640px) {
+
+  /* All buttons and links that act as buttons */
+  .btn, .btn-sm, .btn-outline, .btn-ghost, .btn-danger {
+    min-height: 48px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 1rem;
+  }
+
+  /* Form inputs, selects, textareas */
+  .form-input,
+  .form-select,
+  .form-textarea,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  select,
+  textarea {
+    min-height: 48px;
+    font-size: 1rem;  /* prevents iOS auto-zoom on focus */
+    padding: 10px 12px;
+  }
+
+  /* Resource/library/cinema row links — make the whole row a big tap target */
+  .resource-row,
+  .library-row,
+  .cinema-row {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  /* Tag chips — larger tap target on mobile */
+  .tag-chip, .tag-chip-remove {
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 0.875rem;
+  }
+
+  /* Nav links in the Windows XP home panel */
+  .xp-nav-link {
+    min-height: 48px;
+    padding: 10px 8px;
+  }
+
+  /* Checkbox and radio inputs — easier to tap */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+  }
+
+  /* Content cards and list items — breathe a little more */
+  .content-card {
+    padding: 14px 12px;
+  }
+
+  /* Tabs / sub-tabs */
+  .tab-btn, [role="tab"] {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.9375rem;
   }
 }
