@@ -176,7 +176,7 @@ export default function LibraryPage() {
 
         {/* Community framing banner */}
         <div style={{ padding: '14px 20px', background: C.amber, color: C.bg, textShadow: 'none', fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
-          <strong>★ Community-built reading list.</strong> This catalog is curated by and for disability arts practitioners — centering disabled voices, disability justice frameworks, and the people actually doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
+          <strong>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better — whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
         </div>
 
         {/* Search + filter controls */}
@@ -309,10 +309,10 @@ export default function LibraryPage() {
           <div style={{ position: 'absolute', top: -10, left: 16, padding: '0 8px', background: C.bg2, color: C.hi, fontFamily: C.mono, fontSize: 16, letterSpacing: '0.1em' }} aria-hidden="true">── HOW TO SUBMIT ──</div>
           <section aria-label="How the catalog is built and how to submit" style={{ marginTop: 6 }}>
             <p style={{ margin: '0 0 10px', fontSize: 14, lineHeight: 1.75, color: C.hi }}>
-              This catalog is built and maintained by the AAC community. Every practitioner who reads something essential and shares it makes this resource better for everyone.
+              This catalog is built and maintained by the AAC community. Every person who reads something essential and shares it makes this resource better for everyone.
             </p>
             <p style={{ margin: '0 0 0', fontSize: 13, lineHeight: 1.75, color: C.amber }}>
-              To suggest a book, essay, or resource: use the form below. Include the author, and a brief note on why this belongs in the catalog. Suggestions are reviewed and added by the AAC team. You may submit anything — books, essays, toolkits, syllabi, open-access journals, free PDFs. The only requirement is that it centers disability and is worth a practitioner&apos;s time.
+              To suggest a book, essay, or resource: use the form below. Include the author, and a brief note on why this belongs in the catalog. Suggestions are reviewed and added by the AAC team. You may submit anything — books, essays, toolkits, syllabi, open-access journals, free PDFs. The only requirement is that it centers disability and is worth someone&apos;s time.
             </p>
           </section>
         </div>
@@ -322,7 +322,7 @@ export default function LibraryPage() {
           <div style={{ position: 'absolute', top: -10, left: 16, padding: '0 8px', background: C.bg2, color: C.hi, fontFamily: C.mono, fontSize: 16, letterSpacing: '0.1em' }} aria-hidden="true">── SUGGEST A BOOK OR RESOURCE ──</div>
           <section aria-label="Suggest a book for The Library" style={{ marginTop: 6 }}>
             <p style={{ margin: '0 0 16px', fontSize: 13, color: C.dim, letterSpacing: '0.04em' }}>
-              What should every disability arts practitioner be reading?
+              What should everyone interested in disability arts be reading?
             </p>
             {suggestStatus === 'success' ? (
               <div role="status" aria-live="polite" style={{ color: C.green, fontSize: 14, padding: '4px 0' }}>
@@ -342,7 +342,7 @@ export default function LibraryPage() {
                 </div>
                 <div>
                   <label htmlFor="sug-why" style={labelSty}>WHY DOES THIS BELONG HERE? <span style={{ opacity: 0.6 }}>(optional)</span></label>
-                  <textarea id="sug-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Why should every disability arts practitioner read this?" rows={3} disabled={suggestStatus === 'loading'} style={{ ...inputSty, resize: 'vertical', lineHeight: 1.6 }} className="opac-input" />
+                  <textarea id="sug-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Why should everyone interested in disability arts read this?" rows={3} disabled={suggestStatus === 'loading'} style={{ ...inputSty, resize: 'vertical', lineHeight: 1.6 }} className="opac-input" />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="lib-form-grid-2">
                   <div>

@@ -246,7 +246,7 @@ export default function CinemaPage() {
 
           <div style={{ padding: '16px 18px' }}>
             <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.65, color: C.gray }}>
-              This schedule is built by the community. What should every disability arts person watch? Free-access preferred but not required — include the platform if you know it.
+              This schedule is built by the community. What should anyone interested in disability arts watch? Free-access preferred but not required — include the platform if you know it.
             </p>
 
             {suggestStatus === 'success' ? (
@@ -277,7 +277,7 @@ export default function CinemaPage() {
                   <label htmlFor="sug-why" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
                     Why does this belong here? <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span>
                   </label>
-                  <textarea id="sug-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Why should every disability arts person watch this?" rows={3} disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13, resize: 'vertical', lineHeight: 1.6 }} className="cinema-ctrl-input" />
+                  <textarea id="sug-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Why should anyone interested in disability arts watch this?" rows={3} disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13, resize: 'vertical', lineHeight: 1.6 }} className="cinema-ctrl-input" />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="cinema-form-grid">

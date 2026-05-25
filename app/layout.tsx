@@ -4,7 +4,7 @@ import { DevAutoLogin } from "@/components/DevAutoLogin";
 
 export const metadata: Metadata = {
   title: "Artistic Accessibility Collective",
-  description: "A professional registry and community for accessibility specialists — together, together.",
+  description: "A directory, community, and resource hub for anyone passionate about accessibility in the arts — practitioners, disabled community members, and curious learners alike.",
 };
 
 export default function RootLayout({
