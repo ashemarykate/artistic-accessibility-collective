@@ -27,7 +27,8 @@ const COLLECTIVE_ITEMS: NavItem[] = [
 function NavIcon({ icon, bg }: { icon: string; bg: string }) {
   return (
     <span
-      aria-hidden="true"
+      role="img"
+      aria-label="emojicon"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
