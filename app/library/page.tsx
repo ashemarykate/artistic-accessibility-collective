@@ -194,18 +194,18 @@ export default function LibraryPage() {
         </div>
 
         {/* Masthead */}
-        <div style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start', marginBottom: 14 }}>
+        <div className="lib-masthead" style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start', marginBottom: 14 }}>
           <div>
             <a href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
               ▶ AAC PRESENTS:
             </a>
-            <div style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>
+            <div className="lib-title" style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>
               THE LIBRARY
             </div>
             <div style={{ fontSize: 13, letterSpacing: '0.06em', color: C.amber }}>DISABILITY · ACCESSIBILITY · ARTS</div>
           </div>
 
-          <div style={{ fontSize: 12, lineHeight: 1.9, textAlign: 'right', color: C.dim }}>
+          <div className="lib-stats" style={{ fontSize: 12, lineHeight: 1.9, textAlign: 'right', color: C.dim }}>
             <div><span style={{ color: C.amber }}>HOLDINGS.......:</span> {LIBRARY_ITEMS.length} ITEMS</div>
             <div><span style={{ color: C.amber }}>FREE ACCESS....:</span> {LIBRARY_ITEMS.filter((i) => i.isFree).length} ITEMS</div>
             <div><span style={{ color: C.amber }}>SUBJECTS.......:  </span>{LIBRARY_CATEGORIES.length} AREAS</div>
@@ -447,9 +447,22 @@ export default function LibraryPage() {
         @media (max-width: 780px) {
           .lib-grid { grid-template-columns: 1fr !important; }
         }
+        @media (max-width: 600px) {
+          /* Stack masthead — title above stats */
+          .lib-masthead { grid-template-columns: 1fr !important; }
+          .lib-stats { text-align: left !important; }
+          /* Shrink the big title so it fits comfortably */
+          .lib-title { font-size: 26px !important; }
+          /* Status bar — hide the clock on tiny screens to avoid wrapping */
+          .lib-clock-cell { display: none !important; }
+        }
         @media (max-width: 540px) {
           .lib-form-grid-2 { grid-template-columns: 1fr !important; }
           [style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+          /* Bigger tap targets on filter buttons and suggest link */
+          .opac-subject-btn { min-height: 44px !important; font-size: 14px !important; }
+          .opac-btn { min-height: 44px !important; padding: 10px 16px !important; font-size: 13px !important; }
+          .opac-fkey { padding: 12px !important; font-size: 14px !important; }
         }
       `}</style>
     </main>

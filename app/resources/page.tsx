@@ -784,6 +784,11 @@ export default function ResourcesPage() {
         @media (max-width: 540px) {
           .ie-menubar, .ie-toolbar { display: none; }
         }
+        @media (max-width: 480px) {
+          /* Category filter pills — bigger on phone */
+          .ie-menubar, .ie-toolbar { display: none; }
+          #resource-search { font-size: 16px !important; min-height: 44px !important; }
+        }
         #resource-search:focus-visible { outline: 2px solid ${NP.link}; outline-offset: 0; }
         a:focus-visible      { outline: 2px solid ${NP.link}; outline-offset: 3px; }
         button:focus-visible { outline: 2px solid ${NP.link}; outline-offset: 2px; }

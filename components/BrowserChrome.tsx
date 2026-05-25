@@ -180,20 +180,6 @@ export default function BrowserChrome({
 
   return (
     <>
-      {/* Skip link — must be first focusable element */}
-      <a
-        href="#browser-content"
-        style={{
-          position: 'absolute', left: -9999, top: 0, zIndex: 9999,
-          background: '#f5d84a', color: '#000', padding: '8px 16px',
-          fontWeight: 700, fontSize: 13, textDecoration: 'none',
-        }}
-        onFocus={(e) => { e.currentTarget.style.left = '8px'; }}
-        onBlur={(e)  => { e.currentTarget.style.left = '-9999px'; }}
-      >
-        Skip to main content
-      </a>
-
       {/* ── Desktop / outer frame ──────────────────────────────────────────── */}
       <div
         aria-hidden="false"

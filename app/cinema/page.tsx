@@ -239,7 +239,7 @@ export default function CinemaPage() {
               <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black }}>
                 <div style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase', opacity: 0.65 }}>&apos;25&ndash;&apos;26 SEASON</div>
                 <div style={{ fontSize: 13, letterSpacing: '0.14em', fontWeight: 900, marginTop: 4 }}>AAC PRESENTS:</div>
-                <div style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2, whiteSpace: 'nowrap' }}>THE CINEMA</div>
+                <div className="cinema-title" style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE CINEMA</div>
               </div>
               <div style={{ marginTop: 12, borderTop: `2px solid ${C.black}`, paddingTop: 10 }}>
                 <p style={{ margin: '0 0 8px', fontSize: 11, lineHeight: 1.65 }}>
@@ -405,6 +405,14 @@ export default function CinemaPage() {
         @media (max-width: 680px) {
           .cinema-schedule-grid { grid-template-columns: 1fr !important; }
           .cinema-form-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          /* Shrink the big title gracefully */
+          .cinema-title { font-size: 28px !important; line-height: 1 !important; letter-spacing: -0.01em !important; }
+          /* Bigger tap targets on nav links and controls */
+          .cinema-nav-link { display: block !important; padding: 8px 0 !important; font-size: 14px !important; min-height: 44px !important; line-height: 44px !important; }
+          .cinema-ctrl-input { min-height: 44px !important; font-size: 16px !important; padding: 10px !important; }
+          .cinema-ctrl-btn { min-height: 44px !important; padding: 10px 16px !important; font-size: 14px !important; }
         }
       `}</style>
     </main>

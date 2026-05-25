@@ -120,14 +120,14 @@ export default function Home() {
         </div>
 
         {/* ── Menu bar ───────────────────────────────────────────────────────── */}
-        <div style={{ background: '#ece9d8', borderBottom: '1px solid #b4b0a8', padding: '1px 4px', display: 'flex', gap: 0 }}>
+        <div className="xp-menu-bar" style={{ background: '#ece9d8', borderBottom: '1px solid #b4b0a8', padding: '1px 4px', display: 'flex', gap: 0 }}>
           {['File', 'Edit', 'View', 'Favorites', 'Tools', 'Help'].map((item) => (
             <span key={item} style={{ padding: '2px 8px', cursor: 'default', fontSize: 11, color: '#000' }}>{item}</span>
           ))}
         </div>
 
         {/* ── Standard toolbar ───────────────────────────────────────────────── */}
-        <div style={{ background: '#ece9d8', borderBottom: '1px solid #b4b0a8', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div className="xp-toolbar" style={{ background: '#ece9d8', borderBottom: '1px solid #b4b0a8', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: 4 }}>
           {['← Back', '→', '↑'].map((btn) => (
             <span key={btn} aria-hidden="true" style={{
               padding: '1px 6px', fontSize: 11, cursor: 'default',
@@ -142,7 +142,7 @@ export default function Home() {
         </div>
 
         {/* ── Address bar ────────────────────────────────────────────────────── */}
-        <div style={{ background: '#ece9d8', borderBottom: '2px solid #b4b0a8', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div className="xp-address-bar" style={{ background: '#ece9d8', borderBottom: '2px solid #b4b0a8', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 11, color: '#333', userSelect: 'none' }}>Address</span>
           <div style={{
             flex: 1, background: '#fff',
@@ -346,7 +346,9 @@ export default function Home() {
         @media (max-width: 580px) {
           .xp-image-panel { display: none !important; }
           .xp-left-panel { width: 100% !important; border-right: none !important; }
-          .xp-content-pane { min-height: 300px !important; }
+          .xp-content-pane { min-height: auto !important; }
+          /* Hide the decorative chrome toolbars on small phones */
+          .xp-menu-bar, .xp-toolbar, .xp-address-bar { display: none !important; }
         }
       `}</style>
 
