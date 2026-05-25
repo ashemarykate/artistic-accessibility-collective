@@ -112,7 +112,7 @@ a:hover { color: var(--aac-blue-dark); }
 
 /* Skip navigation — hidden until focused */
 .skip-nav {
-  position: absolute;
+  position: fixed;
   top: -100%;
   left: 0;
   background: var(--aac-navy);
