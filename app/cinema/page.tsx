@@ -7,9 +7,9 @@ type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
 // ── Printed TV-guide palette ──────────────────────────────────────────────────
 const C = {
-  teal:   '#3ec9d4',   // page background — matches the printed schedule
+  teal:   '#2aacb8',   // page background — slightly muted from original
   navy:   '#0c1e3e',   // section headers
-  yellow: '#ffe800',   // free items (same role as "new show" yellow in the original)
+  yellow: '#e8c800',   // free items — warmer, less neon than pure yellow
   white:  '#ffffff',
   cream:  '#f8f8f4',
   black:  '#111111',
@@ -35,7 +35,7 @@ export default function CinemaPage() {
   const [suggestStatus,  setSuggestStatus ] = useState<FormStatus>('idle');
 
   useEffect(() => {
-    document.title = 'The Cinema — Artistic Accessibility Collective';
+    document.title = 'AAC Presents: The Cinema — Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -99,7 +99,7 @@ export default function CinemaPage() {
         padding: '0 0 48px',
       }}
     >
-      <h1 className="sr-only">The Cinema — Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">AAC Presents: The Cinema — Artistic Accessibility Collective</h1>
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
 
@@ -188,18 +188,23 @@ export default function CinemaPage() {
           <div>
             {/* Title block — sits above the left column items, on the teal background */}
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black, textShadow: 'none' }}>
-                <div style={{ fontSize: 13, letterSpacing: '0.04em', fontWeight: 700 }}>&apos;25&ndash;&apos;26</div>
-                <div style={{ fontSize: 36, lineHeight: 0.9, fontWeight: 900, letterSpacing: '-0.02em' }}>AAC<br/>CINEMA</div>
-                <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 4 }}>DISABILITY ARTS</div>
-                <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase' }}>SCHEDULE</div>
+              <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black }}>
+                <div style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase', opacity: 0.65 }}>&apos;25&ndash;&apos;26 SEASON</div>
+                <div style={{ fontSize: 13, letterSpacing: '0.14em', fontWeight: 900, marginTop: 4 }}>AAC PRESENTS:</div>
+                <div style={{ fontSize: 42, lineHeight: 0.88, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE<br/>CINEMA</div>
               </div>
-              <div style={{ marginTop: 10, borderTop: `2px solid ${C.black}`, paddingTop: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.5 }}>(★ Free items in yellow blocks)</div>
-                <div style={{ fontSize: 11, lineHeight: 1.5 }}>Click any title for the full record,<br/>member reactions &amp; community comments.</div>
+              <div style={{ marginTop: 12, borderTop: `2px solid ${C.black}`, paddingTop: 10 }}>
+                <p style={{ margin: '0 0 8px', fontSize: 11, lineHeight: 1.65 }}>
+                  A community-curated schedule of films, documentaries, podcasts, and more — centered on disability representation and accessibility in the arts.
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: 11, lineHeight: 1.65, color: C.gray }}>
+                  Ratings and comments aren&apos;t extras. They&apos;re how this community holds the record honest — whether a film treats its subjects with dignity, whether accessibility features are actually good, what it means to see your experience onscreen. Watch. Then weigh in.
+                </p>
+                <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.5 }}>★ Free items in yellow &nbsp;·&nbsp; ★ Essential picks</div>
+                <div style={{ fontSize: 11, lineHeight: 1.5, marginTop: 2 }}>Click any title to rate, comment, and save.</div>
                 <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.5, color: C.gray }}>
-                  Community-curated. Something missing?<br/>
-                  Use the <a href="#suggest-form" style={{ color: C.black, fontWeight: 700 }}>suggest form ↓</a>
+                  Something missing?{' '}
+                  <a href="#suggest-form" style={{ color: C.black, fontWeight: 700 }}>Suggest a title ↓</a>
                 </div>
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <Link href="/library" style={{ color: C.black, fontWeight: 700, fontSize: 12, textDecoration: 'underline' }} className="cinema-nav-link">The Library →</Link>
