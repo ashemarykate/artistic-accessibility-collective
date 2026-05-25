@@ -289,14 +289,17 @@ export default function BrowserChrome({
           </div>
 
           {/* ── Scrollable content ────────────────────────────────────────── */}
+          {/* overflow:auto + flex:1 makes this a fixed-height scroll box.
+              Do NOT add display:flex here — flex containers with overflow:auto
+              cause min-height:100% on children to stop working past the scroll
+              point, cutting off page backgrounds. Plain block layout lets
+              <main> grow naturally with its content. */}
           <div
             id="browser-content"
             style={{
               flex: 1,
               overflow: 'auto',
               background: contentBg ?? 'transparent',
-              display: 'flex',
-              flexDirection: 'column',
             }}
           >
             {children}
