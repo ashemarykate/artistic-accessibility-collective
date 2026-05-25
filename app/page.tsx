@@ -2,33 +2,33 @@
 import Link from 'next/link';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
-type NavItem = { label: string; href: string; icon: string; iconBg: string; external?: boolean };
+type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean };
 
 const RESOURCES_ITEMS: NavItem[] = [
-  { label: 'Accessibility Resources', href: '/resources', icon: '♿', iconBg: '#e0a030' },
-  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#4aaa7f' },
-  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#9a5abf' },
-  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#d08030' },
+  { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#e0a030', iconName: 'Blue Circle' },
+  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#4aaa7f', iconName: 'Books' },
+  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#9a5abf', iconName: 'Movie Clapper' },
+  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#d08030', iconName: 'Magnifying Glass' },
 ];
 
 const COLLECTIVE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',    href: '/contact',   icon: '✉️',  iconBg: '#d05a40' },
+  { label: 'Contact Us',    href: '/contact',   icon: '✉️', iconBg: '#d05a40', iconName: 'Envelope' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
-    icon: '📸', iconBg: '#d44a88',
+    icon: '📸', iconBg: '#d44a88', iconName: 'Camera',
     external: true,
   },
-  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#3a6abf' },
-  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#cc4488' },
+  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#3a6abf', iconName: 'Handshake' },
+  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#cc4488', iconName: 'Artist Palette' },
 ];
 
 // ── Desktop-style icon ────────────────────────────────────────────────────────
-function NavIcon({ icon, bg }: { icon: string; bg: string }) {
+function NavIcon({ icon, bg, name }: { icon: string; bg: string; name: string }) {
   return (
     <span
       role="img"
-      aria-label="emojicon"
+      aria-label={`${name} Emojicon`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -201,7 +201,7 @@ export default function Home() {
                     style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon={item.icon} bg={item.iconBg} />
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
                     {item.label}
                   </Link>
                 </li>
@@ -221,7 +221,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
                       {item.label}
                       <span className="sr-only"> (opens Instagram in new tab)</span>
                     </a>
@@ -231,7 +231,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
                       {item.label}
                     </Link>
                   )}
@@ -307,7 +307,7 @@ export default function Home() {
             }}
             aria-label="Member Log In"
           >
-            <NavIcon icon="🔑" bg="#3a7abf" />
+            <NavIcon icon="🔑" bg="#3a7abf" name="Key" />
             Member Log In
           </Link>
           <Link
