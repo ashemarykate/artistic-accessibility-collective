@@ -230,6 +230,7 @@ export default function Home() {
 
           {/* ── Right panel — contents ────────────────────────────────────────── */}
           <div
+            className="xp-image-panel"
             role="region"
             aria-label="Contents of Artistic Accessibility"
             style={{
@@ -329,9 +330,10 @@ export default function Home() {
         .xp-folder-link:hover svg path,
         .xp-folder-link:hover svg rect { opacity: 0.9; }
 
-        /* Mobile: hide left nav panel, let image fill the window */
+        /* Mobile: hide image panel, keep left nav so links are accessible */
         @media (max-width: 580px) {
-          .xp-left-panel { display: none !important; }
+          .xp-image-panel { display: none !important; }
+          .xp-left-panel { width: 100% !important; border-right: none !important; }
           .xp-content-pane { min-height: 300px !important; }
         }
       `}</style>
