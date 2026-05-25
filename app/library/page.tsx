@@ -147,7 +147,7 @@ export default function LibraryPage() {
             <span aria-hidden="true" style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: C.green, boxShadow: `0 0 6px ${C.green}`, marginRight: 8, verticalAlign: 'middle', animation: 'blink 1.4s steps(2,end) infinite' }} />
             SYSTEM ONLINE · OPAC v3.04
           </span>
-          <span style={{ textAlign: 'center', color: C.dim }}>THE LIBRARY · DISABILITY ARTS EDITION</span>
+          <span style={{ textAlign: 'center', color: C.dim }}>THE LIBRARY</span>
           <span style={{ textAlign: 'right', color: C.dim }}>{clock}</span>
         </div>
 
@@ -160,21 +160,7 @@ export default function LibraryPage() {
             <div style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>
               THE LIBRARY
             </div>
-            <div style={{ fontSize: 13, letterSpacing: '0.06em', color: C.amber }}>DISABILITY · ACCESSIBILITY · ARTS EDITION</div>
-
-            {/* Cheeky doodle — visible description for everyone */}
-            <figure role="img" aria-labelledby="lib-doodle-desc" style={{ margin: '16px 0 0', padding: 0 }}>
-              <pre aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 12, lineHeight: 1.3, color: C.green, margin: 0, textShadow: `0 0 5px rgba(77,255,124,0.5)` }}>{` ┌─┬─┬─┐
- │A│B│C│
- ├─┼─┼─┤
- │D│E│F│
- └─┴─┴─┘
-  \\(°‿°)/
-  FOUND IT`}</pre>
-              <figcaption id="lib-doodle-desc" style={{ marginTop: 7, fontSize: 11, color: C.dim, fontStyle: 'italic', lineHeight: 1.55, maxWidth: 240 }}>
-                A tiny ASCII card catalog, six drawers labeled A through F. Below it, a very small figure throws their arms up — they found exactly what they were looking for. The OPAC has been operational since 1974. We are not saying this is dated. We are saying it is seasoned.
-              </figcaption>
-            </figure>
+            <div style={{ fontSize: 13, letterSpacing: '0.06em', color: C.amber }}>DISABILITY · ACCESSIBILITY · ARTS</div>
           </div>
 
           <div style={{ fontSize: 12, lineHeight: 1.9, textAlign: 'right', color: C.dim }}>
