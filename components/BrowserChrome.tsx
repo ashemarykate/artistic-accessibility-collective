@@ -335,8 +335,12 @@ export default function BrowserChrome({
           .retro-chrome-menubar { display: none !important; }
           .retro-chrome-toolbar { flex-wrap: wrap !important; }
         }
-        /* Ensure <main> always fills the browser content area so backgrounds don't cut short */
-        #browser-content > main { flex: 1; }
+        /* Ensure <main> always fills the browser content area so backgrounds don't cut short.
+           min-height:100% (not flex:1) is the correct fix — flex:1 constrains <main> to
+           the visible viewport height, so long pages scroll *outside* the element and lose
+           its background. min-height:100% sets a floor of the visible height while allowing
+           the element to grow naturally with its content. */
+        #browser-content > main { min-height: 100%; }
       `}</style>
     </>
   );
