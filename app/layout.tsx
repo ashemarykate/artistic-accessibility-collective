@@ -5,6 +5,12 @@ import { DevAutoLogin } from "@/components/DevAutoLogin";
 export const metadata: Metadata = {
   title: "Artistic Accessibility Collective",
   description: "A directory, community, and resource hub for anyone passionate about accessibility in the arts: practitioners, disabled community members, and curious learners alike.",
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
