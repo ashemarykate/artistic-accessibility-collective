@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import { supabase, type Profile, type Conversation, type Message, getOrCreateConversation, profileHref } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Types for the inbox view ──────────────────────────────────────────────────
 
@@ -171,29 +172,32 @@ function MessagesInner() {
   // ── Loading / redirect states ──────────────────────────────────────────────
   if (loading || redirecting) {
     return (
+      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label={redirecting ? 'Opening conversation…' : 'Loading messages'}>
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>{redirecting ? 'Opening conversation…' : 'Loading messages…'}</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   const totalUnread = conversations.reduce((n, c) => n + c.unreadCount, 0);
 
   return (
+    <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/members" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/members"    className="nav-link">My Hub</Link>
-          <Link href="/collective" className="nav-link">Directory</Link>
+          <Link href="/dashboard"    className="nav-link">My Hub</Link>
+          <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
@@ -336,7 +340,7 @@ function MessagesInner() {
           <div className="ms-box">
             <div className="ms-box-body" style={{ padding: '2.5rem 1rem', textAlign: 'center' }}>
               <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-                No messages yet — start a conversation!
+                No messages yet. Start a conversation!
               </p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
                 Visit a member&apos;s profile and click &ldquo;Send Message,&rdquo; or use the{' '}
@@ -426,9 +430,9 @@ function MessagesInner() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/members"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
-          <Link href="/collective" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
+          <Link href="/members" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/resources"  style={{ color: 'inherit', textDecoration: 'none' }}>Resources</Link>
         </nav>
@@ -439,6 +443,7 @@ function MessagesInner() {
       </footer>
 
     </main>
+  </BrowserChrome>
   );
 }
 
@@ -446,6 +451,7 @@ function MessagesInner() {
 
 export default function MessagesPage() {
   return (
+    <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
     <Suspense fallback={
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading messages">
@@ -456,5 +462,6 @@ export default function MessagesPage() {
     }>
       <MessagesInner />
     </Suspense>
+    </BrowserChrome>
   );
 }

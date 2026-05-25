@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type FieldErrors = {
   name?: string;
@@ -10,7 +11,7 @@ type FieldErrors = {
   message?: string;
 };
 
-const navyBg = { background: 'var(--aac-navy)', minHeight: '100vh' };
+const navyBg = { background: 'var(--aac-navy)', minHeight: '100%' };
 
 export default function ContactPage() {
   const router = useRouter();
@@ -90,6 +91,7 @@ export default function ContactPage() {
 
   if (sent) {
     return (
+      <BrowserChrome variant="ie3" title="Message Sent — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
       <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -112,10 +114,12 @@ export default function ContactPage() {
           </button>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   return (
+    <BrowserChrome variant="ie3" title="Contact Us — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
     <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
       {/* Status live region */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{status}</div>
@@ -252,5 +256,6 @@ export default function ContactPage() {
         </div>
       </div>
     </main>
+    </BrowserChrome>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type Step = 'invite' | 'type_select' | 'form' | 'success';
 type ProfileType = 'individual' | 'business';
@@ -367,7 +368,8 @@ export default function SubmitProfile() {
 
   if (step === 'invite') {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100vh', background: '#0d5c4a' }}>
+      <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{loading ? 'Checking your invite code…' : ''}</div>
 
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
@@ -414,6 +416,7 @@ export default function SubmitProfile() {
           </p>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -421,7 +424,8 @@ export default function SubmitProfile() {
 
   if (step === 'type_select') {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100vh', background: '#0d5c4a' }}>
+      <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '100px', width: 'auto' }} />
@@ -457,7 +461,7 @@ export default function SubmitProfile() {
 
           <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.25rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: 1.6, marginBottom: '1rem' }}>
-              Are you a business owner? You&apos;re able to set up both an individual profile and a business page — we can link them together. Select one to start, and{' '}
+              Are you a business owner? You&apos;re able to set up both an individual profile and a business page - we can link them together. Select one to start, and{' '}
               <Link href="/contact" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>get in touch</Link>
               {' '}to set up the other.
             </p>
@@ -473,6 +477,7 @@ export default function SubmitProfile() {
           </div>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -480,7 +485,8 @@ export default function SubmitProfile() {
 
   if (step === 'success') {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh', background: '#0d5c4a' }}>
+      <BrowserChrome variant="ie3" title="Application Submitted — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '72px', width: 'auto' }} />
@@ -494,14 +500,15 @@ export default function SubmitProfile() {
             Your {profileType === 'business' ? 'listing' : 'application'} has been submitted. We&apos;ll review it and send you a login link so you can come back and see your profile.
           </p>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '0.75rem', fontSize: '0.9375rem' }}>
-            You won&apos;t need to fill all of this out again — your info will be waiting for you.
+            You won&apos;t need to fill all of this out again; your info will be waiting for you.
           </p>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '0.875rem', background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.75rem', textAlign: 'left' }}>
-            📷 <strong>Add a profile photo</strong> once you&apos;re approved — just log in and go to Edit Profile. You&apos;ll be able to upload and crop your photo there.
+            📷 <strong>Add a profile photo</strong> once you&apos;re approved: just log in and go to Edit Profile. You&apos;ll be able to upload and crop your photo there.
           </p>
           <button onClick={() => router.push('/')} className="btn btn-primary">Back to Home</button>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -544,6 +551,7 @@ export default function SubmitProfile() {
   // ── Main form ──────────────────────────────────────────────────────────
 
   return (
+    <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
     <main className="page-wrapper" style={{ padding: '2rem 1rem 4rem', background: '#0d5c4a' }}>
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{tagAnnouncement}</div>
 
@@ -613,14 +621,14 @@ export default function SubmitProfile() {
                     <input id="email-public" type="checkbox" checked={formData.email_public}
                       onChange={(e) => setFormData({ ...formData, email_public: e.target.checked })} />
                     <label htmlFor="email-public" className="check-item-label" style={{ fontSize: '0.875rem' }}>
-                      Share my email on my profile — visible to fellow members only
+                      Share my email on my profile (visible to fellow members only)
                     </label>
                   </div>
                 </div>
               </div>
 
               <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label htmlFor="bio" className="form-label">Bio — Tell us about yourself</label>
+                <label htmlFor="bio" className="form-label">Bio: Tell us about yourself</label>
                 <textarea id="bio" className="form-input form-textarea" rows={4}
                   placeholder="Your experience, background, what drives your work…"
                   value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} />
@@ -752,7 +760,7 @@ export default function SubmitProfile() {
                   <input id="email-public" type="checkbox" checked={formData.email_public}
                     onChange={(e) => setFormData({ ...formData, email_public: e.target.checked })} />
                   <label htmlFor="email-public" className="check-item-label" style={{ fontSize: '0.875rem' }}>
-                    Show this email on our listing — visible to fellow members only
+                    Show this email on our listing (visible to fellow members only)
                   </label>
                 </div>
               </div>
@@ -883,7 +891,7 @@ export default function SubmitProfile() {
               </label>
               <textarea id="tester-self" className="form-input form-textarea" rows={3}
                 required aria-required="true"
-                placeholder="Skills, achievements, context — anything that's missing from the form above…"
+                placeholder="Skills, achievements, context - anything that's missing from the form above…"
                 value={testerSelfDescription} onChange={(e) => setTesterSelfDescription(e.target.value)} />
             </div>
 
@@ -929,5 +937,6 @@ export default function SubmitProfile() {
         </div>
       </div>
     </main>
+  </BrowserChrome>
   );
 }

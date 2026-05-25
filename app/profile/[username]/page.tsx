@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type EndorsementWithEndorser = Endorsement & { endorser: Profile };
 
@@ -305,25 +306,29 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
+      <BrowserChrome variant="aol" title="Member Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading profile">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading profile…</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   if (!profile) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100vh' }}>
+      <BrowserChrome variant="aol" title="Profile Not Found — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
             Profile Not Found
           </h1>
-          <Link href="/collective" className="btn btn-primary">← Browse Members</Link>
+          <Link href="/members" className="btn btn-primary">← Browse Members</Link>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -346,7 +351,8 @@ export default function ProfilePage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <main style={{ background: bgColor, minHeight: '100vh', paddingBottom: '24px' }}>
+    <BrowserChrome variant="aol" title={`${displayName} — Artistic Accessibility Collective`} url={`http://members.artisticaccessibility.com/profile/${profile.username || profile.id}`}>
+    <main style={{ background: bgColor, minHeight: '100%', paddingBottom: '24px' }}>
 
       {/* ── Header ── */}
       <header>
@@ -356,7 +362,7 @@ export default function ProfilePage() {
             <img src="/images/logo-across-blue-bg.svg" alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
-            {currentUser  && <Link href="/collective" className="nav-link">The Collective</Link>}
+            {currentUser  && <Link href="/members" className="nav-link">Members</Link>}
             {currentUser  && <Link href="/feedback"   className="nav-link">Share Feedback</Link>}
             {!currentUser && <Link href="/directory"  className="nav-link">Directory</Link>}
             {!currentUser && <Link href="/login"      className="nav-link">Log In</Link>}
@@ -868,10 +874,10 @@ export default function ProfilePage() {
           {/* ── Back link ── */}
           {currentUser && (
             <Link
-              href="/collective"
+              href="/members"
               style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8125rem', textDecoration: 'underline', display: 'inline-block', paddingTop: '4px' }}
             >
-              ← The Collective
+              ← Members
             </Link>
           )}
 
@@ -1235,7 +1241,7 @@ export default function ProfilePage() {
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/contact" style={{ color: 'inherit' }}>Contact Us</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
-          <Link href="/collective" style={{ color: 'inherit' }}>The Collective</Link>
+          <Link href="/members" style={{ color: 'inherit' }}>Members</Link>
         </nav>
         <br />
         <span style={{ marginTop: '4px', display: 'block' }}>
@@ -1244,5 +1250,6 @@ export default function ProfilePage() {
       </footer>
 
     </main>
+  </BrowserChrome>
   );
 }

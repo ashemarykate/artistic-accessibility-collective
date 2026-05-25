@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, LIBRARY_CATEGORY_BY_ID, type LibraryItem } from '@/lib/library-data';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -121,18 +122,23 @@ export default function LibraryPage() {
   };
 
   return (
+    <BrowserChrome
+      variant="mosaic"
+      title="The Library — Artistic Accessibility Collective · NCSA Mosaic"
+      url="http://library.artisticaccessibility.com/"
+    >
     <main
       style={{
-        minHeight: '100vh',
+        minHeight: '100%',
         background: `radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%), repeating-linear-gradient(0deg, rgba(255,176,0,0.035) 0 1px, transparent 1px 3px), ${C.bg}`,
         fontFamily: C.mono,
         color: C.amber,
         position: 'relative',
       }}
     >
-      <h1 className="sr-only">The Library — Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">The Library - Artistic Accessibility Collective</h1>
 
-      {/* CRT scanline overlay — hidden for high-contrast / reduced-motion users */}
+      {/* CRT scanline overlay - hidden for high-contrast / reduced-motion users */}
       <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />
       <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 61, boxShadow: 'inset 0 0 100px 16px rgba(0,0,0,0.5)' }} />
 
@@ -172,8 +178,8 @@ export default function LibraryPage() {
         </div>
 
         {/* Community framing banner */}
-        <div style={{ padding: '14px 20px', background: C.bg, color: C.green, border: `2px solid ${C.green}`, textShadow: `0 0 4px rgba(77,255,124,0.3)`, fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
-          <strong style={{ color: C.green }}>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better — whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
+        <div style={{ padding: '14px 20px', background: C.bg, color: C.hi, border: `2px solid ${C.green}`, textShadow: `0 0 4px rgba(255,209,102,0.25)`, fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
+          <strong style={{ color: C.hi }}>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better - whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
         </div>
 
         {/* Search + filter controls */}
@@ -218,7 +224,7 @@ export default function LibraryPage() {
         </div>
 
         {/* Two-column layout: subject index + results */}
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 14 }} className="lib-grid">
+        <div id="lib-catalog" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 14 }} className="lib-grid">
 
           {/* Left: subject index */}
           <aside aria-label="Filter by subject">
@@ -265,7 +271,7 @@ export default function LibraryPage() {
               style={{ padding: '8px 14px', background: C.bg2, border: `1px solid ${C.dim}`, marginBottom: 10, fontSize: 13, color: C.dim, letterSpacing: '0.06em' }}
             >
               {isFiltering
-                ? `${filtered.length} RESULT${filtered.length !== 1 ? 'S' : ''} — ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE ITEMS IN FULL CATALOG`
+                ? `${filtered.length} RESULT${filtered.length !== 1 ? 'S' : ''} · ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE ITEMS IN FULL CATALOG`
                 : `${LIBRARY_ITEMS.length} ITEMS · ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE · ${LIBRARY_ITEMS.filter((i) => i.isEssential).length} ESSENTIAL`
               }
             </div>
@@ -316,7 +322,7 @@ export default function LibraryPage() {
               This catalog is built and maintained by the AAC community. Every person who reads something essential and shares it makes this resource better for everyone.
             </p>
             <p style={{ margin: '0 0 0', fontSize: 13, lineHeight: 1.75, color: C.amber }}>
-              To suggest a book, essay, or resource: use the form below. Include the author, and a brief note on why this belongs in the catalog. Suggestions are reviewed and added by the AAC team. You may submit anything — books, essays, toolkits, syllabi, open-access journals, free PDFs. The only requirement is that it centers disability and is worth someone&apos;s time.
+              To suggest a book, essay, or resource: use the form below. Include the author, and a brief note on why this belongs in the catalog. Suggestions are reviewed and added by the AAC team. You may submit anything (books, essays, toolkits, syllabi, open-access journals, free PDFs). The only requirement is that it centers disability and is worth someone&apos;s time.
             </p>
           </section>
         </div>
@@ -411,6 +417,7 @@ export default function LibraryPage() {
         }
       `}</style>
     </main>
+    </BrowserChrome>
   );
 }
 

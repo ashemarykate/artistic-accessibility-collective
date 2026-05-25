@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 /**
  * Magic-link landing page.
@@ -64,7 +65,7 @@ export default function AuthCallback() {
         .maybeSingle();
 
       if (cancelled) return;
-      router.replace(adminData ? '/admin' : '/members');
+      router.replace(adminData ? '/admin' : '/dashboard');
     };
 
     finishSignIn();
@@ -75,7 +76,8 @@ export default function AuthCallback() {
 
   if (error) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
+      <BrowserChrome variant="ie3" title="Sign-in — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
+      <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: '440px', width: '100%', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
             Sign-in didn&apos;t finish
@@ -86,10 +88,12 @@ export default function AuthCallback() {
           <Link href="/login" className="btn btn-primary btn-full">Back to login</Link>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   return (
+    <BrowserChrome variant="ie3" title="Signing in… — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
     <main
       className="loading-screen"
       role="status"
@@ -98,5 +102,6 @@ export default function AuthCallback() {
       <span className="spinner" aria-hidden="true" />
       <p>Signing you in…</p>
     </main>
+    </BrowserChrome>
   );
 }

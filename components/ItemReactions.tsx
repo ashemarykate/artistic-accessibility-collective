@@ -218,7 +218,7 @@ export default function ItemReactions({
             {userId ? (
               <div>
                 <div style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, marginBottom: 5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                  {myRating ? `Your rating: ${myRating}/5 — click to change` : 'Rate this:'}
+                  {myRating ? `Your rating: ${myRating}/5 (click to change)` : 'Rate this:'}
                 </div>
                 <div
                   role="group"
@@ -252,8 +252,8 @@ export default function ItemReactions({
             ) : (
               ratingCount === 0 ? (
                 <div style={{ fontFamily: C.mono, fontSize: 12, color: C.dim }}>
-                  No ratings yet —{' '}
-                  <a href="/login" style={{ color: C.text, fontWeight: 700, textDecoration: 'underline' }}>log in</a> to be first.
+                  No ratings yet.{' '}
+                  <a href="/login" style={{ color: C.text, fontWeight: 700, textDecoration: 'underline' }}>Log in</a> to be first.
                 </div>
               ) : (
                 <div style={{ fontFamily: C.mono, fontSize: 12, color: C.dim }}>

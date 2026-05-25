@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions';
 
@@ -230,34 +231,39 @@ export default function AdminDashboard() {
 
   if (accessError) {
     return (
-      <main style={{ background: 'var(--aac-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
+      <main style={{ background: 'var(--aac-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
         <div role="alert" style={{ color: 'var(--aac-white)', textAlign: 'center' }}>
           <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>{accessError}</p>
           <a href="/" className="btn btn-outline-white">Go Home</a>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   if (loading) {
     return (
+      <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading admin dashboard">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading admin…</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   return (
+    <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
     <main className="page-wrapper">
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
           {hasMemberProfile && (
-            <Link href="/members" className="nav-link">My Hub</Link>
+            <Link href="/dashboard" className="nav-link">My Hub</Link>
           )}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
@@ -576,6 +582,7 @@ export default function AdminDashboard() {
         )}
       </div>
     </main>
+  </BrowserChrome>
   );
 }
 

@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { CINEMA_CATEGORIES, CINEMA_ITEMS, type CinemaItem, type CinemaCategory } from '@/lib/cinema-data';
+import BrowserChrome from '@/components/BrowserChrome';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -90,9 +91,14 @@ export default function CinemaPage() {
   const freeCount = CINEMA_ITEMS.filter((i) => i.isFree).length;
 
   return (
+    <BrowserChrome
+      variant="netscape"
+      title="AAC Presents: The Cinema — Netscape Navigator"
+      url="http://cinema.artisticaccessibility.com/"
+    >
     <main
       style={{
-        minHeight: '100vh',
+        minHeight: '100%',
         background: C.teal,
         fontFamily: C.sans,
         color: C.black,
@@ -154,7 +160,7 @@ export default function CinemaPage() {
           aria-label="Filter by channel"
           style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}
         >
-          {[{ id: null, channel: 'ALL', call: 'ALL CHANNELS' }, ...CINEMA_CATEGORIES.map(c => ({ id: c.id, channel: c.channel, call: c.call + ' — ' + c.title }))].map((opt) => {
+          {[{ id: null, channel: 'ALL', call: 'ALL CHANNELS' }, ...CINEMA_CATEGORIES.map(c => ({ id: c.id, channel: c.channel, call: c.call + ': ' + c.title }))].map((opt) => {
             const active = opt.id === null ? activeCategory === null : activeCategory === opt.id;
             return (
               <button
@@ -195,10 +201,10 @@ export default function CinemaPage() {
               </div>
               <div style={{ marginTop: 12, borderTop: `2px solid ${C.black}`, paddingTop: 10 }}>
                 <p style={{ margin: '0 0 8px', fontSize: 11, lineHeight: 1.65 }}>
-                  A community-curated schedule of films, documentaries, podcasts, and more — centered on disability representation and accessibility in the arts.
+                  A community-curated schedule of films, documentaries, podcasts, and more, centered on disability representation and accessibility in the arts.
                 </p>
                 <p style={{ margin: '0 0 10px', fontSize: 11, lineHeight: 1.65, color: C.gray }}>
-                  Ratings and comments aren&apos;t extras. They&apos;re how this community holds the record honest — whether a film treats its subjects with dignity, whether accessibility features are actually good, what it means to see your experience onscreen. Watch. Then weigh in.
+                  Ratings and comments aren&apos;t extras. They&apos;re how this community holds the record honest: whether a film treats its subjects with dignity, whether accessibility features are actually good, what it means to see your experience onscreen. Watch. Then weigh in.
                 </p>
                 <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.5 }}>★ Free items in yellow &nbsp;·&nbsp; ★ Essential picks</div>
                 <div style={{ fontSize: 11, lineHeight: 1.5, marginTop: 2 }}>Click any title to rate, comment, and save.</div>
@@ -244,19 +250,19 @@ export default function CinemaPage() {
                 SUGGEST A TITLE
               </div>
               <div style={{ fontWeight: 400, fontSize: 11, opacity: 0.8, marginTop: 1 }}>
-                Documentary · Film · Podcast · Short · Performance · Talk — anything that belongs here
+                Documentary · Film · Podcast · Short · Performance · Talk · anything that belongs here
               </div>
             </div>
           </div>
 
           <div style={{ padding: '16px 18px' }}>
             <p style={{ margin: '0 0 14px', fontSize: 13, lineHeight: 1.65, color: C.gray }}>
-              This schedule is built by the community. What should anyone interested in disability arts watch? Free-access preferred but not required — include the platform if you know it.
+              This schedule is built by the community. What should anyone interested in disability arts watch? Free-access preferred but not required. Include the platform if you know it.
             </p>
 
             {suggestStatus === 'success' ? (
               <div role="status" aria-live="polite" style={{ padding: '12px 16px', background: '#e8fae8', border: `1px solid #2a7a2a`, color: '#1a5a1a', fontSize: 14 }}>
-                ✓ Suggestion received — thank you. We&apos;ll review it for the next update.
+                ✓ Suggestion received. Thank you! We&apos;ll review it for the next update.
               </div>
             ) : (
               <form onSubmit={handleSuggest} noValidate style={{ display: 'grid', gap: 10 }}>
@@ -320,7 +326,7 @@ export default function CinemaPage() {
 
                 {suggestStatus === 'error' && (
                   <p role="alert" style={{ color: C.red, fontSize: 12, margin: 0 }}>
-                    Something went wrong — please try again or email us directly.
+                    Something went wrong. Please try again or email us directly.
                   </p>
                 )}
               </form>
@@ -360,6 +366,7 @@ export default function CinemaPage() {
         }
       `}</style>
     </main>
+    </BrowserChrome>
   );
 }
 
@@ -386,7 +393,7 @@ function ScheduleSection({ cat, items }: { cat: CinemaCategory; items: CinemaIte
         </div>
         <div>
           <div style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-            {cat.call} — {cat.title.toUpperCase()}
+            {cat.call}: {cat.title.toUpperCase()}
           </div>
           <div style={{ fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>{cat.description}</div>
         </div>

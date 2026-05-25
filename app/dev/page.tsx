@@ -6,6 +6,7 @@
  */
 
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -145,7 +146,8 @@ function MsBox({ header, headerEl, action, children }: {
 
 export default function DevPreview() {
   return (
-    <main style={{ background: SAMPLE.bgColor, minHeight: '100vh', paddingBottom: '24px' }}>
+    <BrowserChrome variant="aol" title="Dev Preview — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dev">
+    <main style={{ background: SAMPLE.bgColor, minHeight: '100%', paddingBottom: '24px' }}>
 
       {/* Dev banner */}
       <div role="status" style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center', padding: '4px' }}>
@@ -162,7 +164,7 @@ export default function DevPreview() {
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
             <Link href="/" className="nav-link">Home</Link>
-            <Link href="/collective" className="nav-link">Directory</Link>
+            <Link href="/members" className="nav-link">Directory</Link>
             <Link href="/contact" className="nav-link">Contact</Link>
             <Link href="/login" className="nav-link">Sign In</Link>
           </nav>
@@ -621,5 +623,6 @@ export default function DevPreview() {
       </footer>
 
     </main>
+  </BrowserChrome>
   );
 }

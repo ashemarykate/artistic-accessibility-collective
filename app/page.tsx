@@ -1,14 +1,17 @@
 'use client';
 import Link from 'next/link';
 
-// ── Nav items — the "folders" in the left panel ───────────────────────────────
+// ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
 type NavItem = { label: string; href: string; folderColor: string; tabColor: string; external?: boolean };
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Resources',      href: '/resources',  folderColor: '#e0a030', tabColor: '#c08020' },
-  { label: 'The Library',    href: '/library',    folderColor: '#4aaa7f', tabColor: '#3a8a65' },
-  { label: 'The Cinema',     href: '/cinema',     folderColor: '#9a5abf', tabColor: '#7a3a9f' },
-  { label: 'Contact Us',     href: '/contact',    folderColor: '#d05a40', tabColor: '#b04030' },
+const RESOURCES_ITEMS: NavItem[] = [
+  { label: 'Accessibility Resources', href: '/resources', folderColor: '#e0a030', tabColor: '#c08020' },
+  { label: 'The Library',             href: '/library',   folderColor: '#4aaa7f', tabColor: '#3a8a65' },
+  { label: 'The Cinema',              href: '/cinema',    folderColor: '#9a5abf', tabColor: '#7a3a9f' },
+];
+
+const COLLECTIVE_ITEMS: NavItem[] = [
+  { label: 'Contact Us',  href: '/contact',  folderColor: '#d05a40', tabColor: '#b04030' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
@@ -16,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
     tabColor: '#b03a6a',
     external: true,
   },
+  { label: 'The Collective', href: '/members', folderColor: '#3a6abf', tabColor: '#2a5aaf' },
 ];
 
 // ── Small folder SVG icon ─────────────────────────────────────────────────────
@@ -64,8 +68,9 @@ export default function Home() {
   return (
     <main
       style={{
+        position: 'fixed',
+        inset: 0,
         background: 'var(--aac-blue)',
-        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -73,6 +78,7 @@ export default function Home() {
         padding: '16px',
         fontFamily: '"Tahoma", "MS Sans Serif", Arial, sans-serif',
         fontSize: 12,
+        overflow: 'auto',
       }}
     >
       <h1 className="sr-only">Artistic Accessibility Collective</h1>
@@ -136,11 +142,12 @@ export default function Home() {
         </div>
 
         {/* ── Content pane ───────────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', minHeight: 460 }}>
+        <div style={{ display: 'flex', minHeight: 460 }} className="xp-content-pane">
 
           {/* ── Left panel — navigation ──────────────────────────────────────── */}
           <nav
             aria-label="Artistic Accessibility navigation"
+            className="xp-left-panel"
             style={{
               width: 210, flexShrink: 0,
               background: '#dce5f0',
@@ -169,19 +176,35 @@ export default function Home() {
                 <strong style={{ color: '#000' }}>Artistic Accessibility</strong>
               </li>
 
-              {/* Nav items as folder links */}
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href} style={{ paddingLeft: 28 }}>
+              {/* Sub-folder: Resources */}
+              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}Resources
+              </li>
+              {RESOURCES_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
+                  <Link
+                    href={item.href}
+                    style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    className="xp-folder-link"
+                  >
+                    <FolderIcon body={item.folderColor} tab={item.tabColor} />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+
+              {/* Sub-folder: The Collective */}
+              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}The Collective
+              </li>
+              {COLLECTIVE_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
                   {item.external ? (
                     <a
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        display: 'flex', alignItems: 'center',
-                        padding: '2px 4px', borderRadius: 2,
-                        textDecoration: 'none', color: '#000', fontSize: 11,
-                      }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
                       <FolderIcon body={item.folderColor} tab={item.tabColor} />
@@ -191,11 +214,7 @@ export default function Home() {
                   ) : (
                     <Link
                       href={item.href}
-                      style={{
-                        display: 'flex', alignItems: 'center',
-                        padding: '2px 4px', borderRadius: 2,
-                        textDecoration: 'none', color: '#000', fontSize: 11,
-                      }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
                       <FolderIcon body={item.folderColor} tab={item.tabColor} />
@@ -224,7 +243,7 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/landing.png"
-              alt="Artistic Accessibility Collective — together, together"
+              alt="Artistic Accessibility Collective: together, together"
               style={{
                 width: '100%',
                 height: '100%',
@@ -244,7 +263,7 @@ export default function Home() {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           fontSize: 11, color: '#333',
         }} aria-hidden="true">
-          <span>5 object(s)</span>
+          <span>6 object(s)</span>
           <span>Ready</span>
         </div>
       </div>
@@ -259,26 +278,61 @@ export default function Home() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
       }}>
-        <Link
-          href="/collective"
-          style={{
-            background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
-            borderRadius: 12,
-            padding: '3px 12px 3px 8px',
-            color: 'white', fontWeight: 'bold', fontSize: 12,
-            display: 'flex', alignItems: 'center', gap: 5,
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
-            textDecoration: 'none',
-          }}
-          aria-label="Collective Members"
-        >
-          <FolderIcon body="#5a9ae4" tab="#3a7abf" />
-          Collective Members
-        </Link>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <Link
+            href="/login"
+            style={{
+              background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
+              borderRadius: 12,
+              padding: '3px 12px 3px 8px',
+              color: 'white', fontWeight: 'bold', fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 5,
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+              textDecoration: 'none',
+            }}
+            aria-label="Member Log In"
+          >
+            <FolderIcon body="#5a9ae4" tab="#3a7abf" />
+            Member Log In
+          </Link>
+          <Link
+            href="/share-feedback"
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: 12,
+              padding: '3px 12px 3px 10px',
+              color: 'white', fontWeight: 'bold', fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 5,
+              border: '1px solid rgba(255,255,255,0.25)',
+              textDecoration: 'none',
+            }}
+            aria-label="Share Feedback"
+          >
+            💬 Share Feedback
+          </Link>
+        </div>
         <div aria-hidden="true" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
+
+      <style>{`
+        .xp-folder-link:hover,
+        .xp-folder-link:focus-visible {
+          background: #316ac5;
+          color: white !important;
+          outline: 2px solid #f5d84a;
+          outline-offset: 1px;
+        }
+        .xp-folder-link:hover svg path,
+        .xp-folder-link:hover svg rect { opacity: 0.9; }
+
+        /* Mobile: hide left nav panel, let image fill the window */
+        @media (max-width: 580px) {
+          .xp-left-panel { display: none !important; }
+          .xp-content-pane { min-height: 300px !important; }
+        }
+      `}</style>
 
     </main>
   );

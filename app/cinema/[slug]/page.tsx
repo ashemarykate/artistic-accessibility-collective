@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { CINEMA_ITEM_BY_SLUG, CINEMA_CATEGORY_BY_ID, type CinemaItem } from '@/lib/cinema-data';
 import ItemReactions from '@/components/ItemReactions';
 import ItemComments from '@/components/ItemComments';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Print TV-guide palette (matches listing page) ─────────────────────────────
 const C = {
@@ -45,10 +46,12 @@ export default function CinemaItemPage() {
 
   if (!item) {
     return (
-      <main style={{ minHeight: '100vh', background: C.teal, fontFamily: C.sans, color: C.black, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
-        <div style={{ fontFamily: C.mono, fontSize: 15, fontWeight: 700 }}>TITLE NOT FOUND: <code>{slug}</code></div>
-        <Link href="/cinema" style={{ color: C.black, fontWeight: 700, textDecoration: 'underline' }}>← Back to The Cinema</Link>
-      </main>
+      <BrowserChrome variant="netscape" title="Title Not Found — The Cinema" url="http://cinema.artisticaccessibility.com/">
+        <main style={{ minHeight: '100%', background: C.teal, fontFamily: C.sans, color: C.black, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+          <div style={{ fontFamily: C.mono, fontSize: 15, fontWeight: 700 }}>TITLE NOT FOUND: <code>{slug}</code></div>
+          <Link href="/cinema" style={{ color: C.black, fontWeight: 700, textDecoration: 'underline' }}>← Back to The Cinema</Link>
+        </main>
+      </BrowserChrome>
     );
   }
 
@@ -56,9 +59,14 @@ export default function CinemaItemPage() {
   const creator  = item.director || item.creator || '';
 
   return (
+    <BrowserChrome
+      variant="netscape"
+      title={`${item.title} — AAC Presents: The Cinema`}
+      url={`http://cinema.artisticaccessibility.com/${item.slug}`}
+    >
     <main
       style={{
-        minHeight: '100vh',
+        minHeight: '100%',
         background: C.teal,
         fontFamily: C.sans,
         color: C.black,
@@ -263,7 +271,7 @@ export default function CinemaItemPage() {
             {item.isFree && item.url ? (
               <div>
                 <div style={{ fontFamily: C.mono, fontSize: 10, color: C.black, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
-                  ★ FREE — WATCH NOW
+                  ★ FREE: WATCH NOW
                 </div>
                 <a
                   href={item.url}
@@ -337,5 +345,6 @@ export default function CinemaItemPage() {
         }
       `}</style>
     </main>
+    </BrowserChrome>
   );
 }

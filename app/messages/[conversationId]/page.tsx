@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase, type Profile, type Message, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Time formatter ────────────────────────────────────────────────────────────
 
@@ -179,18 +180,21 @@ export default function ConversationPage() {
   // ── States ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
+      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading conversation">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading conversation…</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   if (accessError) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: 420, textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
             Conversation not found
@@ -201,6 +205,7 @@ export default function ConversationPage() {
           <Link href="/messages" className="btn btn-primary">Back to Inbox</Link>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -224,18 +229,23 @@ export default function ConversationPage() {
     grouped.push({ type: 'message', msg });
   }
 
+  const convTitle = otherProfile
+    ? `${otherProfile.display_name || otherProfile.full_name} — Messages`
+    : 'Messages';
+
   return (
+    <BrowserChrome variant="aol" title={`${convTitle} — Artistic Accessibility Collective`} url="http://members.artisticaccessibility.com/messages">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/members" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/messages"   className="nav-link">← Inbox</Link>
-          <Link href="/collective" className="nav-link">Directory</Link>
+          <Link href="/members" className="nav-link">Directory</Link>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
             className="btn btn-outline-white btn-sm"
@@ -285,7 +295,7 @@ export default function ConversationPage() {
           >
             {messages.length === 0 ? (
               <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', fontSize: '0.875rem', padding: '1.5rem 0' }}>
-                No messages yet — say hello!
+                No messages yet. Say hello!
               </p>
             ) : (
               grouped.map((item, idx) => {
@@ -399,11 +409,11 @@ export default function ConversationPage() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/members"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
-          <Link href="/collective" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
+          <Link href="/members" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
         </nav>
         <br />
         <span style={{ marginTop: '4px', display: 'block' }}>
@@ -412,5 +422,6 @@ export default function ConversationPage() {
       </footer>
 
     </main>
+  </BrowserChrome>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 export default function Login() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function Login() {
     setMessageType(type);
   };
 
-  // Routes a logged-in user to /admin if they're an admin, otherwise /collective.
+  // Routes a logged-in user to /admin if they're an admin, otherwise /dashboard.
   const routeAfterLogin = async (userId: string) => {
     const { data: adminData } = await supabase
       .from('admin_users')
@@ -27,7 +28,7 @@ export default function Login() {
       .eq('user_id', userId)
       .maybeSingle();
 
-    router.push(adminData ? '/admin' : '/members');
+    router.push(adminData ? '/admin' : '/dashboard');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -59,7 +60,7 @@ export default function Login() {
 
         await routeAfterLogin(user.id);
       } else {
-        router.push('/collective');
+        router.push('/dashboard');
       }
     } catch (err: any) {
       showMsg(err.message || 'Could not log in. Please check your email and password.', 'error');
@@ -79,7 +80,7 @@ export default function Login() {
 
     try {
       // Send the user back to /auth/callback after they click the link;
-      // the callback page reads the session and routes them to /admin or /collective.
+      // the callback page reads the session and routes them to /admin or /dashboard.
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
@@ -94,7 +95,8 @@ export default function Login() {
   };
 
   return (
-    <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100vh' }}>
+    <BrowserChrome variant="ie3" title="Member Login — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
+    <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
@@ -231,5 +233,6 @@ export default function Login() {
         </p>
       </div>
     </main>
+  </BrowserChrome>
   );
 }

@@ -5,6 +5,7 @@ import { supabase, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_O
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PhotoUploader from '@/components/PhotoUploader';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Tag input ─────────────────────────────────────────────────────────────────
 
@@ -319,12 +320,14 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
+      <BrowserChrome variant="aol" title="Edit Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading your profile">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading your profile…</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
@@ -333,18 +336,19 @@ export default function EditProfilePage() {
   const previewHref = profileHref({ id: profile.id, username: username.trim() || undefined });
 
   return (
+    <BrowserChrome variant="aol" title="Edit Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/members" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/members"    className="nav-link">My Hub</Link>
+          <Link href="/dashboard"    className="nav-link">My Hub</Link>
           <Link href="/messages"   className="nav-link">Messages</Link>
-          <Link href="/collective" className="nav-link">Directory</Link>
+          <Link href="/members" className="nav-link">Directory</Link>
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
             className="btn btn-outline-white btn-sm"
@@ -413,7 +417,7 @@ export default function EditProfilePage() {
                 <label htmlFor="displayName" className="form-label">
                   Display Name
                   <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '6px', fontSize: '0.8rem' }}>
-                    (shown on your profile — defaults to your full name)
+                    (shown on your profile; defaults to your full name)
                   </span>
                 </label>
                 <input
@@ -757,11 +761,11 @@ export default function EditProfilePage() {
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/members"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
-          <Link href="/collective" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
+          <Link href="/members" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
         </nav>
         <br />
         <span style={{ marginTop: '4px', display: 'block' }}>
@@ -770,5 +774,6 @@ export default function EditProfilePage() {
       </footer>
 
     </main>
+  </BrowserChrome>
   );
 }

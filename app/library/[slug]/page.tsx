@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { LIBRARY_ITEM_BY_SLUG, LIBRARY_CATEGORY_BY_ID, type LibraryItem } from '@/lib/library-data';
 import ItemReactions from '@/components/ItemReactions';
 import ItemComments from '@/components/ItemComments';
+import BrowserChrome from '@/components/BrowserChrome';
 
 // Amber OPAC palette
 const C = {
@@ -52,19 +53,26 @@ export default function LibraryItemPage() {
 
   if (!item) {
     return (
-      <main style={{ minHeight: '100vh', background: C.bg, fontFamily: C.mono, color: C.amber, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-        <div style={{ fontSize: 16, letterSpacing: '0.1em' }}>▶ RECORD NOT FOUND: <code style={{ color: C.hi }}>{slug}</code></div>
-        <Link href="/library" style={{ color: C.amber, textDecoration: 'underline' }}>← Back to The Library</Link>
-      </main>
+      <BrowserChrome variant="mosaic" title="Record Not Found — The Library" url="http://library.artisticaccessibility.com/">
+        <main style={{ minHeight: '100%', background: C.bg, fontFamily: C.mono, color: C.amber, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+          <div style={{ fontSize: 16, letterSpacing: '0.1em' }}>▶ RECORD NOT FOUND: <code style={{ color: C.hi }}>{slug}</code></div>
+          <Link href="/library" style={{ color: C.amber, textDecoration: 'underline' }}>← Back to The Library</Link>
+        </main>
+      </BrowserChrome>
     );
   }
 
   const category = LIBRARY_CATEGORY_BY_ID[item.category] ?? null;
 
   return (
+    <BrowserChrome
+      variant="mosaic"
+      title={`${item.title} — The Library · Artistic Accessibility Collective`}
+      url={`http://library.artisticaccessibility.com/${item.slug}`}
+    >
     <main
       style={{
-        minHeight: '100vh',
+        minHeight: '100%',
         background: `radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%), repeating-linear-gradient(0deg, rgba(255,176,0,0.035) 0 1px, transparent 1px 3px), ${C.bg}`,
         fontFamily: C.mono,
         color: C.amber,
@@ -173,7 +181,7 @@ export default function LibraryItemPage() {
             {item.isFree && item.url ? (
               <div>
                 <div style={{ fontSize: 13, color: C.amber, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
-                  ▶ FREE — AVAILABLE NOW
+                  ▶ FREE: AVAILABLE NOW
                 </div>
                 <a
                   href={item.url}
@@ -245,5 +253,6 @@ export default function LibraryItemPage() {
         }
       `}</style>
     </main>
+    </BrowserChrome>
   );
 }

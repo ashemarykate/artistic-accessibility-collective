@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 const LIST_IDEAS = [
   { id: 'specialty',   label: 'Members by specialty or profession' },
@@ -68,27 +69,30 @@ export default function MyListsPage() {
 
   if (loading) {
     return (
+      <BrowserChrome variant="netscape" title="My Lists — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading…</span>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   return (
+    <BrowserChrome variant="netscape" title="My Lists — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/members" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/members"    className="nav-link">My Hub</Link>
-          <Link href="/collective" className="nav-link">Directory</Link>
+          <Link href="/dashboard"    className="nav-link">My Hub</Link>
+          <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
         </nav>
       </header>
@@ -99,7 +103,7 @@ export default function MyListsPage() {
         <div className="ms-box">
           <div className="ms-box-header">
             <h1 style={{ margin: 0, padding: 0, fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit', fontFamily: 'inherit' }}>
-              My Lists — Coming Soon
+              My Lists: Coming Soon
             </h1>
             <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
               Coming Soon
@@ -110,12 +114,12 @@ export default function MyListsPage() {
 
             {/* Concept explanation */}
             <p style={{ fontSize: '0.9375rem', color: 'var(--color-text)', lineHeight: 1.6, marginBottom: '12px' }}>
-              <strong>My Lists</strong> will let you build your own custom collections of Collective members —
+              <strong>My Lists</strong> will let you build your own custom collections of Collective members,
               so the people you work with, want to hire, or just want to keep tabs on are always one click away.
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '24px' }}>
               Think of it like your own personal Rolodex inside the directory. Filter by specialty, location,
-              language, availability — or just make a list called "people I want to collaborate with someday"
+              language, availability, or just make a list called "people I want to collaborate with someday"
               and add whoever speaks to you.
             </p>
 
@@ -129,7 +133,7 @@ export default function MyListsPage() {
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '20px' }}>
                   Your feedback goes directly into building this feature.
                 </p>
-                <Link href="/members" className="btn btn-primary btn-sm">
+                <Link href="/dashboard" className="btn btn-primary btn-sm">
                   Back to My Hub
                 </Link>
               </div>
@@ -140,7 +144,7 @@ export default function MyListsPage() {
                     What kinds of lists would be most useful to you?
                   </legend>
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
-                    Check everything that applies — or just the ones you'd actually use.
+                    Check everything that applies, or just the ones you'd actually use.
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
@@ -198,12 +202,13 @@ export default function MyListsPage() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-          <Link href="/members" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
+          <Link href="/dashboard" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
             ← Back to My Hub
           </Link>
         </p>
       </div>
 
     </main>
+  </BrowserChrome>
   );
 }

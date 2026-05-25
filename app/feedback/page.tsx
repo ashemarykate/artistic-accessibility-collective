@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase, type Profile } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrowserChrome from '@/components/BrowserChrome';
 
 const QUESTIONS = [
   {
@@ -33,7 +34,7 @@ const QUESTIONS = [
   {
     id: 'confusing_aspects',
     label: 'Was anything confusing or frustrating about signing up?',
-    placeholder: 'Nothing is too small — if it gave you pause, we want to know.',
+    placeholder: 'Nothing is too small. If it gave you pause, we want to know.',
     rows: 3,
   },
   {
@@ -166,7 +167,8 @@ export default function FeedbackPage() {
 
   if (!profile) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
+      <BrowserChrome variant="ie3" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '420px', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
             Members Only
@@ -177,12 +179,14 @@ export default function FeedbackPage() {
           <Link href="/login" className="btn btn-primary">Log In</Link>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   if (submitted) {
     return (
-      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
+      <BrowserChrome variant="ie3" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '500px', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.75rem' }}>
@@ -195,20 +199,22 @@ export default function FeedbackPage() {
             together, together
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/collective" className="btn btn-primary">The Collective</Link>
+            <Link href="/members" className="btn btn-primary">Members</Link>
             <Link href={`/profile/${profile.id}`} className="btn btn-ghost">My Profile</Link>
           </div>
         </div>
       </main>
+      </BrowserChrome>
     );
   }
 
   return (
+    <BrowserChrome variant="ie3" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
     <main className="page-wrapper">
       <header className="site-header">
         <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/collective" className="nav-link">The Collective</Link>
+          <Link href="/members" className="nav-link">Members</Link>
           <Link href={`/profile/${profile.id}`} className="nav-link">My Profile</Link>
         </nav>
       </header>
@@ -219,15 +225,15 @@ export default function FeedbackPage() {
             Help Us Build Something Better
           </h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', maxWidth: '520px', margin: '0 auto' }}>
-            You&apos;re in the first wave. Your answers directly shape what this platform becomes —
-            there&apos;s no wrong answer, only useful ones.
+            You&apos;re in the first wave. Your answers directly shape what this platform becomes.
+            There&apos;s no wrong answer, only useful ones.
           </p>
         </div>
 
         <div className="content-card">
           {existingId && (
             <div className="alert alert-info" style={{ marginBottom: '1.5rem' }} role="status">
-              You&apos;ve already submitted feedback — your previous answers are shown below. You can update them anytime.
+              You&apos;ve already submitted feedback. Your previous answers are shown below and you can update them anytime.
             </div>
           )}
 
@@ -258,7 +264,7 @@ export default function FeedbackPage() {
             ))}
 
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-              All questions are optional — share as much or as little as you&apos;d like.
+              All questions are optional. Share as much or as little as you&apos;d like.
             </p>
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -271,11 +277,12 @@ export default function FeedbackPage() {
                   'Submit Feedback'
                 )}
               </button>
-              <Link href="/collective" className="btn btn-ghost">Skip for now</Link>
+              <Link href="/members" className="btn btn-ghost">Skip for now</Link>
             </div>
           </form>
         </div>
       </div>
     </main>
+  </BrowserChrome>
   );
 }

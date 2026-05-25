@@ -351,7 +351,7 @@ export default function ResourcesPage() {
     { label: 'Cinema',    href: '/cinema' },
     { label: 'Contact',   href: '/contact' },
     { label: 'Feedback',  href: '/feedback' },
-    { label: isLoggedIn ? 'My Account' : 'Log In', href: isLoggedIn ? '/collective' : '/login' },
+    { label: isLoggedIn ? 'My Account' : 'Log In', href: isLoggedIn ? '/dashboard' : '/login' },
   ];
 
   // ── Resource row ───────────────────────────────────────────────────────────
@@ -620,7 +620,7 @@ export default function ResourcesPage() {
 
               {(search || activeType !== 'all' || activeCategoryId) && (
                 <p style={{ margin: 0, fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em' }}>
-                  Filtering{activeCategoryId && ` · ${CATEGORIES.find((c) => c.id === activeCategoryId)?.title}`}{activeType !== 'all' && ` · ${activeType}`}{search && ` · "${search}"`} —{' '}
+                  Filtering{activeCategoryId && ` · ${CATEGORIES.find((c) => c.id === activeCategoryId)?.title}`}{activeType !== 'all' && ` · ${activeType}`}{search && ` · "${search}"`} ·{' '}
                   <button onClick={clearFilters} style={{ background: 'none', border: 'none', cursor: 'pointer', color: NP.link, fontFamily: 'inherit', fontSize: 'inherit', textDecoration: 'underline', padding: 0 }}>clear all</button>
                 </p>
               )}
@@ -633,7 +633,7 @@ export default function ResourcesPage() {
                 <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em', margin: '0 0 0.875rem' }}>All resources must be free to access. Every suggestion is reviewed before being added.</p>
                 {submitStatus === 'success' ? (
                   <div role="status" style={{ background: NP.bg, border: `1px solid ${NP.border}`, padding: '10px 14px', fontFamily: NP.fontBody, fontSize: '0.9375rem', color: NP.ink }}>
-                    {isLoggedIn ? <><strong>Your resource is live!</strong> Added to the directory — admin notified. Thank you!</> : <><strong>Thank you!</strong> Your suggestion will be reviewed before adding.</>}
+                    {isLoggedIn ? <><strong>Your resource is live!</strong> Added to the directory. Admin notified. Thank you!</> : <><strong>Thank you!</strong> Your suggestion will be reviewed before adding.</>}
                     {' '}<button onClick={() => setSubmitStatus('idle')} style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit', color: NP.link }}>Suggest another</button>
                   </div>
                 ) : (
@@ -650,7 +650,7 @@ export default function ResourcesPage() {
                       <div>
                         <label htmlFor="sub-cat" style={{ display: 'block', fontFamily: NP.fontUI, fontSize: '0.8125rem', marginBottom: '3px', color: NP.ink }}>Category (optional)</label>
                         <select id="sub-cat" value={submitCategory} onChange={(e) => setSubmitCategory(e.target.value)} style={{ width: '100%', border: `1.5px solid ${NP.border}`, padding: '7px 10px', fontFamily: NP.fontUI, fontSize: '0.875rem', background: NP.white, color: NP.ink, boxSizing: 'border-box' }}>
-                          <option value="">— pick one —</option>
+                          <option value="">pick one</option>
                           {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>)}
                           <option value="other">Other / Not sure</option>
                         </select>
@@ -661,7 +661,7 @@ export default function ResourcesPage() {
                       </div>
                       <div style={{ gridColumn: '1 / -1' }}>
                         <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-                          <legend style={{ fontFamily: NP.fontUI, fontSize: '0.8125rem', marginBottom: '6px', color: NP.ink }}>Labels — check all that apply</legend>
+                          <legend style={{ fontFamily: NP.fontUI, fontSize: '0.8125rem', marginBottom: '6px', color: NP.ink }}>Labels (check all that apply)</legend>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                             {ALL_TAGS.map((tag) => (
                               <label key={tag} style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
