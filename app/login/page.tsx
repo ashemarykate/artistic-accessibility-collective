@@ -79,10 +79,31 @@ export default function Login() {
     showMsg('');
 
     try {
+      // Before sending a link, verify this email belongs to an approved member.
+      // This prevents magic links being sent to arbitrary addresses and stops
+      // non-members from accidentally creating auth accounts.
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .eq('status', 'approved')
+        .maybeSingle();
+
+      if (!profile) {
+        showMsg(
+          "We don't have an approved account for that email address. If you applied recently, your profile may still be under review. Questions? Email contact@artisticaccessibility.com.",
+          'error',
+        );
+        setLoading(false);
+        return;
+      }
+
       // Send the user back to /auth/callback after they click the link;
       // the callback page reads the session and routes them to /admin or /dashboard.
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: normalizedEmail,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
