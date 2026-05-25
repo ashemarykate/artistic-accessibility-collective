@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content';
 
 type ResourceSubmission = {
   id: string;
@@ -226,6 +226,7 @@ export default function AdminDashboard() {
     { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
     { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
     { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
+    { id: 'content', label: 'Content' },
     { id: 'resource-contacts', label: 'Resource Contacts' },
   ];
 
@@ -518,6 +519,12 @@ export default function AdminDashboard() {
                 fetchAll();
               }}
             />
+          </div>
+        )}
+
+        {activeTab === 'content' && (
+          <div id="panel-content" role="tabpanel" aria-labelledby="tab-content">
+            <ContentManagementPanel />
           </div>
         )}
 
@@ -1021,5 +1028,480 @@ function ProfileList({
         );
       })}
     </ul>
+  );
+}
+
+// ── ContentManagementPanel ────────────────────────────────────────────────────
+// Manage Library, Cinema, and Accessibility Resources items in the DB.
+// DB items appear on the public pages alongside (and can override) static items.
+
+type ContentSection = 'library' | 'cinema' | 'accessibility';
+
+type ContentItem = {
+  id: string;
+  title: string;
+  author: string | null;
+  director: string | null;
+  creator: string | null;
+  year: number | null;
+  description: string | null;
+  url: string | null;
+  item_type: string | null;
+  category: string | null;
+  tags: string[];
+  is_free: boolean;
+  how_to_access: string | null;
+  is_essential: boolean;
+  format_list: string[] | null;
+  platform_list: string[] | null;
+  has_ad: boolean;
+  has_captions: boolean;
+  duration_minutes: number | null;
+  location_note: string | null;
+  slug: string | null;
+  section: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+};
+
+const BLANK_ITEM = {
+  title: '', author: '', director: '', creator: '', year: '',
+  description: '', url: '', item_type: '', category: '', tags: '',
+  is_free: false, how_to_access: '', is_essential: false,
+  format_list: '', platform_list: '', has_ad: false, has_captions: false,
+  duration_minutes: '', location_note: '', slug: '', admin_notes: '',
+  status: 'approved',
+};
+
+const LIBRARY_TYPES  = ['book','essay','article','journal','zine','workbook','anthology','standard','blog','toolkit'];
+const CINEMA_TYPES   = ['documentary','film','short-film','podcast','series','talk','video-essay','performance-recording'];
+const ACCESS_TYPES   = ['standard','tool','guide','org','media','course'];
+
+const LIBRARY_CATS   = ['foundations-classics','disability-justice','deaf-culture-asl','captioning-ad','producing-arts-access','policy-legal','creative-disability','memoirs-firstperson','academic-theory','toolkits-working'];
+const CINEMA_CATS    = ['documentaries','performance','short-film','podcasts','series-tv','narrative-film','talks-lectures','festival-recent'];
+const ACCESS_CATS    = ['law-policy','captioning','audio-description','asl-interpretation','theater-live-events','film-media-production','digital-web','disability-justice-arts','funding-organizations','training-education'];
+
+function ContentManagementPanel() {
+  const [section,    setSection]    = useState<ContentSection>('library');
+  const [items,      setItems]      = useState<ContentItem[]>([]);
+  const [loading,    setLoading]    = useState(false);
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [editingId,  setEditingId]  = useState<string | null>(null);
+  const [form,       setForm]       = useState({ ...BLANK_ITEM });
+  const [saving,     setSaving]     = useState(false);
+  const [saveMsg,    setSaveMsg]    = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const fetchItems = async (sec: ContentSection) => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('resources')
+      .select('*')
+      .eq('section', sec)
+      .order('created_at', { ascending: false });
+    setItems((data ?? []) as ContentItem[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchItems(section); }, [section]);
+
+  const switchSection = (sec: ContentSection) => {
+    setSection(sec);
+    setShowAdd(false);
+    setEditingId(null);
+    setSaveMsg('');
+  };
+
+  const startAdd = () => {
+    setForm({ ...BLANK_ITEM });
+    setEditingId(null);
+    setShowAdd(true);
+    setSaveMsg('');
+  };
+
+  const startEdit = (item: ContentItem) => {
+    setForm({
+      title:            item.title          ?? '',
+      author:           item.author         ?? '',
+      director:         item.director       ?? '',
+      creator:          item.creator        ?? '',
+      year:             item.year?.toString()        ?? '',
+      description:      item.description    ?? '',
+      url:              item.url            ?? '',
+      item_type:        item.item_type      ?? '',
+      category:         item.category       ?? '',
+      tags:             (item.tags ?? []).join(', '),
+      is_free:          item.is_free        ?? false,
+      how_to_access:    item.how_to_access  ?? '',
+      is_essential:     item.is_essential   ?? false,
+      format_list:      (item.format_list   ?? []).join(', '),
+      platform_list:    (item.platform_list ?? []).join(', '),
+      has_ad:           item.has_ad         ?? false,
+      has_captions:     item.has_captions   ?? false,
+      duration_minutes: item.duration_minutes?.toString() ?? '',
+      location_note:    item.location_note  ?? '',
+      slug:             item.slug           ?? '',
+      admin_notes:      item.admin_notes    ?? '',
+      status:           item.status         ?? 'approved',
+    });
+    setEditingId(item.id);
+    setShowAdd(false);
+    setSaveMsg('');
+  };
+
+  const cancelForm = () => {
+    setShowAdd(false);
+    setEditingId(null);
+    setSaveMsg('');
+  };
+
+  const tagsArray = (s: string) =>
+    s.split(',').map((t) => t.trim()).filter(Boolean);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim()) return;
+    setSaving(true);
+    setSaveMsg('');
+
+    const slug = form.slug.trim() ||
+      form.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const payload = {
+      section,
+      title:            form.title.trim(),
+      author:           form.author.trim()       || null,
+      director:         form.director.trim()     || null,
+      creator:          form.creator.trim()      || null,
+      year:             form.year ? parseInt(form.year) : null,
+      description:      form.description.trim()  || null,
+      url:              form.url.trim()           || null,
+      item_type:        form.item_type            || null,
+      category:         form.category             || null,
+      tags:             tagsArray(form.tags),
+      is_free:          form.is_free,
+      how_to_access:    form.how_to_access.trim() || null,
+      is_essential:     form.is_essential,
+      format_list:      tagsArray(form.format_list),
+      platform_list:    tagsArray(form.platform_list),
+      has_ad:           form.has_ad,
+      has_captions:     form.has_captions,
+      duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
+      location_note:    form.location_note.trim() || null,
+      slug,
+      admin_notes:      form.admin_notes.trim()   || null,
+      status:           form.status,
+    };
+
+    let error;
+    if (editingId) {
+      ({ error } = await supabase.from('resources').update(payload).eq('id', editingId));
+    } else {
+      ({ error } = await supabase.from('resources').insert(payload));
+    }
+
+    setSaving(false);
+    if (error) {
+      setSaveMsg('Error saving: ' + error.message);
+    } else {
+      setSaveMsg(editingId ? 'Saved!' : 'Item added!');
+      setShowAdd(false);
+      setEditingId(null);
+      fetchItems(section);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from('resources').delete().eq('id', id);
+    setDeleteConfirm(null);
+    fetchItems(section);
+  };
+
+  const typesForSection = section === 'library' ? LIBRARY_TYPES : section === 'cinema' ? CINEMA_TYPES : ACCESS_TYPES;
+  const catsForSection  = section === 'library' ? LIBRARY_CATS  : section === 'cinema' ? CINEMA_CATS  : ACCESS_CATS;
+
+  const inp: React.CSSProperties = {
+    width: '100%', padding: '6px 8px', fontSize: '0.875rem',
+    border: '1px solid var(--color-border)', borderRadius: 4,
+    fontFamily: 'inherit', boxSizing: 'border-box' as const,
+  };
+  const label: React.CSSProperties = {
+    display: 'block', fontSize: '0.75rem', fontWeight: 600,
+    color: 'var(--color-text-muted)', marginBottom: 3,
+  };
+  const row: React.CSSProperties = { marginBottom: '0.75rem' };
+  const row2: React.CSSProperties = { display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' };
+
+  const ItemForm = () => (
+    <form onSubmit={handleSave} style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '1.25rem', marginBottom: '1.5rem' }} noValidate>
+      <h3 style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '1rem' }}>
+        {editingId ? 'Edit Item' : `Add New ${section === 'library' ? 'Library' : section === 'cinema' ? 'Cinema' : 'Accessibility'} Item`}
+      </h3>
+
+      {/* Title + Slug */}
+      <div style={row2}>
+        <div style={{ flex: '2 1 200px' }}>
+          <label style={label} htmlFor="cf-title">Title <span style={{ color: 'red' }}>*</span></label>
+          <input id="cf-title" style={inp} value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+        </div>
+        <div style={{ flex: '1 1 160px' }}>
+          <label style={label} htmlFor="cf-slug">Slug <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(auto if blank)</span></label>
+          <input id="cf-slug" style={inp} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="e.g. crip-camp" />
+        </div>
+      </div>
+
+      {/* Author (Library) / Director + Creator (Cinema) */}
+      {section === 'library' && (
+        <div style={row}>
+          <label style={label} htmlFor="cf-author">Author <span style={{ color: 'red' }}>*</span></label>
+          <input id="cf-author" style={inp} value={form.author} onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))} />
+        </div>
+      )}
+      {section === 'cinema' && (
+        <div style={row2}>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <label style={label} htmlFor="cf-director">Director</label>
+            <input id="cf-director" style={inp} value={form.director} onChange={(e) => setForm((f) => ({ ...f, director: e.target.value }))} />
+          </div>
+          <div style={{ flex: 1, minWidth: 140 }}>
+            <label style={label} htmlFor="cf-creator">Creator <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(podcasts/series)</span></label>
+            <input id="cf-creator" style={inp} value={form.creator} onChange={(e) => setForm((f) => ({ ...f, creator: e.target.value }))} />
+          </div>
+        </div>
+      )}
+
+      {/* Type + Category + Year */}
+      <div style={row2}>
+        <div style={{ flex: 1, minWidth: 140 }}>
+          <label style={label} htmlFor="cf-type">Type</label>
+          <select id="cf-type" style={{ ...inp, background: '#fff' }} value={form.item_type} onChange={(e) => setForm((f) => ({ ...f, item_type: e.target.value }))}>
+            <option value="">-- select --</option>
+            {typesForSection.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: 1, minWidth: 140 }}>
+          <label style={label} htmlFor="cf-cat">Category</label>
+          <select id="cf-cat" style={{ ...inp, background: '#fff' }} value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
+            <option value="">-- select --</option>
+            {catsForSection.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: '0 1 80px' }}>
+          <label style={label} htmlFor="cf-year">Year</label>
+          <input id="cf-year" type="number" min="1900" max="2099" style={inp} value={form.year} onChange={(e) => setForm((f) => ({ ...f, year: e.target.value }))} />
+        </div>
+      </div>
+
+      {/* Description */}
+      <div style={row}>
+        <label style={label} htmlFor="cf-desc">Description</label>
+        <textarea id="cf-desc" rows={4} style={{ ...inp, resize: 'vertical' }} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+      </div>
+
+      {/* URL + Is Free */}
+      <div style={row2}>
+        <div style={{ flex: 3, minWidth: 200 }}>
+          <label style={label} htmlFor="cf-url">URL <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(free access link)</span></label>
+          <input id="cf-url" type="url" style={inp} value={form.url} onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))} placeholder="https://" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingBottom: 2 }}>
+          <label style={{ ...label, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={form.is_free} onChange={(e) => setForm((f) => ({ ...f, is_free: e.target.checked }))} />
+            Free to access
+          </label>
+          <label style={{ ...label, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', marginTop: 4 }}>
+            <input type="checkbox" checked={form.is_essential} onChange={(e) => setForm((f) => ({ ...f, is_essential: e.target.checked }))} />
+            Mark as Essential ★
+          </label>
+        </div>
+      </div>
+
+      {/* How to access (non-free) */}
+      {!form.is_free && (
+        <div style={row}>
+          <label style={label} htmlFor="cf-access">How to access <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(shown when not free)</span></label>
+          <textarea id="cf-access" rows={2} style={{ ...inp, resize: 'vertical' }} value={form.how_to_access} onChange={(e) => setForm((f) => ({ ...f, how_to_access: e.target.value }))} placeholder="e.g. Available on Netflix. Check your library for free streaming." />
+        </div>
+      )}
+
+      {/* Tags */}
+      <div style={row}>
+        <label style={label} htmlFor="cf-tags">Tags <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(comma-separated)</span></label>
+        <input id="cf-tags" style={inp} value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))} placeholder="Disabled Voice, Deaf-Centered, Free" />
+      </div>
+
+      {/* Library: Format */}
+      {section === 'library' && (
+        <div style={row}>
+          <label style={label} htmlFor="cf-fmt">Format <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(comma-separated, e.g. PDF, Web, Audiobook)</span></label>
+          <input id="cf-fmt" style={inp} value={form.format_list} onChange={(e) => setForm((f) => ({ ...f, format_list: e.target.value }))} />
+        </div>
+      )}
+
+      {/* Cinema: Platform + Runtime + AD + Captions */}
+      {section === 'cinema' && (
+        <>
+          <div style={row2}>
+            <div style={{ flex: 2, minWidth: 140 }}>
+              <label style={label} htmlFor="cf-platform">Platform <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(comma-separated, e.g. Netflix, YouTube)</span></label>
+              <input id="cf-platform" style={inp} value={form.platform_list} onChange={(e) => setForm((f) => ({ ...f, platform_list: e.target.value }))} />
+            </div>
+            <div style={{ flex: '0 1 90px' }}>
+              <label style={label} htmlFor="cf-runtime">Runtime (min)</label>
+              <input id="cf-runtime" type="number" min="0" style={inp} value={form.duration_minutes} onChange={(e) => setForm((f) => ({ ...f, duration_minutes: e.target.value }))} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <label style={{ ...label, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.has_ad} onChange={(e) => setForm((f) => ({ ...f, has_ad: e.target.checked }))} />
+              Audio Description available
+            </label>
+            <label style={{ ...label, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.has_captions} onChange={(e) => setForm((f) => ({ ...f, has_captions: e.target.checked }))} />
+              Captions available
+            </label>
+          </div>
+        </>
+      )}
+
+      {/* Accessibility Resources: Location */}
+      {section === 'accessibility' && (
+        <div style={row}>
+          <label style={label} htmlFor="cf-loc">Location / jurisdiction <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional, e.g. United States)</span></label>
+          <input id="cf-loc" style={inp} value={form.location_note} onChange={(e) => setForm((f) => ({ ...f, location_note: e.target.value }))} />
+        </div>
+      )}
+
+      {/* Status + Admin notes */}
+      <div style={row2}>
+        <div style={{ flex: '0 1 160px' }}>
+          <label style={label} htmlFor="cf-status">Status</label>
+          <select id="cf-status" style={{ ...inp, background: '#fff' }} value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
+            <option value="approved">Approved (visible on page)</option>
+            <option value="pending">Pending (hidden from public)</option>
+            <option value="rejected">Rejected (hide this item)</option>
+          </select>
+        </div>
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <label style={label} htmlFor="cf-anotes">Admin notes</label>
+          <input id="cf-anotes" style={inp} value={form.admin_notes} onChange={(e) => setForm((f) => ({ ...f, admin_notes: e.target.value }))} />
+        </div>
+      </div>
+
+      {saveMsg && (
+        <p role="status" style={{ fontSize: '0.875rem', color: saveMsg.startsWith('Error') ? 'red' : 'green', marginBottom: '0.5rem' }}>
+          {saveMsg}
+        </p>
+      )}
+
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={saving || !form.title.trim()}>
+          {saving ? 'Saving…' : editingId ? 'Save Changes' : 'Add Item'}
+        </button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={cancelForm}>Cancel</button>
+      </div>
+    </form>
+  );
+
+  return (
+    <div>
+      {/* Section tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {(['library', 'cinema', 'accessibility'] as ContentSection[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => switchSection(s)}
+              className={`btn btn-sm ${section === s ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ textTransform: 'capitalize' }}
+            >
+              {s === 'library' ? '📚 Library' : s === 'cinema' ? '🎬 Cinema' : '♿ Accessibility Resources'}
+            </button>
+          ))}
+        </div>
+        {!showAdd && !editingId && (
+          <button onClick={startAdd} className="btn btn-primary btn-sm">
+            + Add New Item
+          </button>
+        )}
+      </div>
+
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+        Items added here appear on the public page alongside the existing content.
+        Set status to <strong>Approved</strong> to make them visible.
+        Adding an item with the same slug as an existing one will override the hardcoded version.
+      </p>
+
+      {(showAdd || editingId) && <ItemForm />}
+
+      {saveMsg && !showAdd && !editingId && (
+        <p role="status" style={{ fontSize: '0.875rem', color: 'green', marginBottom: '0.75rem' }}>{saveMsg}</p>
+      )}
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+          <span className="spinner" style={{ width: 24, height: 24, borderWidth: 3 }} aria-hidden="true" />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="content-card" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+          No {section} items in the database yet.
+          <br />
+          <span style={{ fontSize: '0.8125rem' }}>
+            Click &ldquo;+ Add New Item&rdquo; to add one. Existing hardcoded content still shows on the page.
+          </span>
+        </div>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {items.map((item) => (
+            <li key={item.id} className="content-card">
+              {deleteConfirm === item.id ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text)' }}>
+                    Delete <strong>{item.title}</strong>? This cannot be undone.
+                  </p>
+                  <button onClick={() => handleDelete(item.id)} className="btn btn-sm" style={{ background: '#c0392b', color: '#fff', border: 'none' }}>
+                    Yes, delete
+                  </button>
+                  <button onClick={() => setDeleteConfirm(null)} className="btn btn-ghost btn-sm">Cancel</button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.25rem' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '0.9375rem' }}>{item.title}</span>
+                      {item.is_essential && <span className="tag tag-yellow" style={{ fontSize: '0.7rem' }}>★ Essential</span>}
+                      {item.is_free && <span className="tag tag-blue" style={{ fontSize: '0.7rem' }}>Free</span>}
+                      <span className={`tag ${item.status === 'approved' ? 'tag-green' : item.status === 'pending' ? 'tag-gray' : 'tag-red'}`} style={{ fontSize: '0.7rem' }}>
+                        {item.status}
+                      </span>
+                    </div>
+                    {(item.author || item.director || item.creator) && (
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: '0 0 0.25rem' }}>
+                        {item.author && `By ${item.author}`}
+                        {item.director && `Dir. ${item.director}`}
+                        {item.creator && `${item.director ? ' · ' : ''}${item.creator}`}
+                        {item.year && ` (${item.year})`}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                      {item.item_type && <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{item.item_type}</span>}
+                      {item.category && <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{item.category}</span>}
+                      {item.slug && <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>/{item.slug}</span>}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0 }}>
+                    <button onClick={() => startEdit(item)} className="btn btn-ghost btn-sm" aria-label={`Edit ${item.title}`}>Edit</button>
+                    <button onClick={() => setDeleteConfirm(item.id)} className="btn btn-sm" style={{ background: '#fce4e4', color: '#c0392b', border: '1px solid #f5c6c6', fontSize: '0.75rem', padding: '4px 10px' }} aria-label={`Delete ${item.title}`}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

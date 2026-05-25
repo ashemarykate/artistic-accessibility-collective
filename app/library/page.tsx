@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, LIBRARY_CATEGORY_BY_ID, type LibraryItem } from '@/lib/library-data';
+import { supabase } from '@/lib/supabase';
 import BrowserChrome from '@/components/BrowserChrome';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -24,6 +25,26 @@ const TYPE_SHORT: Record<string, string> = {
   workbook: 'WB', anthology: 'AN', standard: 'ST', blog: 'BL', toolkit: 'TK',
 };
 
+// ── Map a resources DB row → LibraryItem ─────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function dbRowToLibraryItem(row: any): LibraryItem {
+  return {
+    slug:         row.slug          ?? row.id,
+    title:        row.title         ?? '',
+    author:       row.author        ?? '',
+    year:         row.year          ?? undefined,
+    description:  row.description   ?? '',
+    url:          row.url           ?? undefined,
+    type:         (row.item_type    ?? 'book') as LibraryItem['type'],
+    category:     row.category      ?? '',
+    tags:         row.tags          ?? [],
+    isFree:       row.is_free       ?? false,
+    format:       row.format_list   ?? undefined,
+    howToAccess:  row.how_to_access ?? undefined,
+    isEssential:  row.is_essential  ?? false,
+  };
+}
+
 export default function LibraryPage() {
   const [suggest, setSuggest] = useState({ title: '', author: '', why: '', name: '', email: '' });
   const [suggestStatus, setSuggestStatus] = useState<FormStatus>('idle');
@@ -31,10 +52,23 @@ export default function LibraryPage() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
+  const [dbItems, setDbItems] = useState<LibraryItem[]>([]);
 
   useEffect(() => {
     document.title = 'The Library — Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
+  }, []);
+
+  // Fetch any DB-managed library items and merge with static data
+  useEffect(() => {
+    supabase
+      .from('resources')
+      .select('*')
+      .eq('section', 'library')
+      .eq('status', 'approved')
+      .then(({ data }) => {
+        if (data?.length) setDbItems(data.map(dbRowToLibraryItem));
+      });
   }, []);
 
   useEffect(() => {
@@ -48,32 +82,34 @@ export default function LibraryPage() {
     e.preventDefault();
     if (!suggest.title.trim() || !suggest.author.trim()) return;
     setSuggestStatus('loading');
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: suggest.name.trim() || 'Anonymous',
-          email: suggest.email.trim() || 'no-reply@artisticaccessibility.com',
-          subject: `Library Suggestion: ${suggest.title.trim()}`,
-          message: [
-            `Title: ${suggest.title.trim()}`,
-            `Author: ${suggest.author.trim()}`,
-            suggest.why.trim() ? `Notes: ${suggest.why.trim()}` : '',
-            suggest.name.trim() ? `From: ${suggest.name.trim()}` : '',
-          ].filter(Boolean).join('\n'),
-        }),
-      });
-      setSuggestStatus(res.ok ? 'success' : 'error');
-    } catch {
+    const { error } = await supabase.from('resource_submissions').insert({
+      resource_name:   suggest.title.trim(),
+      resource_url:    null,
+      description:     suggest.why.trim() || null,
+      submitter_name:  suggest.name.trim()  || null,
+      submitter_email: suggest.email.trim() || null,
+      submitter_notes: suggest.author.trim(), // author stored here
+      section:         'library',
+      special_tags:    [],
+    });
+    if (error) {
       setSuggestStatus('error');
+    } else {
+      setSuggestStatus('success');
+      setSuggest({ title: '', author: '', why: '', name: '', email: '' });
     }
   }
+
+  // Merge: DB items override static items with the same slug
+  const allItems = useMemo<LibraryItem[]>(() => {
+    const dbSlugs = new Set(dbItems.map((i) => i.slug));
+    return [...LIBRARY_ITEMS.filter((i) => !dbSlugs.has(i.slug)), ...dbItems];
+  }, [dbItems]);
 
   // Filter items
   const filtered = useMemo<LibraryItem[]>(() => {
     const q = search.toLowerCase().trim();
-    return LIBRARY_ITEMS.filter((item) => {
+    return allItems.filter((item) => {
       if (activeCategory && item.category !== activeCategory) return false;
       if (showFreeOnly && !item.isFree) return false;
       if (q) {

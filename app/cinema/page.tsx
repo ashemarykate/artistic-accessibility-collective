@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { CINEMA_CATEGORIES, CINEMA_ITEMS, type CinemaItem, type CinemaCategory } from '@/lib/cinema-data';
+import { supabase } from '@/lib/supabase';
 import BrowserChrome from '@/components/BrowserChrome';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -28,45 +29,86 @@ const MEDIA_TYPES = ['Documentary', 'Film', 'Short Film', 'Podcast', 'Series', '
 const LEFT_CATS  = CINEMA_CATEGORIES.slice(0, 4);
 const RIGHT_CATS = CINEMA_CATEGORIES.slice(4, 8);
 
+// ── Map a resources DB row → CinemaItem ──────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function dbRowToCinemaItem(row: any): CinemaItem {
+  return {
+    slug:           row.slug             ?? row.id,
+    title:          row.title            ?? '',
+    director:       row.director         ?? undefined,
+    creator:        row.creator          ?? undefined,
+    year:           row.year             ?? undefined,
+    description:    row.description      ?? '',
+    url:            row.url              ?? undefined,
+    type:           (row.item_type       ?? 'film') as CinemaItem['type'],
+    category:       row.category         ?? '',
+    tags:           row.tags             ?? [],
+    isFree:         row.is_free          ?? false,
+    platform:       row.platform_list    ?? undefined,
+    howToAccess:    row.how_to_access    ?? undefined,
+    isEssential:    row.is_essential     ?? false,
+    runtimeMinutes: row.duration_minutes ?? undefined,
+    hasAD:          row.has_ad           ?? false,
+    hasCaptions:    row.has_captions     ?? false,
+  };
+}
+
 export default function CinemaPage() {
   const [search,         setSearch        ] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showFreeOnly,   setShowFreeOnly  ] = useState(false);
   const [suggest,        setSuggest       ] = useState({ title: '', type: '', why: '', name: '', email: '' });
   const [suggestStatus,  setSuggestStatus ] = useState<FormStatus>('idle');
+  const [dbItems,        setDbItems       ] = useState<CinemaItem[]>([]);
 
   useEffect(() => {
     document.title = 'AAC Presents: The Cinema — Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
+  // Fetch DB-managed cinema items
+  useEffect(() => {
+    supabase
+      .from('resources')
+      .select('*')
+      .eq('section', 'cinema')
+      .eq('status', 'approved')
+      .then(({ data }) => {
+        if (data?.length) setDbItems(data.map(dbRowToCinemaItem));
+      });
+  }, []);
+
   async function handleSuggest(e: React.FormEvent) {
     e.preventDefault();
     if (!suggest.title.trim()) return;
     setSuggestStatus('loading');
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: suggest.name.trim() || 'Anonymous',
-          email: suggest.email.trim() || 'no-reply@artisticaccessibility.com',
-          subject: `Cinema Suggestion: ${suggest.title.trim()}`,
-          message: [
-            `Title: ${suggest.title.trim()}`,
-            suggest.type  ? `Type: ${suggest.type}` : '',
-            suggest.why.trim() ? `Why: ${suggest.why.trim()}` : '',
-            suggest.name.trim() ? `From: ${suggest.name.trim()}` : '',
-          ].filter(Boolean).join('\n'),
-        }),
-      });
-      setSuggestStatus(res.ok ? 'success' : 'error');
-    } catch { setSuggestStatus('error'); }
+    const { error } = await supabase.from('resource_submissions').insert({
+      resource_name:   suggest.title.trim(),
+      resource_url:    null,
+      description:     suggest.why.trim() || null,
+      category:        suggest.type || null,
+      submitter_name:  suggest.name.trim()  || null,
+      submitter_email: suggest.email.trim() || null,
+      section:         'cinema',
+      special_tags:    [],
+    });
+    if (error) {
+      setSuggestStatus('error');
+    } else {
+      setSuggestStatus('success');
+      setSuggest({ title: '', type: '', why: '', name: '', email: '' });
+    }
   }
+
+  // Merge: DB items override static items with the same slug
+  const allItems = useMemo<CinemaItem[]>(() => {
+    const dbSlugs = new Set(dbItems.map((i) => i.slug));
+    return [...CINEMA_ITEMS.filter((i) => !dbSlugs.has(i.slug)), ...dbItems];
+  }, [dbItems]);
 
   const filtered = useMemo<CinemaItem[]>(() => {
     const q = search.toLowerCase().trim();
-    return CINEMA_ITEMS.filter((item) => {
+    return allItems.filter((item) => {
       if (activeCategory && item.category !== activeCategory) return false;
       if (showFreeOnly && !item.isFree) return false;
       if (q) return (
