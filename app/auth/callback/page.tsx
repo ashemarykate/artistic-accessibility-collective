@@ -89,14 +89,21 @@ export default function AuthCallback() {
       }
 
       // ── 3. Route to the right place ────────────────────────────────────────
-      const { data: adminData } = await supabase
-        .from('admin_users')
-        .select('user_id')
-        .eq('user_id', userId)
-        .maybeSingle();
+      // Check admin first, then member_type to distinguish Collective vs Access Card.
+      const [{ data: adminData }, { data: profileData }] = await Promise.all([
+        supabase.from('admin_users').select('user_id').eq('user_id', userId).maybeSingle(),
+        supabase.from('profiles').select('member_type').eq('user_id', userId).maybeSingle(),
+      ]);
 
       if (cancelled) return;
-      router.replace(adminData ? '/admin' : '/dashboard');
+
+      if (adminData) {
+        router.replace('/admin');
+      } else if (profileData?.member_type === 'access_card') {
+        router.replace('/');   // Access Card members land on home; nav shows their card link
+      } else {
+        router.replace('/dashboard');
+      }
     };
 
     finishSignIn();

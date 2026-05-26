@@ -76,6 +76,17 @@ export type Profile = {
   // v16 volunteering fields
   volunteer_status?: 'yes' | 'no' | null;
   volunteer_notes?: string;
+  // v17 Access Card tier
+  member_type?: 'collective' | 'access_card';
+};
+
+export type SavedResource = {
+  id: string;
+  user_id: string;
+  resource_title: string;
+  resource_url: string;
+  resource_type?: string;
+  saved_at: string;
 };
 
 /** Returns the canonical profile URL, using the vanity username when set. */

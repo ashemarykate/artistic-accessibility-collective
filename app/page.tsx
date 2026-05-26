@@ -132,11 +132,20 @@ function Clock() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
-  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [user, setUser]           = useState<{ id: string } | null>(null);
+  const [memberType, setMemberType] = useState<'collective' | 'access_card' | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUser(data.user);
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      setUser(data.user);
+      // Fetch member type so we can show the right nav link
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('member_type')
+        .eq('user_id', data.user.id)
+        .maybeSingle();
+      setMemberType((prof?.member_type as 'collective' | 'access_card') ?? 'collective');
     });
   }, []);
 
@@ -173,11 +182,28 @@ export default function Home() {
           padding: '4px 8px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white', fontWeight: 'bold', fontSize: 12, textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white', fontWeight: 'bold', fontSize: 13, fontFamily: 'var(--font-accent), sans-serif', textShadow: '0 1px 2px rgba(0,0,0,0.4)', letterSpacing: '0.01em' }}>
             <span aria-hidden="true" style={{ fontSize: 14 }}>📁</span>
             Artistic Accessibility
           </div>
           <WindowButtons />
+        </div>
+
+        {/* ── Mobile brand strip (hidden on desktop, shown on mobile) ───────── */}
+        <div className="xp-mobile-brand" aria-hidden="true" style={{
+          display: 'none',
+          background: 'linear-gradient(to bottom, #1a4fbb 0%, #1c52c8 100%)',
+          padding: '12px 20px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderBottom: '1px solid #1a3a8a',
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo-across-blue-bg.svg"
+            alt=""
+            style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
+          />
         </div>
 
         {/* ── Menu bar ───────────────────────────────────────────────────────── */}
@@ -306,11 +332,22 @@ export default function Home() {
                 </li>
               ))}
 
-              {/* THE COLLECTIVE — always visible; contents swap on auth state */}
+              {/* THE COLLECTIVE — always visible; contents swap on auth state + member type */}
               <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
               </li>
-              {user ? (
+              {user && memberType === 'access_card' ? (
+                <li style={{ paddingLeft: 40 }}>
+                  <Link
+                    href="/access-card"
+                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    className="xp-folder-link"
+                  >
+                    <NavIcon icon="🪪" bg="#2a6a9a" name="Access Card" size="sm" />
+                    Access Card
+                  </Link>
+                </li>
+              ) : user ? (
                 <li style={{ paddingLeft: 40 }}>
                   <Link
                     href="/dashboard"
@@ -383,11 +420,10 @@ export default function Home() {
           background: '#ece9d8',
           borderTop: '1px solid #b4b0a8',
           padding: '2px 10px',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          fontSize: 11, color: '#333',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          fontSize: 11, color: '#555',
         }} aria-hidden="true">
-          <span>8 object(s)</span>
-          <span>Ready</span>
+          <span style={{ fontStyle: 'italic', fontFamily: 'var(--font-accent), sans-serif', letterSpacing: '0.02em' }}>together, together</span>
         </div>
       </div>
 
@@ -485,7 +521,8 @@ export default function Home() {
 
         /* ── Mobile ────────────────────────────────────────────────────────────── */
         @media (max-width: 580px) {
-          /* Hide image panel and redundant chrome */
+          /* Show brand strip, hide image panel and redundant chrome */
+          .xp-mobile-brand { display: flex !important; }
           .xp-image-panel  { display: none !important; }
           .xp-menu-bar,
           .xp-toolbar,

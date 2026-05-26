@@ -31,15 +31,20 @@ function LoginForm() {
     setMessageType(type);
   };
 
-  // Routes a logged-in user to /admin if they're an admin, otherwise /dashboard.
+  // Routes a logged-in user based on role and member type.
   const routeAfterLogin = async (userId: string) => {
-    const { data: adminData } = await supabase
-      .from('admin_users')
-      .select('user_id')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const [{ data: adminData }, { data: profileData }] = await Promise.all([
+      supabase.from('admin_users').select('user_id').eq('user_id', userId).maybeSingle(),
+      supabase.from('profiles').select('member_type').eq('user_id', userId).maybeSingle(),
+    ]);
 
-    router.push(adminData ? '/admin' : '/dashboard');
+    if (adminData) {
+      router.push('/admin');
+    } else if (profileData?.member_type === 'access_card') {
+      router.push('/');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -91,18 +96,14 @@ function LoginForm() {
 
     try {
       // Before sending a link, verify this email belongs to an approved member.
-      // This prevents magic links being sent to arbitrary addresses and stops
-      // non-members from accidentally creating auth accounts.
+      // Uses a SECURITY DEFINER function to bypass RLS — the anon client
+      // can't query profiles directly when public_visible = false.
       const normalizedEmail = email.trim().toLowerCase();
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', normalizedEmail)
-        .eq('status', 'approved')
-        .maybeSingle();
+      const { data: approved } = await supabase
+        .rpc('is_approved_email', { lookup_email: normalizedEmail });
 
-      if (!profile) {
+      if (!approved) {
         showMsg(
           "We don't have an approved account for that email address. If you applied recently, your profile may still be under review. Questions? Email contact@artisticaccessibility.com.",
           'error',
@@ -257,6 +258,15 @@ function LoginForm() {
         )}
 
         <hr className="divider" />
+
+        <p style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
+          <Link href="/access-card/signup" style={{ color: 'var(--aac-blue)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'underline' }}>
+            Get a free Access Card →
+          </Link>
+        </p>
+        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+          Save resources and build your personal library — open to everyone, no application needed.
+        </p>
 
         <p style={{ textAlign: 'center' }}>
           <Link href="/" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textDecoration: 'underline' }}>
