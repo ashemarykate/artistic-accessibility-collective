@@ -286,7 +286,7 @@ export default function Home() {
               ))}
 
               <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}TOGETHER
+                <span aria-hidden="true">📂</span>{' '}MORE TO COME
               </li>
               {TOGETHER_ITEMS.map((item) => (
                 <li key={item.href} style={{ paddingLeft: 40 }}>
