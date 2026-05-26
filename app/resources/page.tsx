@@ -743,7 +743,7 @@ export default function ResourcesPage() {
                 <WebButton href="/"          label="🏠 Home"           bg="#00205b" />
                 <WebButton href="/library"   label="📚 Library"        bg="#1a4a1a" />
                 <WebButton href="/cinema"    label="🎬 Cinema"         bg="#4b0082" />
-                <WebButton href="/directory" label="📋 Directory"      bg="#6b4400" />
+                <WebButton href="/members"   label="📋 Directory"      bg="#6b4400" />
                 <WebButton href="/contact"   label="✉ Contact Us"      bg="#2a2a2a" />
               </div>
               <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.06em', margin: 0, lineHeight: 1.8 }}>
