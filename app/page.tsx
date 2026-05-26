@@ -32,7 +32,7 @@ type MemberNavItem = { label: string; href: string; icon: string; iconBg: string
 
 const MEMBER_NAV: MemberNavItem[] = [
   { label: 'Buddy List',   href: '/messages',    icon: '💬', iconBg: '#1a4fbb' },
-  { label: 'My Hub',       href: '/dashboard',   icon: '🏠', iconBg: '#2a6a9a' },
+  { label: 'The Backstage',       href: '/dashboard',   icon: '🏠', iconBg: '#2a6a9a' },
   { label: 'My Lists',     href: '/my-lists',    icon: '📋', iconBg: '#2a7a52' },
   { label: 'Feedback',     href: '/feedback',    icon: '📝', iconBg: '#7a3abf' },
   { label: 'My Resources', href: '/my-resources',icon: '⭐', iconBg: '#9a7212' },
@@ -366,10 +366,10 @@ export default function Home() {
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
                 textDecoration: 'none',
               }}
-              aria-label="Go to My Hub"
+              aria-label="Go to The Backstage"
             >
               <NavIcon icon="🏠" bg="#3a7abf" name="Home" />
-              My Hub
+              The Backstage
             </Link>
           ) : (
             <Link

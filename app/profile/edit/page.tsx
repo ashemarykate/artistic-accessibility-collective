@@ -352,7 +352,7 @@ export default function EditProfilePage() {
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"    className="nav-link">My Hub</Link>
+          <Link href="/dashboard"    className="nav-link">The Backstage</Link>
           <Link href="/messages"   className="nav-link">Messages</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <button
@@ -840,7 +840,7 @@ export default function EditProfilePage() {
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>The Backstage</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

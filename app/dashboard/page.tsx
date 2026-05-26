@@ -198,7 +198,7 @@ export default function MemberHub() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="My Hub — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+      <BrowserChrome variant="aol" title="The Backstage — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading your hub">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -216,7 +216,7 @@ export default function MemberHub() {
   const initial     = displayName.charAt(0).toUpperCase();
 
   return (
-    <BrowserChrome variant="aol" title="My Hub — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+    <BrowserChrome variant="aol" title="The Backstage — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
@@ -704,7 +704,7 @@ export default function MemberHub() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Hub</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>The Backstage</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

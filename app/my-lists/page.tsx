@@ -91,7 +91,7 @@ export default function MyListsPage() {
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"    className="nav-link">My Hub</Link>
+          <Link href="/dashboard"    className="nav-link">The Backstage</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
         </nav>
@@ -134,7 +134,7 @@ export default function MyListsPage() {
                   Your feedback goes directly into building this feature.
                 </p>
                 <Link href="/dashboard" className="btn btn-primary btn-sm">
-                  Back to My Hub
+                  Back to The Backstage
                 </Link>
               </div>
             ) : (
@@ -203,7 +203,7 @@ export default function MyListsPage() {
 
         <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
           <Link href="/dashboard" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-            ← Back to My Hub
+            ← Back to The Backstage
           </Link>
         </p>
       </div>
