@@ -1,549 +1,347 @@
 'use client';
 
 import Link from 'next/link';
-import BrowserChrome from '@/components/BrowserChrome';
 
-// ── Category definitions ──────────────────────────────────────────────────────
-const CATEGORIES = [
-  { id: 'asl',       label: 'ASL & Interpreting', icon: '🤟', navBg: '#d4a000', navText: '#fff', headerBg: '#fde68a', headerText: '#7a5800' },
-  { id: 'caption',   label: 'Captioning',          icon: '💬', navBg: '#1a5fbf', navText: '#fff', headerBg: '#dbeafe', headerText: '#1a3a7a' },
-  { id: 'ad',        label: 'Audio Description',   icon: '🎙️', navBg: '#1e7a4a', navText: '#fff', headerBg: '#d1fae5', headerText: '#0f4a2a' },
-  { id: 'live',      label: 'Live Events',          icon: '🎭', navBg: '#b82870', navText: '#fff', headerBg: '#fce7f3', headerText: '#7a1a4a' },
-  { id: 'film',      label: 'Film & Video',         icon: '🎬', navBg: '#6a2abf', navText: '#fff', headerBg: '#ede9fe', headerText: '#3a1a7a' },
-  { id: 'rights',    label: 'Rights & Law',         icon: '⚖️', navBg: '#b84a10', navText: '#fff', headerBg: '#ffedd5', headerText: '#7a2a00' },
-  { id: 'dj',        label: 'Disability Justice',   icon: '✊', navBg: '#1a3a8a', navText: '#fff', headerBg: '#e0e7ff', headerText: '#1a2a5a' },
-  { id: 'reading',   label: 'Reading List',         icon: '📚', navBg: '#3a6a3a', navText: '#fff', headerBg: '#dcfce7', headerText: '#1a3a1a' },
+// ── Planned training levels ───────────────────────────────────────────────────
+const LEVELS = [
+  {
+    id: 'L1',
+    label: 'Level 1',
+    title: 'Access Basics',
+    desc: 'What is accessibility in the arts? Core concepts, language, and frameworks for everyone.',
+    color: '#4dbb6a',
+    locked: false,
+  },
+  {
+    id: 'L2',
+    label: 'Level 2',
+    title: 'Tools of the Trade',
+    desc: 'Captions, audio description, ASL, CART — how they work and when to use them.',
+    color: '#f5d84a',
+    locked: true,
+  },
+  {
+    id: 'L3',
+    label: 'Level 3',
+    title: 'Planning Access',
+    desc: 'Budgeting, hiring providers, writing access riders, and front-of-house training.',
+    color: '#f5a020',
+    locked: true,
+  },
+  {
+    id: 'L4',
+    label: 'Level 4',
+    title: 'Leading with Access',
+    desc: 'Disability Justice frameworks, community co-creation, and systemic change in arts orgs.',
+    color: '#c060f0',
+    locked: true,
+  },
 ];
 
-// ── Resource data ─────────────────────────────────────────────────────────────
-const RESOURCES: Record<string, { title: string; desc: string; badge: string; badgeBg: string; link?: string }[]> = {
-  asl: [
-    {
-      title: 'Concert Interpreting with Amber Galloway',
-      desc: 'The standard for musical ASL performance — how Galloway\'s dynamic interpreting changed what concert access looks like.',
-      badge: 'VIDEO', badgeBg: '#d4a000',
-    },
-    {
-      title: 'When to Hire a CDI (Certified Deaf Interpreter)',
-      desc: 'Guidance on Deaf-Blind interpreting, legal proceedings, and situations where a CDI is essential, not optional.',
-      badge: 'ARTICLE', badgeBg: '#1a5fbf',
-    },
-    {
-      title: 'NAD: Interpreting Resources',
-      desc: 'The National Association of the Deaf\'s guide to interpreter qualifications, ethics, and hiring practices.',
-      badge: 'GUIDE', badgeBg: '#1e7a4a',
-      link: 'https://www.nad.org',
-    },
-    {
-      title: 'What Is a DASL? Director of Artistic Sign Language',
-      desc: 'How the DASL role differs from interpreting — used in film (CODA, Barbie) and stage to shape ASL as performance.',
-      badge: 'EXPLAINER', badgeBg: '#6a2abf',
-    },
-  ],
-  caption: [
-    {
-      title: 'Caption with Intention',
-      desc: 'The open-source guide to expressive captioning — developed with the Deaf community, winner of an Academy Award of Merit.',
-      badge: 'GUIDE', badgeBg: '#1e7a4a',
-      link: 'https://captionwithintention.org',
-    },
-    {
-      title: 'CART vs. AI Captions: What\'s the Difference?',
-      desc: 'Communication Access Realtime Translation by a human vs. automated speech recognition — when each is appropriate and what quality gaps exist.',
-      badge: 'ARTICLE', badgeBg: '#1a5fbf',
-    },
-    {
-      title: 'Open Captions at Live Theater: A Production Guide',
-      desc: 'Practical steps for adding open captions to live performance — equipment, placement, timing, and working with caption providers.',
-      badge: 'HOW-TO', badgeBg: '#b82870',
-    },
-    {
-      title: 'Cheryl Green: Captioning as Disability Justice',
-      desc: 'Caption quality advocate Cheryl Green reframes captions not as a technical fix but as a justice practice.',
-      badge: 'PODCAST', badgeBg: '#b84a10',
-    },
-  ],
-  ad: [
-    {
-      title: 'Introduction to Audio Description — Joel Snyder',
-      desc: 'The foundational text from one of the field\'s pioneers. Covers style, pacing, objectivity, and the art of the AD script.',
-      badge: 'BOOK', badgeBg: '#3a6a3a',
-    },
-    {
-      title: 'Reid My Mind Radio',
-      desc: 'Thomas Reid\'s podcast on blindness and disability culture, including practical AD education and community interviews.',
-      badge: 'PODCAST', badgeBg: '#b84a10',
-      link: 'https://reidmymind.com',
-    },
-    {
-      title: 'Kinetic Light: Audimance',
-      desc: 'Disability-led dance company Kinetic Light\'s open-source accessible performance model — audio description as artistic collaboration.',
-      badge: 'EXAMPLE', badgeBg: '#6a2abf',
-    },
-    {
-      title: 'Enhanced Audio Description Research (York University)',
-      desc: 'Academic research on emotionally engaging AD that goes beyond visual inventory — the case for creative description.',
-      badge: 'RESEARCH', badgeBg: '#1a3a8a',
-    },
-  ],
-  live: [
-    {
-      title: 'TDF Accessibility Programs Overview',
-      desc: 'Theatre Development Fund\'s programs for Deaf, hard of hearing, blind, low vision, and neurodivergent audiences — ASL-interpreted, captioned, relaxed, and audio described shows.',
-      badge: 'GUIDE', badgeBg: '#1e7a4a',
-      link: 'https://www.tdf.org',
-    },
-    {
-      title: 'What Is a Relaxed Performance?',
-      desc: 'Sensory-adjusted shows for autistic audiences, people with dementia, and anyone who benefits from a more flexible environment. How to produce one.',
-      badge: 'EXPLAINER', badgeBg: '#1a5fbf',
-    },
-    {
-      title: 'Attitude is Everything: Live Music Access',
-      desc: 'UK-based organization setting the standard for accessible live music venues and festival accessibility.',
-      badge: 'RESOURCE', badgeBg: '#b82870',
-      link: 'https://www.attitudeiseverything.org.uk',
-    },
-    {
-      title: 'Touch Tours Before the Show',
-      desc: 'How to run pre-show touch tours for blind and low vision audience members — what to include, who leads, and how to schedule them.',
-      badge: 'HOW-TO', badgeBg: '#b84a10',
-    },
-  ],
-  film: [
-    {
-      title: 'CVAA & Streaming: What Platforms Are Required to Provide',
-      desc: 'The 21st Century Communications and Video Accessibility Act — what Netflix, Hulu, and Amazon must offer and where gaps still exist.',
-      badge: 'LAW', badgeBg: '#b84a10',
-    },
-    {
-      title: 'Making Your Film Accessible: Pre-Production Decisions',
-      desc: 'Accessibility built in from the start — casting, accessible sets, on-set communication, disability consultants, and production design.',
-      badge: 'GUIDE', badgeBg: '#1e7a4a',
-    },
-    {
-      title: 'DCMP: Described and Captioned Media Program',
-      desc: 'Free captioned and described educational media, plus producer guidelines for high-quality captions and descriptions.',
-      badge: 'RESOURCE', badgeBg: '#1a5fbf',
-      link: 'https://dcmp.org',
-    },
-    {
-      title: 'AI Captions on YouTube: The Quality Problem',
-      desc: 'Auto-generated captions are a starting point, not a solution — understanding error rates, speaker ID failures, and why human review matters.',
-      badge: 'ARTICLE', badgeBg: '#6a2abf',
-    },
-  ],
-  rights: [
-    {
-      title: 'ADA Title III & Places of Public Accommodation',
-      desc: 'How the Americans with Disabilities Act applies to theaters, concert venues, galleries, and arts organizations — physical access, communication access, and more.',
-      badge: 'LAW', badgeBg: '#b84a10',
-    },
-    {
-      title: 'WCAG 2.2 AA: The Current Web Standard',
-      desc: 'Web Content Accessibility Guidelines — what AA compliance requires for websites, streaming platforms, and digital ticketing.',
-      badge: 'STANDARD', badgeBg: '#1a3a8a',
-      link: 'https://www.w3.org/WAI/WCAG22/quickref/',
-    },
-    {
-      title: 'Section 508 & Federally Funded Arts',
-      desc: 'If your organization receives federal funding, Section 508 applies. What that means for digital content, websites, and procurement.',
-      badge: 'GUIDE', badgeBg: '#1e7a4a',
-    },
-    {
-      title: 'UN CRPD: Article 30 — Cultural Life',
-      desc: 'The UN Convention on the Rights of Persons with Disabilities specifically addresses access to culture, recreation, and leisure.',
-      badge: 'INTERNATIONAL', badgeBg: '#6a2abf',
-    },
-  ],
-  dj: [
-    {
-      title: 'Sins Invalid: 10 Principles of Disability Justice',
-      desc: 'The foundational framework from the disability justice movement — intersectionality, leadership of those most impacted, cross-movement solidarity.',
-      badge: 'FOUNDATIONAL', badgeBg: '#1a3a8a',
-      link: 'https://www.sinsinvalid.org',
-    },
-    {
-      title: 'Alice Wong: Disability Visibility Project',
-      desc: 'First-person disability narratives, community stories, and the Disability Visibility anthology — essential reading.',
-      badge: 'COMMUNITY', badgeBg: '#b82870',
-      link: 'https://disabilityvisibilityproject.com',
-    },
-    {
-      title: 'Access Intimacy — Mia Mingus',
-      desc: 'Mia Mingus\'s concept of access intimacy: the feeling of being truly understood in your access needs, not just accommodated.',
-      badge: 'ESSAY', badgeBg: '#6a2abf',
-    },
-    {
-      title: 'Crip Theory & Arts: Beyond Compliance',
-      desc: 'How crip theory reframes disability in performance — non-normative bodies and minds as aesthetic, political, and creative forces.',
-      badge: 'ACADEMIC', badgeBg: '#3a6a3a',
-    },
-  ],
-  reading: [
-    {
-      title: 'The Oxford Handbook of Music and Disability Studies',
-      desc: 'Comprehensive academic collection covering disability in music performance, composition, education, and music therapy.',
-      badge: 'BOOK', badgeBg: '#3a6a3a',
-    },
-    {
-      title: 'Beauty is a Verb: The New Poetry of Disability',
-      desc: 'Anthology of poetry by disabled writers — crip joy, pain, humor, and beauty. Essential for understanding disability aesthetics.',
-      badge: 'POETRY', badgeBg: '#b82870',
-    },
-    {
-      title: 'Golem Girl — Riva Lehrer',
-      desc: 'Memoir and visual art from the disability portraiture artist — disability, body, and art-making as inseparable.',
-      badge: 'MEMOIR', badgeBg: '#6a2abf',
-    },
-    {
-      title: 'True Biz — Sara Novic',
-      desc: 'Novel set in a residential school for Deaf students — ASL, Deaf culture, identity, and the politics of cochlear implants.',
-      badge: 'FICTION', badgeBg: '#1a5fbf',
-    },
-  ],
-};
-
-// ── Resource card ─────────────────────────────────────────────────────────────
-function ResourceCard({
-  title, desc, badge, badgeBg, link,
-}: { title: string; desc: string; badge: string; badgeBg: string; link?: string }) {
-  const inner = (
-    <div style={{
-      background: '#fff',
-      border: '1px solid #ccc',
-      borderRadius: 4,
-      padding: '8px 10px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 4,
-      height: '100%',
-      boxSizing: 'border-box',
-      transition: 'box-shadow 0.15s',
-    }}
-    className="resource-card"
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-        <span style={{
-          display: 'inline-block',
-          background: badgeBg,
-          color: '#fff',
-          fontSize: 9,
-          fontWeight: 'bold',
-          padding: '1px 5px',
-          borderRadius: 2,
-          letterSpacing: '0.06em',
-          flexShrink: 0,
-          marginTop: 1,
-        }}>{badge}</span>
-        <span style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#263590', lineHeight: 1.3 }}>{title}</span>
-      </div>
-      <p style={{ fontSize: '0.73rem', color: '#444', margin: 0, lineHeight: 1.45 }}>{desc}</p>
-      {link && (
-        <span style={{ fontSize: '0.7rem', color: '#1a5fbf', marginTop: 'auto', paddingTop: 4 }}>
-          Visit site →
-        </span>
-      )}
-    </div>
-  );
-
-  if (link) {
-    return (
-      <a href={link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
-        {inner}
-      </a>
-    );
-  }
-  return <div style={{ height: '100%' }}>{inner}</div>;
-}
-
-// ── Category section ──────────────────────────────────────────────────────────
-function CategorySection({ cat }: { cat: typeof CATEGORIES[0] }) {
-  const items = RESOURCES[cat.id] ?? [];
+// ── Pixel-art star (SVG inline, pure CSS) ─────────────────────────────────────
+function PixelStar({ color }: { color: string }) {
   return (
-    <section id={cat.id} style={{ marginBottom: 18 }}>
-      <div style={{
-        background: cat.headerBg,
-        border: `2px solid ${cat.navBg}`,
-        borderBottom: 'none',
-        borderRadius: '6px 6px 0 0',
-        padding: '5px 12px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 7,
-      }}>
-        <span aria-hidden="true" style={{ fontSize: 16 }}>{cat.icon}</span>
-        <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: cat.headerText, letterSpacing: '0.02em' }}>
-          {cat.label}
-        </span>
-        <span style={{
-          marginLeft: 'auto', fontSize: '0.68rem',
-          color: cat.navBg, fontWeight: 'bold',
-          border: `1px solid ${cat.navBg}`,
-          padding: '1px 7px', borderRadius: 2, cursor: 'pointer',
-        }}>MORE »</span>
-      </div>
-      <div style={{
-        border: `2px solid ${cat.navBg}`,
-        borderTop: `1px solid ${cat.navBg}`,
-        borderRadius: '0 0 6px 6px',
-        background: '#fafaf8',
-        padding: 10,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: 8,
-      }}>
-        {items.map((r) => (
-          <ResourceCard key={r.title} {...r} />
-        ))}
-      </div>
-    </section>
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ display: 'block' }}>
+      <rect x="5" y="0" width="2" height="2" fill={color} />
+      <rect x="5" y="10" width="2" height="2" fill={color} />
+      <rect x="0" y="5" width="2" height="2" fill={color} />
+      <rect x="10" y="5" width="2" height="2" fill={color} />
+      <rect x="2" y="2" width="2" height="2" fill={color} />
+      <rect x="8" y="2" width="2" height="2" fill={color} />
+      <rect x="2" y="8" width="2" height="2" fill={color} />
+      <rect x="8" y="8" width="2" height="2" fill={color} />
+      <rect x="4" y="4" width="4" height="4" fill={color} />
+    </svg>
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
 export default function LearningHub() {
   return (
-    <BrowserChrome variant="netscape" title="AAC Learning Hub" url="http://learn.artisticaccessibility.com">
-      <main style={{ background: 'var(--aac-blue)', minHeight: '100%' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: '#0a0c1a',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      fontFamily: '"Courier New", Courier, monospace',
+      padding: '0 1rem 4rem',
+      overflowX: 'hidden',
+    }}>
 
-        {/* ── Top banner ──────────────────────────────────────────────────── */}
+      {/* ── Scanline overlay ─────────────────────────────────────────────────── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      />
+
+      {/* ── CD-ROM window chrome ─────────────────────────────────────────────── */}
+      <div style={{
+        width: '100%',
+        maxWidth: 720,
+        marginTop: '2rem',
+        border: '3px solid #4a4a8a',
+        borderRadius: 4,
+        boxShadow: '0 0 0 1px #2a2a5a, 0 0 40px rgba(96,96,255,0.25), inset 0 0 0 1px #7a7ac8',
+        overflow: 'hidden',
+        position: 'relative',
+        zIndex: 2,
+      }}>
+
+        {/* Window title bar */}
         <div style={{
-          background: 'linear-gradient(135deg, #1a2a7a 0%, #263590 50%, #3a4aaa 100%)',
-          borderBottom: '4px solid #f5d84a',
-          padding: '12px 16px 10px',
+          background: 'linear-gradient(to right, #1a1a6a 0%, #3a3ab8 50%, #1a1a6a 100%)',
+          padding: '5px 10px',
           display: 'flex',
           alignItems: 'center',
-          gap: 14,
+          justifyContent: 'space-between',
+          borderBottom: '2px solid #4a4aaa',
         }}>
-          <div style={{
-            background: '#f5d84a',
-            borderRadius: '50%',
-            width: 52, height: 52, flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 26,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-          }} aria-hidden="true">🎓</div>
-          <div>
-            <h1 className="font-display" style={{
-              color: '#f5d84a',
-              fontSize: '1.5rem',
-              margin: 0,
-              lineHeight: 1,
-              textShadow: '0 2px 4px rgba(0,0,0,0.4)',
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: 16, height: 16,
+              background: 'conic-gradient(from 0deg, #4dbb6a, #f5d84a, #f5a020, #c060f0, #4dbb6a)',
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.3)',
+            }} aria-hidden="true" />
+            <span style={{ color: '#d8d8ff', fontSize: 12, fontWeight: 'bold', letterSpacing: '0.05em' }}>
+              AAC Learning Hub v1.0
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }} aria-hidden="true">
+            {['_', '□', '×'].map((c) => (
+              <div key={c} style={{
+                width: 14, height: 12,
+                background: '#2a2a7a',
+                border: '1px solid #5a5aaa',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 8, color: '#a0a0e0', cursor: 'default',
+              }}>{c}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Menu bar */}
+        <div style={{
+          background: '#c8c8d8',
+          borderBottom: '2px solid #7a7a9a',
+          padding: '1px 4px',
+          display: 'flex',
+          gap: 0,
+        }} aria-hidden="true">
+          {['File', 'Options', 'Sound', 'Help'].map((item) => (
+            <span key={item} style={{ padding: '2px 10px', fontSize: 11, cursor: 'default', color: '#000', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
+              {item}
+            </span>
+          ))}
+        </div>
+
+        {/* Main content area */}
+        <div style={{
+          background: '#12102a',
+          padding: '2rem 1.5rem',
+          minHeight: 460,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
+
+          {/* Logo / title */}
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: '0.75rem' }} aria-hidden="true">
+              {['#4dbb6a', '#f5d84a', '#f5a020', '#c060f0', '#4090e8'].map((c, i) => (
+                <PixelStar key={i} color={c} />
+              ))}
+            </div>
+
+            <h1 style={{
+              fontFamily: 'var(--font-display, "TAY Big Bird", serif)',
+              fontSize: 'clamp(2rem, 6vw, 3rem)',
+              color: '#fff',
+              margin: '0 0 0.25rem',
+              textShadow: '0 0 20px rgba(96,96,255,0.8), 0 0 40px rgba(96,96,255,0.4)',
+              lineHeight: 1.1,
             }}>
-              AAC Learning Hub
+              Learning Hub
             </h1>
-            <p style={{
-              color: 'rgba(255,255,255,0.85)',
-              fontSize: '0.8rem',
-              margin: '3px 0 0',
-            }}>
-              Resources for arts accessibility professionals
+            <p style={{ color: '#8080c0', fontSize: '0.75rem', margin: 0, letterSpacing: '0.12em' }}>
+              ARTISTIC ACCESSIBILITY COLLECTIVE — EDUCATIONAL SERIES
             </p>
           </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <Link href="/resources" style={{
-              background: '#f5d84a', color: '#263590',
-              fontWeight: 'bold', fontSize: '0.75rem',
-              padding: '4px 12px', borderRadius: 12,
-              textDecoration: 'none',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-            }}>← Resources</Link>
-          </div>
-        </div>
 
-        {/* ── Layout: sidebar + main ───────────────────────────────────────── */}
-        <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start' }}>
-
-          {/* ── Sidebar nav ─────────────────────────────────────────────────── */}
-          <nav
-            aria-label="Learning Hub categories"
-            style={{
-              width: 168,
-              flexShrink: 0,
-              background: '#1a2568',
-              borderRight: '3px solid #f5d84a',
-              minHeight: 600,
-            }}
-          >
+          {/* "Loading" / Coming Soon treatment */}
+          <div style={{
+            width: '100%',
+            maxWidth: 540,
+            background: '#0a0820',
+            border: '2px inset #4a4a8a',
+            borderRadius: 3,
+            padding: '1.25rem',
+            marginBottom: '1.75rem',
+            textAlign: 'center',
+          }}>
             <div style={{
-              background: '#f5d84a',
-              color: '#263590',
-              fontWeight: 'bold',
+              color: '#4dbb6a',
               fontSize: '0.7rem',
-              padding: '5px 10px',
-              letterSpacing: '0.08em',
+              letterSpacing: '0.2em',
+              marginBottom: '0.75rem',
               textTransform: 'uppercase',
-            }} aria-hidden="true">
-              TOPICS
+            }}>
+              ▶ Loading training modules...
             </div>
-            {CATEGORIES.map((cat) => (
-              <a
-                key={cat.id}
-                href={`#${cat.id}`}
+            {/* Fake progress bar */}
+            <div style={{
+              width: '100%',
+              height: 14,
+              background: '#0a0820',
+              border: '1px solid #4a4a8a',
+              borderRadius: 2,
+              overflow: 'hidden',
+              marginBottom: '0.75rem',
+            }} aria-hidden="true">
+              <div style={{
+                width: '38%',
+                height: '100%',
+                background: 'repeating-linear-gradient(90deg, #263590 0px, #4060cc 8px, #263590 8px, #4060cc 16px)',
+              }} />
+            </div>
+            <div style={{ color: '#6060a0', fontSize: '0.7rem', letterSpacing: '0.1em' }}>
+              38% — COMING SOON
+            </div>
+          </div>
+
+          {/* Level selection */}
+          <div style={{
+            width: '100%',
+            maxWidth: 540,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '0.875rem',
+            marginBottom: '1.75rem',
+          }}>
+            {LEVELS.map((lv) => (
+              <div
+                key={lv.id}
                 style={{
+                  background: lv.locked ? '#0a0820' : '#10103a',
+                  border: `2px solid ${lv.locked ? '#2a2a5a' : lv.color}`,
+                  borderRadius: 3,
+                  padding: '1rem',
+                  opacity: lv.locked ? 0.55 : 1,
+                  position: 'relative',
+                }}
+                aria-label={`${lv.label}: ${lv.title}${lv.locked ? ' — locked, coming soon' : ' — coming soon'}`}
+              >
+                <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 7,
-                  padding: '7px 10px',
-                  background: cat.navBg,
-                  color: cat.navText,
-                  textDecoration: 'none',
-                  fontWeight: 'bold',
-                  fontSize: '0.75rem',
-                  borderBottom: '2px solid rgba(0,0,0,0.15)',
-                  transition: 'filter 0.1s',
-                }}
-                className="hub-nav-link"
-              >
-                <span aria-hidden="true" style={{ fontSize: 15, flexShrink: 0 }}>{cat.icon}</span>
-                <span style={{ lineHeight: 1.2 }}>{cat.label}</span>
-                <span aria-hidden="true" style={{ marginLeft: 'auto', opacity: 0.7, fontSize: 10 }}>▶</span>
-              </a>
-            ))}
-
-            {/* Spotlight box */}
-            <div style={{
-              background: '#263590',
-              border: '2px solid #f5d84a',
-              margin: 10,
-              padding: 10,
-              borderRadius: 4,
-            }}>
-              <div style={{
-                background: '#f5d84a', color: '#263590',
-                fontWeight: 'bold', fontSize: '0.65rem',
-                padding: '2px 6px', marginBottom: 6,
-                letterSpacing: '0.06em',
-                display: 'inline-block',
-              }}>★ SPOTLIGHT</div>
-              <p style={{ color: '#fff', fontSize: '0.72rem', margin: 0, lineHeight: 1.4 }}>
-                <strong style={{ color: '#f5d84a' }}>Caption with Intention</strong> — the open-source expressive captioning guide, co-developed with the Deaf community.
-              </p>
-              <a
-                href="https://captionwithintention.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block',
-                  marginTop: 7,
-                  background: '#f5d84a',
-                  color: '#263590',
-                  fontWeight: 'bold',
-                  fontSize: '0.68rem',
-                  padding: '3px 10px',
-                  borderRadius: 2,
-                  textDecoration: 'none',
-                }}
-              >
-                Visit Site →
-              </a>
-            </div>
-
-            {/* New badge */}
-            <div style={{
-              background: '#b84a10',
-              border: '2px solid #f5d84a',
-              margin: '0 10px 10px',
-              padding: 8,
-              borderRadius: 4,
-              textAlign: 'center',
-            }}>
-              <div style={{ color: '#f5d84a', fontWeight: 'bold', fontSize: '0.68rem', letterSpacing: '0.1em' }}>🆕 NEW THIS WEEK</div>
-              <p style={{ color: '#fff', fontSize: '0.7rem', margin: '5px 0 0', lineHeight: 1.35 }}>
-                Relaxed Performance Production Guide added to Live Events
-              </p>
-            </div>
-          </nav>
-
-          {/* ── Main content ─────────────────────────────────────────────────── */}
-          <div style={{ flex: 1, minWidth: 0, padding: '14px 14px 20px' }}>
-
-            {/* Featured / hero card */}
-            <div style={{
-              background: 'linear-gradient(135deg, #fde68a 0%, #fbbf24 100%)',
-              border: '3px solid #d4a000',
-              borderRadius: 8,
-              padding: '12px 16px',
-              marginBottom: 18,
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 14,
-            }}>
-              <div style={{
-                background: '#d4a000',
-                borderRadius: 6,
-                width: 56, height: 56, flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 28,
-                boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-              }} aria-hidden="true">✨</div>
-              <div>
-                <div style={{
-                  background: '#263590',
-                  color: '#f5d84a',
-                  fontWeight: 'bold',
-                  fontSize: '0.65rem',
-                  display: 'inline-block',
-                  padding: '2px 8px',
-                  borderRadius: 2,
-                  letterSpacing: '0.08em',
-                  marginBottom: 5,
-                }}>FEATURED RESOURCE</div>
-                <h2 style={{
-                  margin: '0 0 4px',
-                  color: '#1a2568',
-                  fontSize: '1rem',
-                  lineHeight: 1.2,
+                  gap: 6,
+                  marginBottom: '0.4rem',
                 }}>
-                  The Disability Visibility Project — Alice Wong
-                </h2>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#4a3a00', lineHeight: 1.5 }}>
-                  First-person disability stories, essays, and community media. The Disability Visibility anthology and podcast are essential starting points for anyone working at the intersection of disability and the arts.
-                </p>
-                <a
-                  href="https://disabilityvisibilityproject.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    marginTop: 8,
-                    background: '#263590',
-                    color: '#f5d84a',
+                  <span style={{
+                    fontSize: '0.65rem',
                     fontWeight: 'bold',
-                    fontSize: '0.75rem',
-                    padding: '4px 14px',
-                    borderRadius: 3,
-                    textDecoration: 'none',
-                  }}
-                >
-                  Visit Site →
-                </a>
+                    color: lv.color,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                  }}>
+                    {lv.id}
+                  </span>
+                  {lv.locked && (
+                    <span style={{ fontSize: '0.65rem', color: '#4a4a8a', letterSpacing: '0.08em' }} aria-hidden="true">
+                      🔒 LOCKED
+                    </span>
+                  )}
+                </div>
+                <div style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 'bold',
+                  color: lv.locked ? '#4a4a8a' : '#fff',
+                  marginBottom: '0.35rem',
+                  fontFamily: '"Courier New", monospace',
+                }}>
+                  {lv.title}
+                </div>
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: lv.locked ? '#3a3a6a' : '#8080b8',
+                  margin: 0,
+                  lineHeight: 1.5,
+                  fontFamily: 'system-ui, sans-serif',
+                }}>
+                  {lv.desc}
+                </p>
               </div>
-            </div>
-
-            {/* All category sections */}
-            {CATEGORIES.map((cat) => (
-              <CategorySection key={cat.id} cat={cat} />
             ))}
           </div>
+
+          {/* Context blurb */}
+          <p style={{
+            maxWidth: 480,
+            textAlign: 'center',
+            fontSize: '0.8125rem',
+            color: '#6060a0',
+            lineHeight: 1.7,
+            marginBottom: '1.75rem',
+            fontFamily: 'system-ui, sans-serif',
+          }}>
+            The Learning Hub is part of an ongoing masters action research project.
+            Training modules at each level will be developed with and by the disability
+            arts community. More soon.
+          </p>
+
+          {/* Back home */}
+          <Link
+            href="/"
+            style={{
+              display: 'inline-block',
+              padding: '8px 20px',
+              background: '#1a1a5a',
+              border: '2px outset #4a4aaa',
+              borderRadius: 2,
+              color: '#c8c8ff',
+              fontSize: '0.8125rem',
+              fontWeight: 'bold',
+              textDecoration: 'none',
+              letterSpacing: '0.05em',
+              fontFamily: '"Courier New", monospace',
+            }}
+          >
+            ◀ MAIN MENU
+          </Link>
         </div>
 
-        <style>{`
-          .hub-nav-link:hover {
-            filter: brightness(1.15);
+        {/* Status bar */}
+        <div style={{
+          background: '#c8c8d8',
+          borderTop: '2px solid #7a7a9a',
+          padding: '2px 8px',
+          display: 'flex',
+          gap: 12,
+          fontSize: 10,
+          color: '#333',
+          fontFamily: '"MS Sans Serif", Arial, sans-serif',
+        }} aria-hidden="true">
+          <span>Ready</span>
+          <span>|</span>
+          <span>Modules: 0 / 4 unlocked</span>
+          <span>|</span>
+          <span>AAC Educational Series</span>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          div[style*="maxWidth: 720"] {
+            border-radius: 0;
           }
-          .resource-card:hover {
-            box-shadow: 0 2px 8px rgba(38,53,144,0.18);
-          }
-          @media (max-width: 600px) {
-            nav[aria-label="Learning Hub categories"] {
-              display: none;
-            }
-          }
-        `}</style>
-      </main>
-    </BrowserChrome>
+        }
+      `}</style>
+    </div>
   );
 }
