@@ -196,7 +196,7 @@ function MessagesInner() {
           <img src="/images/logo-across-blue-bg.svg" alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"    className="nav-link">The Backstage</Link>
+          <Link href="/dashboard"    className="nav-link">Backstage</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
           <button
@@ -430,7 +430,7 @@ function MessagesInner() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>The Backstage</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>Backstage</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/members" style={{ color: 'inherit', textDecoration: 'none' }}>Directory</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
