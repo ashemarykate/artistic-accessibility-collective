@@ -127,7 +127,7 @@ function LoginForm() {
   };
 
   return (
-    <BrowserChrome variant="ie3" title="Member Login — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
+    <BrowserChrome variant="ie3" title="Log In — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -136,7 +136,7 @@ function LoginForm() {
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>
         <h1 style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem', textAlign: 'center' }}>
-          Member Login
+          Log In
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.75rem' }}>
           welcome back

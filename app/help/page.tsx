@@ -36,7 +36,7 @@ const PAGES = [
     keywords: ['join', 'register', 'sign up', 'member', 'apply', 'application', 'profile', 'business', 'event', 'collective', 'community', 'become', 'create'],
   },
   {
-    title: 'Member Login',
+    title: 'Log In',
     url: '/login',
     category: 'Membership',
     description: 'Log in to your member account with a one-click magic link or password.',

@@ -42,7 +42,7 @@ export default function Collective() {
               </li>
               <li>
                 <Link href="/login" className="btn btn-outline-white btn-lg">
-                  Member Login
+                  Log In
                 </Link>
               </li>
               <li>

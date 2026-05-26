@@ -17,14 +17,15 @@ const TOGETHER_ITEMS: NavItem[] = [
 ];
 
 const MORE_ITEMS: NavItem[] = [
-  { label: 'Contact Us', href: '/contact', icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
+  { label: 'Contact Us',      href: '/contact',          icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
     icon: '📸', iconBg: '#b83878', iconName: 'Camera',
     external: true,
   },
-  { label: 'Help', href: '/help', icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
+  { label: 'Help',            href: '/help',             icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
+  { label: 'Share Feedback',  href: '/share-feedback',   icon: '📝', iconBg: '#5a7a3a', iconName: 'Notepad' },
 ];
 
 // ── Member nav items (shown in Explorer when logged in) ───────────────────────
@@ -383,10 +384,10 @@ export default function Home() {
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
                 textDecoration: 'none',
               }}
-              aria-label="Member Log In"
+              aria-label="Log In"
             >
               <NavIcon icon="🔑" bg="#3a7abf" name="Key" />
-              Member Log In
+              Log In
             </Link>
           )}
           <Link
