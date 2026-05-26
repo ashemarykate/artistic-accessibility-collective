@@ -306,20 +306,41 @@ export default function Home() {
                 </li>
               ))}
 
-              {/* Member-only folder (shown when logged in) */}
-              {user && (
+              {/* THE COLLECTIVE — always visible; contents swap on auth state */}
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
+              </li>
+              {user ? (
+                <li style={{ paddingLeft: 40 }}>
+                  <Link
+                    href="/dashboard"
+                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    className="xp-folder-link"
+                  >
+                    <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" imgSrc="/images/icons/flashlight.svg" />
+                    The Backstage
+                  </Link>
+                </li>
+              ) : (
                 <>
-                  <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                    <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
-                  </li>
                   <li style={{ paddingLeft: 40 }}>
                     <Link
-                      href="/dashboard"
+                      href="/login"
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" imgSrc="/images/icons/flashlight.svg" />
-                      The Backstage
+                      <NavIcon icon="🔑" bg="#3a6abf" name="Log In" size="sm" />
+                      Log In
+                    </Link>
+                  </li>
+                  <li style={{ paddingLeft: 40 }}>
+                    <Link
+                      href="/submit"
+                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                      className="xp-folder-link"
+                    >
+                      <NavIcon icon="✨" bg="#7a3abf" name="Join" size="sm" />
+                      Join the Collective
                     </Link>
                   </li>
                 </>
