@@ -212,11 +212,7 @@ export default function Home() {
 
             <ul style={{ listStyle: 'none', padding: '6px 4px', margin: 0, flex: 1 }} role="list">
               <li style={{ color: '#333', padding: '1px 4px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
-                🖥️ Desktop
-              </li>
-              <li style={{ color: '#333', padding: '1px 4px 1px 16px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}
-                <strong style={{ color: '#000' }}>Artistic Accessibility</strong>
+                🖥️ Artistic Accessibility
               </li>
 
               <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
