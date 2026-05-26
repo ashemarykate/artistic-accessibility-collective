@@ -1,34 +1,46 @@
 'use client';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
 type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean };
 
 const RESOURCES_ITEMS: NavItem[] = [
-  { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#e0a030', iconName: 'Blue Circle' },
-  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#4aaa7f', iconName: 'Books' },
-  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#9a5abf', iconName: 'Movie Clapper' },
-  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#d08030', iconName: 'Magnifying Glass' },
+  { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle' },
+  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books' },
+  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#7a3abf', iconName: 'Movie Clapper' },
+  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
 ];
 
 const COLLECTIVE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',    href: '/contact',   icon: '✉️', iconBg: '#d05a40', iconName: 'Envelope' },
+  { label: 'Contact Us',    href: '/contact',   icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
-    icon: '📸', iconBg: '#d44a88', iconName: 'Camera',
+    icon: '📸', iconBg: '#b83878', iconName: 'Camera',
     external: true,
   },
-  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#3a6abf', iconName: 'Handshake' },
-  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#cc4488', iconName: 'Artist Palette' },
+  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#1a8a7a', iconName: 'Handshake' },
+  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette' },
 ];
 
-// ── Desktop-style icon ────────────────────────────────────────────────────────
-function NavIcon({ icon, bg, name }: { icon: string; bg: string; name: string }) {
+// ── Member nav items (shown in Explorer when logged in) ───────────────────────
+type MemberNavItem = { label: string; href: string; icon: string; iconBg: string };
+
+const MEMBER_NAV: MemberNavItem[] = [
+  { label: 'Buddy List',   href: '/messages',    icon: '💬', iconBg: '#1a4fbb' },
+  { label: 'My Hub',       href: '/dashboard',   icon: '🏠', iconBg: '#2a6a9a' },
+  { label: 'My Lists',     href: '/my-lists',    icon: '📋', iconBg: '#2a7a52' },
+  { label: 'Feedback',     href: '/feedback',    icon: '📝', iconBg: '#7a3abf' },
+  { label: 'My Resources', href: '/my-resources',icon: '⭐', iconBg: '#9a7212' },
+];
+
+// ── Desktop-style icon (for Explorer nav) ─────────────────────────────────────
+function NavIcon({ icon, bg }: { icon: string; bg: string; name: string }) {
   return (
     <span
-      role="img"
-      aria-label={`${name} Emojicon`}
+      aria-hidden="true"
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -77,8 +89,28 @@ function WindowButtons() {
   );
 }
 
+// ── Clock (client-only to avoid hydration mismatch) ───────────────────────────
+function Clock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const update = () => setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    update();
+    const id = setInterval(update, 10000);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{time}</span>;
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
+  const [user, setUser] = useState<{ id: string } | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUser(data.user);
+    });
+  }, []);
+
   return (
     <main
       style={{
@@ -169,7 +201,6 @@ export default function Home() {
               display: 'flex', flexDirection: 'column',
             }}
           >
-            {/* "All Folders" header */}
             <div style={{
               background: 'linear-gradient(to bottom, #5b9bd5 0%, #2e6db4 100%)',
               color: 'white', fontWeight: 'bold', fontSize: 11,
@@ -179,9 +210,7 @@ export default function Home() {
               All Folders
             </div>
 
-            {/* Folder tree */}
             <ul style={{ listStyle: 'none', padding: '6px 4px', margin: 0, flex: 1 }} role="list">
-              {/* Desktop → Artistic Accessibility (non-link, structural) */}
               <li style={{ color: '#333', padding: '1px 4px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
                 🖥️ Desktop
               </li>
@@ -190,7 +219,6 @@ export default function Home() {
                 <strong style={{ color: '#000' }}>Artistic Accessibility</strong>
               </li>
 
-              {/* Sub-folder: Resources */}
               <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}Resources
               </li>
@@ -207,7 +235,6 @@ export default function Home() {
                 </li>
               ))}
 
-              {/* Sub-folder: The Collective */}
               <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}The Collective
               </li>
@@ -237,6 +264,27 @@ export default function Home() {
                   )}
                 </li>
               ))}
+
+              {/* Member-only folder (shown when logged in) */}
+              {user && (
+                <>
+                  <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                    <span aria-hidden="true">📂</span>{' '}My Stuff
+                  </li>
+                  {MEMBER_NAV.map((item) => (
+                    <li key={item.href} style={{ paddingLeft: 40 }}>
+                      <Link
+                        href={item.href}
+                        style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                        className="xp-folder-link"
+                      >
+                        <NavIcon icon={item.icon} bg={item.iconBg} name={item.label} />
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </>
+              )}
             </ul>
           </nav>
 
@@ -294,21 +342,56 @@ export default function Home() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
       }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {user ? (
+            <Link
+              href="/dashboard"
+              style={{
+                background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
+                borderRadius: 12,
+                padding: '3px 12px 3px 8px',
+                color: 'white', fontWeight: 'bold', fontSize: 12,
+                display: 'flex', alignItems: 'center', gap: 5,
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+                textDecoration: 'none',
+              }}
+              aria-label="Go to My Hub"
+            >
+              <NavIcon icon="🏠" bg="#3a7abf" name="Home" />
+              My Hub
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              style={{
+                background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
+                borderRadius: 12,
+                padding: '3px 12px 3px 8px',
+                color: 'white', fontWeight: 'bold', fontSize: 12,
+                display: 'flex', alignItems: 'center', gap: 5,
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+                textDecoration: 'none',
+              }}
+              aria-label="Member Log In"
+            >
+              <NavIcon icon="🔑" bg="#3a7abf" name="Key" />
+              Member Log In
+            </Link>
+          )}
           <Link
-            href="/login"
+            href="/submit"
             style={{
-              background: 'linear-gradient(to right, #4c8ad4, #2a5abf)',
+              background: 'rgba(255,255,255,0.15)',
               borderRadius: 12,
-              padding: '3px 12px 3px 8px',
+              padding: '3px 12px 3px 10px',
               color: 'white', fontWeight: 'bold', fontSize: 12,
               display: 'flex', alignItems: 'center', gap: 5,
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
+              border: '1px solid rgba(255,255,255,0.25)',
               textDecoration: 'none',
             }}
-            aria-label="Member Log In"
+            aria-label="Join the Collective"
           >
-            <NavIcon icon="🔑" bg="#3a7abf" name="Key" />
-            Member Log In
+            <NavIcon icon="✨" bg="#7a3abf" name="Sparkles" />
+            Join
           </Link>
           <Link
             href="/share-feedback"
@@ -327,7 +410,7 @@ export default function Home() {
           </Link>
         </div>
         <div aria-hidden="true" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          <Clock />
         </div>
       </div>
 
@@ -339,15 +422,12 @@ export default function Home() {
           outline: 2px solid #f5d84a;
           outline-offset: 1px;
         }
-        .xp-folder-link:hover svg path,
-        .xp-folder-link:hover svg rect { opacity: 0.9; }
 
-        /* Mobile: hide image panel, keep left nav so links are accessible */
+        /* Mobile: hide image panel; full-width nav */
         @media (max-width: 580px) {
           .xp-image-panel { display: none !important; }
           .xp-left-panel { width: 100% !important; border-right: none !important; }
           .xp-content-pane { min-height: auto !important; }
-          /* Hide the decorative chrome toolbars on small phones */
           .xp-menu-bar, .xp-toolbar, .xp-address-bar { display: none !important; }
         }
       `}</style>
@@ -355,4 +435,3 @@ export default function Home() {
     </main>
   );
 }
-

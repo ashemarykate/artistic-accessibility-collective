@@ -396,7 +396,7 @@ export default function ProfilePage() {
                 {isProfileAdmin ? (
                   <span className="ms-admin-badge" aria-label="Admin">✦ Admin</span>
                 ) : (
-                  <span className="ms-member-badge" aria-label="Member">✦ Member</span>
+                  <span className="ms-member-badge" aria-label="Member">✨ Member</span>
                 )}
                 {profile.is_student && (
                   <span className="ms-student-badge" aria-label="Student member">🎓 Student</span>

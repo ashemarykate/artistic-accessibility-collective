@@ -98,7 +98,7 @@ body {
   background-color: var(--ms-page-bg);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.8125rem;   /* 13px — classic Myspace density */
+  font-size: 0.9375rem;   /* 15px — readable while keeping retro feel */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   margin: 0;
@@ -453,9 +453,9 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: var(--aac-yellow, #f5d84a);
-  border: 1px solid #d4b800;
-  color: var(--aac-navy, #0d1e4a);
+  background: #7a3abf;
+  border: 1px solid #5e2a99;
+  color: #ffffff;
   font-size: 0.6875rem;
   font-weight: bold;
   padding: 2px 7px;

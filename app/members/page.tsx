@@ -145,7 +145,7 @@ export default function MemberDirectory() {
 
   return (
     <BrowserChrome variant="netscape" title="The Collective — Member Directory" url="http://members.artisticaccessibility.com/members">
-    <main className="page-wrapper">
+    <main className="page-wrapper" style={{ background: 'var(--aac-blue)' }}>
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
@@ -163,152 +163,177 @@ export default function MemberDirectory() {
         </nav>
       </header>
 
-      <div className="page-container-wide" style={{ paddingTop: '2.5rem' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ color: 'var(--aac-blue-dark)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem', fontWeight: 'bold' }}>
-            Member Directory
-          </h1>
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
-            {profiles.length} member{profiles.length !== 1 ? 's' : ''} · visible to logged-in members only
-          </p>
-        </div>
+      <div className="page-container-wide" style={{ paddingTop: '1.25rem', paddingBottom: '1.5rem' }}>
+        <h1 className="sr-only">Member Directory</h1>
 
-        {/* Search & filter */}
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-          <div className="form-group" style={{ flex: '1 1 260px' }}>
-            <label htmlFor="search" className="sr-only">Search members</label>
-            <input
-              id="search"
-              type="search"
-              className="form-input"
-              placeholder="Search by name, location, or specialty…"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search members"
-            />
+        {/* ── Search box ──────────────────────────────────────────────────────── */}
+        <div className="ms-box" style={{ marginBottom: 10 }}>
+          <div className="ms-box-header">
+            <h2>🔍 Search Members</h2>
           </div>
-          <div className="form-group" style={{ flex: '0 1 220px' }}>
-            <label htmlFor="specialty-filter" className="sr-only">Filter by specialty</label>
-            <select
-              id="specialty-filter"
-              className="form-input"
-              value={selectedSpecialty}
-              onChange={(e) => setSelectedSpecialty(e.target.value)}
-              aria-label="Filter by specialty"
-            >
-              <option value="">All specialties</option>
-              {allSpecialties.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="content-card" style={{ textAlign: 'center', padding: '3rem' }}>
-            <p style={{ color: 'var(--color-text-muted)' }}>
-              {profiles.length === 0
-                ? 'No approved members yet.'
-                : 'No members match your search.'}
-            </p>
+          <div className="ms-box-body" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div>
+              <label htmlFor="search" className="sr-only">Search by name, location, or specialty</label>
+              <input
+                id="search"
+                type="search"
+                placeholder="Search name, location, specialty…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
+                  border: '2px inset #b4b0a8', padding: '1px 6px',
+                  width: 240, background: '#fff',
+                }}
+              />
+            </div>
+            <div>
+              <label htmlFor="specialty-filter" className="sr-only">Filter by specialty</label>
+              <select
+                id="specialty-filter"
+                value={selectedSpecialty}
+                onChange={(e) => setSelectedSpecialty(e.target.value)}
+                style={{
+                  height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
+                  border: '2px inset #b4b0a8', padding: '1px 4px', background: '#fff',
+                }}
+              >
+                <option value="">All specialties</option>
+                {allSpecialties.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
             {(searchTerm || selectedSpecialty) && (
               <button
                 onClick={() => { setSearchTerm(''); setSelectedSpecialty(''); }}
-                className="btn btn-ghost"
-                style={{ marginTop: '1rem' }}
+                style={{
+                  height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
+                  border: '1px outset #b4b0a8', background: '#ece9d8',
+                  padding: '0 10px', cursor: 'pointer',
+                }}
               >
-                Clear filters
+                Clear
               </button>
             )}
           </div>
-        ) : (
-          <>
-            <p
+        </div>
+
+        {/* ── Results box ─────────────────────────────────────────────────────── */}
+        <div className="ms-box">
+          <div className="ms-box-header">
+            <h2>👥 Browse Members</h2>
+            <span
               aria-live="polite"
               aria-atomic="true"
-              style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', marginBottom: '0.75rem' }}
+              style={{ fontWeight: 'normal', fontSize: '0.6875rem' }}
             >
-              Showing {filtered.length} of {profiles.length} member{profiles.length !== 1 ? 's' : ''}
-            </p>
+              {filtered.length} of {profiles.length} shown · members only
+            </span>
+          </div>
 
-            <p className="sr-only">
-              Member profiles are displayed as contact cards. Ivory cards are individual members; blue cards are businesses. Each card shows name, location, and specialties. Click any card to view the full profile.
-            </p>
-            <ul
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: '1.25rem',
-                listStyle: 'none',
-                padding: 0,
-                margin: 0,
-              }}
-            >
-              {filtered.map((p) => {
+          {filtered.length === 0 ? (
+            <div className="ms-box-body" style={{ textAlign: 'center', padding: '2rem' }}>
+              <p style={{ color: 'var(--color-text-muted)' }}>
+                {profiles.length === 0 ? 'No approved members yet.' : 'No members match your search.'}
+              </p>
+            </div>
+          ) : (
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} role="list">
+              <p className="sr-only">
+                Member profiles listed as rows. Each row shows name, location, and specialties. Click the View Profile link to see a full profile.
+              </p>
+              {filtered.map((p, idx) => {
                 const name = p.display_name || p.full_name;
                 const isBusiness = p.profile_type === 'business';
+                const location = [p.location_city, p.location_state].filter(Boolean).join(', ');
                 return (
-                  <li key={p.id}>
-                    <Link
-                      href={profileHref(p)}
-                      className={`contact-card ${isBusiness ? 'contact-card-business' : 'contact-card-individual'}`}
-                      aria-label={`View ${name}'s profile`}
+                  <li
+                    key={p.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '6px 10px',
+                      background: idx % 2 === 0 ? '#fff' : 'var(--ms-row-alt)',
+                      borderBottom: '1px solid var(--ms-border)',
+                    }}
+                  >
+                    {/* Avatar */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: 44, height: 44, minWidth: 44,
+                        background: isBusiness ? 'var(--aac-blue-light)' : '#e8e0f8',
+                        border: '1px solid var(--ms-border)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--aac-blue)',
+                        flexShrink: 0, overflow: 'hidden',
+                      }}
                     >
-                      <div className="contact-card-stripe" aria-hidden="true" />
-                      <div className="contact-card-body">
-                        <div style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start', marginBottom: '0.875rem' }}>
-                          <div
-                            className="member-avatar"
-                            aria-hidden="true"
-                            style={{ width: 52, height: 52, minWidth: 52, fontSize: '1.25rem', flexShrink: 0 }}
-                          >
-                            {p.avatar_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <p style={{ fontSize: '0.9375rem', fontWeight: 'bold', color: 'var(--aac-navy)', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {name}
-                            </p>
-                            <p style={{ marginBottom: '0.125rem' }}>
-                              {p.user_id && adminUserIds.has(p.user_id) ? (
-                                <span className="ms-admin-badge" aria-label="Admin">✦ Admin</span>
-                              ) : (
-                                <span className="ms-member-badge" aria-label="Member">✦ Member</span>
-                              )}
-                            </p>
-                            {p.pronouns && (
-                              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.125rem' }}>{p.pronouns}</p>
-                            )}
-                            {(p.location_city || p.location_state) && (
-                              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                <span aria-hidden="true">📍 </span>
-                                {[p.location_city, p.location_state].filter(Boolean).join(', ')}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        {p.specialties && p.specialties.length > 0 && (
-                          <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', listStyle: 'none', padding: 0, margin: 0 }}>
-                            {p.specialties.slice(0, 3).map((s, i) => (
-                              <li key={i}><span className={`tag ${specialtyTagClass(s)}`}>{s}</span></li>
-                            ))}
-                            {p.specialties.length > 3 && (
-                              <li><span className="tag tag-gray">+{p.specialties.length - 3} more</span></li>
-                            )}
-                          </ul>
+                      {p.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+
+                    {/* Name + meta */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '0.875rem' }}>
+                          {name}
+                        </span>
+                        {p.user_id && adminUserIds.has(p.user_id) ? (
+                          <span className="ms-admin-badge" aria-label="Admin">✦ Admin</span>
+                        ) : (
+                          <span className="ms-member-badge" aria-label="Member">✨ Member</span>
+                        )}
+                        {isBusiness && (
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Business</span>
                         )}
                       </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {p.pronouns && <span>{p.pronouns}</span>}
+                        {location && <span><span aria-hidden="true">📍 </span>{location}</span>}
+                      </div>
+                    </div>
+
+                    {/* Specialty tags */}
+                    {p.specialties && p.specialties.length > 0 && (
+                      <ul
+                        aria-label="Specialties"
+                        style={{ display: 'flex', flexWrap: 'nowrap', gap: 3, listStyle: 'none', padding: 0, margin: 0 }}
+                        className="dir-tags"
+                      >
+                        <li><span className={`tag ${specialtyTagClass(p.specialties[0])}`}>{p.specialties[0]}</span></li>
+                        {p.specialties.length > 1 && (
+                          <li><span className="tag tag-gray">+{p.specialties.length - 1}</span></li>
+                        )}
+                      </ul>
+                    )}
+
+                    {/* View profile link */}
+                    <Link
+                      href={profileHref(p)}
+                      style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', whiteSpace: 'nowrap', flexShrink: 0, textDecoration: 'none' }}
+                      aria-label={`View ${name}'s profile`}
+                    >
+                      [View Profile]
                     </Link>
                   </li>
                 );
               })}
             </ul>
-          </>
-        )}
+          )}
+        </div>
+
+        <style>{`
+          @media (max-width: 560px) {
+            .dir-tags { display: none !important; }
+          }
+        `}</style>
       </div>
     </main>
   </BrowserChrome>

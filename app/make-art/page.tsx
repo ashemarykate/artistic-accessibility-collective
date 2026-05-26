@@ -15,9 +15,19 @@ const TOOLS = [
   { emoji: '↩️', label: 'Undo' },
 ];
 
-const PALETTE = [
-  '#000000','#ffffff','#cc0000','#ff4444','#ff8800','#ffcc00',
-  '#00aa00','#00cc88','#0044cc','#6644cc','#cc44aa','#884400',
+const PALETTE: { hex: string; name: string }[] = [
+  { hex: '#000000', name: 'Black' },
+  { hex: '#ffffff', name: 'White' },
+  { hex: '#cc0000', name: 'Red' },
+  { hex: '#ff4444', name: 'Light Red' },
+  { hex: '#ff8800', name: 'Orange' },
+  { hex: '#ffcc00', name: 'Yellow' },
+  { hex: '#00aa00', name: 'Green' },
+  { hex: '#00cc88', name: 'Teal' },
+  { hex: '#0044cc', name: 'Blue' },
+  { hex: '#6644cc', name: 'Purple' },
+  { hex: '#cc44aa', name: 'Pink' },
+  { hex: '#884400', name: 'Brown' },
 ];
 
 // ── Star field ────────────────────────────────────────────────────────────────
@@ -36,12 +46,28 @@ export default function MakeArtPage() {
   const [notify,  setNotify]  = useState(false);
   const [status,  setStatus]  = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [activeTool, setActiveTool] = useState(0);
+  const [booting, setBooting] = useState(true);
+  const [bootText, setBootText] = useState('Loading AAC Pix Deluxe');
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     document.title = 'Make Art — Artistic Accessibility Collective';
-    headingRef.current?.focus();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
+    // Boot sequence: dots animate, then splash fades out
+    let dots = 0;
+    const dotInterval = setInterval(() => {
+      dots = (dots + 1) % 4;
+      setBootText('Loading AAC Pix Deluxe' + '.'.repeat(dots));
+    }, 350);
+    const bootTimer = setTimeout(() => {
+      clearInterval(dotInterval);
+      setBooting(false);
+      setTimeout(() => headingRef.current?.focus(), 250);
+    }, 1800);
+    return () => {
+      clearInterval(dotInterval);
+      clearTimeout(bootTimer);
+      document.title = 'Artistic Accessibility Collective';
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,8 +117,51 @@ export default function MakeArtPage() {
             overflow: auto !important;
           }
         }
+        @keyframes kp-boot-fade {
+          0%   { opacity: 1; }
+          80%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes kp-window-in {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .make-art-window { animation: none !important; }
+          .make-art-boot   { animation: none !important; display: none !important; }
+        }
       `}</style>
       <h1 className="sr-only">Make Art Together — Artistic Accessibility Collective</h1>
+
+      {/* ── Boot splash ───────────────────────────────────────────────────────── */}
+      {booting && (
+        <div
+          className="make-art-boot"
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, zIndex: 20,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 16,
+            animation: 'kp-boot-fade 1.8s ease forwards',
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{ fontSize: 52 }}>🎨</span>
+          <div style={{
+            fontFamily: '"MS Sans Serif", Arial, sans-serif',
+            fontSize: 13, color: '#ccc', letterSpacing: '0.05em',
+            minWidth: 240, textAlign: 'center',
+          }}>
+            {bootText}
+          </div>
+          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+            {[0,1,2,3,4].map(i => (
+              <div key={i} style={{ width: 12, height: 12, background: ['#cc0000','#ff8800','#ffcc00','#44aa44','#4488cc'][i], border: '1px solid rgba(255,255,255,0.2)' }} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Starfield ────────────────────────────────────────────────────────── */}
       <svg
@@ -112,12 +181,14 @@ export default function MakeArtPage() {
           inset: '50% auto auto 50%',
           transform: 'translate(-50%, -50%)',
           width: 'min(720px, calc(100vw - 16px))',
-          maxHeight: 'calc(100vh - 16px)',
+          maxHeight: 'calc(100vh - 56px)',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 4,
           overflow: 'hidden',
           boxShadow: '0 0 0 3px #888, 0 12px 50px rgba(0,0,0,0.8)',
+          animation: booting ? 'none' : 'kp-window-in 0.2s ease forwards',
+          opacity: booting ? 0 : undefined,
         }}
       >
         {/* ── Title bar ────────────────────────────────────────────────────── */}
@@ -129,7 +200,7 @@ export default function MakeArtPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 'bold', fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
             <span aria-hidden="true" style={{ fontSize: 16 }}>🎨</span>
-            Kid Pix Deluxe — Make Art Together
+            AAC Pix Deluxe — Make Art Together
           </div>
           <div style={{ display: 'flex', gap: 3 }}>
             {['_','□','✕'].map((c) => (
@@ -165,6 +236,26 @@ export default function MakeArtPage() {
               flexShrink: 0,
             }}
           >
+            {/* Home button — above the art tools, separated by a divider */}
+            <a
+              href="/"
+              aria-label="Back to Home"
+              style={{
+                width: 34, height: 34,
+                background: '#263590',
+                border: '2px outset #eee',
+                borderRadius: 3,
+                fontSize: 18, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none',
+                flexShrink: 0,
+              }}
+            >
+              🏠
+            </a>
+            <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
+
             {TOOLS.map((tool, i) => {
               const COLORS = ['#cc4444','#d47733','#ccaa00','#44aa44','#4488cc','#8844cc','#cc44aa','#666','#444'];
               return (
@@ -194,18 +285,22 @@ export default function MakeArtPage() {
           {/* ── Canvas / main content ─────────────────────────────────────── */}
           <div className="make-art-canvas" style={{ flex: 1, background: '#f8f6f0', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
 
-            {/* Coming soon banner */}
+            {/* Coming soon badge */}
             <div style={{
-              background: 'repeating-linear-gradient(45deg, #cc0000, #cc0000 8px, #ff3333 8px, #ff3333 16px)',
-              color: 'white', fontWeight: 'bold', fontSize: 11,
-              textAlign: 'center', padding: '3px 8px',
-              fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-              letterSpacing: '0.05em',
-              userSelect: 'none',
+              display: 'flex', justifyContent: 'center',
+              padding: '8px 8px 0',
               flexShrink: 0,
-            }} aria-hidden="true">
-              *** COMING SOON *** THIS CANVAS IS NOT YET OPEN *** COMING SOON ***
+            }}>
+              <span style={{
+                background: '#cc0000', color: 'white',
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                fontSize: 10, fontWeight: 'bold',
+                padding: '2px 10px', letterSpacing: '0.08em',
+                border: '1px solid #ff6666',
+                userSelect: 'none',
+              }} aria-label="Coming soon — canvas not yet open">
+                ★ COMING SOON ★
+              </span>
             </div>
 
             {/* Main canvas content */}
@@ -392,7 +487,6 @@ export default function MakeArtPage() {
               box-shadow: none !important;
               overflow: visible !important;
             }
-            /* Stack toolbar horizontally across the top of the canvas */
             .make-art-body {
               flex-direction: column !important;
               overflow: visible !important;
@@ -419,11 +513,11 @@ export default function MakeArtPage() {
         >
           {PALETTE.map((color) => (
             <div
-              key={color}
-              aria-label={color}
+              key={color.hex}
+              aria-label={color.name}
               style={{
                 width: 18, height: 18,
-                background: color,
+                background: color.hex,
                 border: '2px outset #fff',
                 borderRadius: 1,
                 cursor: 'crosshair',
@@ -436,7 +530,40 @@ export default function MakeArtPage() {
             ArtisticAccessibility.com
           </span>
         </div>
+
       </div>
+
+      {/* ── Taskbar — pinned to bottom of the desktop, outside the app window ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: 36,
+          background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)',
+          borderTop: '1px solid #444',
+          display: 'flex', alignItems: 'center',
+          padding: '0 8px', gap: 6,
+          fontFamily: '"MS Sans Serif", Arial, sans-serif',
+          fontSize: 11, userSelect: 'none', zIndex: 10,
+        }}
+      >
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          padding: '2px 10px 2px 8px',
+          color: 'white', fontWeight: 'bold',
+          minWidth: 160,
+        }}>
+          <span style={{ fontSize: 14 }}>🎨</span>
+          AAC Pix Deluxe
+        </div>
+        <div style={{ flex: 1 }} />
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      </div>
+
     </div>
   );
 }
