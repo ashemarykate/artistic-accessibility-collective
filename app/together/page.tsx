@@ -3,373 +3,589 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-// ── Decorative sparkle positions ─────────────────────────────────────────────
-const SPARKLES = [
-  { top: '8%',  left: '4%',  size: 18, rot: 0   },
-  { top: '12%', left: '18%', size: 14, rot: 20  },
-  { top: '6%',  left: '78%', size: 16, rot: -15 },
-  { top: '10%', left: '92%', size: 20, rot: 10  },
-  { top: '82%', left: '6%',  size: 16, rot: 5   },
-  { top: '88%', left: '20%', size: 12, rot: -10 },
-  { top: '80%', left: '80%', size: 18, rot: 15  },
-  { top: '85%', left: '94%', size: 14, rot: -5  },
+// ── Stub entries ──────────────────────────────────────────────────────────────
+const ENTRIES = [
+  {
+    id: 1,
+    weekday: 'Tuesday',
+    date: 'May 26th, 2026',
+    time: '11:47 pm',
+    subject: 'welcome to together_aac 💙',
+    preview:
+      "hi everyone. this is the official community for Together, a space for accessible arts events, community meetups, and connection in and around the arts. we're still building it — but consider this your invitation to watch this space.",
+    tags: ['welcome', 'admin', 'announcement'],
+    mood: 'excited',
+    moodIcon: '🌟',
+    comments: 0,
+  },
+  {
+    id: 2,
+    weekday: 'Tuesday',
+    date: 'May 26th, 2026',
+    time: '11:45 pm',
+    subject: 'community calendar: coming soon',
+    preview:
+      "we're working on a community events space — a place to find accessible arts events, post what's happening near you, and connect. more soon.",
+    tags: ['calendar', 'events', 'announcement'],
+    mood: 'hopeful',
+    moodIcon: '✨',
+    comments: 0,
+  },
 ];
 
-// ── Calendar month grid (decorative, current-ish month layout) ───────────────
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-// A generic 5-week grid that looks like a real month starting on Wednesday
-const GRID = [
-  [null, null, null, 1, 2, 3, 4],
-  [5, 6, 7, 8, 9, 10, 11],
-  [12, 13, 14, 15, 16, 17, 18],
-  [19, 20, 21, 22, 23, 24, 25],
-  [26, 27, 28, 29, 30, null, null],
+// ── May 2026 calendar grid ────────────────────────────────────────────────────
+const CAL_HEADERS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const CAL_GRID = [
+  [null, null, null, null, null,  1,  2],
+  [3,    4,    5,    6,    7,    8,   9],
+  [10,   11,   12,   13,   14,   15,  16],
+  [17,   18,   19,   20,   21,   22,  23],
+  [24,   25,   26,   27,   28,   29,  30],
+  [31,   null, null, null, null, null, null],
+];
+// Days with stub "posts"
+const ENTRY_DAYS = new Set([26]);
+
+// ── Sidebar nav links ─────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: 'Recent Entries',  href: '/together' },
+  { label: 'Calendar',        href: '/together' },
+  { label: 'Community Info',  href: '/together' },
+  { label: 'Memories',        href: '/together' },
+  { label: 'Tags',            href: '/together' },
 ];
 
-// A handful of fake "events" to dot the calendar
-const EVENT_DAYS = new Set([3, 8, 10, 15, 17, 22, 24, 29]);
+const SITE_LINKS = [
+  { label: 'Artistic Accessibility Collective', href: '/' },
+  { label: 'Contact Us',                        href: '/contact' },
+  { label: 'Join the Collective',               href: '/submit' },
+];
 
-function Sparkle({ top, left, size, rot }: { top: string; left: string; size: number; rot: number }) {
+// ── Userpic square ────────────────────────────────────────────────────────────
+function Userpic({ initials = 'MK', size = 40 }: { initials?: string; size?: number }) {
   return (
     <div
       aria-hidden="true"
       style={{
-        position: 'absolute', top, left,
-        fontSize: size,
-        transform: `rotate(${rot}deg)`,
-        lineHeight: 1,
-        userSelect: 'none',
-        pointerEvents: 'none',
+        width: size,
+        height: size,
+        minWidth: size,
+        background: '#263590',
+        border: '1px solid #1a2568',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: size * 0.3,
+        color: '#fff',
+        fontFamily: 'Verdana, Arial, sans-serif',
+        fontWeight: 'bold',
+        letterSpacing: '0.04em',
+        flexShrink: 0,
       }}
     >
-      ✦
+      {initials}
+    </div>
+  );
+}
+
+// ── Community icon (100×100 in the sidebar) ───────────────────────────────────
+function CommunityIcon() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: 100,
+        height: 100,
+        background: 'linear-gradient(135deg, #263590 60%, #3a4fb8)',
+        border: '2px solid #1a2568',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        flexShrink: 0,
+      }}
+    >
+      <span style={{ fontSize: 28 }}>🗓️</span>
+      <span style={{
+        fontFamily: 'Verdana, Arial, sans-serif',
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: '#fff',
+        letterSpacing: '0.06em',
+        textTransform: 'lowercase',
+      }}>
+        together
+      </span>
     </div>
   );
 }
 
 export default function TogetherPage() {
   useEffect(() => {
-    document.title = 'Together — Artistic Accessibility Collective';
+    document.title = 'together_aac — LiveJournal';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#fffbdb',
-        backgroundImage: 'radial-gradient(circle, #f5e86a 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-        fontFamily: 'Verdana, Arial, sans-serif',
-        padding: '0 12px 40px',
-        position: 'relative',
-        overflowX: 'hidden',
-      }}
-    >
-      <h1 className="sr-only">Together — Artistic Accessibility Collective</h1>
+    <div style={{
+      minHeight: '100vh',
+      background: '#dce3ea',
+      fontFamily: 'Verdana, Geneva, Arial, sans-serif',
+      fontSize: 12,
+      color: '#000',
+    }}>
 
-      {/* ── Decorative sparkles ─────────────────────────────────────────────── */}
-      {SPARKLES.map((s, i) => <Sparkle key={i} {...s} />)}
-
-      {/* ── Top nav bar (classic Neopets site header) ───────────────────────── */}
+      {/* ── LJ site nav bar ───────────────────────────────────────────────────── */}
       <div style={{
-        background: 'linear-gradient(to right, #ffcc00, #ff9900, #ffcc00)',
-        borderBottom: '3px solid #cc6600',
-        padding: '6px 12px',
+        background: 'linear-gradient(to bottom, #263590 0%, #1a2568 100%)',
+        borderBottom: '2px solid #1a2568',
+        padding: '0 12px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 16,
-        marginLeft: -12,
-        marginRight: -12,
+        gap: 0,
+        height: 26,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 24 }} aria-hidden="true">🗓️</span>
-          <span style={{
-            fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
-            fontWeight: 'bold', fontSize: 18, color: '#5a1a00',
-            textShadow: '1px 1px 0 #ffee88',
-          }}>
-            Together
+        <span style={{
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: 'italic',
+          fontSize: 14,
+          color: '#fff',
+          fontWeight: 'bold',
+          marginRight: 16,
+          letterSpacing: '-0.02em',
+        }} aria-hidden="true">
+          LiveJournal
+        </span>
+        {['Home', 'Post', 'Friends', 'Calendar', 'Profile'].map((item) => (
+          <span
+            key={item}
+            aria-hidden="true"
+            style={{
+              color: 'rgba(255,255,255,0.75)',
+              fontSize: 11,
+              padding: '0 10px',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'default',
+              borderRight: '1px solid rgba(255,255,255,0.12)',
+            }}
+          >
+            {item}
           </span>
-        </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {[
-            { label: 'Home', href: '/', bg: '#3399ff', shadow: '#0055cc' },
-            { label: 'Contact', href: '/contact', bg: '#ff6699', shadow: '#cc0044' },
-          ].map((btn) => (
-            <Link
-              key={btn.href}
-              href={btn.href}
-              style={{
-                display: 'inline-block',
-                padding: '4px 12px',
-                background: btn.bg,
-                border: `2px outset ${btn.shadow}`,
-                borderRadius: 4,
-                color: '#fff',
-                fontSize: 11,
-                fontWeight: 'bold',
-                textDecoration: 'none',
-                fontFamily: 'Verdana, Arial, sans-serif',
-              }}
-            >
-              {btn.label}
-            </Link>
-          ))}
+        ))}
+        <div style={{ flex: 1 }} />
+        <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }} aria-hidden="true">
+          logged in as: mk_ashe
+        </span>
+      </div>
+
+      {/* ── Community banner ──────────────────────────────────────────────────── */}
+      <div style={{
+        background: 'linear-gradient(to bottom, #263590, #1e2e7a)',
+        padding: '14px 20px 12px',
+        borderBottom: '3px solid #1a2568',
+      }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <CommunityIcon />
+          <div>
+            <h1 style={{
+              fontFamily: '"Times New Roman", Times, serif',
+              fontSize: 22,
+              fontStyle: 'italic',
+              color: '#fff',
+              margin: '0 0 2px',
+              fontWeight: 'bold',
+            }}>
+              together_aac
+            </h1>
+            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, marginBottom: 8 }}>
+              Artistic Accessibility Collective — Community Events Space
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[
+                { label: '♥ Watch Community' },
+                { label: '+ Join Community' },
+              ].map((btn) => (
+                <button
+                  key={btn.label}
+                  aria-label={btn.label}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.35)',
+                    color: '#fff',
+                    fontSize: 10,
+                    padding: '3px 10px',
+                    cursor: 'pointer',
+                    fontFamily: 'Verdana, Arial, sans-serif',
+                    borderRadius: 2,
+                  }}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Main content: 2-column (sidebar + center) ───────────────────────── */}
+      {/* ── Breadcrumb ────────────────────────────────────────────────────────── */}
       <div style={{
-        maxWidth: 760,
-        margin: '0 auto',
+        background: '#f0f3f6',
+        borderBottom: '1px solid #c8d0d8',
+        padding: '4px 20px',
+        fontSize: 11,
+        color: '#555',
+      }}>
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <span aria-hidden="true">
+            <a href="/" style={{ color: '#335577', textDecoration: 'none' }}>livejournal.com</a>
+            {' › '}
+            <a href="/together" style={{ color: '#335577', textDecoration: 'none' }}>together_aac</a>
+            {' › '}
+            <strong>Recent Entries</strong>
+          </span>
+        </div>
+      </div>
+
+      {/* ── Main layout ───────────────────────────────────────────────────────── */}
+      <div style={{
+        maxWidth: 860,
+        margin: '14px auto 40px',
+        padding: '0 12px',
         display: 'grid',
-        gridTemplateColumns: '160px 1fr',
-        gap: 12,
+        gridTemplateColumns: '1fr 200px',
+        gap: 14,
         alignItems: 'start',
       }}
-      className="together-grid"
+      className="together-layout"
       >
 
-        {/* ── Left sidebar ─────────────────────────────────────────────────── */}
-        <aside>
-          {/* Coming Soon box */}
+        {/* ── Entries column ─────────────────────────────────────────────────── */}
+        <main>
+          {/* Coming soon notice (at the top of entries, styled like a mod post) */}
           <div style={{
-            background: '#fff',
-            border: '2px solid #ffcc00',
-            borderTop: '4px solid #ff9900',
-            padding: '8px 10px',
-            marginBottom: 10,
-            textAlign: 'center',
+            background: '#fffbe6',
+            border: '1px solid #e0c840',
+            padding: '8px 12px',
+            marginBottom: 14,
+            fontSize: 11,
+            color: '#555',
+            lineHeight: 1.5,
           }}>
-            <div style={{
-              fontFamily: '"Comic Sans MS", cursive',
-              fontSize: 11, fontWeight: 'bold', color: '#cc6600',
-              marginBottom: 4,
-            }}>
-              ✨ COMING SOON ✨
-            </div>
-            <p style={{ fontSize: 10, color: '#555', margin: 0, lineHeight: 1.5 }}>
-              Community events, social hangs, and accessible arts happenings — all in one place.
-            </p>
+            <strong style={{ color: '#886600' }}>☛ Mod note:</strong>{' '}
+            This community is under construction. Events, calendar features, and member posting are coming soon. Watch this community to get notified when we launch.
           </div>
 
-          {/* Quick links box */}
-          <div style={{
-            background: '#e8f4ff',
-            border: '2px solid #3399ff',
-            borderTop: '4px solid #0066cc',
-            padding: '8px 10px',
-            marginBottom: 10,
-          }}>
-            <div style={{
-              fontFamily: '"Comic Sans MS", cursive',
-              fontSize: 11, fontWeight: 'bold', color: '#0044aa',
-              marginBottom: 6,
-            }}>
-              Quick Links
-            </div>
-            {[
-              { label: '← Back to Home',  href: '/' },
-              { label: 'Contact Us',       href: '/contact' },
-              { label: 'Join Us',          href: '/submit' },
-            ].map((lnk) => (
-              <div key={lnk.href} style={{ marginBottom: 4 }}>
-                <Link href={lnk.href} style={{ fontSize: 11, color: '#0055cc', textDecoration: 'underline' }}>
-                  {lnk.label}
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Mood counter widget */}
-          <div style={{
-            background: '#fff0f8',
-            border: '2px solid #ff66aa',
-            borderTop: '4px solid #cc0066',
-            padding: '8px 10px',
-            textAlign: 'center',
-          }}>
-            <div style={{
-              fontFamily: '"Comic Sans MS", cursive',
-              fontSize: 10, fontWeight: 'bold', color: '#990044',
-              marginBottom: 6,
-            }}>
-              How excited are you?
-            </div>
-            {['😍 Very!!!','🙂 Kinda','🤷 Idk yet'].map((opt) => (
-              <div key={opt} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-                <input type="radio" name="mood" aria-label={opt} style={{ cursor: 'pointer' }} />
-                <span style={{ fontSize: 10, color: '#333' }}>{opt}</span>
-              </div>
-            ))}
-            <button style={{
-              marginTop: 4,
-              padding: '2px 10px',
-              background: '#ff66aa',
-              border: '2px outset #cc0066',
-              color: '#fff', fontSize: 10, fontWeight: 'bold',
-              cursor: 'pointer',
-              fontFamily: 'Verdana, Arial, sans-serif',
-            }}>
-              Vote!
-            </button>
-          </div>
-        </aside>
-
-        {/* ── Center: Calendar ─────────────────────────────────────────────── */}
-        <div>
-          {/* Calendar header */}
-          <div style={{
-            background: 'linear-gradient(to bottom, #6633cc, #4400aa)',
-            border: '3px solid #330099',
-            borderBottom: 'none',
-            padding: '10px 14px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}>
-            <button
-              aria-label="Previous month"
+          {ENTRIES.map((entry, i) => (
+            <article
+              key={entry.id}
               style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: '2px outset rgba(255,255,255,0.4)',
-                color: '#fff', fontWeight: 'bold', fontSize: 14,
-                cursor: 'pointer', padding: '2px 10px', borderRadius: 3,
+                background: '#fff',
+                border: '1px solid #c8d0d8',
+                marginBottom: 14,
               }}
             >
-              ◀
-            </button>
-            <h2 style={{
-              fontFamily: '"Comic Sans MS", cursive',
-              fontSize: 18, color: '#fff',
-              margin: 0,
-              textShadow: '1px 1px 0 rgba(0,0,0,0.4)',
-            }}>
-              📅 Community Calendar
-            </h2>
-            <button
-              aria-label="Next month"
-              style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: '2px outset rgba(255,255,255,0.4)',
-                color: '#fff', fontWeight: 'bold', fontSize: 14,
-                cursor: 'pointer', padding: '2px 10px', borderRadius: 3,
-              }}
-            >
-              ▶
-            </button>
-          </div>
-
-          {/* Calendar grid */}
-          <div style={{
-            background: '#fff',
-            border: '3px solid #330099',
-            overflow: 'hidden',
-          }}>
-            {/* Day headers */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(7, 1fr)',
-              background: '#9966ff',
-            }}>
-              {DAYS.map((d) => (
-                <div key={d} style={{
-                  padding: '5px 0',
-                  textAlign: 'center',
-                  fontSize: 10,
-                  fontWeight: 'bold',
-                  color: '#fff',
-                  fontFamily: 'Verdana, Arial, sans-serif',
-                  borderRight: '1px solid rgba(255,255,255,0.2)',
-                }}>
-                  {d}
-                </div>
-              ))}
-            </div>
-
-            {/* Weeks */}
-            {GRID.map((week, wi) => (
-              <div key={wi} style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                borderTop: '1px solid #ddd',
+              {/* Entry header */}
+              <div style={{
+                background: '#e8edf4',
+                borderBottom: '1px solid #c8d0d8',
+                padding: '4px 10px',
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 8,
+                flexWrap: 'wrap',
               }}>
-                {week.map((day, di) => (
-                  <div
-                    key={di}
-                    style={{
-                      padding: '6px 4px 4px',
-                      minHeight: 44,
-                      borderRight: '1px solid #eee',
-                      background: day === 15 ? '#fffbe6' : 'transparent',
-                      position: 'relative',
-                    }}
-                  >
-                    {day && (
-                      <>
-                        <div style={{
-                          fontSize: 11,
-                          fontWeight: day === 15 ? 'bold' : 'normal',
-                          color: day === 15 ? '#cc6600' : '#333',
-                          fontFamily: 'Verdana, Arial, sans-serif',
-                        }}>
-                          {day}
-                        </div>
-                        {EVENT_DAYS.has(day) && (
-                          <div style={{
-                            marginTop: 2,
-                            fontSize: 8,
-                            background: '#ff66aa',
-                            color: '#fff',
-                            padding: '1px 3px',
-                            borderRadius: 2,
-                            fontFamily: 'Verdana, Arial, sans-serif',
-                            lineHeight: 1.4,
-                            cursor: 'default',
-                          }}>
-                            ● event
-                          </div>
-                        )}
-                      </>
-                    )}
+                <span style={{ fontSize: 11, color: '#334455' }}>
+                  {entry.weekday}, {entry.date} at {entry.time}
+                </span>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  color: '#263590',
+                }}>
+                  {entry.subject}
+                </span>
+              </div>
+
+              {/* Entry body */}
+              <div style={{ padding: '10px 12px' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <Userpic initials="MK" size={40} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, color: '#555', marginBottom: 6 }}>
+                      posted by{' '}
+                      <a href="/together" style={{ color: '#263590', fontWeight: 'bold', textDecoration: 'none' }}>
+                        mk_ashe
+                      </a>
+                      {' '}in{' '}
+                      <a href="/together" style={{ color: '#263590', fontWeight: 'bold', textDecoration: 'none' }}>
+                        together_aac
+                      </a>
+                    </div>
+                    <p style={{ margin: '0 0 8px', lineHeight: 1.6, fontSize: 12, color: '#222' }}>
+                      {entry.preview}
+                    </p>
+                    <div style={{ marginBottom: 8 }}>
+                      <a
+                        href="/together"
+                        style={{ color: '#263590', fontSize: 11 }}
+                        aria-label={`Read more of: ${entry.subject}`}
+                      >
+                        ( <em>Read more...</em> )
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Entry metadata */}
+                <div style={{
+                  borderTop: '1px solid #e8ecf0',
+                  paddingTop: 6,
+                  marginTop: 2,
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '4px 16px',
+                  fontSize: 10,
+                  color: '#667',
+                }}>
+                  <span>
+                    <strong>Tags:</strong>{' '}
+                    {entry.tags.map((t, ti) => (
+                      <span key={t}>
+                        <a href="/together" style={{ color: '#335577' }}>{t}</a>
+                        {ti < entry.tags.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </span>
+                  <span>
+                    <strong>Current mood:</strong> {entry.moodIcon} {entry.mood}
+                  </span>
+                  <span style={{ marginLeft: 'auto' }}>
+                    <a href="/together" style={{ color: '#335577' }}>
+                      {entry.comments} comment{entry.comments !== 1 ? 's' : ''}
+                    </a>
+                    {' · '}
+                    <a href="/together" style={{ color: '#335577' }}>
+                      post comment
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+
+          {/* Navigation between pages */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 11,
+            color: '#667',
+            padding: '4px 0',
+          }}>
+            <span style={{ color: '#aab' }}>← Previous 10</span>
+            <span style={{ color: '#aab' }}>Next 10 →</span>
+          </div>
+        </main>
+
+        {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+        <aside>
+
+          {/* Community info box */}
+          <div style={{
+            background: '#fff',
+            border: '1px solid #c8d0d8',
+            marginBottom: 10,
+          }}>
+            <div style={{
+              background: '#263590',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              letterSpacing: '0.04em',
+            }}>
+              Community Info
+            </div>
+            <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <CommunityIcon />
+              <div style={{ width: '100%', fontSize: 10, lineHeight: 1.9, color: '#334' }}>
+                {[
+                  ['Name',     'together_aac'],
+                  ['Type',     'Community'],
+                  ['Members',  '1'],
+                  ['Founded',  'May 2026'],
+                  ['Posting',  'Members only'],
+                  ['Status',   '🚧 Coming Soon'],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', gap: 4 }}>
+                    <span style={{ color: '#889', minWidth: 52, flexShrink: 0 }}>{k}:</span>
+                    <span style={{ color: '#223', fontWeight: k === 'Status' ? 'bold' : 'normal' }}>{v}</span>
                   </div>
                 ))}
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Below calendar: coming soon notice */}
+          {/* Calendar widget */}
           <div style={{
             background: '#fff',
-            border: '3px solid #ffcc00',
-            borderTop: 'none',
-            padding: '10px 14px',
-            display: 'flex', alignItems: 'center', gap: 10,
+            border: '1px solid #c8d0d8',
+            marginBottom: 10,
           }}>
-            <span style={{ fontSize: 20 }} aria-hidden="true">🌟</span>
-            <p style={{ margin: 0, fontSize: 11, color: '#555', lineHeight: 1.6, fontFamily: 'Verdana, Arial, sans-serif' }}>
-              <strong style={{ color: '#cc6600' }}>Events coming soon.</strong>{' '}
-              This calendar will show accessible arts events, community meetups, and social hangs submitted by members.
-            </p>
+            <div style={{
+              background: '#263590',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              letterSpacing: '0.04em',
+            }}>
+              May 2026
+            </div>
+            <div style={{ padding: '6px 8px' }}>
+              <table
+                style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}
+                aria-label="May 2026 calendar"
+              >
+                <thead>
+                  <tr>
+                    {CAL_HEADERS.map((d) => (
+                      <th
+                        key={d}
+                        scope="col"
+                        style={{
+                          textAlign: 'center',
+                          color: '#889',
+                          fontWeight: 'bold',
+                          padding: '1px 0',
+                          fontSize: 9,
+                        }}
+                      >
+                        {d}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {CAL_GRID.map((week, wi) => (
+                    <tr key={wi}>
+                      {week.map((day, di) => (
+                        <td
+                          key={di}
+                          style={{
+                            textAlign: 'center',
+                            padding: '2px 0',
+                            color: day === null ? 'transparent' : ENTRY_DAYS.has(day) ? '#263590' : '#445',
+                            fontWeight: ENTRY_DAYS.has(day ?? 0) ? 'bold' : 'normal',
+                            textDecoration: ENTRY_DAYS.has(day ?? 0) ? 'underline' : 'none',
+                            cursor: ENTRY_DAYS.has(day ?? 0) ? 'pointer' : 'default',
+                          }}
+                        >
+                          {day ?? ''}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Navigation */}
+          <div style={{
+            background: '#fff',
+            border: '1px solid #c8d0d8',
+            marginBottom: 10,
+          }}>
+            <div style={{
+              background: '#263590',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              letterSpacing: '0.04em',
+            }}>
+              Navigate
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {NAV_LINKS.map((lnk) => (
+                <li key={lnk.label}>
+                  <a
+                    href={lnk.href}
+                    style={{ color: '#335577', fontSize: 11, textDecoration: 'none' }}
+                  >
+                    {lnk.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* External links */}
+          <div style={{
+            background: '#fff',
+            border: '1px solid #c8d0d8',
+            marginBottom: 10,
+          }}>
+            <div style={{
+              background: '#263590',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 'bold',
+              padding: '4px 8px',
+              letterSpacing: '0.04em',
+            }}>
+              Links
+            </div>
+            <ul style={{ listStyle: 'none', margin: 0, padding: '6px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {SITE_LINKS.map((lnk) => (
+                <li key={lnk.label}>
+                  <Link
+                    href={lnk.href}
+                    style={{ color: '#335577', fontSize: 11, textDecoration: 'none' }}
+                  >
+                    {lnk.label}
+                  </Link>
+                </li>
+              ))}
+              <li style={{ paddingTop: 4, borderTop: '1px solid #e8ecf0', marginTop: 2 }}>
+                <Link
+                  href="/"
+                  style={{ color: '#263590', fontSize: 11, fontWeight: 'bold', textDecoration: 'none' }}
+                >
+                  ← Back to Home
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+        </aside>
       </div>
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      {/* ── Footer ────────────────────────────────────────────────────────────── */}
       <div style={{
-        maxWidth: 760, margin: '20px auto 0',
+        background: '#263590',
+        borderTop: '2px solid #1a2568',
+        padding: '8px 20px',
         textAlign: 'center',
-        fontFamily: '"Comic Sans MS", cursive',
         fontSize: 10,
-        color: '#aa6600',
+        color: 'rgba(255,255,255,0.5)',
+        fontFamily: 'Verdana, Arial, sans-serif',
       }}>
-        ★ Artistic Accessibility Collective ★ Together ★ Coming Soon ★<br />
-        <span style={{ fontSize: 9, color: '#bbb' }}>Best viewed at 800×600 · Please sign our guestbook!</span>
+        together_aac · Artistic Accessibility Collective ·{' '}
+        <Link href="/" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+          artisticaccessibility.com
+        </Link>
       </div>
 
       <style>{`
+        a:visited { color: #551a8b; }
+        .together-layout a:visited { color: #551a8b; }
         @media (max-width: 580px) {
-          .together-grid {
+          .together-layout {
             grid-template-columns: 1fr !important;
           }
         }
