@@ -40,7 +40,13 @@ const MEMBER_NAV: MemberNavItem[] = [
 ];
 
 // ── Desktop-style icon (for Explorer nav) ─────────────────────────────────────
-function NavIcon({ icon, bg }: { icon: string; bg: string; name: string }) {
+// size="sm" → compact 16×16 tree-view icon (left panel)
+// size="md" → standard 22×22 taskbar/button icon (default)
+function NavIcon({ icon, bg, name: _name, size = 'md' }: { icon: string; bg: string; name: string; size?: 'sm' | 'md' }) {
+  const dim  = size === 'sm' ? 16  : 22;
+  const fs   = size === 'sm' ? 10  : 13;
+  const mr   = size === 'sm' ? 5   : 6;
+  const br   = size === 'sm' ? 2   : 3;
   return (
     <span
       aria-hidden="true"
@@ -48,13 +54,13 @@ function NavIcon({ icon, bg }: { icon: string; bg: string; name: string }) {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 22,
-        height: 22,
-        minWidth: 22,
+        width: dim,
+        height: dim,
+        minWidth: dim,
         background: bg,
-        borderRadius: 3,
-        fontSize: 13,
-        marginRight: 6,
+        borderRadius: br,
+        fontSize: fs,
+        marginRight: mr,
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.2)',
         border: '1px solid rgba(0,0,0,0.18)',
         flexShrink: 0,
@@ -225,10 +231,10 @@ export default function Home() {
                 <li key={item.href} style={{ paddingLeft: 40 }}>
                   <Link
                     href={item.href}
-                    style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
                     {item.label}
                   </Link>
                 </li>
@@ -241,10 +247,10 @@ export default function Home() {
                 <li key={item.href} style={{ paddingLeft: 40 }}>
                   <Link
                     href={item.href}
-                    style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
                     {item.label}
                   </Link>
                 </li>
@@ -260,20 +266,20 @@ export default function Home() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
                       {item.label}
                       <span className="sr-only"> (opens Instagram in new tab)</span>
                     </a>
                   ) : (
                     <Link
                       href={item.href}
-                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
                       {item.label}
                     </Link>
                   )}
@@ -289,10 +295,10 @@ export default function Home() {
                   <li style={{ paddingLeft: 40 }}>
                     <Link
                       href="/dashboard"
-                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon="🎭" bg="#1a4fbb" name="Backstage" />
+                      <NavIcon icon="🎭" bg="#1a4fbb" name="Backstage" size="sm" />
                       The Backstage
                     </Link>
                   </li>
