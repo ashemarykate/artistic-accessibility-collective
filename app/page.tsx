@@ -225,7 +225,7 @@ export default function Home() {
               </li>
 
               <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}Resources
+                <span aria-hidden="true">📂</span>{' '}RESOURCES
               </li>
               {RESOURCES_ITEMS.map((item) => (
                 <li key={item.href} style={{ paddingLeft: 40 }}>
@@ -290,7 +290,7 @@ export default function Home() {
               {user && (
                 <>
                   <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                    <span aria-hidden="true">📂</span>{' '}The Collective
+                    <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
                   </li>
                   <li style={{ paddingLeft: 40 }}>
                     <Link
