@@ -1,347 +1,429 @@
 'use client';
 
-import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react';
 
-// ── Planned training levels ───────────────────────────────────────────────────
-const LEVELS = [
-  {
-    id: 'L1',
-    label: 'Level 1',
-    title: 'Access Basics',
-    desc: 'What is accessibility in the arts? Core concepts, language, and frameworks for everyone.',
-    color: '#4dbb6a',
-    locked: false,
-  },
-  {
-    id: 'L2',
-    label: 'Level 2',
-    title: 'Tools of the Trade',
-    desc: 'Captions, audio description, ASL, CART — how they work and when to use them.',
-    color: '#f5d84a',
-    locked: true,
-  },
-  {
-    id: 'L3',
-    label: 'Level 3',
-    title: 'Planning Access',
-    desc: 'Budgeting, hiring providers, writing access riders, and front-of-house training.',
-    color: '#f5a020',
-    locked: true,
-  },
-  {
-    id: 'L4',
-    label: 'Level 4',
-    title: 'Leading with Access',
-    desc: 'Disability Justice frameworks, community co-creation, and systemic change in arts orgs.',
-    color: '#c060f0',
-    locked: true,
-  },
+// ── Subject toolbar icons ─────────────────────────────────────────────────────
+const SUBJECTS = [
+  { emoji: '📖', label: 'Read'     },
+  { emoji: '🔍', label: 'Search'   },
+  { emoji: '🗂️', label: 'Index'    },
+  { emoji: '🌐', label: 'Atlas'    },
+  { emoji: '📼', label: 'Video'    },
+  { emoji: '🔊', label: 'Audio'    },
+  { emoji: '⭐', label: 'Favorites'},
+  { emoji: '📋', label: 'Notes'    },
+  { emoji: '💾', label: 'Save'     },
 ];
 
-// ── Pixel-art star (SVG inline, pure CSS) ─────────────────────────────────────
-function PixelStar({ color }: { color: string }) {
+// ── Bottom contents strip — all greyed ───────────────────────────────────────
+const CONTENTS = ['Arts', 'Access', 'Law', 'History', 'Language', 'Community', 'Tools', 'Resources'];
+
+// ── Star field (same as Make Art) ────────────────────────────────────────────
+const STARS = Array.from({ length: 70 }, (_, i) => ({
+  id: i,
+  x: (i * 137.508) % 100,
+  y: (i * 97.234) % 100,
+  r: i % 3 === 0 ? 2 : i % 3 === 1 ? 1.5 : 1,
+  o: 0.5 + (i % 5) * 0.1,
+}));
+
+export default function LearningHubPage() {
+  const [activeSubject, setActiveSubject] = useState(0);
+  const [booting, setBooting]             = useState(true);
+  const [bootText, setBootText]           = useState('Loading AAC Encyclopedia');
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    document.title = 'Learning Hub — Artistic Accessibility Collective';
+    let dots = 0;
+    const dotInterval = setInterval(() => {
+      dots = (dots + 1) % 4;
+      setBootText('Loading AAC Encyclopedia' + '.'.repeat(dots));
+    }, 350);
+    const bootTimer = setTimeout(() => {
+      clearInterval(dotInterval);
+      setBooting(false);
+      setTimeout(() => headingRef.current?.focus(), 250);
+    }, 1800);
+    return () => {
+      clearInterval(dotInterval);
+      clearTimeout(bootTimer);
+      document.title = 'Artistic Accessibility Collective';
+    };
+  }, []);
+
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" style={{ display: 'block' }}>
-      <rect x="5" y="0" width="2" height="2" fill={color} />
-      <rect x="5" y="10" width="2" height="2" fill={color} />
-      <rect x="0" y="5" width="2" height="2" fill={color} />
-      <rect x="10" y="5" width="2" height="2" fill={color} />
-      <rect x="2" y="2" width="2" height="2" fill={color} />
-      <rect x="8" y="2" width="2" height="2" fill={color} />
-      <rect x="2" y="8" width="2" height="2" fill={color} />
-      <rect x="8" y="8" width="2" height="2" fill={color} />
-      <rect x="4" y="4" width="4" height="4" fill={color} />
-    </svg>
-  );
-}
-
-export default function LearningHub() {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0a0c1a',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      fontFamily: '"Courier New", Courier, monospace',
-      padding: '0 1rem 4rem',
-      overflowX: 'hidden',
-    }}>
-
-      {/* ── Scanline overlay ─────────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)',
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
-
-      {/* ── CD-ROM window chrome ─────────────────────────────────────────────── */}
-      <div style={{
-        width: '100%',
-        maxWidth: 720,
-        marginTop: '2rem',
-        border: '3px solid #4a4a8a',
-        borderRadius: 4,
-        boxShadow: '0 0 0 1px #2a2a5a, 0 0 40px rgba(96,96,255,0.25), inset 0 0 0 1px #7a7ac8',
+    <div
+      className="hub-outer"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: '#0a0a1a',
         overflow: 'hidden',
-        position: 'relative',
-        zIndex: 2,
-      }}>
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+      }}
+      role="main"
+    >
+      <style>{`
+        @media (max-width: 580px) {
+          .hub-outer {
+            position: static !important;
+            min-height: 100dvh !important;
+            overflow: auto !important;
+          }
+        }
+        @keyframes hub-boot-fade {
+          0%   { opacity: 1; }
+          80%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes hub-window-in {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hub-window { animation: none !important; }
+          .hub-boot   { animation: none !important; display: none !important; }
+        }
+      `}</style>
 
-        {/* Window title bar */}
-        <div style={{
-          background: 'linear-gradient(to right, #1a1a6a 0%, #3a3ab8 50%, #1a1a6a 100%)',
-          padding: '5px 10px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '2px solid #4a4aaa',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 16, height: 16,
-              background: 'conic-gradient(from 0deg, #4dbb6a, #f5d84a, #f5a020, #c060f0, #4dbb6a)',
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.3)',
-            }} aria-hidden="true" />
-            <span style={{ color: '#d8d8ff', fontSize: 12, fontWeight: 'bold', letterSpacing: '0.05em' }}>
-              AAC Learning Hub v1.0
-            </span>
+      <h1 className="sr-only">Learning Hub — Artistic Accessibility Collective</h1>
+
+      {/* ── Boot splash ───────────────────────────────────────────────────────── */}
+      {booting && (
+        <div
+          className="hub-boot"
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0, zIndex: 20,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 16,
+            animation: 'hub-boot-fade 1.8s ease forwards',
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{ fontSize: 52 }}>📚</span>
+          <div style={{
+            fontFamily: '"MS Sans Serif", Arial, sans-serif',
+            fontSize: 13, color: '#ccc', letterSpacing: '0.05em',
+            minWidth: 240, textAlign: 'center',
+          }}>
+            {bootText}
           </div>
-          <div style={{ display: 'flex', gap: 4 }} aria-hidden="true">
-            {['_', '□', '×'].map((c) => (
-              <div key={c} style={{
-                width: 14, height: 12,
-                background: '#2a2a7a',
-                border: '1px solid #5a5aaa',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 8, color: '#a0a0e0', cursor: 'default',
+          <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+            {['#006633','#009955','#00bb66','#44cc88','#88ddaa'].map((c, i) => (
+              <div key={i} style={{ width: 12, height: 12, background: c, border: '1px solid rgba(255,255,255,0.2)' }} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Starfield ─────────────────────────────────────────────────────────── */}
+      <svg
+        aria-hidden="true"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+      >
+        {STARS.map((s) => (
+          <circle key={s.id} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="white" opacity={s.o} />
+        ))}
+      </svg>
+
+      {/* ── App Window ────────────────────────────────────────────────────────── */}
+      <div
+        className="hub-window"
+        style={{
+          position: 'absolute',
+          inset: '50% auto auto 50%',
+          transform: 'translate(-50%, -50%)',
+          width: 'min(720px, calc(100vw - 16px))',
+          maxHeight: 'calc(100vh - 56px)',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 4,
+          overflow: 'hidden',
+          boxShadow: '0 0 0 3px #888, 0 12px 50px rgba(0,0,0,0.8)',
+          animation: booting ? 'none' : 'hub-window-in 0.2s ease forwards',
+          opacity: booting ? 0 : undefined,
+        }}
+      >
+        {/* ── Title bar ─────────────────────────────────────────────────────── */}
+        <div style={{
+          background: 'linear-gradient(to right, #006633, #009955, #006633)',
+          padding: '3px 6px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          userSelect: 'none',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 'bold', fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
+            <span aria-hidden="true" style={{ fontSize: 16 }}>📚</span>
+            AAC Encyclopedia — Learning Hub
+          </div>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {['_','□','✕'].map((c) => (
+              <div key={c} aria-hidden="true" style={{
+                width: 16, height: 14, background: '#197744', border: '1px solid #66cc88',
+                borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default',
               }}>{c}</div>
             ))}
           </div>
         </div>
 
-        {/* Menu bar */}
-        <div style={{
-          background: '#c8c8d8',
-          borderBottom: '2px solid #7a7a9a',
-          padding: '1px 4px',
-          display: 'flex',
-          gap: 0,
-        }} aria-hidden="true">
-          {['File', 'Options', 'Sound', 'Help'].map((item) => (
-            <span key={item} style={{ padding: '2px 10px', fontSize: 11, cursor: 'default', color: '#000', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
-              {item}
-            </span>
+        {/* ── Menu bar ──────────────────────────────────────────────────────── */}
+        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', gap: 0, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11 }}>
+          {['File','Navigate','Search','Bookmark','Help'].map((m) => (
+            <span key={m} aria-hidden="true" style={{ padding: '2px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
         </div>
 
-        {/* Main content area */}
-        <div style={{
-          background: '#12102a',
-          padding: '2rem 1.5rem',
-          minHeight: 460,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}>
+        {/* ── Body: left toolbar + canvas ───────────────────────────────────── */}
+        <div className="hub-body" style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
-          {/* Logo / title */}
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: '0.75rem' }} aria-hidden="true">
-              {['#4dbb6a', '#f5d84a', '#f5a020', '#c060f0', '#4090e8'].map((c, i) => (
-                <PixelStar key={i} color={c} />
-              ))}
-            </div>
-
-            <h1 style={{
-              fontFamily: 'var(--font-display, "TAY Big Bird", serif)',
-              fontSize: 'clamp(2rem, 6vw, 3rem)',
-              color: '#fff',
-              margin: '0 0 0.25rem',
-              textShadow: '0 0 20px rgba(96,96,255,0.8), 0 0 40px rgba(96,96,255,0.4)',
-              lineHeight: 1.1,
-            }}>
-              Learning Hub
-            </h1>
-            <p style={{ color: '#8080c0', fontSize: '0.75rem', margin: 0, letterSpacing: '0.12em' }}>
-              ARTISTIC ACCESSIBILITY COLLECTIVE — EDUCATIONAL SERIES
-            </p>
-          </div>
-
-          {/* "Loading" / Coming Soon treatment */}
-          <div style={{
-            width: '100%',
-            maxWidth: 540,
-            background: '#0a0820',
-            border: '2px inset #4a4a8a',
-            borderRadius: 3,
-            padding: '1.25rem',
-            marginBottom: '1.75rem',
-            textAlign: 'center',
-          }}>
-            <div style={{
-              color: '#4dbb6a',
-              fontSize: '0.7rem',
-              letterSpacing: '0.2em',
-              marginBottom: '0.75rem',
-              textTransform: 'uppercase',
-            }}>
-              ▶ Loading training modules...
-            </div>
-            {/* Fake progress bar */}
-            <div style={{
-              width: '100%',
-              height: 14,
-              background: '#0a0820',
-              border: '1px solid #4a4a8a',
-              borderRadius: 2,
-              overflow: 'hidden',
-              marginBottom: '0.75rem',
-            }} aria-hidden="true">
-              <div style={{
-                width: '38%',
-                height: '100%',
-                background: 'repeating-linear-gradient(90deg, #263590 0px, #4060cc 8px, #263590 8px, #4060cc 16px)',
-              }} />
-            </div>
-            <div style={{ color: '#6060a0', fontSize: '0.7rem', letterSpacing: '0.1em' }}>
-              38% — COMING SOON
-            </div>
-          </div>
-
-          {/* Level selection */}
-          <div style={{
-            width: '100%',
-            maxWidth: 540,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '0.875rem',
-            marginBottom: '1.75rem',
-          }}>
-            {LEVELS.map((lv) => (
-              <div
-                key={lv.id}
-                style={{
-                  background: lv.locked ? '#0a0820' : '#10103a',
-                  border: `2px solid ${lv.locked ? '#2a2a5a' : lv.color}`,
-                  borderRadius: 3,
-                  padding: '1rem',
-                  opacity: lv.locked ? 0.55 : 1,
-                  position: 'relative',
-                }}
-                aria-label={`${lv.label}: ${lv.title}${lv.locked ? ' — locked, coming soon' : ' — coming soon'}`}
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  marginBottom: '0.4rem',
-                }}>
-                  <span style={{
-                    fontSize: '0.65rem',
-                    fontWeight: 'bold',
-                    color: lv.color,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                  }}>
-                    {lv.id}
-                  </span>
-                  {lv.locked && (
-                    <span style={{ fontSize: '0.65rem', color: '#4a4a8a', letterSpacing: '0.08em' }} aria-hidden="true">
-                      🔒 LOCKED
-                    </span>
-                  )}
-                </div>
-                <div style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 'bold',
-                  color: lv.locked ? '#4a4a8a' : '#fff',
-                  marginBottom: '0.35rem',
-                  fontFamily: '"Courier New", monospace',
-                }}>
-                  {lv.title}
-                </div>
-                <p style={{
-                  fontSize: '0.75rem',
-                  color: lv.locked ? '#3a3a6a' : '#8080b8',
-                  margin: 0,
-                  lineHeight: 1.5,
-                  fontFamily: 'system-ui, sans-serif',
-                }}>
-                  {lv.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Context blurb */}
-          <p style={{
-            maxWidth: 480,
-            textAlign: 'center',
-            fontSize: '0.8125rem',
-            color: '#6060a0',
-            lineHeight: 1.7,
-            marginBottom: '1.75rem',
-            fontFamily: 'system-ui, sans-serif',
-          }}>
-            The Learning Hub is part of an ongoing masters action research project.
-            Training modules at each level will be developed with and by the disability
-            arts community. More soon.
-          </p>
-
-          {/* Back home */}
-          <Link
-            href="/"
+          {/* ── Left toolbar ──────────────────────────────────────────────── */}
+          <div
+            role="toolbar"
+            aria-label="Encyclopedia subjects"
+            className="hub-toolbar"
             style={{
-              display: 'inline-block',
-              padding: '8px 20px',
-              background: '#1a1a5a',
-              border: '2px outset #4a4aaa',
-              borderRadius: 2,
-              color: '#c8c8ff',
-              fontSize: '0.8125rem',
-              fontWeight: 'bold',
-              textDecoration: 'none',
-              letterSpacing: '0.05em',
-              fontFamily: '"Courier New", monospace',
+              background: '#d8d8d0',
+              borderRight: '3px solid #888',
+              display: 'flex', flexDirection: 'column', gap: 2,
+              padding: '4px 3px',
+              flexShrink: 0,
             }}
           >
-            ◀ MAIN MENU
-          </Link>
+            {/* Home button */}
+            <a
+              href="/"
+              aria-label="Back to Home"
+              style={{
+                width: 34, height: 34,
+                background: '#263590',
+                border: '2px outset #eee',
+                borderRadius: 3,
+                fontSize: 18, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none',
+                flexShrink: 0,
+              }}
+            >
+              🏠
+            </a>
+            <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
+
+            {SUBJECTS.map((sub, i) => {
+              const GREENS = ['#006633','#008844','#009955','#007733','#006633','#008844','#009955','#007733','#006633'];
+              return (
+                <button
+                  key={sub.label}
+                  onClick={() => setActiveSubject(i)}
+                  aria-label={sub.label}
+                  aria-pressed={activeSubject === i}
+                  style={{
+                    width: 34, height: 34,
+                    background: activeSubject === i ? GREENS[i] : '#bbb',
+                    border: activeSubject === i ? '2px inset #555' : '2px outset #eee',
+                    borderRadius: 3,
+                    fontSize: 18, lineHeight: 1,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background 0.1s',
+                    padding: 0,
+                  }}
+                >
+                  {sub.emoji}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Canvas ────────────────────────────────────────────────────── */}
+          <div className="hub-canvas" style={{ flex: 1, background: '#fafaf6', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+
+            {/* Coming soon badge */}
+            <div style={{
+              display: 'flex', justifyContent: 'center',
+              padding: '8px 8px 0',
+              flexShrink: 0,
+            }}>
+              <span style={{
+                background: '#006633', color: 'white',
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                fontSize: 10, fontWeight: 'bold',
+                padding: '2px 10px', letterSpacing: '0.08em',
+                border: '1px solid #44aa66',
+                userSelect: 'none',
+              }} aria-label="Coming soon">
+                ★ COMING SOON ★
+              </span>
+            </div>
+
+            {/* Main canvas content */}
+            <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              <div style={{ textAlign: 'center' }}>
+                <h2
+                  ref={headingRef}
+                  tabIndex={-1}
+                  style={{
+                    fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+                    fontSize: 'clamp(20px, 4vw, 28px)',
+                    margin: '0 0 6px',
+                    color: '#006633',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Learning Hub
+                </h2>
+                <p style={{
+                  fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                  fontSize: 12, color: '#333', margin: 0, lineHeight: 1.5,
+                }}>
+                  An interactive learning series for arts accessibility — coming soon.
+                </p>
+              </div>
+
+              {/* Description box */}
+              <div style={{
+                border: '3px solid #aaa',
+                borderStyle: 'inset',
+                background: '#fff',
+                padding: '12px 14px',
+                fontSize: 12,
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                color: '#222',
+                lineHeight: 1.6,
+              }}>
+                <p style={{ margin: '0 0 8px' }}>
+                  We&apos;re building an interactive learning series for everyone working in,
+                  around, and alongside the arts. Courses, modules, and community learning
+                  at every level — designed with the disability arts community.
+                </p>
+                <p style={{ margin: 0 }}>
+                  This is a long-term project. We&apos;re taking our time to do it right.
+                </p>
+              </div>
+
+              {/* Fake loading progress */}
+              <div style={{
+                border: '3px solid #aaa',
+                borderStyle: 'inset',
+                background: '#fff',
+                padding: '10px 12px',
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                fontSize: 11,
+                color: '#333',
+              }}>
+                <div style={{ marginBottom: 6 }}>Loading module index...</div>
+                <div style={{
+                  height: 14,
+                  background: '#e0e0e0',
+                  border: '1px inset #999',
+                  overflow: 'hidden',
+                }} aria-hidden="true">
+                  <div style={{
+                    width: '38%',
+                    height: '100%',
+                    background: 'repeating-linear-gradient(90deg, #009955 0px, #006633 10px, #009955 10px, #006633 20px)',
+                  }} />
+                </div>
+                <div style={{ marginTop: 4, color: '#666' }}>38% complete — check back soon</div>
+              </div>
+
+            </div>
+          </div>
         </div>
 
-        {/* Status bar */}
-        <div style={{
-          background: '#c8c8d8',
-          borderTop: '2px solid #7a7a9a',
-          padding: '2px 8px',
-          display: 'flex',
-          gap: 12,
-          fontSize: 10,
-          color: '#333',
-          fontFamily: '"MS Sans Serif", Arial, sans-serif',
-        }} aria-hidden="true">
-          <span>Ready</span>
-          <span>|</span>
-          <span>Modules: 0 / 4 unlocked</span>
-          <span>|</span>
-          <span>AAC Educational Series</span>
+        <style>{`
+          @media (max-width: 580px) {
+            .hub-window {
+              position: static !important;
+              transform: none !important;
+              inset: unset !important;
+              width: 100% !important;
+              max-height: none !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+              overflow: visible !important;
+            }
+            .hub-body {
+              flex-direction: column !important;
+              overflow: visible !important;
+            }
+            .hub-toolbar {
+              flex-direction: row !important;
+              flex-wrap: wrap !important;
+              border-right: none !important;
+              border-bottom: 3px solid #888 !important;
+              padding: 3px 4px !important;
+              gap: 3px !important;
+            }
+            .hub-canvas {
+              overflow: visible !important;
+            }
+          }
+        `}</style>
+
+        {/* ── Contents strip ────────────────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          style={{ display: 'flex', background: '#c8c8c8', borderTop: '2px solid #999', padding: '3px 4px', gap: 2, flexShrink: 0, flexWrap: 'wrap', alignItems: 'center' }}
+        >
+          <span style={{ fontSize: 10, color: '#555', fontFamily: '"MS Sans Serif", Arial, sans-serif', marginRight: 4, flexShrink: 0 }}>
+            Contents:
+          </span>
+          {CONTENTS.map((c) => (
+            <div
+              key={c}
+              style={{
+                padding: '1px 8px',
+                fontSize: 10,
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                background: '#d8d8d0',
+                border: '1px outset #aaa',
+                color: '#888',
+                cursor: 'default',
+                userSelect: 'none',
+              }}
+            >
+              {c}
+            </div>
+          ))}
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 480px) {
-          div[style*="maxWidth: 720"] {
-            border-radius: 0;
-          }
-        }
-      `}</style>
+      {/* ── Taskbar ───────────────────────────────────────────────────────────── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: 36,
+          background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)',
+          borderTop: '1px solid #444',
+          display: 'flex', alignItems: 'center',
+          padding: '0 8px', gap: 6,
+          fontFamily: '"MS Sans Serif", Arial, sans-serif',
+          fontSize: 11, userSelect: 'none', zIndex: 10,
+        }}
+      >
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          padding: '2px 10px 2px 8px',
+          color: 'white', fontWeight: 'bold',
+          minWidth: 160,
+        }}>
+          <span style={{ fontSize: 14 }}>📚</span>
+          AAC Encyclopedia
+        </div>
+        <div style={{ flex: 1 }} />
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      </div>
+
     </div>
   );
 }
