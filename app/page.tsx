@@ -331,12 +331,12 @@ export default function Home() {
                 </li>
               ))}
 
-              {/* THE COLLECTIVE — always visible; contents swap on auth state + member type */}
-              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+              {/* THE COLLECTIVE — mobile only (taskbar handles this on desktop) */}
+              <li className="xp-collective-nav xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
               </li>
               {user && memberType === 'access_card' ? (
-                <li style={{ paddingLeft: 40 }}>
+                <li className="xp-collective-nav" style={{ paddingLeft: 40 }}>
                   <Link
                     href="/access-card"
                     style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
@@ -347,7 +347,7 @@ export default function Home() {
                   </Link>
                 </li>
               ) : user ? (
-                <li style={{ paddingLeft: 40 }}>
+                <li className="xp-collective-nav" style={{ paddingLeft: 40 }}>
                   <Link
                     href="/dashboard"
                     style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
@@ -359,7 +359,7 @@ export default function Home() {
                 </li>
               ) : (
                 <>
-                  <li style={{ paddingLeft: 40 }}>
+                  <li className="xp-collective-nav" style={{ paddingLeft: 40 }}>
                     <Link
                       href="/login"
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
@@ -369,7 +369,7 @@ export default function Home() {
                       Log In
                     </Link>
                   </li>
-                  <li style={{ paddingLeft: 40 }}>
+                  <li className="xp-collective-nav" style={{ paddingLeft: 40 }}>
                     <Link
                       href="/submit"
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
@@ -503,10 +503,14 @@ export default function Home() {
           outline-offset: 1px;
         }
 
+        /* THE COLLECTIVE nav — desktop: hidden (taskbar handles it); mobile: visible */
+        .xp-collective-nav { display: none; }
+
         /* ── Mobile ────────────────────────────────────────────────────────────── */
         @media (max-width: 580px) {
           /* Show brand strip, hide image panel and redundant chrome */
           .xp-mobile-brand { display: flex !important; }
+          .xp-collective-nav { display: list-item !important; }
           .xp-image-panel  { display: none !important; }
           .xp-menu-bar,
           .xp-toolbar,
