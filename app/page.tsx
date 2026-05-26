@@ -4,28 +4,29 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
-type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean };
+type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean; iconSrc?: string };
 
 const RESOURCES_ITEMS: NavItem[] = [
-  { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle' },
-  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books' },
-  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#7a3abf', iconName: 'Movie Clapper' },
+  { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle',       iconSrc: '/images/icons/info.svg' },
+  { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books',             iconSrc: '/images/icons/books.svg' },
+  { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#7a3abf', iconName: 'Movie Clapper',     iconSrc: '/images/icons/film.svg' },
 ];
 
 const TOGETHER_ITEMS: NavItem[] = [
-  { label: 'Make Art', href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette' },
+  { label: 'Make Art', href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
 ];
 
 const MORE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',      href: '/contact',          icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
+  { label: 'Contact Us',     href: '/contact',          icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope',        iconSrc: '/images/icons/envelope.svg' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
     icon: '📸', iconBg: '#b83878', iconName: 'Camera',
     external: true,
+    iconSrc: '/images/icons/camera.svg',
   },
-  { label: 'Help',            href: '/help',             icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
-  { label: 'Share Feedback',  href: '/share-feedback',   icon: '📝', iconBg: '#5a7a3a', iconName: 'Notepad' },
+  { label: 'Help',           href: '/help',             icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass', iconSrc: '/images/icons/magnifier.svg' },
+  { label: 'Share Feedback', href: '/share-feedback',   icon: '📝', iconBg: '#5a7a3a', iconName: 'Notepad',         iconSrc: '/images/icons/notepad.svg' },
 ];
 
 // ── Member nav items (shown in Explorer when logged in) ───────────────────────
@@ -40,13 +41,31 @@ const MEMBER_NAV: MemberNavItem[] = [
 ];
 
 // ── Desktop-style icon (for Explorer nav) ─────────────────────────────────────
-// size="sm" → compact 16×16 tree-view icon (left panel)
-// size="md" → standard 22×22 taskbar/button icon (default)
-function NavIcon({ icon, bg, name: _name, size = 'md' }: { icon: string; bg: string; name: string; size?: 'sm' | 'md' }) {
+// size="sm"  → compact 16×16 tree-view icon (left panel); uses pixel-art imgSrc if provided
+// size="md"  → standard 22×22 taskbar/button icon (default); emoji-in-box
+function NavIcon({ icon, bg, name: _name, size = 'md', imgSrc }: {
+  icon: string; bg: string; name: string; size?: 'sm' | 'md'; imgSrc?: string
+}) {
   const dim  = size === 'sm' ? 16  : 22;
   const fs   = size === 'sm' ? 10  : 13;
   const mr   = size === 'sm' ? 5   : 6;
   const br   = size === 'sm' ? 2   : 3;
+
+  // Pixel-art mode: bare image, no coloured box
+  if (imgSrc && size === 'sm') {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imgSrc}
+        width={dim}
+        height={dim}
+        alt=""
+        aria-hidden="true"
+        style={{ marginRight: mr, flexShrink: 0, imageRendering: 'pixelated' }}
+      />
+    );
+  }
+
   return (
     <span
       aria-hidden="true"
@@ -234,7 +253,7 @@ export default function Home() {
                     style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                     {item.label}
                   </Link>
                 </li>
@@ -250,7 +269,7 @@ export default function Home() {
                     style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                     {item.label}
                   </Link>
                 </li>
@@ -269,7 +288,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                       {item.label}
                       <span className="sr-only"> (opens Instagram in new tab)</span>
                     </a>
@@ -279,7 +298,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                       {item.label}
                     </Link>
                   )}
@@ -298,7 +317,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" />
+                      <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" imgSrc="/images/icons/flashlight.svg" />
                       The Backstage
                     </Link>
                   </li>

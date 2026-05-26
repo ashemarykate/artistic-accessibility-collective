@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges">
+  <!-- ground shadow -->
+  <rect x="2" y="15" width="13" height="1" fill="#808080"/>
+  <!-- Red book -->
+  <rect x="1" y="5" width="4" height="10" fill="#c00000"/>
+  <rect x="1" y="5" width="1" height="10" fill="#ff4040"/>
+  <rect x="4" y="5" width="1" height="10" fill="#800000"/>
+  <rect x="1" y="5" width="4" height="1" fill="#ff8080"/>
+  <!-- Blue book (tallest) -->
+  <rect x="6" y="2" width="4" height="13" fill="#0000c0"/>
+  <rect x="6" y="2" width="1" height="13" fill="#4040ff"/>
+  <rect x="9" y="2" width="1" height="13" fill="#000080"/>
+  <rect x="6" y="2" width="4" height="1" fill="#8080ff"/>
+  <!-- Green book -->
+  <rect x="11" y="6" width="4" height="9" fill="#006000"/>
+  <rect x="11" y="6" width="1" height="9" fill="#00a000"/>
+  <rect x="14" y="6" width="1" height="9" fill="#004000"/>
+  <rect x="11" y="6" width="4" height="1" fill="#40e040"/>
+</svg>
