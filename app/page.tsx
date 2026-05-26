@@ -26,7 +26,6 @@ const MORE_ITEMS: NavItem[] = [
     iconSrc: '/images/icons/camera.svg',
   },
   { label: 'Help',           href: '/help',             icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass', iconSrc: '/images/icons/magnifier.svg' },
-  { label: 'Share Feedback', href: '/share-feedback',   icon: '📝', iconBg: '#5a7a3a', iconName: 'Notepad',         iconSrc: '/images/icons/notepad.svg' },
 ];
 
 // ── Member nav items (shown in Explorer when logged in) ───────────────────────
@@ -488,21 +487,6 @@ export default function Home() {
           >
             <NavIcon icon="✨" bg="#7a3abf" name="Sparkles" />
             Join
-          </Link>
-          <Link
-            href="/share-feedback"
-            style={{
-              background: 'rgba(255,255,255,0.15)',
-              borderRadius: 12,
-              padding: '3px 12px 3px 10px',
-              color: 'white', fontWeight: 'bold', fontSize: 12,
-              display: 'flex', alignItems: 'center', gap: 5,
-              border: '1px solid rgba(255,255,255,0.25)',
-              textDecoration: 'none',
-            }}
-            aria-label="Share Feedback"
-          >
-            💬 Share Feedback
           </Link>
         </div>
         <div aria-hidden="true" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
