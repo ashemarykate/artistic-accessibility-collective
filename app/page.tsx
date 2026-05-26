@@ -10,19 +10,21 @@ const RESOURCES_ITEMS: NavItem[] = [
   { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle' },
   { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books' },
   { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#7a3abf', iconName: 'Movie Clapper' },
-  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
 ];
 
-const COLLECTIVE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',    href: '/contact',   icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
+const TOGETHER_ITEMS: NavItem[] = [
+  { label: 'Make Art', href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette' },
+];
+
+const MORE_ITEMS: NavItem[] = [
+  { label: 'Contact Us', href: '/contact', icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope' },
   {
     label: 'Instagram',
     href: 'https://instagram.com/artisticaccessibility',
     icon: '📸', iconBg: '#b83878', iconName: 'Camera',
     external: true,
   },
-  { label: 'The Collective', href: '/members',  icon: '🤝', iconBg: '#1a8a7a', iconName: 'Handshake' },
-  { label: 'Make Art',       href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette' },
+  { label: 'Help', href: '/help', icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass' },
 ];
 
 // ── Member nav items (shown in Explorer when logged in) ───────────────────────
@@ -232,9 +234,25 @@ export default function Home() {
               ))}
 
               <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}The Collective
+                <span aria-hidden="true">📂</span>{' '}TOGETHER
               </li>
-              {COLLECTIVE_ITEMS.map((item) => (
+              {TOGETHER_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
+                  <Link
+                    href={item.href}
+                    style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                    className="xp-folder-link"
+                  >
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+
+              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}MORE
+              </li>
+              {MORE_ITEMS.map((item) => (
                 <li key={item.href} style={{ paddingLeft: 40 }}>
                   {item.external ? (
                     <a
