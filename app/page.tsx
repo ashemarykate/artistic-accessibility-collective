@@ -61,6 +61,7 @@ function NavIcon({ icon, bg, name: _name, size = 'md', imgSrc }: {
         height={dim}
         alt=""
         aria-hidden="true"
+        className="xp-pixel-icon"
         style={{ marginRight: mr, flexShrink: 0, imageRendering: 'pixelated' }}
       />
     );
@@ -239,11 +240,11 @@ export default function Home() {
             </div>
 
             <ul style={{ listStyle: 'none', padding: '6px 4px', margin: 0, flex: 1 }} role="list">
-              <li style={{ color: '#333', padding: '1px 4px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
+              <li className="xp-folder-label" style={{ color: '#333', padding: '1px 4px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
                 🖥️ Artistic Accessibility
               </li>
 
-              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}RESOURCES
               </li>
               {RESOURCES_ITEMS.map((item) => (
@@ -259,7 +260,7 @@ export default function Home() {
                 </li>
               ))}
 
-              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}TOGETHER
               </li>
               {TOGETHER_ITEMS.map((item) => (
@@ -275,7 +276,7 @@ export default function Home() {
                 </li>
               ))}
 
-              <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}MORE
               </li>
               {MORE_ITEMS.map((item) => (
@@ -308,7 +309,7 @@ export default function Home() {
               {/* Member-only folder (shown when logged in) */}
               {user && (
                 <>
-                  <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                  <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                     <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
                   </li>
                   <li style={{ paddingLeft: 40 }}>
@@ -370,7 +371,7 @@ export default function Home() {
       </div>
 
       {/* ── Taskbar ────────────────────────────────────────────────────────────── */}
-      <div style={{
+      <div className="xp-taskbar" style={{
         width: '100%', maxWidth: 920,
         marginTop: 12,
         background: 'linear-gradient(to bottom, #2a6dd9 0%, #1a4fbb 50%, #1f5ac4 100%)',
@@ -461,12 +462,38 @@ export default function Home() {
           outline-offset: 1px;
         }
 
-        /* Mobile: hide image panel; full-width nav */
+        /* ── Mobile ────────────────────────────────────────────────────────────── */
         @media (max-width: 580px) {
-          .xp-image-panel { display: none !important; }
-          .xp-left-panel { width: 100% !important; border-right: none !important; }
+          /* Hide image panel and redundant chrome */
+          .xp-image-panel  { display: none !important; }
+          .xp-menu-bar,
+          .xp-toolbar,
+          .xp-address-bar  { display: none !important; }
+          .xp-taskbar      { display: none !important; }
+
+          /* Full-width nav panel */
+          .xp-left-panel   { width: 100% !important; border-right: none !important; }
           .xp-content-pane { min-height: auto !important; }
-          .xp-menu-bar, .xp-toolbar, .xp-address-bar { display: none !important; }
+
+          /* Readable font sizes */
+          .xp-folder-link  { font-size: 15px !important; }
+          .xp-folder-label { font-size: 13px !important; }
+
+          /* Touch targets: ~44px tall (WCAG 2.5.8) */
+          .xp-folder-link {
+            padding: 12px 10px !important;
+            min-height: 44px !important;
+          }
+
+          /* Scale up pixel-art icons to match larger text */
+          .xp-pixel-icon {
+            width: 20px !important;
+            height: 20px !important;
+            margin-right: 8px !important;
+          }
+
+          /* A little more breathing room between folder sections */
+          .xp-folder-label { margin-top: 6px !important; }
         }
       `}</style>
 
