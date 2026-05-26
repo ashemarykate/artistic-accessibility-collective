@@ -73,6 +73,9 @@ export type Profile = {
   preferred_contact?: string;
   experience_level?: string;
   is_student?: boolean;
+  // v16 volunteering fields
+  volunteer_status?: 'yes' | 'no' | null;
+  volunteer_notes?: string;
 };
 
 /** Returns the canonical profile URL, using the vanity username when set. */
