@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     // Send email to both addresses
     const { data, error } = await resend.emails.send({
-      from: 'Contact Form <onboarding@resend.dev>', // Will be from your domain once verified
+      from: 'Artistic Accessibility Collective <noreply@artisticaccessibility.com>',
       to: ['mk@artisticaccessibility.com', 'contact@artisticaccessibility.com'],
       subject: subject || `New Contact Form Submission from ${name}`,
       replyTo: email,
