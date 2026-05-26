@@ -33,7 +33,7 @@ type MemberNavItem = { label: string; href: string; icon: string; iconBg: string
 
 const MEMBER_NAV: MemberNavItem[] = [
   { label: 'Buddy List',   href: '/messages',    icon: '💬', iconBg: '#1a4fbb' },
-  { label: 'The Backstage',       href: '/dashboard',   icon: '🏠', iconBg: '#2a6a9a' },
+  { label: 'The Backstage',       href: '/dashboard',   icon: '🔦', iconBg: '#2a6a9a' },
   { label: 'My Lists',     href: '/my-lists',    icon: '📋', iconBg: '#2a7a52' },
   { label: 'Feedback',     href: '/feedback',    icon: '📝', iconBg: '#7a3abf' },
   { label: 'My Resources', href: '/my-resources',icon: '⭐', iconBg: '#9a7212' },
@@ -298,7 +298,7 @@ export default function Home() {
                       style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                       className="xp-folder-link"
                     >
-                      <NavIcon icon="🎭" bg="#1a4fbb" name="Backstage" size="sm" />
+                      <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" />
                       The Backstage
                     </Link>
                   </li>
@@ -375,7 +375,7 @@ export default function Home() {
               }}
               aria-label="Go to The Backstage"
             >
-              <NavIcon icon="🏠" bg="#3a7abf" name="Home" />
+              <NavIcon icon="🔦" bg="#3a7abf" name="Backstage" />
               The Backstage
             </Link>
           ) : (
