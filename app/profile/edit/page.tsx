@@ -179,6 +179,8 @@ export default function EditProfilePage() {
   const [publicVisible,    setPublicVisible]    = useState(false);
   const [emailPublic,      setEmailPublic]      = useState(false);
   const [avatarPath,       setAvatarPath]       = useState<string | null>(null);
+  const [volunteerStatus,  setVolunteerStatus]  = useState<'yes' | 'no' | ''>('');
+  const [volunteerNotes,   setVolunteerNotes]   = useState('');
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -224,6 +226,8 @@ export default function EditProfilePage() {
     setPublicVisible(data.public_visible ?? false);
     setEmailPublic(data.email_public  ?? false);
     setAvatarPath(data.avatar_url     ?? null);
+    setVolunteerStatus((data.volunteer_status as 'yes' | 'no') ?? '');
+    setVolunteerNotes(data.volunteer_notes   ?? '');
 
     setLoading(false);
     headingRef.current?.focus();
@@ -297,7 +301,9 @@ export default function EditProfilePage() {
       instagram_url:      instagram.trim()   || undefined,
       public_visible:     publicVisible,
       email_public:       emailPublic,
-    };
+      volunteer_status:   volunteerStatus || null,
+      volunteer_notes:    volunteerStatus === 'yes' ? volunteerNotes.trim() || null : null,
+    } as any;
 
     const { error } = await supabase
       .from('profiles')
@@ -647,6 +653,79 @@ export default function EditProfilePage() {
               )}
             </div>
           </div>
+
+          {/* ══ Section: Volunteering ════════════════════════════════════ */}
+          {profile?.profile_type === 'individual' && (
+            <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+              <div className="ms-box-header">Volunteering</div>
+              <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginTop: 0, marginBottom: '1rem' }}>
+                  Are you open to volunteering your services for the right gig — like a low-income
+                  community project, a grassroots arts org, or a cause you believe in?
+                  If you answer yes, it will show on your profile. If you skip this, nothing is shown.
+                </p>
+
+                <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1rem' }}>
+                  <legend className="form-label" style={{ marginBottom: '0.625rem' }}>
+                    Are you open to volunteering your skills?
+                  </legend>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="volunteer_status_edit"
+                      value="yes"
+                      checked={volunteerStatus === 'yes'}
+                      onChange={() => setVolunteerStatus('yes')}
+                      style={{ width: 16, height: 16 }}
+                    />
+                    <span>Yes — for the right gig! 🌱</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="volunteer_status_edit"
+                      value="no"
+                      checked={volunteerStatus === 'no'}
+                      onChange={() => setVolunteerStatus('no')}
+                      style={{ width: 16, height: 16 }}
+                    />
+                    <span>Not at this time</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="volunteer_status_edit"
+                      value=""
+                      checked={volunteerStatus === ''}
+                      onChange={() => { setVolunteerStatus(''); setVolunteerNotes(''); }}
+                      style={{ width: 16, height: 16 }}
+                    />
+                    <span>Prefer not to say (hidden)</span>
+                  </label>
+                </fieldset>
+
+                {volunteerStatus === 'yes' && (
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label htmlFor="volunteerNotes" className="form-label">
+                      Examples of your volunteer work (optional)
+                    </label>
+                    <textarea
+                      id="volunteerNotes"
+                      className="form-input form-textarea"
+                      rows={3}
+                      placeholder="e.g., I've interpreted for community theater orgs and grassroots disability arts events…"
+                      value={volunteerNotes}
+                      onChange={(e) => setVolunteerNotes(e.target.value)}
+                    />
+                    <p className="form-hint">This will appear on your profile so others can see your community involvement.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ══ Section: Links ════════════════════════════════════════════ */}
           <div className="ms-box" style={{ marginBottom: '1.25rem' }}>

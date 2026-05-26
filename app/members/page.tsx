@@ -58,6 +58,7 @@ export default function MemberDirectory() {
   const [user, setUser] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
+  const [volunteerOnly, setVolunteerOnly] = useState(false);
 
   useEffect(() => {
     document.title = 'Member Directory — Artistic Accessibility Collective';
@@ -127,7 +128,9 @@ export default function MemberDirectory() {
       (p.specialties ?? []).some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchSpecialty =
       !selectedSpecialty || (p.specialties ?? []).includes(selectedSpecialty);
-    return matchSearch && matchSpecialty;
+    const matchVolunteer =
+      !volunteerOnly || (p as any).volunteer_status === 'yes';
+    return matchSearch && matchSpecialty && matchVolunteer;
   });
 
   if (loading) {
@@ -204,9 +207,18 @@ export default function MemberDirectory() {
                 ))}
               </select>
             </div>
-            {(searchTerm || selectedSpecialty) && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+              <input
+                type="checkbox"
+                checked={volunteerOnly}
+                onChange={(e) => setVolunteerOnly(e.target.checked)}
+                style={{ width: 14, height: 14 }}
+              />
+              🌱 Open to volunteering
+            </label>
+            {(searchTerm || selectedSpecialty || volunteerOnly) && (
               <button
-                onClick={() => { setSearchTerm(''); setSelectedSpecialty(''); }}
+                onClick={() => { setSearchTerm(''); setSelectedSpecialty(''); setVolunteerOnly(false); }}
                 style={{
                   height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
                   border: '1px outset #b4b0a8', background: '#ece9d8',
@@ -292,6 +304,11 @@ export default function MemberDirectory() {
                         )}
                         {isBusiness && (
                           <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Business</span>
+                        )}
+                        {(p as any).volunteer_status === 'yes' && (
+                          <span style={{ fontSize: '0.6875rem', color: '#2d6a2d', background: '#e8f5e8', border: '1px solid #a8d5a8', borderRadius: 3, padding: '1px 5px' }} aria-label="Open to volunteering">
+                            🌱 Volunteers
+                          </span>
                         )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>

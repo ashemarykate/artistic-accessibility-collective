@@ -99,6 +99,10 @@ export default function SubmitProfile() {
   const [accessibilityFeatures, setAccessibilityFeatures] = useState<string[]>([]);
   const [customAccessInput, setCustomAccessInput] = useState('');
 
+  // Volunteering (individual only)
+  const [volunteerStatus, setVolunteerStatus] = useState<'yes' | 'no' | ''>('');
+  const [volunteerNotes, setVolunteerNotes] = useState('');
+
   // Tester feedback (shared)
   const [testerSelfDescription, setTesterSelfDescription] = useState('');
   const [testerCollaboratorInfo, setTesterCollaboratorInfo] = useState('');
@@ -315,6 +319,8 @@ export default function SubmitProfile() {
             ? YEARS_OPTIONS.indexOf(formData.years_of_experience) + 1
             : null,
           has_captioning: isContentCreator ? formData.has_captioning : null,
+          volunteer_status: volunteerStatus || null,
+          volunteer_notes: volunteerStatus === 'yes' ? volunteerNotes.trim() || null : null,
         });
       } else {
         Object.assign(insertData, {
@@ -845,6 +851,67 @@ export default function SubmitProfile() {
               </div>
 
             </>)}
+
+            {/* ════════════════════════════════════════
+                VOLUNTEERING (individual only)
+            ════════════════════════════════════════ */}
+            {profileType === 'individual' && (
+              <>
+                <h2 className="section-heading">Volunteering</h2>
+                <p className="form-hint" style={{ marginTop: '-0.5rem', marginBottom: '1rem' }}>
+                  Are you open to volunteering your services for the right gig — like a low-income
+                  community project, a grassroots arts org, or a cause you believe in? This is
+                  totally optional and you can change your answer anytime.
+                </p>
+
+                <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1.25rem' }}>
+                  <legend className="form-label" style={{ marginBottom: '0.625rem' }}>
+                    Are you open to volunteering your skills?
+                  </legend>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="volunteer_status"
+                      value="yes"
+                      checked={volunteerStatus === 'yes'}
+                      onChange={() => setVolunteerStatus('yes')}
+                      style={{ width: 16, height: 16 }}
+                    />
+                    <span>Yes — for the right gig! 🌱</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="volunteer_status"
+                      value="no"
+                      checked={volunteerStatus === 'no'}
+                      onChange={() => setVolunteerStatus('no')}
+                      style={{ width: 16, height: 16 }}
+                    />
+                    <span>Not at this time</span>
+                  </label>
+                </fieldset>
+
+                {volunteerStatus === 'yes' && (
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label htmlFor="volunteer-notes" className="form-label">
+                      Examples of your volunteer work (optional)
+                    </label>
+                    <textarea
+                      id="volunteer-notes"
+                      className="form-input form-textarea"
+                      rows={3}
+                      placeholder="e.g., I've interpreted for community theater orgs and grassroots disability arts events…"
+                      value={volunteerNotes}
+                      onChange={(e) => setVolunteerNotes(e.target.value)}
+                    />
+                    <p className="form-hint">This will appear on your profile so others can see your community involvement.</p>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* ════════════════════════════════════════
                 SHARED SECTIONS
