@@ -283,20 +283,18 @@ export default function Home() {
               {user && (
                 <>
                   <li style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                    <span aria-hidden="true">📂</span>{' '}My Stuff
+                    <span aria-hidden="true">📂</span>{' '}The Collective
                   </li>
-                  {MEMBER_NAV.map((item) => (
-                    <li key={item.href} style={{ paddingLeft: 40 }}>
-                      <Link
-                        href={item.href}
-                        style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
-                        className="xp-folder-link"
-                      >
-                        <NavIcon icon={item.icon} bg={item.iconBg} name={item.label} />
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
+                  <li style={{ paddingLeft: 40 }}>
+                    <Link
+                      href="/dashboard"
+                      style={{ display: 'flex', alignItems: 'center', padding: '2px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
+                      className="xp-folder-link"
+                    >
+                      <NavIcon icon="🎭" bg="#1a4fbb" name="Backstage" />
+                      The Backstage
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>
