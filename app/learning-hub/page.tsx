@@ -218,8 +218,7 @@ export default function LearningHubPage() {
                 <button
                   key={sub.label}
                   onClick={() => setActiveSubject(i)}
-                  aria-label={sub.label}
-                  aria-pressed={activeSubject === i}
+                  aria-label={`${sub.label} (coming soon)`}
                   style={{
                     width: 34, height: 34,
                     background: activeSubject === i ? GREENS[i] : '#bbb',

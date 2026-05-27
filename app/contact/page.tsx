@@ -91,7 +91,7 @@ export default function ContactPage() {
 
   if (sent) {
     return (
-      <BrowserChrome variant="ie3" title="Message Sent — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
+      <BrowserChrome variant="ie3" title="Message Sent · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
       <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -119,7 +119,7 @@ export default function ContactPage() {
   }
 
   return (
-    <BrowserChrome variant="ie3" title="Contact Us — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
+    <BrowserChrome variant="ie3" title="Contact Us · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
     <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
       {/* Status live region */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{status}</div>

@@ -123,7 +123,7 @@ function CommunityIcon() {
 
 export default function TogetherPage() {
   useEffect(() => {
-    document.title = 'together_aac · LiveJournal';
+    document.title = 'together_aac · Together · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -239,13 +239,12 @@ export default function TogetherPage() {
         color: '#555',
       }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <span aria-hidden="true">
-            <a href="/" style={{ color: '#335577', textDecoration: 'none' }}>livejournal.com</a>
-            {' › '}
+          <nav aria-label="Breadcrumb">
+            <span aria-hidden="true">livejournal.com › </span>
             <a href="/together" style={{ color: '#335577', textDecoration: 'none' }}>together_aac</a>
-            {' › '}
+            <span aria-hidden="true"> › </span>
             <strong>Recent Entries</strong>
-          </span>
+          </nav>
         </div>
       </div>
 
@@ -391,7 +390,7 @@ export default function TogetherPage() {
         </main>
 
         {/* ── Sidebar ────────────────────────────────────────────────────────── */}
-        <aside>
+        <aside aria-label="Community sidebar">
 
           {/* Community info box */}
           <div style={{
@@ -480,8 +479,8 @@ export default function TogetherPage() {
                             padding: '2px 0',
                             color: day === null ? 'transparent' : ENTRY_DAYS.has(day) ? '#263590' : '#445',
                             fontWeight: ENTRY_DAYS.has(day ?? 0) ? 'bold' : 'normal',
-                            textDecoration: ENTRY_DAYS.has(day ?? 0) ? 'underline' : 'none',
-                            cursor: ENTRY_DAYS.has(day ?? 0) ? 'pointer' : 'default',
+                            textDecoration: 'none',
+                            cursor: 'default',
                           }}
                         >
                           {day ?? ''}
