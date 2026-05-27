@@ -117,13 +117,13 @@ export default function SubmitProfile() {
   const typeSelectHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Test the Registry — Artistic Accessibility Collective';
+    document.title = 'Test the Registry · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   useEffect(() => {
     if (step === 'success' && successHeadingRef.current) {
-      document.title = "You're in! — Artistic Accessibility Collective";
+      document.title = "You're in! · Artistic Accessibility Collective";
       successHeadingRef.current.focus();
     }
     if (step === 'type_select' && typeSelectHeadingRef.current) {
@@ -859,7 +859,7 @@ export default function SubmitProfile() {
               <>
                 <h2 className="section-heading">Volunteering</h2>
                 <p className="form-hint" style={{ marginTop: '-0.5rem', marginBottom: '1rem' }}>
-                  Are you open to volunteering your services for the right gig — like a low-income
+                  Are you open to volunteering your services for the right gig, like a low-income
                   community project, a grassroots arts org, or a cause you believe in? This is
                   totally optional and you can change your answer anytime.
                 </p>
@@ -878,7 +878,7 @@ export default function SubmitProfile() {
                       onChange={() => setVolunteerStatus('yes')}
                       style={{ width: 16, height: 16 }}
                     />
-                    <span>Yes — for the right gig! 🌱</span>
+                    <span>Yes, for the right gig! 🌱</span>
                   </label>
 
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>

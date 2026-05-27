@@ -40,7 +40,7 @@ export default function CinemaItemPage() {
   const item: CinemaItem | undefined = CINEMA_ITEM_BY_SLUG[slug];
 
   useEffect(() => {
-    if (item) document.title = `${item.title} — AAC Presents: The Cinema`;
+    if (item) document.title = `${item.title} · AAC Presents: The Cinema`;
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [item]);
 
@@ -61,7 +61,7 @@ export default function CinemaItemPage() {
   return (
     <BrowserChrome
       variant="netscape"
-      title={`${item.title} — AAC Presents: The Cinema`}
+      title={`${item.title} · AAC Presents: The Cinema`}
       url={`http://cinema.artisticaccessibility.com/${item.slug}`}
     >
     <main
@@ -73,7 +73,7 @@ export default function CinemaItemPage() {
         paddingBottom: 48,
       }}
     >
-      <h1 className="sr-only">{item.title} — AAC Presents: The Cinema · Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">{item.title} · AAC Presents: The Cinema · Artistic Accessibility Collective</h1>
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 16px' }}>
 

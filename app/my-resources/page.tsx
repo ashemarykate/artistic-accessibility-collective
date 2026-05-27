@@ -20,7 +20,7 @@ export default function MyResourcesPage() {
   const [cinemaItems,  setCinemaItems ] = useState<CinemaItem[]>([]);
 
   useEffect(() => {
-    document.title = 'My Resources — Artistic Accessibility Collective';
+    document.title = 'My Resources · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -99,7 +99,7 @@ export default function MyResourcesPage() {
         {state === 'ready' && (
           <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8125rem', margin: '0 0 2rem', lineHeight: 1.5 }}>
             {totalSaved === 0
-              ? 'Nothing saved yet — heart items in the Library, Cinema, or Resources to save them here.'
+              ? 'Nothing saved yet. Heart items in the Library, Cinema, or Resources to save them here.'
               : `${totalSaved} item${totalSaved !== 1 ? 's' : ''} saved across your collections.`}
           </p>
         )}

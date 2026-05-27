@@ -48,7 +48,7 @@ export default function MemberHub() {
   const [adminUserIds,  setAdminUserIds]  = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    document.title = 'My Collective — Artistic Accessibility Collective';
+    document.title = 'My Collective · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 

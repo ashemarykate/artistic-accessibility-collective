@@ -184,7 +184,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
           {/* Comment list */}
           {comments.length === 0 ? (
             <p style={{ fontFamily: C.mono, fontSize: 13, color: C.dim, margin: '0 0 20px' }}>
-              No comments yet — be the first.
+              No comments yet. Be the first.
             </p>
           ) : (
             <ol
@@ -293,7 +293,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
                 id={`comment-draft-${itemSlug}`}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="What do you think? Practical notes, reactions, context, or questions — all welcome."
+                placeholder="What do you think? Practical notes, reactions, context, or questions, all welcome."
                 rows={4}
                 maxLength={2000}
                 disabled={posting}

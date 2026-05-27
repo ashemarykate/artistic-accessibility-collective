@@ -118,7 +118,7 @@ export default function ProfilePage() {
   const photoAltRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    document.title = 'Profile — Artistic Accessibility Collective';
+    document.title = 'Profile · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -239,7 +239,7 @@ export default function ProfilePage() {
       return;
     }
     if (usernameAvailable === false) {
-      setUsernameError('That username is already taken — try another.');
+      setUsernameError('That username is already taken. Try another.');
       return;
     }
     setUsernameSaving(true);
@@ -271,7 +271,7 @@ export default function ProfilePage() {
   const handlePhotoSave = async () => {
     if (!pendingFile || !profile) return;
     if (!photoAlt.trim()) {
-      setPhotoAltError('Please describe yourself in this photo — this helps screen reader users.');
+      setPhotoAltError('Please describe yourself in this photo; this helps screen reader users.');
       photoAltRef.current?.focus();
       return;
     }
@@ -351,7 +351,7 @@ export default function ProfilePage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <BrowserChrome variant="aol" title={`${displayName} — Artistic Accessibility Collective`} url={`http://members.artisticaccessibility.com/profile/${profile.username || profile.id}`}>
+    <BrowserChrome variant="aol" title={`${displayName} · Artistic Accessibility Collective`} url={`http://members.artisticaccessibility.com/profile/${profile.username || profile.id}`}>
     <main style={{ background: bgColor, minHeight: '100%', paddingBottom: '24px' }}>
 
       {/* ── Header ── */}
@@ -1082,7 +1082,7 @@ export default function ProfilePage() {
                     {Array.from({ length: Math.max(0, 6 - goTosPreview.length) }).map((_, i) => (
                       <li key={`e${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
                         <div style={{ width: '100%', aspectRatio: '1/1', border: '1px dashed #c8d3f0', background: '#f0f2fc' }} />
-                        <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>—</span>
+                        <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>·</span>
                       </li>
                     ))}
                   </ul>
@@ -1127,7 +1127,7 @@ export default function ProfilePage() {
                         <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', border: '1px solid var(--ms-border)' }}>
                           <iframe
                             src={embed.embedUrl}
-                            title={`${embed.label} — ${displayName}`}
+                            title={`${embed.label} · ${displayName}`}
                             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                             allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
@@ -1245,7 +1245,7 @@ export default function ProfilePage() {
             <MsBox header={`💬 What People Say About ${firstName}`}>
               <div className="ms-box-body">
                 <p style={{ color: 'var(--color-text-muted)', margin: 0, fontSize: '0.875rem' }}>
-                  {firstName} has {lovedByCount} Favorite{lovedByCount !== 1 ? 's' : ''} — no notes yet.{' '}
+                  {firstName} has {lovedByCount} Favorite{lovedByCount !== 1 ? 's' : ''}: no notes yet.{' '}
                   {canEndorse && !hasEndorsed && 'Be the first to leave one!'}
                 </p>
               </div>

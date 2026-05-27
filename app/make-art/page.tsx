@@ -51,7 +51,7 @@ export default function MakeArtPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Make Art — Artistic Accessibility Collective';
+    document.title = 'Make Art · Artistic Accessibility Collective';
     // Boot sequence: dots animate, then splash fades out
     let dots = 0;
     const dotInterval = setInterval(() => {
@@ -131,7 +131,7 @@ export default function MakeArtPage() {
           .make-art-boot   { animation: none !important; display: none !important; }
         }
       `}</style>
-      <h1 className="sr-only">Make Art Together — Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">Make Art Together · Artistic Accessibility Collective</h1>
 
       {/* ── Boot splash ───────────────────────────────────────────────────────── */}
       {booting && (
@@ -200,7 +200,7 @@ export default function MakeArtPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 'bold', fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
             <span aria-hidden="true" style={{ fontSize: 16 }}>🎨</span>
-            AAC Pix Deluxe — Make Art Together
+            AAC Pix Deluxe · Make Art Together
           </div>
           <div style={{ display: 'flex', gap: 3 }}>
             {['_','□','✕'].map((c) => (
@@ -328,7 +328,7 @@ export default function MakeArtPage() {
                   fontFamily: '"MS Sans Serif", Arial, sans-serif',
                   fontSize: 12, color: '#333', margin: 0, lineHeight: 1.5,
                 }}>
-                  A collaborative, accessible space for creativity — coming soon.
+                  A collaborative, accessible space for creativity, coming soon.
                 </p>
               </div>
 

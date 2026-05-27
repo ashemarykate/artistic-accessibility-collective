@@ -30,13 +30,13 @@ export default function ContactPage() {
   });
 
   useEffect(() => {
-    document.title = 'Contact Us — Artistic Accessibility Collective';
+    document.title = 'Contact Us · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   useEffect(() => {
     if (sent && successHeadingRef.current) {
-      document.title = 'Message Sent — Artistic Accessibility Collective';
+      document.title = 'Message Sent · Artistic Accessibility Collective';
       successHeadingRef.current.focus();
     }
   }, [sent]);

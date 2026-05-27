@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const assignNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    document.title = 'Admin Dashboard — Artistic Accessibility Collective';
+    document.title = 'Admin Dashboard · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -718,7 +718,7 @@ function ResourceSubmissionsPanel({
 
               {s.status === 'approved' && (
                 <p style={{ fontSize: '0.75rem', color: '#1a5e38', fontWeight: 600, marginTop: '0.375rem' }}>
-                  ✓ Approved — remember to add this to the resources page code!
+                  ✓ Approved. Remember to add this to the resources page code!
                 </p>
               )}
             </li>
@@ -740,7 +740,7 @@ function ResourceSubmissionsPanel({
     <div>
       <div className="content-card" style={{ marginBottom: '1.5rem' }}>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
-          Community-submitted resource suggestions. <strong>Approved suggestions still need to be manually added to the resources page code</strong> — the approval just records your decision and lets you track what&apos;s been vetted.
+          Community-submitted resource suggestions. <strong>Approved suggestions still need to be manually added to the resources page code</strong>; the approval just records your decision and lets you track what&apos;s been vetted.
         </p>
       </div>
       {renderGroup(pending, '⏳ Pending Review')}
@@ -765,14 +765,14 @@ const RESOURCE_CONTACTS: ResourceContact[] = [
   // Audio Description
   { category: 'Audio Description', name: 'DCMP (Described and Captioned Media Program)', website: 'dcmp.org', note: 'Free described/captioned media for students with disabilities' },
   { category: 'Audio Description', name: 'GBH Media Access Group', website: 'wgbh.org/foundation/media-access', note: 'Pioneer in audio description and captioning standards' },
-  { category: 'Audio Description', name: 'ACB Audio Description Project', website: 'adp.acb.org', note: 'American Council of the Blind — AD standards and resources' },
+  { category: 'Audio Description', name: 'ACB Audio Description Project', website: 'adp.acb.org', note: 'American Council of the Blind: AD standards and resources' },
   { category: 'Audio Description', name: 'YouDescribe', website: 'youdescribe.org', note: 'Volunteer-driven audio description for YouTube videos' },
   { category: 'Audio Description', name: 'VocalEye', website: 'vocaleye.ca', note: 'Live audio description for theatre and events (Canada)' },
   // Captioning & CART
   { category: 'Captioning & CART', name: 'HLAA (Hearing Loss Association of America)', website: 'hearingloss.org', note: 'Advocates for captioning access and hearing loop standards' },
   // Theater & Live Performance
   { category: 'Theater & Live Performance', name: 'Graeae Theatre Company', website: 'graeae.org/accessibility', note: 'UK disabled-led theater company; accessibility guidance' },
-  { category: 'Theater & Live Performance', name: 'Kennedy Center — VSA', website: 'kennedy-center.org/education/vsa', note: 'Arts and disability education programs' },
+  { category: 'Theater & Live Performance', name: 'Kennedy Center (VSA)', website: 'kennedy-center.org/education/vsa', note: 'Arts and disability education programs' },
   { category: 'Theater & Live Performance', name: 'Think Outside the Vox', website: 'thinkoutsidethevox.org', note: 'Accessibility in performing arts spaces' },
   // Film & Media
   { category: 'Film & Media', name: 'FWD-Doc (Documentary Filmmakers with Disabilities)', website: 'fwd-doc.org', note: 'Disability inclusion in documentary filmmaking' },
@@ -815,7 +815,7 @@ function ResourceContactsPanel() {
     <div>
       <div className="content-card" style={{ marginBottom: '1.5rem' }}>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
-          Contact and reference information for organizations whose resources appear in the public Resources directory. For internal use — not displayed to members.
+          Contact and reference information for organizations whose resources appear in the public Resources directory. For internal use, not displayed to members.
         </p>
       </div>
 
@@ -855,7 +855,7 @@ function ResourceContactsPanel() {
                       <td style={{ padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
                         {c.phone && <span>{c.phone}</span>}
                         {c.email && <a href={`mailto:${c.email}`} style={{ color: 'var(--aac-blue)' }}>{c.email}</a>}
-                        {!c.phone && !c.email && <span style={{ color: 'var(--color-border)' }}>—</span>}
+                        {!c.phone && !c.email && <span style={{ color: 'var(--color-border)' }}>·</span>}
                       </td>
                       <td style={{ padding: '0.5rem 0.75rem', color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>{c.note || ''}</td>
                     </tr>
@@ -1005,7 +1005,7 @@ function ProfileList({
                       ) : emailStatus[p.id] === 'sent' ? (
                         'Email Sent'
                       ) : emailStatus[p.id] === 'error' ? (
-                        'Failed — retry?'
+                        'Failed. Retry?'
                       ) : (
                         'Send Login Email'
                       )}

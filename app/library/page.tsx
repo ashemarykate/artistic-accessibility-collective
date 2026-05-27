@@ -61,7 +61,7 @@ export default function LibraryPage() {
   const [libFavPending, setLibFavPending] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    document.title = 'The Library — Artistic Accessibility Collective';
+    document.title = 'The Library · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -425,7 +425,7 @@ export default function LibraryPage() {
             </p>
             {suggestStatus === 'success' ? (
               <div role="status" aria-live="polite" style={{ color: C.green, fontSize: 14, padding: '4px 0' }}>
-                <span aria-hidden="true">▶ </span>SUBMISSION RECEIVED. Thank you — we&apos;ll add it to the catalog queue.
+                <span aria-hidden="true">▶ </span>SUBMISSION RECEIVED. Thank you; we&apos;ll add it to the catalog queue.
               </div>
             ) : (
               <form onSubmit={handleSuggest} noValidate style={{ display: 'grid', gap: 10 }}>

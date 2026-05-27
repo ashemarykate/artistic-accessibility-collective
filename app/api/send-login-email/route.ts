@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const { error: emailError } = await resend.emails.send({
       from: 'Artistic Accessibility Collective <contact@artisticaccessibility.com>',
       to: profile.email,
-      subject: "You're in — set up your Artistic Accessibility Collective profile",
+      subject: "You're in: set up your Artistic Accessibility Collective profile",
       html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
           Your profile has been approved and you're officially part of the Artistic Accessibility Collective.
         </p>
         <p style="font-size:16px;line-height:1.6;margin:0 0 28px;color:#5a6787;">
-          Click the button below to set up your login and see your profile. Your information is already there — you won't need to fill it in again.
+          Click the button below to set up your login and see your profile. Your information is already there; you won't need to fill it in again.
         </p>
         <div style="text-align:center;margin:32px 0;">
           <a href="${loginUrl}"

@@ -136,7 +136,7 @@ export default function AccessCardSignup() {
         </p>
 
         <p style={{ fontSize: '0.875rem', color: 'var(--color-text-body)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-          An Access Card lets you save resources and build your personal library. No application, no review — just sign up and go.
+          An Access Card lets you save resources and build your personal library. No application, no review. Just sign up and go.
         </p>
 
         <form onSubmit={handleSignup} noValidate>

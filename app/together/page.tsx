@@ -12,7 +12,7 @@ const ENTRIES = [
     time: '11:47 pm',
     subject: 'welcome to together_aac 💙',
     preview:
-      "hi everyone. this is the official community for Together, a space for accessible arts events, community meetups, and connection in and around the arts. we're still building it — but consider this your invitation to watch this space.",
+      "hi everyone. this is the official community for Together, a space for accessible arts events, community meetups, and connection in and around the arts. we're still building it, but consider this your invitation to watch this space.",
     tags: ['welcome', 'admin', 'announcement'],
     mood: 'excited',
     moodIcon: '🌟',
@@ -25,7 +25,7 @@ const ENTRIES = [
     time: '11:45 pm',
     subject: 'community calendar: coming soon',
     preview:
-      "we're working on a community events space — a place to find accessible arts events, post what's happening near you, and connect. more soon.",
+      "we're working on a community events space: a place to find accessible arts events, post what's happening near you, and connect. more soon.",
     tags: ['calendar', 'events', 'announcement'],
     mood: 'hopeful',
     moodIcon: '✨',
@@ -123,7 +123,7 @@ function CommunityIcon() {
 
 export default function TogetherPage() {
   useEffect(() => {
-    document.title = 'together_aac — LiveJournal';
+    document.title = 'together_aac · LiveJournal';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -201,7 +201,7 @@ export default function TogetherPage() {
               together_aac
             </h1>
             <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, marginBottom: 8 }}>
-              Artistic Accessibility Collective — Community Events Space
+              Artistic Accessibility Collective · Community Events Space
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {[

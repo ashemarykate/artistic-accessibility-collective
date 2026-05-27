@@ -49,7 +49,7 @@ function MessagesInner() {
   const composeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    document.title = 'Messages — Artistic Accessibility Collective';
+    document.title = 'Messages · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 

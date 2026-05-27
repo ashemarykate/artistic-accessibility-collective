@@ -26,7 +26,7 @@ export default function MyListsPage() {
   const [saving,    setSaving]    = useState(false);
 
   useEffect(() => {
-    document.title = 'My Lists — Artistic Accessibility Collective';
+    document.title = 'My Lists · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -59,7 +59,7 @@ export default function MyListsPage() {
         name:    'My Lists Feedback',
         email:   'feedback@internal',
         message: body || '(no selections made)',
-        subject: 'My Lists — member feedback',
+        subject: 'My Lists: member feedback',
       }),
     });
 

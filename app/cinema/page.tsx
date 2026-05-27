@@ -68,7 +68,7 @@ export default function CinemaPage() {
   const [cinFavPending, setCinFavPending] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    document.title = 'AAC Presents: The Cinema — Artistic Accessibility Collective';
+    document.title = 'AAC Presents: The Cinema · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -191,7 +191,7 @@ export default function CinemaPage() {
         padding: '0 0 48px',
       }}
     >
-      <h1 className="sr-only">AAC Presents: The Cinema — Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">AAC Presents: The Cinema · Artistic Accessibility Collective</h1>
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
 

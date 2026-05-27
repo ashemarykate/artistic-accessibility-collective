@@ -185,7 +185,7 @@ export default function EditProfilePage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Edit Profile — Artistic Accessibility Collective';
+    document.title = 'Edit Profile · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -660,7 +660,7 @@ export default function EditProfilePage() {
               <div className="ms-box-header">Volunteering</div>
               <div className="ms-box-body" style={{ padding: '1.25rem' }}>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginTop: 0, marginBottom: '1rem' }}>
-                  Are you open to volunteering your services for the right gig — like a low-income
+                  Are you open to volunteering your services for the right gig, like a low-income
                   community project, a grassroots arts org, or a cause you believe in?
                   If you answer yes, it will show on your profile. If you skip this, nothing is shown.
                 </p>
@@ -679,7 +679,7 @@ export default function EditProfilePage() {
                       onChange={() => setVolunteerStatus('yes')}
                       style={{ width: 16, height: 16 }}
                     />
-                    <span>Yes — for the right gig! 🌱</span>
+                    <span>Yes, for the right gig! 🌱</span>
                   </label>
 
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>

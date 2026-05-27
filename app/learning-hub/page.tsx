@@ -34,7 +34,7 @@ export default function LearningHubPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Learning Hub — Artistic Accessibility Collective';
+    document.title = 'Learning Hub · Artistic Accessibility Collective';
     let dots = 0;
     const dotInterval = setInterval(() => {
       dots = (dots + 1) % 4;
@@ -87,7 +87,7 @@ export default function LearningHubPage() {
         }
       `}</style>
 
-      <h1 className="sr-only">Learning Hub — Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">Learning Hub · Artistic Accessibility Collective</h1>
 
       {/* ── Boot splash ───────────────────────────────────────────────────────── */}
       {booting && (
@@ -156,7 +156,7 @@ export default function LearningHubPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontWeight: 'bold', fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
             <span aria-hidden="true" style={{ fontSize: 16 }}>📚</span>
-            AAC Encyclopedia — Learning Hub
+            AAC Encyclopedia · Learning Hub
           </div>
           <div style={{ display: 'flex', gap: 3 }}>
             {['_','□','✕'].map((c) => (
@@ -280,7 +280,7 @@ export default function LearningHubPage() {
                   fontFamily: '"MS Sans Serif", Arial, sans-serif',
                   fontSize: 12, color: '#333', margin: 0, lineHeight: 1.5,
                 }}>
-                  An interactive learning series for arts accessibility — coming soon.
+                  An interactive learning series for arts accessibility, coming soon.
                 </p>
               </div>
 
@@ -298,7 +298,7 @@ export default function LearningHubPage() {
                 <p style={{ margin: '0 0 8px' }}>
                   We&apos;re building an interactive learning series for everyone working in,
                   around, and alongside the arts. Courses, modules, and community learning
-                  at every level — designed with the disability arts community.
+                  at every level, designed with the disability arts community.
                 </p>
                 <p style={{ margin: 0 }}>
                   This is a long-term project. We&apos;re taking our time to do it right.
@@ -328,7 +328,7 @@ export default function LearningHubPage() {
                     background: 'repeating-linear-gradient(90deg, #009955 0px, #006633 10px, #009955 10px, #006633 20px)',
                   }} />
                 </div>
-                <div style={{ marginTop: 4, color: '#666' }}>38% complete — check back soon</div>
+                <div style={{ marginTop: 4, color: '#666' }}>38% complete. Check back soon</div>
               </div>
 
             </div>

@@ -454,7 +454,7 @@ export default function ResourcesPage() {
           }}>
             <span aria-hidden="true" style={{ fontSize: '14px' }}>🌐</span>
             <span style={{ flex: 1, fontSize: '11px', fontFamily: IE.font, color: '#ffffff', fontWeight: 'bold', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-              Accessibility Resources — Artistic Accessibility Collective
+              Accessibility Resources · Artistic Accessibility Collective
             </span>
             <div style={{ display: 'flex', gap: '2px' }}>
               <WinControl label="─" />
@@ -533,7 +533,7 @@ export default function ResourcesPage() {
 
           {/* ── Scrollable page content ── */}
           <main id="main-content" style={{ flex: 1, overflow: 'auto', background: NP.bg }}>
-            <h1 className="sr-only">Free Resource Directory — Artistic Accessibility Collective</h1>
+            <h1 className="sr-only">Free Resource Directory · Artistic Accessibility Collective</h1>
 
             {/* Marquee */}
             <MarqueeStrip text="✦ ALL RESOURCES ARE FREE ✦ NO SUBSCRIPTIONS ✦ NO PAYWALLS ✦ BY THE COMMUNITY, FOR THE COMMUNITY ✦ VERIFIED MAY 2026 ✦" />

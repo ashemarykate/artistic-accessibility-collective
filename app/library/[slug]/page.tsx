@@ -47,7 +47,7 @@ export default function LibraryItemPage() {
   }, []);
 
   useEffect(() => {
-    if (item) document.title = `${item.title} — The Library · AAC`;
+    if (item) document.title = `${item.title} · The Library · AAC`;
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [item]);
 
@@ -67,7 +67,7 @@ export default function LibraryItemPage() {
   return (
     <BrowserChrome
       variant="mosaic"
-      title={`${item.title} — The Library · Artistic Accessibility Collective`}
+      title={`${item.title} · The Library · Artistic Accessibility Collective`}
       url={`http://library.artisticaccessibility.com/${item.slug}`}
     >
     <main
@@ -79,7 +79,7 @@ export default function LibraryItemPage() {
         position: 'relative',
       }}
     >
-      <h1 className="sr-only">{item.title} — The Library · Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">{item.title} · The Library · Artistic Accessibility Collective</h1>
 
       {/* CRT overlays — hidden for high-contrast / reduced-motion users */}
       <div aria-hidden="true" className="crt-overlay" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 60, background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px)', mixBlendMode: 'multiply' }} />

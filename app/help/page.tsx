@@ -11,14 +11,14 @@ const PAGES = [
     title: 'Accessibility Resources',
     url: '/resources',
     category: 'Resources',
-    description: 'A curated directory of tools, guides, organizations, and standards for accessibility in the arts — captioning, audio description, ASL interpretation, WCAG, and more.',
+    description: 'A curated directory of tools, guides, organizations, and standards for accessibility in the arts: captioning, audio description, ASL interpretation, WCAG, and more.',
     keywords: ['resource', 'tool', 'guide', 'accessibility', 'caption', 'captioning', 'audio description', 'asl', 'interpreter', 'interpreting', 'wcag', 'standard', 'organization', 'technology', 'software', 'deaf', 'blind', 'disability', 'access', 'arts', 'describe'],
   },
   {
     title: 'The Library',
     url: '/library',
     category: 'Resources',
-    description: 'A community-curated reading list of books, essays, articles, zines, and toolkits on disability arts and justice — many free to access.',
+    description: 'A community-curated reading list of books, essays, articles, zines, and toolkits on disability arts and justice; many free to access.',
     keywords: ['library', 'book', 'read', 'essay', 'article', 'research', 'disability', 'justice', 'zine', 'toolkit', 'free', 'catalog', 'literature', 'reading', 'learn'],
   },
   {
@@ -46,7 +46,7 @@ const PAGES = [
     title: 'Member Directory',
     url: '/members',
     category: 'Membership',
-    description: 'Browse and search the directory of Collective members — ASL interpreters, captioners, audio describers, educators, and more.',
+    description: 'Browse and search the directory of Collective members: ASL interpreters, captioners, audio describers, educators, and more.',
     keywords: ['directory', 'member', 'find', 'browse', 'professional', 'interpreter', 'captioner', 'describer', 'educator', 'hire', 'people', 'who', 'list'],
   },
   {
@@ -181,7 +181,7 @@ export default function HelpPage() {
   const resultsRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Help — Artistic Accessibility Collective';
+    document.title = 'Help · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 

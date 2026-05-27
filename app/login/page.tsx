@@ -265,7 +265,7 @@ function LoginForm() {
           </Link>
         </p>
         <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-          Save resources and build your personal library — open to everyone, no application needed.
+          Save resources and build your personal library. Open to everyone, no application needed.
         </p>
 
         <p style={{ textAlign: 'center' }}>

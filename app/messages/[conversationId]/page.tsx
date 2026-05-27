@@ -46,7 +46,7 @@ export default function ConversationPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    document.title = 'Messages — Artistic Accessibility Collective';
+    document.title = 'Messages · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -230,7 +230,7 @@ export default function ConversationPage() {
   }
 
   const convTitle = otherProfile
-    ? `${otherProfile.display_name || otherProfile.full_name} — Messages`
+    ? `${otherProfile.display_name || otherProfile.full_name} · Messages`
     : 'Messages';
 
   return (

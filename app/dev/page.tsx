@@ -62,23 +62,23 @@ const SAMPLE = {
   workSamplesUrl:     'jordsworks.com/reel',
 
   highlights:  'SXSW 2026 accessibility lead. Large-scale live event interpretation and real-time CART captioning. Available for touring productions, festivals, and corporate events nationwide.',
-  bio:         "I've spent the last 8 years making live experiences accessible to everyone in the room — from intimate theatre to 80,000-person music festivals. I believe accessibility isn't a checklist, it's a craft.\n\nCurrently based in Austin but I go where the work is.",
+  bio:         "I've spent the last 8 years making live experiences accessible to everyone in the room, from intimate theatre to 80,000-person music festivals. I believe accessibility isn't a checklist, it's a craft.\n\nCurrently based in Austin but I go where the work is.",
   specialties: ['ASL Interpreter', 'CART Captioner', 'Event Accessibility Coordinator'],
   rateInfo:    'Rates vary by role and event size. ASL interpretation from $X/hr; CART from $Y/hr. Full-day and multi-day rates available. Contact for a quote.',
   careerHighlights: [
-    'SXSW 2026 — Lead ASL Interpreter, 40+ sessions across 5 days',
-    'ACL Fest 2025 — Full accessibility team coordination, main and side stages',
-    'Austin City Limits TV (PBS) — Regular captioner since 2022',
-    'Texas Governor\'s Conference on Disability (2023, 2024) — Lead interpreter',
-    'Broadway national tour, 6-week run, Austin stop — CART and ASL team lead',
+    'SXSW 2026: Lead ASL Interpreter, 40+ sessions across 5 days',
+    'ACL Fest 2025: Full accessibility team coordination, main and side stages',
+    'Austin City Limits TV (PBS): Regular captioner since 2022',
+    'Texas Governor\'s Conference on Disability (2023, 2024): Lead interpreter',
+    'Broadway national tour, 6-week run, Austin stop: CART and ASL team lead',
   ],
   funFact:       'I once interpreted a death metal concert in ASL and it was the most fun I\'ve ever had at work.',
-  favoriteEvent: 'ACL Fest 2024 — coordinating the entire accessibility village while simultaneously interpreting the main stage was chaotic, loud, and absolutely perfect.',
+  favoriteEvent: 'ACL Fest 2024: coordinating the entire accessibility village while simultaneously interpreting the main stage was chaotic, loud, and absolutely perfect.',
 
   education: [
-    'BA in Theatre Arts — University of Texas at Austin, 2016',
-    'AASLI Interpreter Training Program — 2017',
-    'BEI Advanced Certification — 2019',
+    'BA in Theatre Arts, University of Texas at Austin, 2016',
+    'AASLI Interpreter Training Program, 2017',
+    'BEI Advanced Certification, 2019',
   ],
   softwareSkills: ['Rev', 'CaptionSync', 'StreamText', 'ZoomText', 'CART Studio', 'Zoom', 'Microsoft Teams', 'Slack'],
   newToRoles:     ['Audio Description', 'Sign Language Instructor', 'Accessibility Consultant'],
@@ -151,7 +151,7 @@ export default function DevPreview() {
 
       {/* Dev banner */}
       <div role="status" style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center', padding: '4px' }}>
-        ⚠️ DEV PREVIEW — sample data only —{' '}
+        ⚠️ DEV PREVIEW: sample data only,{' '}
         <a href="/" style={{ color: 'inherit' }}>back to home</a>
       </div>
 
@@ -506,7 +506,7 @@ export default function DevPreview() {
                 {Array.from({ length: Math.max(0, 8 - SAMPLE.goTos.length) }).map((_, i) => (
                   <li key={`e${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
                     <div style={{ width: '100%', aspectRatio: '1/1', border: '1px dashed #c8d3f0', background: '#f0f2fc' }} />
-                    <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>—</span>
+                    <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>·</span>
                   </li>
                 ))}
               </ul>
@@ -532,7 +532,7 @@ export default function DevPreview() {
                       <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', border: '1px solid var(--ms-border)' }}>
                         <iframe
                           src={embed.embedUrl}
-                          title={`${embed.label} — ${SAMPLE.name}`}
+                          title={`${embed.label} · ${SAMPLE.name}`}
                           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
                           allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
@@ -581,10 +581,10 @@ export default function DevPreview() {
           <MsBox header={`💬 What People Say About ${firstName}`} action={{ label: 'Add a Note', href: '#' }}>
             <div className="ms-box-body">
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 8px' }}>
-                Displaying <strong>2</strong> of <strong>{SAMPLE.lovedByCount}</strong> notes — <a href="#">View all</a>
+                Displaying <strong>2</strong> of <strong>{SAMPLE.lovedByCount}</strong> notes; <a href="#">View all</a>
               </p>
               {[
-                { name: 'Priya Nair', initial: 'P', color: '#fce7f3', date: '5/18/2026 2:14 PM', rel: 'We worked together at SXSW 2026', text: "Jordan interpreted our entire panel and it was the most seamlessly accessible event I've ever been part of. Absolute professional — I recommend them for any large-scale event." },
+                { name: 'Priya Nair', initial: 'P', color: '#fce7f3', date: '5/18/2026 2:14 PM', rel: 'We worked together at SXSW 2026', text: "Jordan interpreted our entire panel and it was the most seamlessly accessible event I've ever been part of. Absolute professional; I recommend them for any large-scale event." },
                 { name: 'Leo Vasquez', initial: 'L', color: '#d4f0e0', date: '4/02/2026 10:30 AM', rel: 'Collaborators since 2022', text: 'Best CART captioner I have worked with in 10 years. Fast, accurate, and genuinely invested in making the experience great for everyone.' },
               ].map((c, i) => (
                 <div key={i} className="ms-comment-row">

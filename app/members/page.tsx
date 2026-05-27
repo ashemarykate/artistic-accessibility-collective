@@ -61,7 +61,7 @@ export default function MemberDirectory() {
   const [volunteerOnly, setVolunteerOnly] = useState(false);
 
   useEffect(() => {
-    document.title = 'Member Directory — Artistic Accessibility Collective';
+    document.title = 'Member Directory · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
