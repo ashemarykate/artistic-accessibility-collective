@@ -799,6 +799,41 @@ export default function CalendarPage() {
               {periodLabel}
             </span>
 
+            {/* Home + Resources nav buttons */}
+            <a
+              href="/"
+              aria-label="Home"
+              className="cal-nav-btn"
+              style={{
+                width: 28, height: 24,
+                background: '#263590',
+                border: '2px outset #fff',
+                borderRadius: 2,
+                fontSize: 15, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none', flexShrink: 0,
+              }}
+              title="Home"
+            >🏠</a>
+            <a
+              href="/resources"
+              aria-label="Accessibility Resources"
+              className="cal-nav-btn"
+              style={{
+                width: 28, height: 24,
+                background: '#2272c8',
+                border: '2px outset #fff',
+                borderRadius: 2,
+                fontSize: 15, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none', flexShrink: 0,
+              }}
+              title="Accessibility Resources"
+            >♿</a>
+            <div aria-hidden="true" style={{ width: 1, height: 16, background: '#999', margin: '0 2px' }} />
+
             {/* Submit Event button */}
             <button
               onClick={() => router.push('/submit-event')}

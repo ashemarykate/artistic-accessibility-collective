@@ -210,6 +210,23 @@ export default function LearningHubPage() {
             >
               🏠
             </a>
+            <a
+              href="/resources"
+              aria-label="Accessibility Resources"
+              style={{
+                width: 34, height: 34,
+                background: '#2272c8',
+                border: '2px outset #eee',
+                borderRadius: 3,
+                fontSize: 18, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none',
+                flexShrink: 0,
+              }}
+            >
+              ♿
+            </a>
             <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
 
             {SUBJECTS.map((sub, i) => {
