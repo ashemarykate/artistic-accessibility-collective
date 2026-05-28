@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 /**
  * DEV PREVIEW — visit localhost:3000/dev
@@ -160,7 +161,7 @@ export default function DevPreview() {
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/wordmark-2.svg" alt="" />
+            <Logo alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
             <Link href="/" className="nav-link">Home</Link>

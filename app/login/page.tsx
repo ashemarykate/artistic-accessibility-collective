@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -132,7 +133,7 @@ function LoginForm() {
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
+        <Logo height={72} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>

@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -24,9 +25,7 @@ export default function Collective() {
         <div style={{ maxWidth: '860px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
           {/* Logo is the h1 — alt text is read as the page title by screen readers */}
           <h1 style={{ margin: '0 0 2.5rem' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/wordmark-2.svg"
+            <Logo
               alt="Artistic Accessibility Collective: the name is set in bold, chunky hand-lettered block letters with a warm, playful energy, paired with the tagline 'together, together' in a loose, flowing handwritten script"
               style={{ width: '100%', maxWidth: '900px', height: 'auto', display: 'block', margin: '0 auto' }}
             />

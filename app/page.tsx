@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -200,12 +201,7 @@ export default function Home() {
           justifyContent: 'center',
           borderBottom: '1px solid #1a3a8a',
         }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/wordmark-2.svg"
-            alt=""
-            style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
-          />
+          <Logo alt="" style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }} />
         </div>
 
         {/* ── Menu bar ───────────────────────────────────────────────────────── */}

@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -88,7 +89,7 @@ export default function MyListsPage() {
       <header className="site-header">
         <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/wordmark-2.svg" alt="" />
+          <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/dashboard"    className="nav-link">Backstage</Link>

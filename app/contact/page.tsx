@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -95,7 +96,7 @@ export default function ContactPage() {
       <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/wordmark-2.svg" alt="" style={{ height: '72px', width: 'auto' }} />
+          <Logo alt="" height={72} />
         </Link>
         <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
@@ -126,7 +127,7 @@ export default function ContactPage() {
 
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/wordmark-2.svg" alt="" style={{ height: '72px', width: 'auto' }} />
+        <Logo alt="" height={72} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '560px', width: '100%' }}>

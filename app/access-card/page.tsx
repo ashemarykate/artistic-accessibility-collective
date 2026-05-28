@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -206,12 +207,7 @@ function LibraryCard({ profile, onSave }: {
         padding: '10px 28px 10px 14px',
         display: 'flex', alignItems: 'center',
       }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/wordmark-2.svg"
-          alt="Artistic Accessibility Collective"
-          style={{ height: 22, width: 'auto', opacity: 0.95 }}
-        />
+        <Logo height={22} style={{ opacity: 0.95 }} />
       </div>
 
       {/* Card type + catalog number row */}
@@ -456,7 +452,7 @@ export default function AccessCardPage() {
       }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" style={{ height: '56px', width: 'auto' }} />
+          <Logo height={56} />
         </Link>
 
         <h1 className="sr-only">Your Access Card</h1>

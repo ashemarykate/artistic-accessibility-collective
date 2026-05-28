@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
@@ -359,7 +360,7 @@ export default function ProfilePage() {
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/wordmark-2.svg" alt="" />
+            <Logo alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
             {currentUser  && <Link href="/members" className="nav-link">Members</Link>}

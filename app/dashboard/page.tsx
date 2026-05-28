@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback } from 'react';
 import { supabase, type Profile, type Conversation, type Message, profileHref } from '@/lib/supabase';
@@ -228,7 +229,7 @@ export default function MemberHub() {
       <header className="site-header">
         <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/wordmark-2.svg" alt="" />
+          <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/messages" className="nav-link" aria-label={unreadCount > 0 ? `Messages — ${unreadCount} unread` : 'Messages'}>

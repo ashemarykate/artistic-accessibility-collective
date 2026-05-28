@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useEffect, useState } from 'react';
 import { supabase, type Profile, profileHref } from '@/lib/supabase';
@@ -150,7 +151,7 @@ export default function MemberDirectory() {
     <BrowserChrome variant="netscape" title="The Collective — Member Directory" url="http://members.artisticaccessibility.com/members">
     <main className="page-wrapper" style={{ background: 'var(--aac-blue)' }}>
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/wordmark-2.svg" alt="" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/dashboard"   className="nav-link">Backstage</Link>
           <Link href="/messages"  className="nav-link">Messages</Link>

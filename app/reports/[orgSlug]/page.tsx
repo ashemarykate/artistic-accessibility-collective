@@ -1,3 +1,4 @@
+import Logo from '@/components/Logo';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getReportData } from '@/lib/reports/data';
@@ -218,11 +219,7 @@ function Cover({ org }: { org: ReportData['org'] }) {
         flexDirection: 'column',
         minHeight: 640,
       }}>
-        <img
-          src="/images/wordmark-2.svg"
-          alt=""
-          style={{ height: 60, width: 'auto', marginBottom: 72 }}
-        />
+        <Logo alt="" height={60} style={{ marginBottom: 72 }} />
 
         <div style={{ flex: 1 }}>
           <div style={{ width: 56, height: 4, background: '#f5d84a', marginBottom: 28 }} />
@@ -741,11 +738,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
         paddingTop: 20, marginTop: 36,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <img
-          src="/images/wordmark-2.svg"
-          alt="Artistic Accessibility Collective"
-          style={{ height: 44, width: 'auto' }}
-        />
+        <Logo height={44} />
         <div style={{ fontSize: 12, color: '#7788bb' }}>
           artisticaccessibility.com &middot;{' '}
           <span style={{ fontFamily: "'AAC Display', Impact, 'Arial Black', sans-serif", fontSize: 13 }}>

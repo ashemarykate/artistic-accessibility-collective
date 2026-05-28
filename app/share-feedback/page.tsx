@@ -1,4 +1,5 @@
 'use client';
+import Logo from '@/components/Logo';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -98,12 +99,7 @@ export default function ShareFeedback() {
         aria-label="Artistic Accessibility Collective - Home"
         style={{ marginBottom: '1.5rem', display: 'inline-block' }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/wordmark-2.svg"
-          alt=""
-          style={{ height: '72px', width: 'auto' }}
-        />
+        <Logo alt="" height={72} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '560px', width: '100%' }}>
