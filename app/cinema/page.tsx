@@ -281,7 +281,7 @@ export default function CinemaPage() {
             {/* Title block — sits above the left column items, on the teal background */}
             <div style={{ marginBottom: 10 }}>
               <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black }}>
-                <div style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase', opacity: 0.65 }}>&apos;25&ndash;&apos;26 SEASON</div>
+                <div style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase', opacity: 0.65 }}>SEASON</div>
                 <div style={{ fontSize: 13, letterSpacing: '0.14em', fontWeight: 900, marginTop: 4 }}>AAC PRESENTS:</div>
                 <div className="cinema-title" style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE CINEMA</div>
               </div>
