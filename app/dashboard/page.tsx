@@ -66,29 +66,14 @@ export default function MemberHub() {
       .maybeSingle();
 
     if (!profileData) {
-      // No profile found by user_id — try to link by email.
-      // This happens when /auth/callback was bypassed (e.g. old magic links
-      // that didn't include redirectTo=/auth/callback).
-      const userEmail = user.email;
-      if (userEmail) {
-        const { data: unlinked } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', userEmail)
-          .is('user_id', null)
-          .eq('status', 'approved')
-          .maybeSingle();
-        if (unlinked) {
-          await supabase
-            .from('profiles')
-            .update({ user_id: user.id })
-            .eq('id', unlinked.id);
-          setProfile(unlinked);
-          // Continue loading — fall through to the rest of loadHub
-          // by re-running now that the link is established
-          loadHub();
-          return;
-        }
+      // No profile found by user_id — try to link by email via SECURITY DEFINER RPC.
+      // Direct SELECT on unlinked profiles fails due to RLS (no policy covers
+      // unlinked rows), so we delegate to a server-side function that bypasses it.
+      const { data: linked } = await supabase.rpc('link_profile_to_auth_user');
+      if (linked) {
+        // Link succeeded — re-run loadHub now that user_id is set in the DB
+        loadHub();
+        return;
       }
       await supabase.auth.signOut();
       router.replace('/login?error=profile_not_linked');

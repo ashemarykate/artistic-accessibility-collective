@@ -67,26 +67,11 @@ export default function AuthCallback() {
 
       // ── 2. Link profile to auth user (first magic-link sign-in) ───────────
       // The profiles row is created during registration with user_id = NULL.
-      // The RLS policy (v14 migration) allows updating it when the email matches.
-      const userId     = session.user.id;
-      const userEmail  = session.user.email;
+      // We use a SECURITY DEFINER RPC that bypasses RLS — direct SELECT+UPDATE
+      // from the client fails because no SELECT policy covers unlinked profiles.
+      const userId = session.user.id;
 
-      if (userEmail) {
-        const { data: unlinked } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', userEmail)
-          .is('user_id', null)
-          .eq('status', 'approved')
-          .maybeSingle();
-
-        if (unlinked) {
-          await supabase
-            .from('profiles')
-            .update({ user_id: userId })
-            .eq('id', unlinked.id);
-        }
-      }
+      await supabase.rpc('link_profile_to_auth_user');
 
       // ── 3. Route to the right place ────────────────────────────────────────
       // Check admin first, then member_type to distinguish Collective vs Access Card.
