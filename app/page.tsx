@@ -152,6 +152,7 @@ export default function Home() {
 
   return (
     <main
+      className="xp-main"
       style={{
         position: 'fixed',
         inset: 0,
@@ -510,6 +511,14 @@ export default function Home() {
 
         /* ── Mobile ────────────────────────────────────────────────────────────── */
         @media (max-width: 580px) {
+          /* Fix scroll: switch from fixed viewport to normal document flow */
+          .xp-main {
+            position: static !important;
+            min-height: 100dvh !important;
+            overflow: visible !important;
+            justify-content: flex-start !important;
+            padding: 12px 8px 24px !important;
+          }
           /* Show brand strip, hide image panel and redundant chrome */
           .xp-mobile-brand { display: flex !important; }
           .xp-collective-nav { display: list-item !important; }
