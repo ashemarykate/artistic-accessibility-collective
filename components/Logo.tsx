@@ -3,10 +3,10 @@
 import { useRef } from 'react';
 
 const LOGO_VERSIONS = [
-  '/images/wordmark-v1.svg',
-  '/images/wordmark-v2.svg',
-  '/images/wordmark-v3.svg',
-  '/images/wordmark-v4.svg',
+  '/images/wordmark-v1.png',
+  '/images/wordmark-v2.png',
+  '/images/wordmark-v3.png',
+  '/images/wordmark-v4.png',
 ];
 
 /**
