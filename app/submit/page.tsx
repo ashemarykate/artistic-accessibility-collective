@@ -415,6 +415,11 @@ export default function SubmitProfile() {
             Don&apos;t have a code?{' '}
             <Link href="/contact" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Get in touch</Link>
           </p>
+          <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>
+            <Link href="/access-card/signup" style={{ color: 'var(--aac-blue)', fontWeight: 600, textDecoration: 'underline' }}>
+              No code? Sign up for your Free Access Card here!
+            </Link>
+          </p>
           <p style={{ marginTop: '0.75rem' }}>
             <Link href="/" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textDecoration: 'underline' }}>
               <span aria-hidden="true">← </span>Back to Home

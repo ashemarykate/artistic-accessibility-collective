@@ -259,13 +259,10 @@ function LoginForm() {
 
         <hr className="divider" />
 
-        <p style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-          <Link href="/access-card/signup" style={{ color: 'var(--aac-blue)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'underline' }}>
-            Get a free Access Card →
+        <p style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <Link href="/submit" style={{ color: 'var(--aac-blue)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'underline' }}>
+            New here? Access Codes &amp; Free Access Cards this way!
           </Link>
-        </p>
-        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
-          Save resources and build your personal library. Open to everyone, no application needed.
         </p>
 
         <p style={{ textAlign: 'center' }}>
