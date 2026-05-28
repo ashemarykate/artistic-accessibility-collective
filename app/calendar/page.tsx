@@ -959,7 +959,7 @@ export default function CalendarPage() {
             <span>·</span>
             <span>Filter: {filterLabel}</span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontStyle: 'italic' }}>AAC Events Calendar · together, together</span>
+            <span style={{ fontStyle: 'italic' }}>AAC Events Calendar · artisticaccessibility.com</span>
           </div>
         </div>
       )}
