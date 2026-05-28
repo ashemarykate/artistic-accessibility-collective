@@ -831,7 +831,7 @@ export default function CalendarPage() {
                 textDecoration: 'none', flexShrink: 0,
               }}
               title="Accessibility Resources"
-            >♿</a>
+            >🔵</a>
             <div aria-hidden="true" style={{ width: 1, height: 16, background: '#999', margin: '0 2px' }} />
 
             {/* Submit Event button */}

@@ -269,7 +269,7 @@ export default function MakeArtPage() {
                 flexShrink: 0,
               }}
             >
-              ♿
+              🔵
             </a>
             <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
 
