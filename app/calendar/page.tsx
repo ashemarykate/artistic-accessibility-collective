@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase, type CalEvent } from '@/lib/supabase';
 
 // ── Stars (same field as Make Art / Learning Hub) ─────────────────────────────
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -59,8 +61,17 @@ type FilterMode = 'all' | 'local-online' | 'online';
 type CalView   = 'day' | '3day' | 'week' | 'month';
 type Phase     = 'boot' | 'filter' | 'app';
 
+// Tag colors for event chips
+const TAG_COLORS: Record<string, string> = {
+  'Captioned':           '#1a5c2a',
+  'ASL-Interpreted':     '#2952c8',
+  'Audio Described':     '#5a1a6e',
+  'Relaxed Performance': '#a06000',
+};
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
+  const router = useRouter();
   const [phase,       setPhase]       = useState<Phase>('boot');
   const [bootText,    setBootText]    = useState('Loading AAC Events Calendar');
   const [booting,     setBooting]     = useState(true);
@@ -70,6 +81,9 @@ export default function CalendarPage() {
   const [view,        setView]        = useState<CalView>('week');
   const [weekStart,   setWeekStart]   = useState(() => getWeekStart(new Date()));
   const [monthDate,   setMonthDate]   = useState(() => new Date());
+  const [events,      setEvents]      = useState<CalEvent[]>([]);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [isLoggedIn,  setIsLoggedIn]  = useState(false);
 
   const filterRef = useRef<HTMLHeadingElement>(null);
   const appRef    = useRef<HTMLHeadingElement>(null);
@@ -103,6 +117,29 @@ export default function CalendarPage() {
       document.title = 'Artistic Accessibility Collective';
     };
   }, []);
+
+  // Check login state (to show "Submit Event" button)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setIsLoggedIn(!!user));
+  }, []);
+
+  // Fetch events when the calendar opens
+  useEffect(() => {
+    if (phase !== 'app') return;
+    const now = new Date();
+    // Show events from 1 week ago onward so recently-passed events still appear briefly
+    const lookback = new Date(now.getTime() - 7 * 86_400_000);
+    supabase
+      .from('events')
+      .select('*')
+      .eq('is_visible', true)
+      .gte('start_at', lookback.toISOString())
+      .order('start_at')
+      .then(({ data }) => {
+        setEvents((data ?? []) as CalEvent[]);
+        setEventsLoaded(true);
+      });
+  }, [phase]);
 
   const handleContinue = () => {
     if (filterMode === 'local-online' && !postalCode.trim()) {
@@ -163,6 +200,42 @@ export default function CalendarPage() {
   const colDays  = view === '3day' ? threeDays : view === 'day' ? [today] : weekDays;
   const numCols  = colDays.length;
 
+  const showComingSoon = eventsLoaded && events.length === 0;
+
+  /** Events that start on the given calendar date */
+  function eventsForDate(d: Date): CalEvent[] {
+    return events.filter(ev => {
+      const s = new Date(ev.start_at);
+      return s.getFullYear() === d.getFullYear() &&
+             s.getMonth()    === d.getMonth()    &&
+             s.getDate()     === d.getDate();
+    });
+  }
+
+  /** A small colored event chip */
+  function EventChip({ ev }: { ev: CalEvent }) {
+    const start   = new Date(ev.start_at);
+    const timeStr = ev.is_all_day
+      ? '' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return (
+      <a
+        href={ev.event_url ?? '#'}
+        target="_blank" rel="noopener noreferrer"
+        style={{
+          display: 'block', background: '#263590', color: '#fff',
+          fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
+          padding: '1px 4px', marginBottom: 2, borderRadius: 1,
+          overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+          textDecoration: 'none', cursor: 'pointer',
+        }}
+        title={[ev.title, timeStr, ev.organization].filter(Boolean).join(' · ')}
+      >
+        {timeStr && <span style={{ opacity: 0.75 }}>{timeStr} </span>}
+        {ev.title}
+      </a>
+    );
+  }
+
   function TimeGrid() {
     return (
       <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
@@ -175,23 +248,27 @@ export default function CalendarPage() {
           position: 'sticky', top: 0, zIndex: 2,
         }}>
           <div style={{ borderRight: '1px solid #b4b0a8' }} />
-          {colDays.map((d, i) => (
-            <div
-              key={i}
-              style={{
-                padding: '4px 0',
-                textAlign: 'center',
-                borderRight: i < numCols - 1 ? '1px solid #b4b0a8' : undefined,
-                background: isToday(d) ? '#dce8ff' : undefined,
-                fontWeight: isToday(d) ? 'bold' : 'normal',
-                color: isToday(d) ? '#263590' : '#333',
-                fontSize: 11,
-              }}
-            >
-              <div>{DAY_NAMES[d.getDay()]}</div>
-              <div style={{ fontSize: 14, fontWeight: 'bold' }}>{d.getDate()}</div>
-            </div>
-          ))}
+          {colDays.map((d, i) => {
+            const dayEvs = eventsForDate(d);
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: '4px 3px 2px',
+                  textAlign: 'center',
+                  borderRight: i < numCols - 1 ? '1px solid #b4b0a8' : undefined,
+                  background: isToday(d) ? '#dce8ff' : undefined,
+                  fontWeight: isToday(d) ? 'bold' : 'normal',
+                  color: isToday(d) ? '#263590' : '#333',
+                  fontSize: 11,
+                }}
+              >
+                <div>{DAY_NAMES[d.getDay()]}</div>
+                <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: dayEvs.length ? 3 : 0 }}>{d.getDate()}</div>
+                {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+              </div>
+            );
+          })}
         </div>
 
         {/* Time rows */}
@@ -229,33 +306,35 @@ export default function CalendarPage() {
             </div>
           ))}
 
-          {/* Coming soon overlay */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            gap: 10,
-            background: 'rgba(255,255,255,0.82)',
-            pointerEvents: 'none',
-          }}>
-            <span style={{
-              background: '#263590', color: 'white',
-              fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 10, fontWeight: 'bold',
-              padding: '2px 12px', letterSpacing: '0.08em',
-              border: '1px solid #1a2568',
+          {/* Coming soon overlay — only when no events exist yet */}
+          {showComingSoon && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: 10,
+              background: 'rgba(255,255,255,0.82)',
+              pointerEvents: 'none',
             }}>
-              ★ COMING SOON ★
-            </span>
-            <p style={{
-              fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
-              maxWidth: 240, lineHeight: 1.5,
-            }}>
-              Events are on their way. Once live, you&apos;ll see accessibility
-              events, interpreted performances, and community happenings here.
-            </p>
-          </div>
+              <span style={{
+                background: '#263590', color: 'white',
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                fontSize: 10, fontWeight: 'bold',
+                padding: '2px 12px', letterSpacing: '0.08em',
+                border: '1px solid #1a2568',
+              }}>
+                ★ COMING SOON ★
+              </span>
+              <p style={{
+                fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+                maxWidth: 240, lineHeight: 1.5,
+              }}>
+                Events are on their way. Once live, you&apos;ll see accessibility
+                events, interpreted performances, and community happenings here.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -289,33 +368,42 @@ export default function CalendarPage() {
             borderBottom: '1px solid #e0dcd4',
             minHeight: 72,
           }}>
-            {week.map((day, di) => (
-              <div key={di} style={{
-                borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
-                padding: '3px 5px',
-                background: day && isCurrentMonth && day === todayNum ? '#dce8ff' : '#fff',
-              }}>
-                {day !== null && (
-                  <span style={{
-                    display: 'inline-block',
-                    width: 20, height: 20,
-                    lineHeight: '20px',
-                    textAlign: 'center',
-                    borderRadius: 10,
-                    fontSize: 11,
-                    fontWeight: isCurrentMonth && day === todayNum ? 'bold' : 'normal',
-                    background: isCurrentMonth && day === todayNum ? '#263590' : 'transparent',
-                    color: isCurrentMonth && day === todayNum ? '#fff' : '#333',
-                  }}>
-                    {day}
-                  </span>
-                )}
-              </div>
-            ))}
+            {week.map((day, di) => {
+              const cellDate = day !== null ? new Date(monthDate.getFullYear(), monthDate.getMonth(), day) : null;
+              const dayEvs   = cellDate ? eventsForDate(cellDate) : [];
+              return (
+                <div key={di} style={{
+                  borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
+                  padding: '3px 5px',
+                  background: day && isCurrentMonth && day === todayNum ? '#dce8ff' : '#fff',
+                }}>
+                  {day !== null && (
+                    <>
+                      <span style={{
+                        display: 'inline-block',
+                        width: 20, height: 20,
+                        lineHeight: '20px',
+                        textAlign: 'center',
+                        borderRadius: 10,
+                        fontSize: 11,
+                        fontWeight: isCurrentMonth && day === todayNum ? 'bold' : 'normal',
+                        background: isCurrentMonth && day === todayNum ? '#263590' : 'transparent',
+                        color: isCurrentMonth && day === todayNum ? '#fff' : '#333',
+                        marginBottom: dayEvs.length ? 2 : 0,
+                      }}>
+                        {day}
+                      </span>
+                      {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ))}
 
-        {/* Coming soon overlay */}
+        {/* Coming soon overlay — only when no events exist yet */}
+        {showComingSoon && (
         <div style={{
           position: 'absolute', inset: 0,
           display: 'flex', flexDirection: 'column',
@@ -340,6 +428,7 @@ export default function CalendarPage() {
             events, interpreted performances, and community happenings here.
           </p>
         </div>
+        )}
       </div>
     );
   }
@@ -710,6 +799,22 @@ export default function CalendarPage() {
               {periodLabel}
             </span>
 
+            {/* Submit Event button */}
+            <button
+              onClick={() => router.push('/submit-event')}
+              className="cal-nav-btn"
+              style={{
+                background: '#263590', color: '#fff',
+                border: '1px outset #1a2568',
+                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                fontFamily: '"Tahoma", Arial, sans-serif',
+                borderRadius: 2, fontWeight: 'bold',
+              }}
+              title={isLoggedIn ? 'Submit a community event' : 'Log in to submit an event'}
+            >
+              + Event
+            </button>
+
             <div style={{ flex: 1 }} />
 
             {/* View tabs */}
@@ -850,7 +955,7 @@ export default function CalendarPage() {
             fontFamily: '"MS Sans Serif", Arial, sans-serif',
             flexShrink: 0, userSelect: 'none',
           }} aria-hidden="true">
-            <span>0 events</span>
+            <span>{events.length} {events.length === 1 ? 'event' : 'events'}</span>
             <span>·</span>
             <span>Filter: {filterLabel}</span>
             <div style={{ flex: 1 }} />

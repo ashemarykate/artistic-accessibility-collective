@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { supabase, type Profile, type InviteCode, type TesterFeedback, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
+import { supabase, type Profile, type InviteCode, type TesterFeedback, type CalEvent, type IcsSource, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events';
 
 type ResourceSubmission = {
   id: string;
@@ -41,6 +41,8 @@ export default function AdminDashboard() {
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackWithProfile[]>([]);
   const [resourceSubmissions, setResourceSubmissions] = useState<ResourceSubmission[]>([]);
+  const [events, setEvents] = useState<CalEvent[]>([]);
+  const [icsSources, setIcsSources] = useState<IcsSource[]>([]);
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [assignName, setAssignName] = useState('');
   const [assignEmail, setAssignEmail] = useState('');
@@ -88,13 +90,15 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [pending, approved, rejected, codes, feedback, submissions] = await Promise.all([
+      const [pending, approved, rejected, codes, feedback, submissions, eventsRes, icsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'approved').order('approved_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('status', 'rejected').order('updated_at', { ascending: false }),
         supabase.from('invite_codes').select('*').order('created_at', { ascending: false }),
         supabase.from('tester_feedback').select('*, profile:profiles(full_name, email, profile_type)').order('created_at', { ascending: false }),
         supabase.from('resource_submissions').select('*').order('created_at', { ascending: false }),
+        supabase.from('events').select('*').order('start_at', { ascending: false }),
+        supabase.from('ics_sources').select('*').order('created_at', { ascending: false }),
       ]);
       setPendingProfiles(pending.data || []);
       setApprovedProfiles(approved.data || []);
@@ -102,6 +106,8 @@ export default function AdminDashboard() {
       setInviteCodes(codes.data || []);
       setFeedbackEntries((feedback.data || []) as FeedbackWithProfile[]);
       setResourceSubmissions((submissions.data || []) as ResourceSubmission[]);
+      setEvents((eventsRes.data || []) as CalEvent[]);
+      setIcsSources((icsRes.data || []) as IcsSource[]);
     } catch (err) {
       console.error('Admin fetch error:', err);
     } finally {
@@ -227,6 +233,7 @@ export default function AdminDashboard() {
     { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
     { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
     { id: 'content', label: 'Content' },
+    { id: 'events', label: 'Events', count: events.filter(e => e.is_visible).length },
     { id: 'resource-contacts', label: 'Resource Contacts' },
   ];
 
@@ -528,6 +535,16 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'events' && (
+          <div id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+            <EventsPanel
+              events={events}
+              icsSources={icsSources}
+              onRefresh={fetchAll}
+            />
+          </div>
+        )}
+
         {activeTab === 'resource-contacts' && (
           <div id="panel-resource-contacts" role="tabpanel" aria-labelledby="tab-resource-contacts">
             <ResourceContactsPanel />
@@ -809,6 +826,419 @@ const CONTACT_CATEGORIES = [
   'Deaf Culture & ASL',
   'Legal & Policy',
 ];
+
+// ── Events panel ──────────────────────────────────────────────────────────────
+
+const TAG_OPTIONS = [
+  'Captioned','ASL-Interpreted','Audio Described','Relaxed Performance',
+  'Disability Arts','Deaf Arts','Film Screening','Workshop','Exhibition',
+  'Performance','Lecture / Talk','Community Event','Online Accessible',
+  'Free / Pay What You Can',
+];
+
+const BLANK_EVENT_FORM = {
+  title: '', organization: '', description: '',
+  start_date: '', start_time: '', end_date: '', end_time: '',
+  is_all_day: false,
+  location_type: 'online' as 'online' | 'in-person' | 'hybrid',
+  location_name: '', location_url: '', event_url: '',
+  tags: [] as string[],
+};
+
+function EventsPanel({
+  events, icsSources, onRefresh,
+}: {
+  events: CalEvent[];
+  icsSources: IcsSource[];
+  onRefresh: () => void;
+}) {
+  const [showForm, setShowForm]       = useState(false);
+  const [form, setForm]               = useState({ ...BLANK_EVENT_FORM });
+  const [saving, setSaving]           = useState(false);
+  const [saveMsg, setSaveMsg]         = useState('');
+  const [saveErr, setSaveErr]         = useState('');
+  const [syncing, setSyncing]         = useState(false);
+  const [syncResult, setSyncResult]   = useState('');
+  const [icsName, setIcsName]         = useState('');
+  const [icsUrl, setIcsUrl]           = useState('');
+  const [addingIcs, setAddingIcs]     = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const inp: React.CSSProperties = {
+    width: '100%', padding: '6px 8px', fontSize: '0.875rem',
+    border: '1px solid var(--color-border)', borderRadius: 4,
+    fontFamily: 'inherit', boxSizing: 'border-box' as const,
+    background: '#fff',
+  };
+  const lbl: React.CSSProperties = {
+    display: 'block', fontSize: '0.75rem', fontWeight: 600,
+    color: 'var(--color-text-muted)', marginBottom: 3,
+  };
+  const row: React.CSSProperties  = { marginBottom: '0.75rem' };
+  const row2: React.CSSProperties = { display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' };
+
+  const resetForm = () => { setForm({ ...BLANK_EVENT_FORM }); setSaveMsg(''); setSaveErr(''); };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim() || !form.start_date || !form.event_url.trim()) {
+      setSaveErr('Title, start date, and event URL are required.');
+      return;
+    }
+    setSaving(true); setSaveErr(''); setSaveMsg('');
+
+    const startTs = form.is_all_day
+      ? new Date(`${form.start_date}T00:00:00`).toISOString()
+      : new Date(`${form.start_date}T${form.start_time || '00:00'}`).toISOString();
+    const endTs = form.end_date
+      ? (form.is_all_day
+          ? new Date(`${form.end_date}T23:59:59`).toISOString()
+          : form.end_time
+            ? new Date(`${form.end_date}T${form.end_time}`).toISOString()
+            : null)
+      : null;
+
+    const { error } = await supabase.from('events').insert({
+      title:         form.title.trim(),
+      organization:  form.organization.trim() || null,
+      description:   form.description.trim() || null,
+      start_at:      startTs,
+      end_at:        endTs,
+      is_all_day:    form.is_all_day,
+      location_type: form.location_type,
+      location_name: form.location_name.trim() || null,
+      location_url:  form.location_url.trim() || null,
+      event_url:     form.event_url.trim(),
+      tags:          form.tags,
+      source:        'admin',
+      is_visible:    true,
+    });
+
+    setSaving(false);
+    if (error) { setSaveErr(error.message); }
+    else { setSaveMsg('Event added.'); resetForm(); setShowForm(false); onRefresh(); }
+  };
+
+  const handleToggleVisible = async (ev: CalEvent) => {
+    await supabase.from('events').update({ is_visible: !ev.is_visible }).eq('id', ev.id);
+    onRefresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from('events').delete().eq('id', id);
+    setDeleteConfirm(null);
+    onRefresh();
+  };
+
+  const handleTriggerSync = async () => {
+    setSyncing(true); setSyncResult('');
+    try {
+      const secret = prompt('CRON_SECRET value (leave blank if not set):');
+      const res = await fetch('/api/sync-calendars', {
+        headers: secret ? { Authorization: `Bearer ${secret}` } : {},
+      });
+      const json = await res.json();
+      if (json.error) setSyncResult(`Error: ${json.error}`);
+      else if (json.message) setSyncResult(json.message);
+      else setSyncResult('Sync complete. ' + Object.entries(json.results ?? {})
+        .map(([name, r]: [string, unknown]) => {
+          const result = r as { synced: number; skipped: number; error?: string };
+          return result.error ? `${name}: error — ${result.error}` : `${name}: ${result.synced} synced`;
+        }).join(', '));
+      onRefresh();
+    } catch (err) {
+      setSyncResult(`Fetch error: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleAddIcsSource = async () => {
+    if (!icsName.trim() || !icsUrl.trim()) return;
+    setAddingIcs(true);
+    const { error } = await supabase.from('ics_sources').insert({ name: icsName.trim(), ics_url: icsUrl.trim() });
+    setAddingIcs(false);
+    if (!error) { setIcsName(''); setIcsUrl(''); onRefresh(); }
+  };
+
+  const handleRemoveIcsSource = async (id: string) => {
+    await supabase.from('ics_sources').delete().eq('id', id);
+    onRefresh();
+  };
+
+  const toggleTag = (tag: string) => {
+    setForm(f => ({ ...f, tags: f.tags.includes(tag) ? f.tags.filter(t => t !== tag) : [...f.tags, tag] }));
+  };
+
+  const fmtDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  return (
+    <div>
+      {/* Header + add button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0, maxWidth: 520, lineHeight: 1.5 }}>
+          Events added here go live on the public calendar immediately.
+          Members can also submit events from <a href="/submit-event" style={{ color: 'var(--aac-blue)' }}>submit-event</a>.
+          Use the ICS sources section below to pull from external calendars on a daily schedule.
+        </p>
+        <button onClick={() => { setShowForm(s => !s); resetForm(); }} className="btn btn-primary btn-sm">
+          {showForm ? 'Cancel' : '+ Add Event'}
+        </button>
+      </div>
+
+      {/* Add event form */}
+      {showForm && (
+        <form onSubmit={handleSave} style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '1.25rem', marginBottom: '1.5rem' }} noValidate>
+          <h3 style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '1rem' }}>Add New Event</h3>
+          <div style={row2}>
+            <div style={{ flex: '2 1 220px' }}>
+              <label style={lbl} htmlFor="ev-title">Title <span style={{ color: 'red' }}>*</span></label>
+              <input id="ev-title" style={inp} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div style={{ flex: '1 1 180px' }}>
+              <label style={lbl} htmlFor="ev-org">Organization</label>
+              <input id="ev-org" style={inp} value={form.organization} onChange={e => setForm(f => ({ ...f, organization: e.target.value }))} placeholder="e.g. AXIS Dance" />
+            </div>
+          </div>
+
+          <div style={row2}>
+            <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 6, paddingTop: 6 }}>
+              <input type="checkbox" id="ev-allday" checked={form.is_all_day} onChange={e => setForm(f => ({ ...f, is_all_day: e.target.checked }))} />
+              <label htmlFor="ev-allday" style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', cursor: 'pointer' }}>All-day</label>
+            </div>
+            <div style={{ flex: '1 1 140px' }}>
+              <label style={lbl} htmlFor="ev-start-date">Start date <span style={{ color: 'red' }}>*</span></label>
+              <input id="ev-start-date" type="date" style={inp} value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
+            </div>
+            {!form.is_all_day && (
+              <div style={{ flex: '1 1 110px' }}>
+                <label style={lbl} htmlFor="ev-start-time">Start time</label>
+                <input id="ev-start-time" type="time" style={inp} value={form.start_time} onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))} />
+              </div>
+            )}
+            <div style={{ flex: '1 1 140px' }}>
+              <label style={lbl} htmlFor="ev-end-date">End date</label>
+              <input id="ev-end-date" type="date" style={inp} value={form.end_date} min={form.start_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
+            </div>
+            {!form.is_all_day && (
+              <div style={{ flex: '1 1 110px' }}>
+                <label style={lbl} htmlFor="ev-end-time">End time</label>
+                <input id="ev-end-time" type="time" style={inp} value={form.end_time} onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))} />
+              </div>
+            )}
+          </div>
+
+          <div style={row2}>
+            <div style={{ flex: '0 1 auto' }}>
+              <label style={lbl}>Location type</label>
+              <div style={{ display: 'flex', gap: 12, paddingTop: 4 }}>
+                {(['online','in-person','hybrid'] as const).map(t => (
+                  <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8125rem', cursor: 'pointer' }}>
+                    <input type="radio" name="ev-loc" value={t} checked={form.location_type === t} onChange={() => setForm(f => ({ ...f, location_type: t }))} />
+                    {t === 'in-person' ? 'In-person' : t === 'hybrid' ? 'Hybrid' : 'Online'}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {(form.location_type === 'in-person' || form.location_type === 'hybrid') && (
+              <div style={{ flex: '2 1 200px' }}>
+                <label style={lbl} htmlFor="ev-loc-name">Venue / location</label>
+                <input id="ev-loc-name" style={inp} value={form.location_name} onChange={e => setForm(f => ({ ...f, location_name: e.target.value }))} />
+              </div>
+            )}
+            {(form.location_type === 'online' || form.location_type === 'hybrid') && (
+              <div style={{ flex: '2 1 200px' }}>
+                <label style={lbl} htmlFor="ev-loc-url">Online link</label>
+                <input id="ev-loc-url" type="url" style={inp} value={form.location_url} onChange={e => setForm(f => ({ ...f, location_url: e.target.value }))} placeholder="https://" />
+              </div>
+            )}
+          </div>
+
+          <div style={row}>
+            <label style={lbl} htmlFor="ev-url">Event URL (tickets / info page) <span style={{ color: 'red' }}>*</span></label>
+            <input id="ev-url" type="url" style={inp} value={form.event_url} onChange={e => setForm(f => ({ ...f, event_url: e.target.value }))} placeholder="https://" />
+          </div>
+
+          <div style={row}>
+            <label style={lbl} htmlFor="ev-desc">Description</label>
+            <textarea id="ev-desc" rows={3} style={{ ...inp, resize: 'vertical' }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+          </div>
+
+          <div style={row}>
+            <p style={lbl}>Tags</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {TAG_OPTIONS.map(tag => (
+                <label key={tag} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontSize: '0.75rem', cursor: 'pointer', userSelect: 'none',
+                  background: form.tags.includes(tag) ? 'var(--aac-blue)' : 'var(--aac-cream)',
+                  color: form.tags.includes(tag) ? '#fff' : 'var(--color-text)',
+                  border: `1px solid ${form.tags.includes(tag) ? 'var(--aac-blue)' : 'var(--color-border)'}`,
+                  padding: '2px 8px', borderRadius: 999,
+                }}>
+                  <input type="checkbox" checked={form.tags.includes(tag)} onChange={() => toggleTag(tag)} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+                  {tag}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {saveErr && <p role="alert" style={{ fontSize: '0.875rem', color: '#c0392b', marginBottom: '0.75rem' }}>{saveErr}</p>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>{saving ? 'Saving…' : 'Add Event'}</button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setShowForm(false); resetForm(); }}>Cancel</button>
+          </div>
+          {saveMsg && <p role="status" style={{ fontSize: '0.875rem', color: 'green', marginTop: '0.5rem' }}>{saveMsg}</p>}
+        </form>
+      )}
+
+      {/* Event list */}
+      {events.length === 0 ? (
+        <div className="content-card" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+          No events yet. Add one above, or submit from the calendar, or add an ICS source below.
+        </div>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+          {events.map(ev => (
+            <li key={ev.id} className="content-card">
+              {deleteConfirm === ev.id ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <p style={{ margin: 0, fontSize: '0.875rem' }}>Delete <strong>{ev.title}</strong>? Cannot be undone.</p>
+                  <button onClick={() => handleDelete(ev.id)} className="btn btn-sm" style={{ background: '#c0392b', color: '#fff', border: 'none' }}>Yes, delete</button>
+                  <button onClick={() => setDeleteConfirm(null)} className="btn btn-ghost btn-sm">Cancel</button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.25rem' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '0.9375rem' }}>{ev.title}</span>
+                      <span className={`tag ${ev.is_visible ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.7rem' }}>
+                        {ev.is_visible ? 'Visible' : 'Hidden'}
+                      </span>
+                      <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{ev.source === 'admin' ? 'admin' : ev.source === 'member' ? 'member' : 'ICS'}</span>
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
+                      {fmtDate(ev.start_at)}
+                      {ev.organization && <span> · {ev.organization}</span>}
+                      <span> · {ev.location_type}</span>
+                    </div>
+                    {ev.tags.length > 0 && (
+                      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {ev.tags.map(t => <span key={t} className="tag tag-blue" style={{ fontSize: '0.7rem' }}>{t}</span>)}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0, flexWrap: 'wrap' }}>
+                    {ev.event_url && (
+                      <a href={ev.event_url} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem' }}>View ↗</a>
+                    )}
+                    <button onClick={() => handleToggleVisible(ev)} className="btn btn-ghost btn-sm" aria-label={ev.is_visible ? `Hide ${ev.title}` : `Show ${ev.title}`}>
+                      {ev.is_visible ? 'Hide' : 'Show'}
+                    </button>
+                    <button onClick={() => setDeleteConfirm(ev.id)} className="btn btn-sm" style={{ background: '#fce4e4', color: '#c0392b', border: '1px solid #f5c6c6', fontSize: '0.75rem', padding: '4px 10px' }} aria-label={`Delete ${ev.title}`}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* ICS sources management */}
+      <div style={{ borderTop: '2px solid var(--color-border)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h3 style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '1rem', margin: 0 }}>ICS Calendar Sources</h3>
+          <button
+            onClick={handleTriggerSync}
+            className="btn btn-sm"
+            disabled={syncing}
+            style={{ background: '#f0f4ff', color: 'var(--aac-blue)', border: '1px solid var(--aac-blue-light)' }}
+          >
+            {syncing ? 'Syncing…' : '↻ Sync Now'}
+          </button>
+        </div>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '1rem', lineHeight: 1.5 }}>
+          Add iCal/ICS feed URLs here. The daily cron (<code>/api/sync-calendars</code>) pulls from each active source and upserts events.
+          To find an ICS feed: look for a calendar export link, add <code>?ical=1</code> to WordPress/Squarespace event pages,
+          or check Eventbrite/Luma organizer settings.
+        </p>
+        {syncResult && (
+          <p role="status" style={{ fontSize: '0.8125rem', background: '#f0f4ff', border: '1px solid var(--aac-blue-light)', borderRadius: 4, padding: '6px 10px', marginBottom: '1rem' }}>
+            {syncResult}
+          </p>
+        )}
+
+        {/* Add ICS source form */}
+        <div style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <div style={{ flex: '1 1 160px' }}>
+              <label style={lbl} htmlFor="ics-name">Organization name</label>
+              <input id="ics-name" style={inp} value={icsName} onChange={e => setIcsName(e.target.value)} placeholder="e.g. AXIS Dance" />
+            </div>
+            <div style={{ flex: '3 1 280px' }}>
+              <label style={lbl} htmlFor="ics-url">ICS feed URL</label>
+              <input id="ics-url" type="url" style={inp} value={icsUrl} onChange={e => setIcsUrl(e.target.value)} placeholder="https://example.org/?ical=1" />
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={handleAddIcsSource}
+              disabled={addingIcs || !icsName.trim() || !icsUrl.trim()}
+              style={{ flexShrink: 0 }}
+            >
+              {addingIcs ? 'Adding…' : 'Add Source'}
+            </button>
+          </div>
+        </div>
+
+        {icsSources.length === 0 ? (
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '1rem' }}>
+            No ICS sources yet. Add the first one above.
+          </p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            {icsSources.map(src => (
+              <li key={src.id} className="content-card" style={{ padding: '0.625rem 0.875rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: 2 }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--aac-blue)' }}>{src.name}</span>
+                      <span className={`tag ${src.is_active ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.7rem' }}>
+                        {src.is_active ? 'Active' : 'Paused'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {src.ics_url}
+                    </div>
+                    {src.last_synced_at && (
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: 2 }}>
+                        Last synced: {new Date(src.last_synced_at).toLocaleString()}
+                        {src.last_error && <span style={{ color: '#c0392b', marginLeft: 6 }}>Error: {src.last_error}</span>}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleRemoveIcsSource(src.id)}
+                    className="btn btn-sm"
+                    style={{ background: '#fce4e4', color: '#c0392b', border: '1px solid #f5c6c6', fontSize: '0.75rem', padding: '4px 10px', flexShrink: 0 }}
+                    aria-label={`Remove ${src.name} ICS source`}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ResourceContactsPanel() {
   return (

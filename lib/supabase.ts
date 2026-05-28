@@ -205,6 +205,35 @@ export type Resource = {
 
 export const REQUIRED_PROFILE_VERSION = 1;
 
+export type CalEvent = {
+  id: string;
+  title: string;
+  organization: string | null;
+  description: string | null;
+  start_at: string;
+  end_at: string | null;
+  is_all_day: boolean;
+  location_type: 'in-person' | 'online' | 'hybrid';
+  location_name: string | null;
+  location_url: string | null;
+  event_url: string | null;
+  tags: string[];
+  source: string;
+  submitted_by_profile_id: string | null;
+  is_visible: boolean;
+  created_at: string;
+};
+
+export type IcsSource = {
+  id: string;
+  name: string;
+  ics_url: string;
+  is_active: boolean;
+  last_synced_at: string | null;
+  last_error: string | null;
+  created_at: string;
+};
+
 export const SPECIALTY_OPTIONS = [
   'ASL Interpreter',
   'Certified Deaf Interpreter (CDI)',
