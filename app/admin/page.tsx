@@ -267,7 +267,7 @@ export default function AdminDashboard() {
     <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
     <main className="page-wrapper">
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/logo-across-blue-bg.svg" alt="" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><img src="/images/wordmark-2.svg" alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
           {hasMemberProfile && (

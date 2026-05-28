@@ -359,7 +359,7 @@ export default function ProfilePage() {
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-across-blue-bg.svg" alt="" />
+            <img src="/images/wordmark-2.svg" alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
             {currentUser  && <Link href="/members" className="nav-link">Members</Link>}

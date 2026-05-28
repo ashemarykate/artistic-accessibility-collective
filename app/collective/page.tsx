@@ -26,7 +26,7 @@ export default function Collective() {
           <h1 style={{ margin: '0 0 2.5rem' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/wordmark.svg"
+              src="/images/wordmark-2.svg"
               alt="Artistic Accessibility Collective: the name is set in bold, chunky hand-lettered block letters with a warm, playful energy, paired with the tagline 'together, together' in a loose, flowing handwritten script"
               style={{ width: '100%', maxWidth: '900px', height: 'auto', display: 'block', margin: '0 auto' }}
             />

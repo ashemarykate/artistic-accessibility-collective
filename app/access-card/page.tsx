@@ -208,7 +208,7 @@ function LibraryCard({ profile, onSave }: {
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/logo-across-blue-bg.svg"
+          src="/images/wordmark-2.svg"
           alt="Artistic Accessibility Collective"
           style={{ height: 22, width: 'auto', opacity: 0.95 }}
         />
@@ -456,7 +456,7 @@ export default function AccessCardPage() {
       }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '56px', width: 'auto' }} />
+          <img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" style={{ height: '56px', width: 'auto' }} />
         </Link>
 
         <h1 className="sr-only">Your Access Card</h1>

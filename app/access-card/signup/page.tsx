@@ -80,7 +80,7 @@ export default function AccessCardSignup() {
       <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
+          <img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
         </Link>
 
         <div className="content-card" style={{ maxWidth: '440px', width: '100%', textAlign: 'center' }}>
@@ -124,7 +124,7 @@ export default function AccessCardSignup() {
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
+        <img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" style={{ height: '72px', width: 'auto' }} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>

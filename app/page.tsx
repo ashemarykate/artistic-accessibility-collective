@@ -202,7 +202,7 @@ export default function Home() {
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo-across-blue-bg.svg"
+            src="/images/wordmark-2.svg"
             alt=""
             style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
           />

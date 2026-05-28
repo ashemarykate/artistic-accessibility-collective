@@ -212,7 +212,7 @@ export default function FeedbackPage() {
     <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
     <main className="page-wrapper">
       <header className="site-header">
-        <Link href="/" className="site-header-logo"><img src="/images/logo-across-blue-bg.svg" alt="Artistic Accessibility Collective" /></Link>
+        <Link href="/" className="site-header-logo"><img src="/images/wordmark-2.svg" alt="Artistic Accessibility Collective" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/members" className="nav-link">Members</Link>
           <Link href={`/profile/${profile.id}`} className="nav-link">My Profile</Link>

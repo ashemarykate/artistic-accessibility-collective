@@ -380,7 +380,7 @@ export default function SubmitProfile() {
 
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '100px', width: 'auto' }} />
+          <img src="/images/wordmark-2.svg" alt="" style={{ height: '100px', width: 'auto' }} />
         </Link>
 
         <div className="content-card" style={{ maxWidth: '460px', width: '100%', textAlign: 'center' }}>
@@ -439,7 +439,7 @@ export default function SubmitProfile() {
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '100px', width: 'auto' }} />
+          <img src="/images/wordmark-2.svg" alt="" style={{ height: '100px', width: 'auto' }} />
         </Link>
 
         <div className="content-card" style={{ maxWidth: '520px', width: '100%' }}>
@@ -500,7 +500,7 @@ export default function SubmitProfile() {
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '72px', width: 'auto' }} />
+          <img src="/images/wordmark-2.svg" alt="" style={{ height: '72px', width: 'auto' }} />
         </Link>
         <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3.5rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
@@ -570,7 +570,7 @@ export default function SubmitProfile() {
         <div style={{ textAlign: 'center', marginBottom: '0' }}>
           <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-across-blue-bg.svg" alt="" style={{ height: '72px', width: 'auto' }} />
+            <img src="/images/wordmark-2.svg" alt="" style={{ height: '72px', width: 'auto' }} />
           </Link>
         </div>
 

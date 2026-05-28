@@ -100,7 +100,7 @@ export default function ShareFeedback() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/logo-across-blue-bg.svg"
+          src="/images/wordmark-2.svg"
           alt=""
           style={{ height: '72px', width: 'auto' }}
         />
