@@ -66,10 +66,30 @@ export default function MemberHub() {
       .maybeSingle();
 
     if (!profileData) {
-      // No approved profile linked to this auth account.
-      // This can happen if the magic-link profile-linking step failed
-      // (e.g. before the v14 RLS migration was run). Sign out and send
-      // the user back to login with a clear message.
+      // No profile found by user_id — try to link by email.
+      // This happens when /auth/callback was bypassed (e.g. old magic links
+      // that didn't include redirectTo=/auth/callback).
+      const userEmail = user.email;
+      if (userEmail) {
+        const { data: unlinked } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', userEmail)
+          .is('user_id', null)
+          .eq('status', 'approved')
+          .maybeSingle();
+        if (unlinked) {
+          await supabase
+            .from('profiles')
+            .update({ user_id: user.id })
+            .eq('id', unlinked.id);
+          setProfile(unlinked);
+          // Continue loading — fall through to the rest of loadHub
+          // by re-running now that the link is established
+          loadHub();
+          return;
+        }
+      }
       await supabase.auth.signOut();
       router.replace('/login?error=profile_not_linked');
       return;
