@@ -14,7 +14,8 @@ const RESOURCES_ITEMS: NavItem[] = [
 
 const TOGETHER_ITEMS: NavItem[] = [
   { label: 'Make Art',      href: '/make-art',      icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
-  { label: 'Together',      href: '/together',      icon: '📅', iconBg: '#b83878', iconName: 'Calendar' },
+  { label: 'Calendar',      href: '/calendar',      icon: '📅', iconBg: '#b83878', iconName: 'Calendar' },
+  { label: 'Together',      href: '/together',      icon: '🤝', iconBg: '#7a3abf', iconName: 'Community' },
   { label: 'Learning Hub',  href: '/learning-hub',  icon: '💾', iconBg: '#3a2a9a', iconName: 'Floppy Disk' },
 ];
 
