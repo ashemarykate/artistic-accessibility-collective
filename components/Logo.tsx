@@ -12,12 +12,13 @@ const LOGO_VERSIONS = [
 /**
  * AAC logo — picks one of the 4 versions at random on each page load.
  *
- * When a fixed height is given (no explicit width), the image uses
- * object-fit: cover so it clips at the sides on narrow screens rather
- * than squishing. Pass a width to override this behaviour.
+ * Logos are 12:1 aspect ratio wordmarks (full-width text). Sizing rules:
  *
- * When neither height nor width is given, no inline dimension styles
- * are set — the parent CSS (.site-header-logo img etc.) controls sizing.
+ * - height only → max-height + width: auto + max-width: 100%
+ *   Image scales proportionally to fill its container up to that height.
+ *   Never squishes, never clips — full wordmark always visible.
+ * - height + width → respect both exactly
+ * - neither → no inline dimensions; parent CSS controls sizing
  */
 export default function Logo({
   alt = 'Artistic Accessibility Collective',
@@ -35,9 +36,9 @@ export default function Logo({
   const src = useRef(LOGO_VERSIONS[Math.floor(Math.random() * LOGO_VERSIONS.length)]);
 
   const computedStyle: React.CSSProperties = {
-    // Fixed height, no width: clip sides rather than squish on narrow screens
+    // Fixed height, no width: scale proportionally — full wordmark always visible
     ...(height != null && width == null
-      ? { height, maxWidth: '100%', objectFit: 'cover', objectPosition: 'center' }
+      ? { height: 'auto', maxHeight: height, width: 'auto', maxWidth: '100%' }
       : {}),
     // Both provided: respect them exactly
     ...(height != null && width != null ? { height, width } : {}),

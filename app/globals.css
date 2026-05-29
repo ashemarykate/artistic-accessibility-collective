@@ -524,10 +524,10 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 }
 .site-header-logo:hover { opacity: 0.85; }
 .site-header-logo img {
-  height: 48px;
-  width: 200px;        /* fixed width — clips logo at sides on narrow screens */
-  object-fit: cover;
-  object-position: center;
+  height: auto;
+  max-height: 48px;
+  width: auto;
+  max-width: none;    /* override Tailwind's max-width: 100% so it doesn't squish */
   display: block;
 }
 
@@ -1123,8 +1123,8 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
     gap: 6px;
   }
   .site-header-logo img {
-    height: 36px;
-    width: 160px;
+    max-height: 36px;
+    max-width: 100%;   /* re-enable on mobile so logo shrinks to fit narrow screens */
   }
   .content-card {
     padding: 8px;
