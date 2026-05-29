@@ -1,14 +1,7 @@
 'use client';
-import Logo from '@/components/Logo';
+import Logo, { TITLEBAR_VERSIONS } from '@/components/Logo';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
-
-const TITLEBAR_LOGOS = [
-  '/images/titlebar-v1.png',
-  '/images/titlebar-v2.png',
-  '/images/titlebar-v3.png',
-  '/images/titlebar-v4.png',
-];
 import { supabase } from '@/lib/supabase';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
@@ -141,7 +134,7 @@ function Clock() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
-  const titlebarSrc = useRef(TITLEBAR_LOGOS[Math.floor(Math.random() * TITLEBAR_LOGOS.length)]);
+  const titlebarVersion = useRef(TITLEBAR_VERSIONS[Math.floor(Math.random() * TITLEBAR_VERSIONS.length)]);
   const [user, setUser]           = useState<{ id: string } | null>(null);
   const [memberType, setMemberType] = useState<'collective' | 'access_card' | null>(null);
 
@@ -199,8 +192,8 @@ export default function Home() {
             <span className="xp-title-text">Artistic Accessibility</span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={titlebarSrc.current}
-              alt="Artistic Accessibility Collective"
+              src={titlebarVersion.current.src}
+              alt={titlebarVersion.current.description}
               className="xp-title-logo"
               style={{ display: 'none', height: 28, width: 'auto' }}
             />
