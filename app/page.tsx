@@ -185,23 +185,17 @@ export default function Home() {
           padding: '4px 8px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
+          {/* Desktop: folder icon + text. Mobile: logo replaces the text */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white', fontWeight: 'bold', fontSize: 13, fontFamily: 'var(--font-accent), sans-serif', textShadow: '0 1px 2px rgba(0,0,0,0.4)', letterSpacing: '0.01em' }}>
-            <span aria-hidden="true" style={{ fontSize: 14 }}>📁</span>
-            Artistic Accessibility
+            <span className="xp-title-text" aria-hidden="true" style={{ fontSize: 14 }}>📁</span>
+            <span className="xp-title-text">Artistic Accessibility</span>
+            <Logo
+              alt="Artistic Accessibility Collective"
+              className="xp-title-logo"
+              style={{ display: 'none', height: 28, maxWidth: 200, objectFit: 'cover', objectPosition: 'center' }}
+            />
           </div>
           <WindowButtons />
-        </div>
-
-        {/* ── Mobile brand strip (hidden on desktop, shown on mobile) ───────── */}
-        <div className="xp-mobile-brand" aria-hidden="true" style={{
-          display: 'none',
-          background: 'linear-gradient(to bottom, #1a4fbb 0%, #1c52c8 100%)',
-          padding: '12px 20px',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderBottom: '1px solid #1a3a8a',
-        }}>
-          <Logo alt="" style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }} />
         </div>
 
         {/* ── Menu bar ───────────────────────────────────────────────────────── */}
@@ -515,8 +509,9 @@ export default function Home() {
             justify-content: flex-start !important;
             padding: 12px 8px 24px !important;
           }
-          /* Show brand strip, hide image panel and redundant chrome */
-          .xp-mobile-brand { display: flex !important; }
+          /* Show logo in title bar, hide text — hide image panel and redundant chrome */
+          .xp-title-text  { display: none !important; }
+          .xp-title-logo  { display: block !important; }
           .xp-collective-nav { display: list-item !important; }
           .xp-image-panel  { display: none !important; }
           .xp-menu-bar,
