@@ -1,7 +1,14 @@
 'use client';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+
+const TITLEBAR_LOGOS = [
+  '/images/titlebar-v1.png',
+  '/images/titlebar-v2.png',
+  '/images/titlebar-v3.png',
+  '/images/titlebar-v4.png',
+];
 import { supabase } from '@/lib/supabase';
 
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
@@ -134,6 +141,7 @@ function Clock() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Home() {
+  const titlebarSrc = useRef(TITLEBAR_LOGOS[Math.floor(Math.random() * TITLEBAR_LOGOS.length)]);
   const [user, setUser]           = useState<{ id: string } | null>(null);
   const [memberType, setMemberType] = useState<'collective' | 'access_card' | null>(null);
 
@@ -189,10 +197,12 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'white', fontWeight: 'bold', fontSize: 13, fontFamily: 'var(--font-accent), sans-serif', textShadow: '0 1px 2px rgba(0,0,0,0.4)', letterSpacing: '0.01em' }}>
             <span className="xp-title-text" aria-hidden="true" style={{ fontSize: 14 }}>📁</span>
             <span className="xp-title-text">Artistic Accessibility</span>
-            <Logo
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={titlebarSrc.current}
               alt="Artistic Accessibility Collective"
               className="xp-title-logo"
-              style={{ display: 'none', height: 28, maxWidth: 200, objectFit: 'cover', objectPosition: 'center' }}
+              style={{ display: 'none', height: 28, width: 'auto' }}
             />
           </div>
           <WindowButtons />
