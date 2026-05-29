@@ -36,7 +36,7 @@ type MemberNavItem = { label: string; href: string; icon: string; iconBg: string
 
 const MEMBER_NAV: MemberNavItem[] = [
   { label: 'Buddy List',   href: '/messages',    icon: '💬', iconBg: '#1a4fbb' },
-  { label: 'Backstage',       href: '/dashboard',   icon: '🔦', iconBg: '#2a6a9a' },
+  { label: 'The Collective', href: '/dashboard',   icon: '🌍', iconBg: '#1a6a50' },
   { label: 'My Lists',     href: '/my-lists',    icon: '📋', iconBg: '#2a7a52' },
   { label: 'Feedback',     href: '/feedback',    icon: '📝', iconBg: '#7a3abf' },
   { label: 'My Resources', href: '/my-resources',icon: '⭐', iconBg: '#9a7212' },
@@ -349,8 +349,8 @@ export default function Home() {
                     style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
                     className="xp-folder-link"
                   >
-                    <NavIcon icon="🔦" bg="#1a4fbb" name="Backstage" size="sm" imgSrc="/images/icons/flashlight.svg" />
-                    Backstage
+                    <NavIcon icon="🌍" bg="#1a6a50" name="The Collective" size="sm" imgSrc="/images/icons/globe.svg" />
+                    The Collective
                   </Link>
                 </li>
               ) : (
@@ -445,10 +445,10 @@ export default function Home() {
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
                 textDecoration: 'none',
               }}
-              aria-label="Go to Backstage"
+              aria-label="Go to The Collective"
             >
-              <NavIcon icon="🔦" bg="#3a7abf" name="Backstage" />
-              Backstage
+              <NavIcon icon="🌍" bg="#1a6a50" name="The Collective" />
+              The Collective
             </Link>
           ) : (
             <Link

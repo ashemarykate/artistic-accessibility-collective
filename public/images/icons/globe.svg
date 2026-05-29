@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- drop shadow -->
+  <circle cx="8.5" cy="8.5" r="6" fill="#505050"/>
+  <!-- ocean -->
+  <circle cx="7.5" cy="7.5" r="6" fill="#3880c8"/>
+  <!-- land mass — Americas -->
+  <path d="M3.5 4.5 C2.5 5.5 2 7 2.5 8.5 C3 10 3 11 3.5 12 L4.5 12 C5 11 4.8 9.5 4.5 8.5 C5 7 5.5 5.5 5 4 Z" fill="#48a838"/>
+  <!-- land mass — Europe / Africa -->
+  <path d="M8.5 3 C10 3.5 11 4.5 11 6 C11 7 10.5 7.5 10 8 C10.5 9 10.5 10.5 9.5 11.5 C9 12 8.5 11 8.5 10 C8 9 8.5 8 8.5 7 C8 6 8 4.5 8.5 3 Z" fill="#48a838"/>
+  <!-- grid — equator -->
+  <line x1="1.5" y1="7.5" x2="13.5" y2="7.5" stroke="#78b8e8" stroke-width="0.5" opacity="0.75"/>
+  <!-- grid — centre meridian -->
+  <line x1="7.5" y1="1.5" x2="7.5" y2="13.5" stroke="#78b8e8" stroke-width="0.5" opacity="0.75"/>
+  <!-- grid — left meridian arc -->
+  <path d="M7.5 1.5 Q3.5 7.5 7.5 13.5" fill="none" stroke="#78b8e8" stroke-width="0.5" opacity="0.55"/>
+  <!-- grid — right meridian arc -->
+  <path d="M7.5 1.5 Q11.5 7.5 7.5 13.5" fill="none" stroke="#78b8e8" stroke-width="0.5" opacity="0.55"/>
+  <!-- outline -->
+  <circle cx="7.5" cy="7.5" r="6" fill="none" stroke="#182840" stroke-width="1"/>
+  <!-- highlight -->
+  <circle cx="5" cy="4.5" r="1.8" fill="#ffffff" opacity="0.45"/>
+</svg>
