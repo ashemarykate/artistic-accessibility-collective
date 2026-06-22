@@ -7,6 +7,11 @@ import { supabase } from '@/lib/supabase';
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
 type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean; iconSrc?: string };
 
+const TOP_ITEMS: NavItem[] = [
+  { label: 'About Us', href: '/about',   icon: '👥', iconBg: '#2a5a9a', iconName: 'People' },
+  { label: 'Hire Us',  href: '/hire-us', icon: '📣', iconBg: '#c85a20', iconName: 'Megaphone' },
+];
+
 const RESOURCES_ITEMS: NavItem[] = [
   { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle',       iconSrc: '/images/icons/info.svg' },
   { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books',             iconSrc: '/images/icons/books.svg' },
@@ -112,7 +117,7 @@ function WindowButtons() {
     </div>
   );
   return (
-    <div style={{ display: 'flex', gap: 2 }}>
+    <div className="xp-window-btns" style={{ display: 'flex', gap: 2 }}>
       {btn('_', 'rgba(255,255,255,0.18)')}
       {btn('□', 'rgba(255,255,255,0.18)')}
       {btn('✕', '#c0392b')}
@@ -172,7 +177,7 @@ export default function Home() {
       <h1 className="sr-only">Artistic Accessibility Collective</h1>
 
       {/* ── Explorer Window ─────────────────────────────────────────────────── */}
-      <div style={{
+      <div className="xp-explorer-window" style={{
         width: '100%', maxWidth: 920,
         border: '2px solid #1a4fbb',
         borderRadius: '8px 8px 3px 3px',
@@ -181,7 +186,7 @@ export default function Home() {
       }}>
 
         {/* ── Title bar ──────────────────────────────────────────────────────── */}
-        <div style={{
+        <div className="xp-title-bar-row" style={{
           background: 'linear-gradient(to right, #245edb 0%, #3c93f5 60%, #2870e0 100%)',
           padding: '4px 8px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -251,7 +256,7 @@ export default function Home() {
               display: 'flex', flexDirection: 'column',
             }}
           >
-            <div style={{
+            <div className="xp-all-folders-hdr" style={{
               background: 'linear-gradient(to bottom, #5b9bd5 0%, #2e6db4 100%)',
               color: 'white', fontWeight: 'bold', fontSize: 11,
               padding: '4px 10px',
@@ -260,12 +265,21 @@ export default function Home() {
               All Folders
             </div>
 
-            <ul style={{ listStyle: 'none', padding: '6px 4px', margin: 0, flex: 1 }} role="list">
+            <ul className="xp-tree-nav" style={{ listStyle: 'none', padding: '6px 4px', margin: 0, flex: 1 }} role="list">
               <li className="xp-folder-label" style={{ color: '#333', padding: '1px 4px', userSelect: 'none', fontSize: 11 }} aria-hidden="true">
                 🖥️ Artistic Accessibility
               </li>
 
-              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 1 }} aria-hidden="true">
+              {TOP_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 28 }}>
+                  <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11, fontWeight: 600 }} className="xp-folder-link">
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}RESOURCES
               </li>
               {RESOURCES_ITEMS.map((item) => (
@@ -378,6 +392,7 @@ export default function Home() {
                 </>
               )}
             </ul>
+
           </nav>
 
           {/* ── Right panel — contents ────────────────────────────────────────── */}
@@ -411,7 +426,7 @@ export default function Home() {
         </div>
 
         {/* ── Status bar ─────────────────────────────────────────────────────── */}
-        <div style={{
+        <div className="xp-status-bar" style={{
           background: '#ece9d8',
           borderTop: '1px solid #b4b0a8',
           padding: '2px 10px',
@@ -516,6 +531,7 @@ export default function Home() {
           .xp-title-text  { display: none !important; }
           .xp-title-logo  { display: block !important; }
           .xp-collective-nav { display: list-item !important; }
+
           .xp-image-panel  { display: none !important; }
           .xp-menu-bar,
           .xp-toolbar,
