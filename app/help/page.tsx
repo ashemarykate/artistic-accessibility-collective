@@ -24,52 +24,56 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
 
 const SECTIONS: FAQSection[] = [
   {
-    title: 'Finding Accessibility Information',
+    title: 'Getting Accessibility Help',
     emoji: '🔎',
     items: [
       {
-        q: 'What kinds of professionals and organizations are listed in the directory?',
-        a: <>The directory includes ASL interpreters, CART captioners, audio describers, accessibility educators, content creators, and businesses and venues working to make the arts more accessible. <A href="/directory">Browse the directory</A></>,
+        q: 'I need accessibility support for my event, festival, or project. Where do I start?',
+        a: <><A href="/contact">Reach out to us</A>. Our first conversation is up to one hour and completely free. Tell us what you are working on and we will figure out together what kind of support makes sense.</>,
       },
       {
-        q: 'How do I search for someone by location or specialty?',
-        a: <>Visit the <A href="/directory">directory</A> and browse by location and specialty. We are growing — check back as new members join.</>,
+        q: 'Can you help me find someone local?',
+        a: <>Yes. We are building a network of accessibility professionals across the country. Contact us and we will do our best to connect you with the right person for your location and needs. <A href="/contact">Get in touch</A></>,
       },
       {
-        q: 'Where can I learn more about arts accessibility?',
-        a: <>We are building a library of resources including guides, films, and more. Explore <A href="/resources">Accessibility Resources</A>, <A href="/library">The Library</A>, and <A href="/cinema">The Cinema</A> as we add content.</>,
+        q: 'What if I just want to learn more on my own first?',
+        a: <>We have you covered. Our resources section includes guides, reading lists, films, and more — all focused on accessibility in the arts. <A href="/resources">Start with Accessibility Resources</A>, or browse <A href="/library">The Library</A> and <A href="/cinema">The Cinema</A>.</>,
       },
     ],
   },
   {
-    title: 'Getting Listed',
-    emoji: '📋',
-    items: [
-      {
-        q: 'How do I get listed in the directory?',
-        a: <>We are in beta and growing carefully. You will need an invite code to join. <A href="/contact">Reach out to request one</A></>,
-      },
-      {
-        q: 'What is the difference between an individual profile and a business listing?',
-        a: <>Individual profiles are for accessibility professionals including interpreters, captioners, educators, and others. Business listings are for venues, companies, and organizations. Both appear in the directory.</>,
-      },
-      {
-        q: 'Is it free to join?',
-        a: <>Yes. Joining the directory is completely free.</>,
-      },
-    ],
-  },
-  {
-    title: 'Finding and Hiring',
+    title: 'Working With Us',
     emoji: '🤝',
     items: [
       {
-        q: 'How do I find an accessibility professional or service?',
-        a: <>Browse the <A href="/directory">directory</A> to see who is listed. As the Collective grows, you will find more professionals across more specialties and locations.</>,
+        q: 'What does the Collective offer?',
+        a: <>We offer advising, staffing, training, and evaluation for events, festivals, and artistic projects of all sizes. Whether you need a full accessibility plan or just a second set of eyes, we can help — or connect you with someone who can.</>,
       },
       {
-        q: 'How do I hire someone?',
-        a: <><A href="/hire-us">Visit the Hire Us page</A> or <A href="/contact">contact us directly</A>. Tell us what you are looking for and we will connect you with the right person from our network.</>,
+        q: 'How does pricing work?',
+        a: <>Your first conversation — up to one hour — is completely free. After that, we work on a sliding scale based on what we are helping you with. We want accessibility support to be within reach no matter the size of your budget.</>,
+      },
+      {
+        q: 'How do I get started?',
+        a: <><A href="/hire-us">Visit the Hire Us page</A> or <A href="/contact">send us a message</A>. Tell us a little about your project and we will take it from there.</>,
+      },
+    ],
+  },
+  {
+    title: 'Join the Collective',
+    emoji: '📋',
+    items: [
+      {
+        q: 'I am an accessibility professional. How do I get listed?',
+        a: <>We are growing carefully and currently invite-only. <A href="/contact">Reach out to request an invite code</A> and tell us a bit about your work.</>,
+      },
+      {
+        q: 'What is the difference between an individual profile and a business listing?',
+        a: <>Individual profiles are for accessibility professionals including interpreters, captioners, educators, audio describers, and others. Business listings are for venues, companies, and organizations. Both will appear in the directory.</>,
+      },
+      {
+        q: 'Is it free to join?',
+        a: <>Yes. Joining the Collective is completely free.</>,
       },
     ],
   },
@@ -170,8 +174,8 @@ export default function HelpPage() {
             <span aria-hidden="true" style={{ marginRight: 6 }}>★</span>
             Keyword: <strong style={{ color: 'rgba(255,255,255,0.75)' }}>AAC Help</strong>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
-            <Link href="/directory" style={{ color: 'var(--aac-blue-light)', textDecoration: 'underline', fontSize: '0.75rem' }}>
-              Go to Directory
+            <Link href="/hire-us" style={{ color: 'var(--aac-blue-light)', textDecoration: 'underline', fontSize: '0.75rem' }}>
+              Hire Us
             </Link>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
             <Link href="/contact" style={{ color: 'var(--aac-blue-light)', textDecoration: 'underline', fontSize: '0.75rem' }}>
@@ -279,9 +283,8 @@ export default function HelpPage() {
           }}>
             <span aria-hidden="true" style={{ fontSize: '1.125rem', flexShrink: 0, marginTop: 1 }}>💡</span>
             <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8125rem', lineHeight: 1.65, margin: 0 }}>
-              <strong style={{ color: 'var(--aac-yellow)' }}>TIP:</strong> Not sure where to start? Try{' '}
-              <A href="/hire-us">Hire Us</A> if you are looking for accessibility support, or{' '}
-              <A href="/submit">Join the Collective</A> if you are a professional who wants to be found.
+              <strong style={{ color: 'var(--aac-yellow)' }}>TIP:</strong> Not sure where to start? Your first conversation with us is free — up to one hour, no strings attached.{' '}
+              <A href="/contact">Send us a message</A> and we will figure out the rest together.
             </p>
           </div>
 
@@ -303,7 +306,7 @@ export default function HelpPage() {
             style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}
           >
             <Link href="/" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
-            <Link href="/directory" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Directory</Link>
+            <Link href="/hire-us" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Hire Us</Link>
             <Link href="/contact" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
           </nav>
 
