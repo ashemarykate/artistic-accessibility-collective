@@ -21,8 +21,11 @@ const RESOURCES_ITEMS: NavItem[] = [
   { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass',  iconSrc: '/images/icons/magnifier.svg' },
 ];
 
+const PLAY_ITEMS: NavItem[] = [
+  { label: 'Make Art', href: '/make-art', icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
+];
+
 const TOGETHER_ITEMS: NavItem[] = [
-  { label: 'Make Art',     href: '/make-art',     icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
   { label: 'Calendar',     href: '/calendar',     icon: '📅', iconBg: '#b83878', iconName: 'Calendar' },
   { label: 'Learning Hub', href: '/learning-hub', icon: '💾', iconBg: '#3a2a9a', iconName: 'Floppy Disk' },
 ];
@@ -275,6 +278,18 @@ export default function Home() {
                       {item.label}
                     </Link>
                   )}
+                </li>
+              ))}
+
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}PLAY
+              </li>
+              {PLAY_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
+                  <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
+                    {item.label}
+                  </Link>
                 </li>
               ))}
 
