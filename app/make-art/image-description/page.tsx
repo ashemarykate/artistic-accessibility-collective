@@ -5,48 +5,48 @@ import Link from 'next/link';
 import KidArtToolbar from '@/components/KidArtToolbar';
 import { supabase } from '@/lib/supabase';
 
-/*
-  IMAGES: Add artwork files to /public/images/make-art/
-  Then update the PIECES array below. Each entry needs:
-    id:     a unique slug (used as HTML id)
-    title:  the artwork title shown to visitors
-    medium: e.g. "Photograph", "Painting", "Digital art"
-    src:    path from public/ root, e.g. "/images/make-art/my-photo.jpg"
-            Set to null to show a placeholder until the image is ready.
-    alt:    a factual alt text for the image (the community descriptions
-            supplement this, but a baseline alt is required for accessibility)
-*/
 type Piece = { id: string; title: string; medium: string; src: string | null; alt: string };
 
+// Add new pieces here. Drop image files into /public/images/make-art/.
 const PIECES: Piece[] = [
   {
-    id: 'first-piece',
-    title: 'First Piece',
-    medium: 'Image coming soon',
-    src: null,
-    alt: 'Artwork — image loading soon',
+    id: 'art-01',
+    title: 'Photograph I',
+    medium: '35mm Film',
+    src: '/images/make-art/art-01.jpg',
+    alt: 'A dark interior room with sheer white curtains covering a bright window. The majority of the frame is in deep shadow.',
+  },
+  {
+    id: 'art-02',
+    title: 'Photograph II',
+    medium: '35mm Film',
+    src: '/images/make-art/art-02.jpg',
+    alt: 'Urban street scene shot on film with a vertical lens flare cutting through a blue sky above city buildings and power lines.',
+  },
+  {
+    id: 'art-03',
+    title: 'Photograph III',
+    medium: '35mm Film',
+    src: '/images/make-art/art-03.jpg',
+    alt: 'Close-up photograph of a small flame in a shallow bowl, shot at night with warm orange light and colorful bokeh in the background.',
+  },
+  {
+    id: 'art-04',
+    title: 'Photograph IV',
+    medium: '35mm Film',
+    src: '/images/make-art/art-04.jpg',
+    alt: 'Black and white double-exposure film photograph taken through a car windshield, layering a curved road with a street intersection.',
   },
 ];
 
-// Seeded example descriptions to show how the community wall looks.
-// Replace or remove these once real submissions come in.
-type Description = { id: string; text: string; author: string; isNew?: boolean };
+type Description = { id: string; text: string; author: string; isNew?: boolean; isAutoGen?: boolean };
 
 const SEEDED: Description[] = [
   {
-    id: 'seed-1',
-    text: 'A warm light falls across the center of the image, drawing the eye with a kind of quiet insistence. The composition gives more space to what surrounds the subject than to the subject itself — a choice that feels deliberate.',
-    author: 'Community member',
-  },
-  {
-    id: 'seed-2',
-    text: 'Something about this image makes me want to slow down. The stillness in it is not emptiness. It is the stillness of something caught mid-breath, held.',
-    author: 'Community member',
-  },
-  {
-    id: 'seed-3',
-    text: 'The image is dominated by light on one side, fading to deeper shadow on the other. The color palette is warm — ambers, soft whites. A figure near the center is only partially visible, which makes the space around them feel intentional.',
-    author: 'Community member',
+    id: 'auto-gen',
+    isAutoGen: true,
+    author: 'Auto-Generated Image Description',
+    text: 'Color photograph. Image is predominantly dark. Approximately 65 to 70 percent of the frame is in deep shadow. A window occupies the center of the frame. The window is covered by sheer white curtains with a gathered, ruffled valance at the top. Bright white light filters through the curtains from outside, creating a luminous rectangle within the dark interior. The curtains part slightly in the center. To the left of the main window, a door with a small glass pane is partially visible. A round door knob is present. Walls and ceiling are not visible due to shadow. The color cast in shadow areas tends toward green. Shot on color negative film. No people, animals, or text are visible in the image.',
   },
 ];
 
@@ -287,10 +287,21 @@ export default function ImageDescriptionPage() {
                     {descriptions.map((d) => (
                       <div
                         key={d.id}
-                        style={{ border: d.isNew ? '2px solid #0b5e48' : '2px solid #ddd', borderStyle: d.isNew ? 'solid' : 'inset', background: d.isNew ? '#f0faf6' : '#fafafa', padding: '8px 11px', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#222', lineHeight: 1.7 }}
+                        style={{
+                          border: d.isNew ? '2px solid #0b5e48' : d.isAutoGen ? '2px dashed #7a8a9a' : '2px solid #ddd',
+                          borderStyle: d.isNew ? 'solid' : d.isAutoGen ? 'dashed' : 'inset',
+                          background: d.isNew ? '#f0faf6' : d.isAutoGen ? '#f0f4f8' : '#fafafa',
+                          padding: '8px 11px',
+                          fontFamily: d.isAutoGen ? '"Courier New", Courier, monospace' : '"MS Sans Serif", Arial, sans-serif',
+                          fontSize: 11,
+                          color: d.isAutoGen ? '#334' : '#222',
+                          lineHeight: 1.75,
+                        }}
                       >
                         <p style={{ margin: '0 0 4px' }}>{d.text}</p>
-                        <span style={{ fontSize: 10, color: '#888' }}>— {d.author}</span>
+                        <span style={{ fontSize: 10, color: '#888' }}>
+                          {d.isAutoGen ? '🤖 ' : '— '}{d.author}
+                        </span>
                         {d.isNew && <span style={{ fontSize: 9, color: '#0b5e48', fontWeight: 'bold', marginLeft: 6 }}>NEW</span>}
                       </div>
                     ))}
