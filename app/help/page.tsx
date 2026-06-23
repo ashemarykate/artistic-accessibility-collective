@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import BrowserChrome from '@/components/BrowserChrome';
 
 type FAQItem = { q: string; a: React.ReactNode };
-type FAQSection = { title: string; emoji: string; items: FAQItem[] };
+type FAQSection = { title: string; emoji: string; headerColor: string; items: FAQItem[] };
 
 function A({ href, children }: { href: string; children: React.ReactNode }) {
   const external = href.startsWith('http');
@@ -26,6 +26,7 @@ const SECTIONS: FAQSection[] = [
   {
     title: 'Getting Accessibility Help',
     emoji: '🔎',
+    headerColor: '#0b5e48',
     items: [
       {
         q: 'I need accessibility support for my event, festival, or project. Where do I start?',
@@ -44,6 +45,7 @@ const SECTIONS: FAQSection[] = [
   {
     title: 'Working With Us',
     emoji: '🤝',
+    headerColor: '#7a2c0c',
     items: [
       {
         q: 'What does the Collective offer?',
@@ -62,6 +64,7 @@ const SECTIONS: FAQSection[] = [
   {
     title: 'Join the Collective',
     emoji: '📋',
+    headerColor: '#4c1d8c',
     items: [
       {
         q: 'I am an accessibility professional. How do I get listed?',
@@ -80,6 +83,7 @@ const SECTIONS: FAQSection[] = [
   {
     title: 'About The Collective',
     emoji: '🌍',
+    headerColor: 'var(--aac-blue)',
     items: [
       {
         q: 'What is the Artistic Accessibility Collective?',
@@ -90,6 +94,7 @@ const SECTIONS: FAQSection[] = [
   {
     title: 'Your Account',
     emoji: '🪪',
+    headerColor: '#1c3a50',
     items: [
       {
         q: 'What is an Access Card?',
@@ -124,7 +129,7 @@ export default function HelpPage() {
 
   return (
     <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Help — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/help">
-      <main style={{ background: 'var(--aac-navy)', minHeight: '100%', padding: '2.5rem 1rem 3rem' }}>
+      <main className="help-main" style={{ background: 'var(--aac-navy)', minHeight: '100%', padding: '2.5rem 1rem 3rem' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
 
           {/* Logo */}
@@ -133,7 +138,7 @@ export default function HelpPage() {
           </Link>
 
           {/* Page header banner */}
-          <div style={{
+          <div className="help-header" style={{
             background: 'var(--aac-blue)',
             padding: '1.25rem 1.5rem',
             marginBottom: '0.25rem',
@@ -162,7 +167,7 @@ export default function HelpPage() {
           </div>
 
           {/* Keyword tip bar — period-accurate AOL detail */}
-          <div style={{
+          <div className="help-keyword-bar" style={{
             background: '#1a2e6e',
             borderTop: '1px solid rgba(255,255,255,0.08)',
             padding: '0.4rem 1.5rem',
@@ -189,7 +194,7 @@ export default function HelpPage() {
 
               {/* Section header bar */}
               <div style={{
-                background: 'var(--aac-blue)',
+                background: section.headerColor,
                 padding: '0.45rem 0.875rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -311,6 +316,15 @@ export default function HelpPage() {
           </nav>
 
         </div>
+
+        <style>{`
+          @media (max-width: 580px) {
+            .help-keyword-bar { display: none !important; }
+            .help-main { padding: 1.5rem 0.875rem 2.5rem !important; }
+            .help-header { padding: 1rem 1rem !important; }
+            .help-header h1 { font-size: 1.5rem !important; }
+          }
+        `}</style>
       </main>
     </BrowserChrome>
   );
