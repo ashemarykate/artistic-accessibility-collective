@@ -7,33 +7,24 @@ import { supabase } from '@/lib/supabase';
 // ── Nav structure — two sub-folders under Artistic Accessibility ──────────────
 type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean; iconSrc?: string };
 
-const TOP_ITEMS: NavItem[] = [
-  { label: 'About Us', href: '/about',   icon: '👥', iconBg: '#2a5a9a', iconName: 'People' },
-  { label: 'Hire Us',  href: '/hire-us', icon: '📣', iconBg: '#c85a20', iconName: 'Megaphone' },
+const ROOT_ITEMS: NavItem[] = [
+  { label: 'About Us',   href: '/about',                                  icon: '👥', iconBg: '#2a5a9a', iconName: 'People' },
+  { label: 'Hire Us',    href: '/hire-us',                                icon: '📣', iconBg: '#c85a20', iconName: 'Megaphone' },
+  { label: 'Contact Us', href: '/contact',                                icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope', iconSrc: '/images/icons/envelope.svg' },
+  { label: 'Instagram',  href: 'https://instagram.com/artisticaccessibility', icon: '📸', iconBg: '#b83878', iconName: 'Camera', external: true, iconSrc: '/images/icons/camera.svg' },
 ];
 
 const RESOURCES_ITEMS: NavItem[] = [
   { label: 'Accessibility Resources', href: '/resources', icon: '🔵', iconBg: '#2272c8', iconName: 'Blue Circle',       iconSrc: '/images/icons/info.svg' },
   { label: 'The Library',             href: '/library',   icon: '📚', iconBg: '#2a7a52', iconName: 'Books',             iconSrc: '/images/icons/books.svg' },
   { label: 'The Cinema',              href: '/cinema',    icon: '🎬', iconBg: '#7a3abf', iconName: 'Movie Clapper',     iconSrc: '/images/icons/film.svg' },
+  { label: 'Help',                    href: '/help',      icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass',  iconSrc: '/images/icons/magnifier.svg' },
 ];
 
 const TOGETHER_ITEMS: NavItem[] = [
-  { label: 'Make Art',      href: '/make-art',      icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
-  { label: 'Calendar',      href: '/calendar',      icon: '📅', iconBg: '#b83878', iconName: 'Calendar' },
-  { label: 'Learning Hub',  href: '/learning-hub',  icon: '💾', iconBg: '#3a2a9a', iconName: 'Floppy Disk' },
-];
-
-const MORE_ITEMS: NavItem[] = [
-  { label: 'Contact Us',     href: '/contact',          icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope',        iconSrc: '/images/icons/envelope.svg' },
-  {
-    label: 'Instagram',
-    href: 'https://instagram.com/artisticaccessibility',
-    icon: '📸', iconBg: '#b83878', iconName: 'Camera',
-    external: true,
-    iconSrc: '/images/icons/camera.svg',
-  },
-  { label: 'Help',           href: '/help',             icon: '🔍', iconBg: '#9a7212', iconName: 'Magnifying Glass', iconSrc: '/images/icons/magnifier.svg' },
+  { label: 'Make Art',     href: '/make-art',     icon: '🎨', iconBg: '#c85a20', iconName: 'Artist Palette', iconSrc: '/images/icons/palette.svg' },
+  { label: 'Calendar',     href: '/calendar',     icon: '📅', iconBg: '#b83878', iconName: 'Calendar' },
+  { label: 'Learning Hub', href: '/learning-hub', icon: '💾', iconBg: '#3a2a9a', iconName: 'Floppy Disk' },
 ];
 
 // ── Member nav items (shown in Explorer when logged in) ───────────────────────
@@ -270,10 +261,30 @@ export default function Home() {
                 🖥️ Artistic Accessibility
               </li>
 
-              {TOP_ITEMS.map((item) => (
+              {ROOT_ITEMS.map((item) => (
                 <li key={item.href} style={{ paddingLeft: 28 }}>
-                  <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11, fontWeight: 600 }} className="xp-folder-link">
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" />
+                  {item.external ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
+                      {item.label}
+                      <span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  ) : (
+                    <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}MORE TO COME
+              </li>
+              {TOGETHER_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
+                  <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                     {item.label}
                   </Link>
                 </li>
@@ -284,60 +295,10 @@ export default function Home() {
               </li>
               {RESOURCES_ITEMS.map((item) => (
                 <li key={item.href} style={{ paddingLeft: 40 }}>
-                  <Link
-                    href={item.href}
-                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
-                    className="xp-folder-link"
-                  >
+                  <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
                     <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
                     {item.label}
                   </Link>
-                </li>
-              ))}
-
-              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}MORE TO COME
-              </li>
-              {TOGETHER_ITEMS.map((item) => (
-                <li key={item.href} style={{ paddingLeft: 40 }}>
-                  <Link
-                    href={item.href}
-                    style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
-                    className="xp-folder-link"
-                  >
-                    <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-
-              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
-                <span aria-hidden="true">📂</span>{' '}MORE
-              </li>
-              {MORE_ITEMS.map((item) => (
-                <li key={item.href} style={{ paddingLeft: 40 }}>
-                  {item.external ? (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
-                      className="xp-folder-link"
-                    >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
-                      {item.label}
-                      <span className="sr-only"> (opens Instagram in new tab)</span>
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }}
-                      className="xp-folder-link"
-                    >
-                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
-                      {item.label}
-                    </Link>
-                  )}
                 </li>
               ))}
 
