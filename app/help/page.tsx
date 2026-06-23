@@ -1,12 +1,14 @@
 'use client';
 
-import Logo from '@/components/Logo';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import BrowserChrome from '@/components/BrowserChrome';
 
 type FAQItem = { q: string; a: React.ReactNode };
 type FAQSection = { title: string; emoji: string; headerColor: string; items: FAQItem[] };
+
+const TEXT = '#1e2444';
+const MUTED = '#4a5280';
 
 function A({ href, children }: { href: string; children: React.ReactNode }) {
   const external = href.startsWith('http');
@@ -15,7 +17,7 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      style={{ color: 'var(--aac-yellow)', textDecoration: 'underline', fontWeight: 500 }}
+      style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontWeight: 500 }}
     >
       {children}
     </Link>
@@ -53,7 +55,7 @@ const SECTIONS: FAQSection[] = [
       },
       {
         q: 'How does pricing work?',
-        a: <>Your first conversation — up to one hour — is completely free. After that, we work on a sliding scale based on what we are helping you with. We want accessibility support to be within reach no matter the size of your budget.</>,
+        a: <>Your first conversation, up to one hour, is completely free. After that, we work on a sliding scale based on what we are helping you with. We want accessibility support to be within reach no matter the size of your budget.</>,
       },
       {
         q: 'How do I get started?',
@@ -129,13 +131,14 @@ export default function HelpPage() {
 
   return (
     <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Help — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/help">
-      <main className="help-main" style={{ background: 'var(--aac-navy)', minHeight: '100%', padding: '2.5rem 1rem 3rem' }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
-
-          {/* Logo */}
-          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block', marginBottom: '2rem' }}>
-            <Logo alt="" height={72} />
+      <>
+        <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
+            <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>
+        </header>
+
+        <main className="help-main" style={{ background: 'var(--aac-cream)', minHeight: '100%', padding: '0 0 3rem' }}>
 
           {/* Page header banner */}
           <div className="help-header" style={{
@@ -166,166 +169,168 @@ export default function HelpPage() {
             </div>
           </div>
 
-          {/* Keyword tip bar — period-accurate AOL detail */}
+          {/* Keyword tip bar */}
           <div className="help-keyword-bar" style={{
-            background: '#1a2e6e',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
+            background: '#dde2f4',
+            borderBottom: '1px solid rgba(38,53,144,0.12)',
             padding: '0.4rem 1.5rem',
             fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.5)',
+            color: MUTED,
             letterSpacing: '0.02em',
-            marginBottom: '2rem',
+            marginBottom: '1.75rem',
           }}>
             <span aria-hidden="true" style={{ marginRight: 6 }}>★</span>
-            Keyword: <strong style={{ color: 'rgba(255,255,255,0.75)' }}>AAC Help</strong>
+            Keyword: <strong style={{ color: TEXT }}>AAC Help</strong>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
-            <Link href="/hire-us" style={{ color: 'var(--aac-blue-light)', textDecoration: 'underline', fontSize: '0.75rem' }}>
+            <Link href="/hire-us" style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontSize: '0.75rem' }}>
               Hire Us
             </Link>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
-            <Link href="/contact" style={{ color: 'var(--aac-blue-light)', textDecoration: 'underline', fontSize: '0.75rem' }}>
+            <Link href="/contact" style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontSize: '0.75rem' }}>
               Contact Us
             </Link>
           </div>
 
-          {/* FAQ sections */}
-          {SECTIONS.map((section) => (
-            <div key={section.title} style={{ marginBottom: '1.5rem' }}>
+          <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 1rem' }}>
 
-              {/* Section header bar */}
-              <div style={{
-                background: section.headerColor,
-                padding: '0.45rem 0.875rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}>
-                <span aria-hidden="true" style={{ fontSize: '0.875rem', lineHeight: 1 }}>{section.emoji}</span>
-                <h2 style={{
-                  fontSize: '0.6875rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: '#fff',
-                  margin: 0,
+            {/* FAQ sections */}
+            {SECTIONS.map((section) => (
+              <div key={section.title} style={{ marginBottom: '1.5rem' }}>
+
+                {/* Section header bar */}
+                <div style={{
+                  background: section.headerColor,
+                  padding: '0.45rem 0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
                 }}>
-                  {section.title}
-                </h2>
-              </div>
+                  <span aria-hidden="true" style={{ fontSize: '0.875rem', lineHeight: 1 }}>{section.emoji}</span>
+                  <h2 style={{
+                    fontSize: '0.6875rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: '#fff',
+                    margin: 0,
+                  }}>
+                    {section.title}
+                  </h2>
+                </div>
 
-              {/* Questions */}
-              <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none' }}>
-                {section.items.map((item, i) => {
-                  const key = `${section.title}-${i}`;
-                  const isOpen = open.has(key);
-                  const isLast = i === section.items.length - 1;
-                  return (
-                    <div key={key} style={{ borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.07)' }}>
-                      <button
-                        aria-expanded={isOpen}
-                        aria-controls={`answer-${key}`}
-                        onClick={() => toggle(key)}
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '0.625rem',
-                          padding: '0.75rem 0.875rem',
-                          background: isOpen ? 'rgba(38,53,144,0.35)' : 'rgba(255,255,255,0.03)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          color: '#fff',
-                          fontSize: '0.875rem',
-                          fontWeight: 500,
-                          lineHeight: 1.45,
-                          transition: 'background 0.1s',
-                        }}
-                      >
-                        <span
-                          aria-hidden="true"
+                {/* Questions */}
+                <div style={{ border: '1px solid rgba(0,0,0,0.1)', borderTop: 'none' }}>
+                  {section.items.map((item, i) => {
+                    const key = `${section.title}-${i}`;
+                    const isOpen = open.has(key);
+                    const isLast = i === section.items.length - 1;
+                    return (
+                      <div key={key} style={{ borderBottom: isLast ? 'none' : '1px solid rgba(0,0,0,0.06)' }}>
+                        <button
+                          aria-expanded={isOpen}
+                          aria-controls={`answer-${key}`}
+                          onClick={() => toggle(key)}
                           style={{
-                            flexShrink: 0,
-                            fontSize: '0.625rem',
-                            marginTop: '0.35rem',
-                            color: 'var(--aac-yellow)',
-                            opacity: isOpen ? 1 : 0.6,
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '0.625rem',
+                            padding: '0.75rem 0.875rem',
+                            background: isOpen ? 'rgba(38,53,144,0.07)' : 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            color: TEXT,
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            lineHeight: 1.45,
+                            transition: 'background 0.1s',
                           }}
                         >
-                          {isOpen ? '▼' : '▶'}
-                        </span>
-                        <span>{item.q}</span>
-                      </button>
-                      <div
-                        id={`answer-${key}`}
-                        hidden={!isOpen}
-                        style={{
-                          padding: '0 0.875rem 0.875rem 2rem',
-                          color: 'rgba(255,255,255,0.72)',
-                          fontSize: '0.875rem',
-                          lineHeight: 1.7,
-                          background: 'rgba(38,53,144,0.2)',
-                        }}
-                      >
-                        {item.a}
+                          <span
+                            aria-hidden="true"
+                            style={{
+                              flexShrink: 0,
+                              fontSize: '0.625rem',
+                              marginTop: '0.35rem',
+                              color: 'var(--aac-blue)',
+                              opacity: isOpen ? 1 : 0.5,
+                            }}
+                          >
+                            {isOpen ? '▼' : '▶'}
+                          </span>
+                          <span>{item.q}</span>
+                        </button>
+                        <div
+                          id={`answer-${key}`}
+                          hidden={!isOpen}
+                          style={{
+                            padding: '0 0.875rem 0.875rem 2rem',
+                            color: MUTED,
+                            fontSize: '0.875rem',
+                            lineHeight: 1.7,
+                            background: 'rgba(38,53,144,0.04)',
+                          }}
+                        >
+                          {item.a}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+            ))}
+
+            {/* Tip box */}
+            <div style={{
+              margin: '2rem 0',
+              padding: '1rem 1.25rem',
+              background: '#f0f3ff',
+              border: '1px solid rgba(38,53,144,0.2)',
+              display: 'flex',
+              gap: '0.875rem',
+              alignItems: 'flex-start',
+            }}>
+              <span aria-hidden="true" style={{ fontSize: '1.125rem', flexShrink: 0, marginTop: 1 }}>💡</span>
+              <p style={{ color: TEXT, fontSize: '0.8125rem', lineHeight: 1.65, margin: 0 }}>
+                <strong style={{ color: 'var(--aac-blue)' }}>TIP:</strong> Not sure where to start? Your first conversation with us is free, up to one hour, no strings attached.{' '}
+                <A href="/contact">Send us a message</A> and we will figure out the rest together.
+              </p>
             </div>
-          ))}
 
-          {/* Tip box */}
-          <div style={{
-            margin: '2rem 0',
-            padding: '1rem 1.25rem',
-            background: 'rgba(245,216,74,0.08)',
-            border: '1px solid rgba(245,216,74,0.3)',
-            display: 'flex',
-            gap: '0.875rem',
-            alignItems: 'flex-start',
-          }}>
-            <span aria-hidden="true" style={{ fontSize: '1.125rem', flexShrink: 0, marginTop: 1 }}>💡</span>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8125rem', lineHeight: 1.65, margin: 0 }}>
-              <strong style={{ color: 'var(--aac-yellow)' }}>TIP:</strong> Not sure where to start? Your first conversation with us is free — up to one hour, no strings attached.{' '}
-              <A href="/contact">Send us a message</A> and we will figure out the rest together.
-            </p>
+            {/* Still need help CTA */}
+            <div style={{
+              background: 'var(--aac-blue)',
+              padding: '1.5rem',
+              textAlign: 'center',
+            }}>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9375rem', marginBottom: '1rem', fontWeight: 500 }}>
+                Still have questions?
+              </p>
+              <Link href="/contact" className="btn btn-primary">Contact Us</Link>
+            </div>
+
+            <nav
+              aria-label="Secondary"
+              style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}
+            >
+              <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
+              <Link href="/hire-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Hire Us</Link>
+              <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
+            </nav>
+
           </div>
 
-          {/* Still need help CTA */}
-          <div style={{
-            background: 'var(--aac-blue)',
-            padding: '1.5rem',
-            textAlign: 'center',
-          }}>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9375rem', marginBottom: '1rem', fontWeight: 500 }}>
-              Still have questions?
-            </p>
-            <Link href="/contact" className="btn btn-primary">Contact Us</Link>
-          </div>
-
-          {/* Footer nav */}
-          <nav
-            aria-label="Secondary"
-            style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}
-          >
-            <Link href="/" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
-            <Link href="/hire-us" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Hire Us</Link>
-            <Link href="/contact" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
-          </nav>
-
-        </div>
-
-        <style>{`
-          @media (max-width: 580px) {
-            .help-keyword-bar { display: none !important; }
-            .help-main { padding: 1.5rem 0.875rem 2.5rem !important; }
-            .help-header { padding: 1rem 1rem !important; }
-            .help-header h1 { font-size: 1.5rem !important; }
-          }
-        `}</style>
-      </main>
+          <style>{`
+            @media (max-width: 580px) {
+              .help-keyword-bar { display: none !important; }
+              .help-main { padding: 0 0 2.5rem !important; }
+              .help-header { padding: 1rem !important; }
+              .help-header h1 { font-size: 1.5rem !important; }
+            }
+          `}</style>
+        </main>
+      </>
     </BrowserChrome>
   );
 }
