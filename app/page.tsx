@@ -117,7 +117,7 @@ function DeskIcon({ k, onOpen, selected, onSelect }: {
       aria-label={it.kind === 'ext' ? `${it.label} (opens in new tab)` : it.label}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 116, padding: '10px 6px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, WebkitTapHighlightColor: 'transparent' }}
     >
-      <span style={{ filter: 'drop-shadow(1px 2px 0 rgba(0,0,0,.45))' }}>
+      <span className="dsk-icon-img-wrap" style={{ filter: 'drop-shadow(1px 2px 0 rgba(0,0,0,.45))' }}>
         <Ico n={it.icon} size={64} />
       </span>
       <span className={'dsk-label' + (selected ? ' sel' : '')}>{it.label}</span>
@@ -645,17 +645,18 @@ export default function Home() {
         </div>
       )}
 
-      {/* Desktop icons — hand-placed */}
+      {/* Desktop icons — hand-placed on desktop, grid on mobile */}
       <div
         onPointerDown={(e) => e.stopPropagation()}
         role="list"
         aria-label="Desktop"
+        className="dsk-container"
         style={{ position: 'absolute', top: headerH, left: 0, right: 0, bottom: 58, zIndex: 2, pointerEvents: 'none' }}
       >
         {DESKTOP.map(k => {
           const pos = POSITIONS[k] ?? { x: '8px', y: 8 };
           return (
-            <div role="listitem" key={k} style={{ position: 'absolute', left: pos.x, top: pos.y, pointerEvents: 'all' }}>
+            <div role="listitem" key={k} className="dsk-item" style={{ position: 'absolute', left: pos.x, top: pos.y, pointerEvents: 'all' }}>
               <DeskIcon k={k} onOpen={open} selected={sel === k} onSelect={setSel} />
             </div>
           );
@@ -728,7 +729,11 @@ export default function Home() {
           .start-sub{position:static!important;left:auto!important;top:auto!important;min-width:0!important;box-shadow:none!important;background:#d4d4d4!important;border-left:3px solid #9a9a9a!important;margin:0 8px 4px 30px!important;padding:2px 0!important}
           .start-folder:hover>.start-sub{display:none}
           .start-folder:focus-within>.start-sub{display:block}
-          .dsk-label{font-size:11.5px}
+          .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:14px!important;padding:16px!important;align-content:center!important;pointer-events:none!important}
+          .dsk-item{position:static!important;pointer-events:all!important}
+          .dsk-icon{width:100%!important;padding:18px 10px 14px!important;min-height:160px!important;justify-content:center!important}
+          .dsk-icon-img-wrap img{width:88px!important;height:88px!important}
+          .dsk-label{font-size:13.5px!important;max-width:none!important}
         }
       `}</style>
     </div>
