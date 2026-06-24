@@ -55,7 +55,7 @@ const ITEMS: Record<string, ItemDef> = {
   'make-art':         { label: 'Make Art',               icon: 70,        kind: 'app',      cat: 'Play',          href: '/make-art',        blurb: 'Step into the studio. Paint, draw and experiment with our accessible online art tools.' },
   'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'More to Come',  href: '/calendar',        blurb: 'Workshops, classes and community events, all in one place. Save your spot.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
-  'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer' },
+  'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
   'faq':              { label: 'FAQs',                   icon: 'faq',     kind: 'app',      cat: 'Resources',     href: '/help',            blurb: 'Frequently asked questions and answers, plus how to reach our support team.' },
   'hire':             { label: 'Work With Us',            icon: 62,        kind: 'app',      cat: 'Connect',       href: '/work-with-us',         blurb: 'Book us for workshops, talks and commissioned work.' },
@@ -562,7 +562,7 @@ export default function Home() {
     });
   }, []);
 
-  const DIRECT_NAV = ['make-art', 'learning', 'collective'];
+  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'resources', 'library', 'cinema'];
 
   const open = useCallback((k: string) => {
     setStartOpen(false);
