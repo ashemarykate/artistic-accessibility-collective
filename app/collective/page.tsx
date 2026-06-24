@@ -40,6 +40,11 @@ export default function Collective() {
                 </Link>
               </li>
               <li>
+                <Link href="/access-card/signup" className="btn btn-outline-white btn-lg">
+                  Get an Access Card
+                </Link>
+              </li>
+              <li>
                 <Link href="/login" className="btn btn-outline-white btn-lg">
                   Log In
                 </Link>
