@@ -457,10 +457,12 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate 
         <span style={{ flex: 1, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textShadow: kind === 'explorer' ? '0 1px 1px rgba(0,0,0,.4)' : 'none' }}>{title}</span>
         <WinClose onClose={() => onClose(win.id)} label={`Close ${title}`} red={redClose} />
       </div>
-      {kind === 'app'      && <AppBody k={win.key} onOpen={onOpen} onClose={() => onClose(win.id)} />}
-      {kind === 'folder'   && <FolderBody onOpen={onOpen} />}
-      {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} />}
-      {kind === 'explorer' && <ExplorerBody onOpen={onOpen} />}
+      <div style={{ overflowY: 'auto', maxHeight: 'calc(100dvh - 136px)' }}>
+        {kind === 'app'      && <AppBody k={win.key} onOpen={onOpen} onClose={() => onClose(win.id)} />}
+        {kind === 'folder'   && <FolderBody onOpen={onOpen} />}
+        {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} />}
+        {kind === 'explorer' && <ExplorerBody onOpen={onOpen} />}
+      </div>
     </div>
   );
 }
