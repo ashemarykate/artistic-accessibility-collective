@@ -75,12 +75,12 @@ const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'l
 const POSITIONS: Record<string, { x: string; y: number }> = {
   'about':       { x: 'max(8px, 2%)',    y: 8   },
   'all-folders': { x: 'max(8px, 2%)',    y: 185 },
-  'make-art':    { x: 'max(136px, 35%)', y: 55  },
-  'collective':  { x: 'max(136px, 35%)', y: 265 },
+  'make-art':    { x: 'max(148px, 18%)', y: 55  },
+  'collective':  { x: 'max(148px, 18%)', y: 265 },
   'calendar':    { x: 'max(8px, 2%)',    y: 355 },
-  'resources':   { x: 'max(264px, 67%)', y: 18  },
-  'contact':     { x: 'max(264px, 67%)', y: 215 },
-  'learning':    { x: 'max(136px, 35%)', y: 380 },
+  'resources':   { x: 'max(276px, 33%)', y: 18  },
+  'contact':     { x: 'max(276px, 33%)', y: 215 },
+  'learning':    { x: 'max(148px, 18%)', y: 380 },
 };
 
 const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string; children: string[] }> = [
