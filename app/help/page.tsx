@@ -59,7 +59,7 @@ const SECTIONS: FAQSection[] = [
       },
       {
         q: 'How do I get started?',
-        a: <><A href="/hire-us">Visit the Hire Us page</A> or <A href="/contact">send us a message</A>. Tell us a little about your project and we will take it from there.</>,
+        a: <><A href="/work-with-us">Visit the Work With Us page</A> or <A href="/contact">send us a message</A>. Tell us a little about your project and we will take it from there.</>,
       },
     ],
   },
@@ -182,8 +182,8 @@ export default function HelpPage() {
             <span aria-hidden="true" style={{ marginRight: 6 }}>★</span>
             Keyword: <strong style={{ color: TEXT }}>AAC Help</strong>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
-            <Link href="/hire-us" style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontSize: '0.75rem' }}>
-              Hire Us
+            <Link href="/work-with-us" style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontSize: '0.75rem' }}>
+              Work With Us
             </Link>
             <span style={{ margin: '0 0.75rem', opacity: 0.4 }}>|</span>
             <Link href="/contact" style={{ color: 'var(--aac-blue)', textDecoration: 'underline', fontSize: '0.75rem' }}>
@@ -315,7 +315,7 @@ export default function HelpPage() {
               style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}
             >
               <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
-              <Link href="/hire-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Hire Us</Link>
+              <Link href="/work-with-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Work With Us</Link>
               <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
             </nav>
 

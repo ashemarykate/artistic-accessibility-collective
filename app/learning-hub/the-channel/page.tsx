@@ -2,6 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+declare global {
+  interface Window { YT: any; onYouTubeIframeAPIReady?: () => void; }
+}
+
 const PLAYLIST_ID  = 'PLhDUBYZHjb_gGDRDJeH1FDv_oON64K7tk';
 const PLAYLIST_URL = 'https://youtube.com/playlist?list=PLhDUBYZHjb_gGDRDJeH1FDv_oON64K7tk';
 
@@ -20,15 +24,15 @@ const TOOLBAR_ITEMS = [
 ];
 
 export default function TheChannelLearningPage() {
-  const [booting, setBooting]       = useState(true);
-  const [bootText, setBootText]     = useState('Tuning in to AAC The Channel');
-  const [startIndex, setStartIndex] = useState(1);
-  const [shuffleKey, setShuffleKey] = useState(0);
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const [booting, setBooting]   = useState(true);
+  const [bootText, setBootText] = useState('Tuning in to AAC The Channel');
+  const [ready, setReady]       = useState(false);
+  const headingRef    = useRef<HTMLHeadingElement>(null);
+  const playerRef     = useRef<any>(null);
+  const playerDivRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = 'The Channel · Artistic Accessibility Collective';
-    setStartIndex(Math.floor(Math.random() * 20) + 1);
 
     let dots = 0;
     const dotInterval = setInterval(() => {
@@ -47,12 +51,48 @@ export default function TheChannelLearningPage() {
     };
   }, []);
 
-  const shuffle = () => {
-    setStartIndex(Math.floor(Math.random() * 20) + 1);
-    setShuffleKey(k => k + 1);
-  };
+  useEffect(() => {
+    let dead = false;
 
-  const embedSrc = `https://www.youtube.com/embed/videoseries?list=${PLAYLIST_ID}&index=${startIndex}&modestbranding=1&rel=0`;
+    const init = () => {
+      if (dead || !playerDivRef.current) return;
+      playerRef.current = new window.YT.Player(playerDivRef.current, {
+        playerVars: { list: PLAYLIST_ID, listType: 'playlist', modestbranding: 1, rel: 0 },
+        events: {
+          onReady: (e: any) => {
+            if (dead) return;
+            e.target.setShuffle(true);
+            e.target.playVideoAt(Math.floor(Math.random() * 15));
+            setReady(true);
+          },
+        },
+      });
+    };
+
+    if (window.YT?.Player) {
+      init();
+    } else {
+      if (!document.getElementById('yt-iframe-api')) {
+        const s = document.createElement('script');
+        s.id  = 'yt-iframe-api';
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+      }
+      window.onYouTubeIframeAPIReady = init;
+    }
+
+    return () => {
+      dead = true;
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
+    };
+  }, []);
+
+  const shuffle = () => {
+    if (!playerRef.current || !ready) return;
+    playerRef.current.setShuffle(true);
+    playerRef.current.playVideoAt(Math.floor(Math.random() * 15));
+  };
 
   return (
     <div
@@ -165,13 +205,9 @@ export default function TheChannelLearningPage() {
                 style={{ border: '5px solid #333', borderStyle: 'outset', boxShadow: '0 0 20px rgba(180,100,0,0.25), inset 0 0 8px rgba(0,0,0,0.6)', background: '#000', flexShrink: 0 }}
                 aria-label="Video player"
               >
-                <iframe
-                  key={shuffleKey}
-                  src={embedSrc}
-                  title="The Channel: arts accessibility videos"
-                  style={{ width: '100%', aspectRatio: '16/9', border: 'none', display: 'block' }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
+                <div
+                  ref={playerDivRef}
+                  style={{ width: '100%', aspectRatio: '16/9', display: 'block', background: '#000' }}
                 />
               </div>
 

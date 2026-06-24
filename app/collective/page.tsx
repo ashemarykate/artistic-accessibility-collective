@@ -36,7 +36,7 @@ export default function Collective() {
             <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', listStyle: 'none', padding: 0, margin: 0 }}>
               <li>
                 <Link href="/submit" className="btn btn-on-blue btn-lg">
-                  Test the Registry
+                  Test the Collective
                 </Link>
               </li>
               <li>

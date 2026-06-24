@@ -45,7 +45,7 @@ const THEMES = {
     statusText:  'Document: Done.',
     logo:        '📄',
     logoLabel:   'Mosaic',
-    toolbarBtns: ['Open', '◀ Back', '▶ Fwd', '⟳ Reload', '🏠 Home'],
+    toolbarBtns: ['◀ Back', '▶ Fwd', '⟳ Reload', '🏠 Home'],
     font:        '"Helvetica Neue", Helvetica, Arial, sans-serif',
     borderStyle: '2px solid',         // flat — Mosaic was pre-inset/outset fashion
   },
@@ -62,7 +62,7 @@ const THEMES = {
     statusText:  '✓ Document: Done.',
     logo:        'N',
     logoLabel:   'Netscape Navigator',
-    toolbarBtns: ['◀ Back', '▶ Fwd', '🏠 Home', '⟳ Reload', '🖼 Images', '🖨 Print', '🔍 Find', '✕ Stop'],
+    toolbarBtns: ['◀ Back', '▶ Fwd', '🏠 Home', '⟳ Reload', '🖨 Print'],
     font:        '"Arial", Helvetica, sans-serif',
     borderStyle: '2px outset',
   },
@@ -79,7 +79,7 @@ const THEMES = {
     statusText:  'Done',
     logo:        'e',
     logoLabel:   'Internet Explorer',
-    toolbarBtns: ['◀', '▶', '✕ Stop', '⟳ Refresh', '🏠 Home', '⭐ Favorites', '🔍 Search'],
+    toolbarBtns: ['◀', '▶', '⟳ Refresh', '🏠 Home'],
     font:        '"Tahoma", "Verdana", Arial, sans-serif',
     borderStyle: '2px outset',
   },
@@ -96,7 +96,7 @@ const THEMES = {
     statusText:  'Page loaded successfully',
     logo:        '💬',
     logoLabel:   'AOL',
-    toolbarBtns: ['◀ Back', '▶ Fwd', '🏠 Home', '⭐ My AOL', '🔍 Search', '📧 Email'],
+    toolbarBtns: ['◀ Back', '▶ Fwd', '🏠 Home', '📧 Email'],
     font:        '"Arial", sans-serif',
     borderStyle: '2px outset',
   },
@@ -104,23 +104,20 @@ const THEMES = {
 
 // ── Helper sub-components (all aria-hidden / decorative) ──────────────────────
 
-function WinBtn({ label, danger, theme }: { label: string; danger?: boolean; theme: typeof THEMES[BrowserVariant] }) {
-  return (
-    <span
-      aria-hidden="true"
-      style={{
-        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        width: 18, height: 14, fontSize: '9px', fontWeight: 'bold',
-        background: danger ? '#cc0000' : theme.chrome,
-        border: `1px outset ${theme.chromeLight}`,
-        color: danger ? '#fff' : '#000',
-        fontFamily: theme.font, cursor: 'default', userSelect: 'none',
-        flexShrink: 0,
-      }}
-    >
-      {label}
-    </span>
-  );
+function WinBtn({ label, danger, theme, onClick }: { label: string; danger?: boolean; theme: typeof THEMES[BrowserVariant]; onClick?: () => void }) {
+  const style = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    width: 18, height: 14, fontSize: '9px', fontWeight: 'bold',
+    background: danger ? '#cc0000' : theme.chrome,
+    border: `1px outset ${theme.chromeLight}`,
+    color: danger ? '#fff' : '#000',
+    fontFamily: theme.font, cursor: onClick ? 'pointer' : 'default', userSelect: 'none' as const,
+    flexShrink: 0,
+  };
+  if (onClick) {
+    return <button aria-hidden="true" tabIndex={-1} onClick={onClick} style={{ ...style, padding: 0 }}>{label}</button>;
+  }
+  return <span aria-hidden="true" style={style}>{label}</span>;
 }
 
 function TBtn({
@@ -169,6 +166,8 @@ export default function BrowserChrome({
   const forward = () => typeof window !== 'undefined' && window.history.forward();
   const reload  = () => typeof window !== 'undefined' && window.location.reload();
   const home    = () => typeof window !== 'undefined' && (window.location.href = '/');
+  const print   = () => typeof window !== 'undefined' && window.print();
+  const contact = () => typeof window !== 'undefined' && (window.location.href = '/contact');
 
   // Map toolbar button labels to actions
   const actions: Record<string, (() => void) | undefined> = {
@@ -176,13 +175,14 @@ export default function BrowserChrome({
     '▶ Fwd': forward, '▶': forward,
     '⟳ Reload': reload, '⟳ Refresh': reload,
     '🏠 Home': home,
+    '🖨 Print': print,
+    '📧 Email': contact,
   };
 
   return (
     <>
       {/* ── Desktop / outer frame ──────────────────────────────────────────── */}
       <div
-        aria-hidden="false"
         style={{
           position: 'fixed', inset: 0,
           background: desktopBg ?? T.desktop,
@@ -224,7 +224,7 @@ export default function BrowserChrome({
             <div style={{ display: 'flex', gap: '2px' }}>
               <WinBtn label="─" theme={T} />
               <WinBtn label="□" theme={T} />
-              <WinBtn label="✕" danger theme={T} />
+              <WinBtn label="✕" danger theme={T} onClick={home} />
             </div>
           </div>
 

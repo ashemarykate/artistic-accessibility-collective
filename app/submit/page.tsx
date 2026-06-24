@@ -118,7 +118,7 @@ export default function SubmitProfile() {
   const typeSelectHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Test the Registry · Artistic Accessibility Collective';
+    document.title = 'Test the Collective · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -386,7 +386,7 @@ export default function SubmitProfile() {
 
         <div className="content-card" style={{ maxWidth: '460px', width: '100%', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.5rem' }}>
-            Test the Registry
+            Test the Collective
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '1.05rem' }}>
             You&apos;ll need an invite code to get started.

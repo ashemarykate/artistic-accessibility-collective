@@ -84,7 +84,7 @@ export default function AboutPage() {
 
             <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
               <Link href="/contact" className="btn btn-primary">Get in Touch</Link>
-              <Link href="/hire-us" style={{
+              <Link href="/work-with-us" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 padding: '0.625rem 1.25rem',
@@ -94,13 +94,13 @@ export default function AboutPage() {
                 fontSize: '0.875rem',
                 fontWeight: 500,
               }}>
-                Hire Us
+                Work With Us
               </Link>
             </div>
 
             <nav aria-label="Secondary" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
               <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
-              <Link href="/hire-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Hire Us</Link>
+              <Link href="/work-with-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Work With Us</Link>
               <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
             </nav>
 

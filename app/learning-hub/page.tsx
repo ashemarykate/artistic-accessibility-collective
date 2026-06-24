@@ -277,24 +277,6 @@ export default function LearningHubPage() {
           {/* ── Canvas ────────────────────────────────────────────────────── */}
           <div className="hub-canvas" style={{ flex: 1, background: '#fafaf6', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
 
-            {/* Coming soon badge */}
-            <div style={{
-              display: 'flex', justifyContent: 'center',
-              padding: '8px 8px 0',
-              flexShrink: 0,
-            }}>
-              <span style={{
-                background: '#006633', color: 'white',
-                fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                fontSize: 10, fontWeight: 'bold',
-                padding: '2px 10px', letterSpacing: '0.08em',
-                border: '1px solid #44aa66',
-                userSelect: 'none',
-              }} aria-label="Coming soon">
-                ★ COMING SOON ★
-              </span>
-            </div>
-
             {/* Main canvas content */}
             <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -310,13 +292,19 @@ export default function LearningHubPage() {
                     lineHeight: 1.2,
                   }}
                 >
-                  Learning Hub
+                  Welcome to the Learning Hub!
                 </h2>
                 <p style={{
                   fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                  fontSize: 12, color: '#333', margin: 0, lineHeight: 1.5,
+                  fontSize: 12, color: '#333', margin: '0 0 10px', lineHeight: 1.5,
                 }}>
-                  An interactive learning series for arts accessibility, coming soon.
+                  Right now the only thing we have up and running is The Channel. Click the TV button on the left to check it out.
+                </p>
+                <p style={{
+                  fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                  fontSize: 12, color: '#555', margin: 0, lineHeight: 1.5,
+                }}>
+                  More fun things are on the way, keep an eye out!
                 </p>
               </div>
 

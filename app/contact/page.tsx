@@ -130,13 +130,28 @@ export default function ContactPage() {
         <Logo alt="" height={72} />
       </Link>
 
-      <div className="content-card" style={{ maxWidth: '560px', width: '100%' }}>
-        <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '0.25rem', textAlign: 'center' }}>
-          Contact Us
-        </h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', textAlign: 'center', marginBottom: '1.75rem' }}>
-          Have questions, suggestions, or want to learn more?<br />We'd love to connect with you!
-        </p>
+      <div className="content-card" style={{ maxWidth: '560px', width: '100%', padding: 0, overflow: 'hidden' }}>
+        {/* Decorative email toolbar */}
+        <div aria-hidden="true" style={{ background: '#c3c3c3', borderBottom: '2px solid #808080', padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 4, fontFamily: '"Tahoma","MS Sans Serif",Arial,sans-serif', fontSize: 12 }}>
+          {['Send','Delete','Reply','Forward'].map((lbl) => (
+            <span key={lbl} style={{ padding: '2px 8px', background: '#c3c3c3', boxShadow: 'inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #fff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf', cursor: 'default', userSelect: 'none', fontSize: 11 }}>{lbl}</span>
+          ))}
+          <span style={{ marginLeft: 8, color: '#555', fontSize: 11 }}>New Message</span>
+        </div>
+        {/* Email header */}
+        <div style={{ background: '#fff', borderBottom: '1px solid #ccc', padding: '6px 14px', fontFamily: '"Tahoma","MS Sans Serif",Arial,sans-serif', fontSize: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0', borderBottom: '1px solid #eee' }}>
+            <span style={{ minWidth: 52, color: '#555', fontWeight: 'bold' }}>To:</span>
+            <span style={{ color: '#000a7a', textDecoration: 'underline' }}>hello@artisticaccessibility.com</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0' }}>
+            <span style={{ minWidth: 52, color: '#555', fontWeight: 'bold' }}>Subject:</span>
+            <span style={{ color: '#333' }}>New message from website visitor</span>
+          </div>
+        </div>
+
+        <div style={{ padding: '1.5rem 1.5rem 0' }}>
+        <h1 className="sr-only">Contact Us</h1>
 
         {submitError && (
           <div className="alert alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>
@@ -230,6 +245,7 @@ export default function ContactPage() {
                 if (fieldErrors.message) setFieldErrors({ ...fieldErrors, message: undefined });
               }}
               placeholder="Tell us what's on your mind…"
+            style={{ fontFamily: '"Courier New",Courier,monospace', fontSize: '0.9rem' }}
             />
             {fieldErrors.message && (
               <p id="error-message" className="form-error" role="alert">{fieldErrors.message}</p>
@@ -243,17 +259,9 @@ export default function ContactPage() {
             style={{ width: '100%' }}
             aria-busy={loading}
           >
-            {loading ? 'Sending…' : 'Send Message'}
+            {loading ? 'Sending…' : 'Send'}
           </button>
         </form>
-
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--color-border)', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            Or email us directly at{' '}
-            <a href="mailto:contact@artisticaccessibility.com" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-              contact@artisticaccessibility.com
-            </a>
-          </p>
         </div>
       </div>
     </main>

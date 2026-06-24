@@ -116,9 +116,9 @@ export default function AccessCardSignup() {
 
   return (
     <BrowserChrome variant="ie3" title="Get an Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card/signup">
-      <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 1rem 4rem', minHeight: '100%' }}>
+      <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.25rem 1rem 3rem', minHeight: '100%' }}>
 
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo height={72} />
         </Link>

@@ -5,7 +5,31 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { SavedResource } from '@/lib/supabase';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { LOGO_VERSIONS } from '@/components/Logo';
+
+const CARD_ICONS = [
+  { src: '/images/icons/Daisy Flower Icon.png',      alt: 'A pink daisy flower' },
+  { src: '/images/icons/Default - aim guy.png',       alt: 'The AIM running buddy icon' },
+  { src: '/images/icons/Internet Dino Icon.png',      alt: 'A cartoon internet dinosaur' },
+  { src: '/images/icons/Napster Icon.png',            alt: 'The Napster cat logo' },
+  { src: '/images/icons/Paint Pour Icon.png',         alt: 'Colorful paint being poured' },
+  { src: '/images/icons/Sunshine Icon.png',           alt: 'A bright yellow sun' },
+  { src: '/images/icons/Game Cube Icon.jpg',          alt: 'A colorful game cube' },
+  { src: '/images/icons/Mysterious Guy Icon.jpg',     alt: 'A mysterious silhouetted figure' },
+  { src: '/images/icons/Night City Skyline Icon.jpg', alt: 'A glowing night city skyline' },
+  { src: '/images/icons/Pepsi Icon.jpg',              alt: 'A Pepsi bottle cap' },
+  { src: '/images/icons/Person Icon.jpg',             alt: 'A simple person silhouette' },
+  { src: '/images/icons/Tree Icon.jpg',               alt: 'A leafy tree' },
+];
+
+const PREVIEW_PROFILE = {
+  id: 'preview-00000000-0000-0000',
+  full_name: 'Your Name Here',
+  bio: 'A sentence or two about who you are and what you care about.',
+  created_at: new Date().toISOString(),
+  member_type: 'access_card',
+};
 import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Fake barcode decoration ───────────────────────────────────────────────────
@@ -170,9 +194,13 @@ function EditableField({
 // Field labels are aria-hidden because the EditableField buttons carry
 // the complete label in their aria-label. Sighted users get visual labels;
 // screen reader users get the button's full description.
-function LibraryCard({ profile, onSave }: {
+function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
   profile: { id: string; full_name: string; bio?: string; created_at: string };
   onSave: (field: 'full_name' | 'bio', value: string) => Promise<void>;
+  logoSrc: string;
+  logoAlt: string;
+  iconSrc?: string;
+  iconAlt?: string;
 }) {
   const joinDate = new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
@@ -204,10 +232,19 @@ function LibraryCard({ profile, onSave }: {
       {/* Header — blue AAC band */}
       <div style={{
         background: 'var(--aac-blue)',
-        padding: '10px 28px 10px 14px',
-        display: 'flex', alignItems: 'center',
+        padding: '8px 10px 8px 14px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
       }}>
-        <Logo height={22} style={{ opacity: 0.95 }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logoSrc} alt={logoAlt} style={{ height: 'auto', maxHeight: 40, width: 'auto', maxWidth: '100%', opacity: 0.95, flex: '1 1 auto', minWidth: 0 }} />
+        {iconSrc && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={iconSrc}
+            alt={iconAlt || ''}
+            style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4, border: '2px solid rgba(255,255,255,0.35)', flexShrink: 0, background: 'rgba(255,255,255,0.1)' }}
+          />
+        )}
       </div>
 
       {/* Card type + catalog number row */}
@@ -392,12 +429,22 @@ function SavedResourcesList({ userId }: { userId: string }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function AccessCardPage() {
-  const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
-  const [userId, setUserId]   = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router        = useRouter();
+  const searchParams  = useSearchParams();
+  const isPreview     = searchParams.get('preview') === '1';
+
+  const [profile, setProfile]     = useState<any>(isPreview ? PREVIEW_PROFILE : null);
+  const [userId, setUserId]       = useState<string | null>(isPreview ? 'preview' : null);
+  const [loading, setLoading]     = useState(!isPreview);
+  const [logoIndex, setLogoIndex] = useState(0);
+  const [iconIndex, setIconIndex] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const saved = localStorage.getItem('aac-card-icon');
+    return saved !== null ? parseInt(saved, 10) : null;
+  });
 
   useEffect(() => {
+    if (isPreview) return;
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace('/login'); return; }
@@ -418,10 +465,23 @@ export default function AccessCardPage() {
     };
 
     load();
-  }, [router]);
+  }, [router, isPreview]);
+
+  // Load saved logo preference once profile is available
+  useEffect(() => {
+    if (!profile?.id) return;
+    const saved = localStorage.getItem(`aac-logo-${profile.id}`);
+    if (saved !== null) setLogoIndex(Number(saved));
+  }, [profile?.id]);
+
+  const handleLogoChange = (idx: number) => {
+    setLogoIndex(idx);
+    if (profile?.id) localStorage.setItem(`aac-logo-${profile.id}`, String(idx));
+  };
 
   const handleSave = async (field: 'full_name' | 'bio', value: string) => {
     if (!profile) return;
+    if (isPreview) { setProfile((p: any) => ({ ...p, [field]: value })); return; }
     const { error } = await supabase
       .from('profiles')
       .update({ [field]: value || null })
@@ -445,12 +505,12 @@ export default function AccessCardPage() {
       <main style={{
         background: 'var(--aac-blue)',
         minHeight: '100%',
-        padding: '2.5rem 1rem 4rem',
+        padding: '1.25rem 1rem 3rem',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo height={56} />
         </Link>
@@ -464,8 +524,112 @@ export default function AccessCardPage() {
         }}>
 
           {/* The library card */}
-          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <LibraryCard profile={profile} onSave={handleSave} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
+            <LibraryCard
+              profile={profile}
+              onSave={handleSave}
+              logoSrc={LOGO_VERSIONS[logoIndex].src}
+              logoAlt={LOGO_VERSIONS[logoIndex].description}
+              iconSrc={iconIndex !== null ? CARD_ICONS[iconIndex].src : undefined}
+              iconAlt={iconIndex !== null ? CARD_ICONS[iconIndex].alt : undefined}
+            />
+
+            {/* Logo picker */}
+            <div style={{ width: 'min(280px, 100%)' }}>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', textAlign: 'center', margin: '0 0 0.5rem', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                Choose your logo style
+              </p>
+              <div role="radiogroup" aria-label="Logo style" style={{ display: 'flex', gap: '0.5rem' }}>
+                {LOGO_VERSIONS.map((v, i) => (
+                  <button
+                    key={v.src}
+                    role="radio"
+                    aria-checked={logoIndex === i}
+                    aria-label={v.description}
+                    onClick={() => handleLogoChange(i)}
+                    style={{
+                      flex: 1,
+                      background: 'var(--aac-blue)',
+                      border: logoIndex === i
+                        ? '2px solid var(--aac-yellow)'
+                        : '2px solid rgba(255,255,255,0.2)',
+                      borderRadius: 4,
+                      padding: '8px 6px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: 44,
+                      transition: 'border-color 0.15s',
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={v.src}
+                      alt=""
+                      style={{ height: 18, width: 'auto', maxWidth: '100%', pointerEvents: 'none' }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Icon picker */}
+            <div style={{ width: 'min(280px, 100%)' }}>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', textAlign: 'center', margin: '0 0 0.5rem', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                Choose your icon
+              </p>
+              <div
+                role="radiogroup"
+                aria-label="Card icon"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}
+              >
+                {CARD_ICONS.map((icon, i) => (
+                  <button
+                    key={icon.src}
+                    role="radio"
+                    aria-checked={iconIndex === i}
+                    aria-label={icon.alt}
+                    onClick={() => {
+                      const next = iconIndex === i ? null : i;
+                      setIconIndex(next);
+                      if (next === null) localStorage.removeItem('aac-card-icon');
+                      else localStorage.setItem('aac-card-icon', String(next));
+                    }}
+                    style={{
+                      background: 'var(--aac-blue)',
+                      border: iconIndex === i
+                        ? '2px solid var(--aac-yellow)'
+                        : '2px solid rgba(255,255,255,0.2)',
+                      borderRadius: 4,
+                      padding: 4,
+                      cursor: 'pointer',
+                      aspectRatio: '1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      transition: 'border-color 0.15s',
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={icon.src}
+                      alt=""
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 2, pointerEvents: 'none' }}
+                    />
+                  </button>
+                ))}
+              </div>
+              {iconIndex !== null && (
+                <button
+                  onClick={() => { setIconIndex(null); localStorage.removeItem('aac-card-icon'); }}
+                  style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                >
+                  Remove icon
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Saved resources */}
