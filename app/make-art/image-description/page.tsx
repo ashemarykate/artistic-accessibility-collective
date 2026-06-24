@@ -264,7 +264,7 @@ export default function ImageDescriptionPage() {
                   <br />
                   You need a free Access Card to participate. It takes about two minutes to set up.
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Link href="/login?signup=1" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 11, color: '#fff', background: '#c85a20', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
+                    <Link href="/access-card/signup" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 11, color: '#fff', background: '#c85a20', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
                       Create an Access Card
                     </Link>
                     <Link href="/login" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#333', padding: '3px 10px', textDecoration: 'none', border: '2px outset #bbb', background: '#ddd', display: 'inline-block' }}>

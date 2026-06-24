@@ -260,11 +260,14 @@ function LoginForm() {
 
         <hr className="divider" />
 
-        <p style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <Link href="/submit" style={{ color: 'var(--aac-blue)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'underline' }}>
-            New here? Access Codes &amp; Free Access Cards this way!
+        <div style={{ textAlign: 'center', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <Link href="/access-card/signup" style={{ color: 'var(--aac-blue)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'underline' }}>
+            Get a free Access Card
           </Link>
-        </p>
+          <Link href="/submit" style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
+            Have an invite code? Join the Collective
+          </Link>
+        </div>
 
         <p style={{ textAlign: 'center' }}>
           <Link href="/" style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textDecoration: 'underline' }}>

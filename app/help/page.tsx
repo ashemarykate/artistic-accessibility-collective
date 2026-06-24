@@ -100,7 +100,7 @@ const SECTIONS: FAQSection[] = [
     items: [
       {
         q: 'What is an Access Card?',
-        a: <>An Access Card is a free account that lets you save, like, and comment on listings and resources. It is a lighter way to engage with the Collective without being listed in the directory yourself. <A href="/login">Sign in or create an account</A></>,
+        a: <>An Access Card is a free account that lets you save, like, and comment on listings and resources. It is a lighter way to engage with the Collective without being listed in the directory yourself. <A href="/access-card/signup">Get a free Access Card</A></>,
       },
       {
         q: 'How do I log in?',
