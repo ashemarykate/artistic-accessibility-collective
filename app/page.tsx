@@ -374,17 +374,12 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
         </div>
       </div>
       <div style={{ background: '#fff' }}>
-        <Row icon={71} label="Accessibility Resources" href="/accessibility" />
-        <Row icon={82} label="The Library"             href="/library" />
-        <Row icon={56} label="The Cinema"              href="/cinema" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px', minHeight: 44, borderBottom: '1px solid #f0ede8', opacity: 0.55 }}>
-          <span aria-hidden="true" style={{ width: 22, height: 22, flexShrink: 0 }}><Ico n="printer" size={22} /></span>
-          <span style={{ fontFamily: UIFONT, fontSize: 13, color: '#101010' }}>The Printer</span>
-          <span style={{ fontFamily: UIFONT, fontSize: 10, color: '#666', marginLeft: 6, fontStyle: 'italic' }}>coming soon</span>
-        </div>
+        <Row icon={48} label="Resources"   href="/resources" />
+        <Row icon={82} label="The Library" href="/library" />
+        <Row icon={56} label="The Cinema"  href="/cinema" />
       </div>
       <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', fontFamily: UIFONT }}>
-        4 items
+        3 items
       </div>
     </div>
   );
@@ -564,7 +559,7 @@ export default function Home() {
     });
   }, []);
 
-  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'resources', 'library', 'cinema'];
+  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema'];
 
   const open = useCallback((k: string) => {
     setStartOpen(false);
