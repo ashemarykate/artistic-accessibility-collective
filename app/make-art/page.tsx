@@ -174,6 +174,28 @@ export default function MakeArtPage() {
                 </Link>
               </div>
 
+              {/* Project: The Channel */}
+              <div style={{ border: '2px solid #7a4500', background: '#1a1000', padding: '12px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span aria-hidden="true" style={{ fontSize: 20 }}>📺</span>
+                  <strong style={{ fontFamily: '"Comic Sans MS", cursive', fontSize: 13, color: '#cc7700' }}>
+                    The Channel
+                  </strong>
+                  <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                    ON AIR
+                  </span>
+                </div>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#bbb', lineHeight: 1.6, margin: '0 0 10px' }}>
+                  A curated playlist of art and accessibility videos, on demand. Shuffles every visit so there is always something new.
+                </p>
+                <Link
+                  href="/make-art/the-channel"
+                  style={{ fontFamily: '"Comic Sans MS", cursive', fontSize: 12, fontWeight: 'bold', color: '#fff', background: '#7a4500', padding: '4px 14px', textDecoration: 'none', border: '2px outset #cc8844', display: 'inline-block' }}
+                >
+                  📺 Watch Now
+                </Link>
+              </div>
+
               {/* Coming soon */}
               <div style={{ border: '2px dashed #ccc', background: '#fafafa', padding: '10px 14px', textAlign: 'center' }}>
                 <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#888', margin: 0 }}>

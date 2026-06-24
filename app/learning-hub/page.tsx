@@ -229,6 +229,26 @@ export default function LearningHubPage() {
             </a>
             <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
 
+            {/* The Channel button */}
+            <a
+              href="/learning-hub/the-channel"
+              aria-label="The Channel"
+              style={{
+                width: 34, height: 34,
+                background: '#7a4500',
+                border: '2px outset #eee',
+                borderRadius: 3,
+                fontSize: 18, lineHeight: 1,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textDecoration: 'none',
+                flexShrink: 0,
+              }}
+            >
+              📺
+            </a>
+            <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
+
             {SUBJECTS.map((sub, i) => {
               const GREENS = ['#006633','#008844','#009955','#007733','#006633','#008844','#009955','#007733','#006633'];
               return (
@@ -321,30 +341,26 @@ export default function LearningHubPage() {
                 </p>
               </div>
 
-              {/* Fake loading progress */}
-              <div style={{
-                border: '3px solid #aaa',
-                borderStyle: 'inset',
-                background: '#fff',
-                padding: '10px 12px',
-                fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                fontSize: 11,
-                color: '#333',
-              }}>
-                <div style={{ marginBottom: 6 }}>Loading module index...</div>
-                <div style={{
-                  height: 14,
-                  background: '#e0e0e0',
-                  border: '1px inset #999',
-                  overflow: 'hidden',
-                }} aria-hidden="true">
-                  <div style={{
-                    width: '38%',
-                    height: '100%',
-                    background: 'repeating-linear-gradient(90deg, #009955 0px, #006633 10px, #009955 10px, #006633 20px)',
-                  }} />
+              {/* Project: The Channel */}
+              <div style={{ border: '2px solid #7a4500', background: '#1a1000', padding: '12px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span aria-hidden="true" style={{ fontSize: 20 }}>📺</span>
+                  <strong style={{ fontFamily: '"Comic Sans MS", cursive', fontSize: 13, color: '#cc7700' }}>
+                    The Channel
+                  </strong>
+                  <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                    ON AIR
+                  </span>
                 </div>
-                <div style={{ marginTop: 4, color: '#666' }}>38% complete. Check back soon</div>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#bbb', lineHeight: 1.6, margin: '0 0 10px' }}>
+                  A curated playlist of arts accessibility videos, on demand. Shuffles every visit so there is always something new to learn.
+                </p>
+                <a
+                  href="/learning-hub/the-channel"
+                  style={{ fontFamily: '"Comic Sans MS", cursive', fontSize: 12, fontWeight: 'bold', color: '#fff', background: '#7a4500', padding: '4px 14px', textDecoration: 'none', border: '2px outset #cc8844', display: 'inline-block' }}
+                >
+                  📺 Watch Now
+                </a>
               </div>
 
             </div>
