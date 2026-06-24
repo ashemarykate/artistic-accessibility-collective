@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { SavedResource } from '@/lib/supabase';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LOGO_VERSIONS } from '@/components/Logo';
 
@@ -428,7 +429,7 @@ function SavedResourcesList({ userId }: { userId: string }) {
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
-export default function AccessCardPage() {
+function AccessCardContent() {
   const router        = useRouter();
   const searchParams  = useSearchParams();
   const isPreview     = searchParams.get('preview') === '1';
@@ -673,5 +674,13 @@ export default function AccessCardPage() {
         </div>
       </main>
     </BrowserChrome>
+  );
+}
+
+export default function AccessCardPage() {
+  return (
+    <Suspense>
+      <AccessCardContent />
+    </Suspense>
   );
 }
