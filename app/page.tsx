@@ -8,10 +8,14 @@ import { supabase } from '@/lib/supabase';
 type NavItem = { label: string; href: string; icon: string; iconBg: string; iconName: string; external?: boolean; iconSrc?: string };
 
 const ROOT_ITEMS: NavItem[] = [
-  { label: 'About Us',   href: '/about',                                  icon: '👥', iconBg: '#2a5a9a', iconName: 'People' },
-  { label: 'Hire Us',    href: '/hire-us',                                icon: '📣', iconBg: '#c85a20', iconName: 'Megaphone' },
-  { label: 'Contact Us', href: '/contact',                                icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope', iconSrc: '/images/icons/envelope.svg' },
-  { label: 'Instagram',  href: 'https://instagram.com/artisticaccessibility', icon: '📸', iconBg: '#b83878', iconName: 'Camera', external: true, iconSrc: '/images/icons/camera.svg' },
+  { label: 'About Us', href: '/about', icon: '👥', iconBg: '#2a5a9a', iconName: 'People' },
+];
+
+const CONNECT_ITEMS: NavItem[] = [
+  { label: 'Hire Us',    href: '/hire-us',                                    icon: '📣', iconBg: '#c85a20', iconName: 'Megaphone' },
+  { label: 'Contact Us', href: '/contact',                                    icon: '✉️', iconBg: '#3a6abf', iconName: 'Envelope',  iconSrc: '/images/icons/envelope.svg' },
+  { label: 'Instagram',  href: 'https://instagram.com/artisticaccessibility', icon: '📸', iconBg: '#b83878', iconName: 'Camera',    external: true, iconSrc: '/images/icons/camera.svg' },
+  { label: 'Join',       href: '/submit',                                     icon: '✨', iconBg: '#7a3abf', iconName: 'Join' },
 ];
 
 const RESOURCES_ITEMS: NavItem[] = [
@@ -317,6 +321,26 @@ export default function Home() {
                 </li>
               ))}
 
+              <li className="xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
+                <span aria-hidden="true">📂</span>{' '}CONNECT
+              </li>
+              {CONNECT_ITEMS.map((item) => (
+                <li key={item.href} style={{ paddingLeft: 40 }}>
+                  {item.external ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
+                      {item.label}
+                      <span className="sr-only"> (opens in new tab)</span>
+                    </a>
+                  ) : (
+                    <Link href={item.href} style={{ display: 'flex', alignItems: 'center', padding: '1px 4px', borderRadius: 2, textDecoration: 'none', color: '#000', fontSize: 11 }} className="xp-folder-link">
+                      <NavIcon icon={item.icon} bg={item.iconBg} name={item.iconName} size="sm" imgSrc={item.iconSrc} />
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+
               {/* THE COLLECTIVE — mobile only (taskbar handles this on desktop) */}
               <li className="xp-collective-nav xp-folder-label" style={{ paddingLeft: 28, userSelect: 'none', fontSize: 11, color: '#333', marginTop: 3 }} aria-hidden="true">
                 <span aria-hidden="true">📂</span>{' '}THE COLLECTIVE
@@ -459,22 +483,6 @@ export default function Home() {
               Log In
             </Link>
           )}
-          <Link
-            href="/submit"
-            style={{
-              background: 'rgba(255,255,255,0.15)',
-              borderRadius: 12,
-              padding: '3px 12px 3px 10px',
-              color: 'white', fontWeight: 'bold', fontSize: 12,
-              display: 'flex', alignItems: 'center', gap: 5,
-              border: '1px solid rgba(255,255,255,0.25)',
-              textDecoration: 'none',
-            }}
-            aria-label="Join the Collective"
-          >
-            <NavIcon icon="✨" bg="#7a3abf" name="Sparkles" />
-            Join
-          </Link>
         </div>
         <div aria-hidden="true" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
           <Clock />
