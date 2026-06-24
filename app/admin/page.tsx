@@ -240,7 +240,7 @@ export default function AdminDashboard() {
 
   if (accessError) {
     return (
-      <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
+      <BrowserChrome variant="mosaic" title="Admin · Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
       <main style={{ background: 'var(--aac-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
         <div role="alert" style={{ color: 'var(--aac-white)', textAlign: 'center' }}>
           <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>{accessError}</p>
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
+      <BrowserChrome variant="mosaic" title="Admin · Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading admin dashboard">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -265,10 +265,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <BrowserChrome variant="mosaic" title="Admin — Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
+    <BrowserChrome variant="mosaic" title="Admin · Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
     <main className="page-wrapper">
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><Logo alt="" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
           {hasMemberProfile && (
@@ -944,7 +944,7 @@ function EventsPanel({
       else setSyncResult('Sync complete. ' + Object.entries(json.results ?? {})
         .map(([name, r]: [string, unknown]) => {
           const result = r as { synced: number; skipped: number; error?: string };
-          return result.error ? `${name}: error — ${result.error}` : `${name}: ${result.synced} synced`;
+          return result.error ? `${name}: error: ${result.error}` : `${name}: ${result.synced} synced`;
         }).join(', '));
       onRefresh();
     } catch (err) {
@@ -1420,7 +1420,7 @@ function ProfileList({
                       onClick={() => onTogglePublic(p.id, p.public_visible)}
                       className={`btn btn-sm ${p.public_visible ? 'btn-outline' : 'btn-ghost'}`}
                       aria-pressed={p.public_visible}
-                      aria-label={`${name} is ${p.public_visible ? 'public' : 'private'} — click to make ${p.public_visible ? 'private' : 'public'}`}
+                      aria-label={`${name} is ${p.public_visible ? 'public' : 'private'}. Click to make ${p.public_visible ? 'private' : 'public'}`}
                     >
                       {p.public_visible ? 'Public' : 'Private'}
                     </button>

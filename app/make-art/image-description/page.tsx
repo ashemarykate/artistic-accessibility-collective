@@ -179,7 +179,7 @@ export default function ImageDescriptionPage() {
 
               {/* About this project */}
               <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 11, fontFamily: '"MS Sans Serif", Arial, sans-serif', color: '#222', lineHeight: 1.65 }}>
-                Look at the piece below. Write what you see in your own words — your perspective, your language, your way of experiencing it. There is no wrong answer. Each description gets added to a growing community portrait of the work.
+                Look at the piece below. Write what you see in your own words: your perspective, your language, your way of experiencing it. There is no wrong answer. Each description gets added to a growing community portrait of the work.
               </div>
 
               {/* Artwork */}
@@ -238,7 +238,7 @@ export default function ImageDescriptionPage() {
                         value={descText}
                         onChange={(e) => setDescText(e.target.value)}
                         required
-                        placeholder="What do you see? Write in your own words — your perspective, your language, your experience of it."
+                        placeholder="What do you see? Write in your own words: your perspective, your language, your experience of it."
                         style={{ width: '100%', padding: '4px 6px', fontSize: 11, border: '2px inset #aaa', fontFamily: '"MS Sans Serif", Arial, sans-serif', resize: 'vertical', boxSizing: 'border-box', marginBottom: 8, lineHeight: 1.6 }}
                         aria-required="true"
                       />
@@ -300,7 +300,7 @@ export default function ImageDescriptionPage() {
                       >
                         <p style={{ margin: '0 0 4px' }}>{d.text}</p>
                         <span style={{ fontSize: 10, color: '#888' }}>
-                          {d.isAutoGen ? '🤖 ' : '— '}{d.author}
+                          {d.isAutoGen ? '🤖 ' : ''}{d.author}
                         </span>
                         {d.isNew && <span style={{ fontSize: 9, color: '#0b5e48', fontWeight: 'bold', marginLeft: 6 }}>NEW</span>}
                       </div>

@@ -168,7 +168,7 @@ export default function FeedbackPage() {
 
   if (!profile) {
     return (
-      <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
+      <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '420px', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
@@ -186,7 +186,7 @@ export default function FeedbackPage() {
 
   if (submitted) {
     return (
-      <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
+      <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '2rem' }}>
         <div className="content-card" style={{ maxWidth: '500px', textAlign: 'center' }}>
           <div aria-hidden="true" style={{ fontSize: '3rem', marginBottom: '0.75rem', color: 'var(--color-success)' }}>✓</div>
@@ -210,7 +210,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
+    <BrowserChrome variant="ie3" desktopBg="#263590" title="Tester Feedback · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/feedback">
     <main className="page-wrapper">
       <header className="site-header">
         <Link href="/" className="site-header-logo"><Logo /></Link>

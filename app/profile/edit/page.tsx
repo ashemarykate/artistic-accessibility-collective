@@ -57,7 +57,7 @@ function TagInput({ id, label, tags, onChange, suggestions = [], placeholder = '
       {/* Tag pills */}
       {tags.length > 0 && (
         <ul
-          aria-label={`${label} — current selections`}
+          aria-label={`${label}: current selections`}
           style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', listStyle: 'none', padding: 0, margin: '0 0 0.5rem' }}
         >
           {tags.map((t) => (
@@ -327,7 +327,7 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="Edit Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
+      <BrowserChrome variant="aol" title="Edit Profile · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading your profile">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -343,12 +343,12 @@ export default function EditProfilePage() {
   const previewHref = profileHref({ id: profile.id, username: username.trim() || undefined });
 
   return (
-    <BrowserChrome variant="aol" title="Edit Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
+    <BrowserChrome variant="aol" title="Edit Profile · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile/edit">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>

@@ -129,9 +129,9 @@ function LoginForm() {
   };
 
   return (
-    <BrowserChrome variant="ie3" title="Log In — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
+    <BrowserChrome variant="ie3" title="Log In · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
-      <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+      <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <Logo height={72} />
       </Link>

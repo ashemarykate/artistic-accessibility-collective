@@ -307,7 +307,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="Member Profile — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
+      <BrowserChrome variant="aol" title="Member Profile · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading profile">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -320,7 +320,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <BrowserChrome variant="aol" title="Profile Not Found — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
+      <BrowserChrome variant="aol" title="Profile Not Found · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
@@ -358,7 +358,7 @@ export default function ProfilePage() {
       {/* ── Header ── */}
       <header>
         <div className="site-header">
-          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo alt="" />
           </Link>

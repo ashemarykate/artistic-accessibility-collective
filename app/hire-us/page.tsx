@@ -27,7 +27,7 @@ const SERVICES = [
   {
     num: '04',
     name: 'Evaluation',
-    description: 'Already have something built? We will review what is working, what is not, and what to do next — whether that is a live event, a digital platform, or a long-running program.',
+    description: 'Already have something built? We will review what is working, what is not, and what to do next: whether that is a live event, a digital platform, or a long-running program.',
   },
 ];
 
@@ -41,10 +41,10 @@ export default function HireUsPage() {
   }, []);
 
   return (
-    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Hire Us — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/hire-us">
+    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Hire Us · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/hire-us">
       <>
         <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
             <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>
         </header>

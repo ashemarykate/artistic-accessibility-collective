@@ -204,7 +204,7 @@ export default function MemberHub() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="Backstage — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+      <BrowserChrome variant="aol" title="Backstage · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading your hub">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -222,17 +222,17 @@ export default function MemberHub() {
   const initial     = displayName.charAt(0).toUpperCase();
 
   return (
-    <BrowserChrome variant="aol" title="Backstage — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+    <BrowserChrome variant="aol" title="Backstage · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/messages" className="nav-link" aria-label={unreadCount > 0 ? `Messages — ${unreadCount} unread` : 'Messages'}>
+          <Link href="/messages" className="nav-link" aria-label={unreadCount > 0 ? `Messages: ${unreadCount} unread` : 'Messages'}>
             Messages
             {unreadCount > 0 && (
               <span className="ms-unread-badge" aria-hidden="true">{unreadCount}</span>
@@ -411,7 +411,7 @@ export default function MemberHub() {
                     <Link
                       key={conv.id}
                       href={`/messages/${conv.id}`}
-                      aria-label={`Conversation with ${otherName}${conv.unread ? ' — unread' : ''}`}
+                      aria-label={`Conversation with ${otherName}${conv.unread ? ' (unread)' : ''}`}
                       className={`ms-hub-row${conv.unread ? ' ms-conv-row-unread' : ''}`}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
@@ -617,7 +617,7 @@ export default function MemberHub() {
                     href={res.slug}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${res.name} — opens in new tab`}
+                    aria-label={`${res.name}, opens in new tab`}
                     className="ms-hub-row"
                     style={{
                       display: 'block',

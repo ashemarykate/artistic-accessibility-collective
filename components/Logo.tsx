@@ -13,38 +13,38 @@ import { useRef } from 'react';
 const LOGO_VERSIONS = [
   {
     src: '/images/wordmark-medium-v1.png',
-    description: 'Artistic Accessibility Collective — bold, chunky letters with a heavy drop shadow',
+    description: 'Artistic Accessibility Collective: bold, chunky letters with a heavy drop shadow',
   },
   {
     src: '/images/wordmark-medium-v2.png',
-    description: 'Artistic Accessibility Collective — thin, widely-spaced letters, light and airy',
+    description: 'Artistic Accessibility Collective: thin, widely-spaced letters, light and airy',
   },
   {
     src: '/images/wordmark-medium-v3.png',
-    description: 'Artistic Accessibility Collective — rounded letters on a soft pink and blue pastel gradient',
+    description: 'Artistic Accessibility Collective: rounded letters on a soft pink and blue pastel gradient',
   },
   {
     src: '/images/wordmark-medium-v4.png',
-    description: 'Artistic Accessibility Collective — tall, condensed letters with a delicate embossed shadow',
+    description: 'Artistic Accessibility Collective: tall, condensed letters with a delicate embossed shadow',
   },
 ];
 
 const TITLEBAR_VERSIONS = [
   {
     src: '/images/titlebar-v1.png',
-    description: 'Artistic Accessibility Collective — bold, chunky letters with a heavy drop shadow',
+    description: 'Artistic Accessibility Collective: bold, chunky letters with a heavy drop shadow',
   },
   {
     src: '/images/titlebar-v2.png',
-    description: 'Artistic Accessibility Collective — thin, widely-spaced letters, light and airy',
+    description: 'Artistic Accessibility Collective: thin, widely-spaced letters, light and airy',
   },
   {
     src: '/images/titlebar-v3.png',
-    description: 'Artistic Accessibility Collective — rounded letters on a soft pink and blue pastel gradient',
+    description: 'Artistic Accessibility Collective: rounded letters on a soft pink and blue pastel gradient',
   },
   {
     src: '/images/titlebar-v4.png',
-    description: 'Artistic Accessibility Collective — tall, condensed letters with a delicate embossed shadow',
+    description: 'Artistic Accessibility Collective: tall, condensed letters with a delicate embossed shadow',
   },
 ];
 

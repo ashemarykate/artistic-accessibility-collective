@@ -173,7 +173,7 @@ function MessagesInner() {
   // ── Loading / redirect states ──────────────────────────────────────────────
   if (loading || redirecting) {
     return (
-      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+      <BrowserChrome variant="aol" title="Messages · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label={redirecting ? 'Opening conversation…' : 'Loading messages'}>
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -187,12 +187,12 @@ function MessagesInner() {
   const totalUnread = conversations.reduce((n, c) => n + c.unreadCount, 0);
 
   return (
-    <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+    <BrowserChrome variant="aol" title="Messages · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>
@@ -378,7 +378,7 @@ function MessagesInner() {
                       <Link
                         href={`/messages/${conv.id}`}
                         className={`msg-conv-item${hasUnread ? ' unread' : ''}`}
-                        aria-label={`Conversation with ${otherName}${hasUnread ? ` — ${conv.unreadCount} unread` : ''}`}
+                        aria-label={`Conversation with ${otherName}${hasUnread ? `: ${conv.unreadCount} unread` : ''}`}
                       >
                         {/* Unread indicator */}
                         <div
@@ -452,7 +452,7 @@ function MessagesInner() {
 
 export default function MessagesPage() {
   return (
-    <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+    <BrowserChrome variant="aol" title="Messages · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
     <Suspense fallback={
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading messages">

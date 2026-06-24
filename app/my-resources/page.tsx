@@ -70,7 +70,7 @@ export default function MyResourcesPage() {
   return (
     <BrowserChrome
       variant="netscape"
-      title="My Resources — Artistic Accessibility Collective"
+      title="My Resources · Artistic Accessibility Collective"
       url="http://members.artisticaccessibility.com/my-resources"
     >
     <main

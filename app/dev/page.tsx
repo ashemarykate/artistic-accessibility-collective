@@ -147,7 +147,7 @@ function MsBox({ header, headerEl, action, children }: {
 
 export default function DevPreview() {
   return (
-    <BrowserChrome variant="aol" title="Dev Preview — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dev">
+    <BrowserChrome variant="aol" title="Dev Preview · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dev">
     <main style={{ background: SAMPLE.bgColor, minHeight: '100%', paddingBottom: '24px' }}>
 
       {/* Dev banner */}
@@ -159,7 +159,7 @@ export default function DevPreview() {
       {/* Header */}
       <header>
         <div className="site-header">
-          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+          <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo alt="" />
           </Link>

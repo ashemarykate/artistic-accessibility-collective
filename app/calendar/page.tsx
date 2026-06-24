@@ -972,7 +972,7 @@ export default function CalendarPage() {
                   width: 1, height: 1, overflow: 'hidden',
                 }}
               >
-                AAC Events Calendar — {periodLabel}
+                AAC Events Calendar: {periodLabel}
               </h2>
 
               {view === 'month' ? <MonthGrid /> : <TimeGrid />}

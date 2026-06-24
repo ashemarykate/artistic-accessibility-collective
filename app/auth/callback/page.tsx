@@ -99,7 +99,7 @@ export default function AuthCallback() {
 
   if (error) {
     return (
-      <BrowserChrome variant="ie3" title="Sign-in — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
+      <BrowserChrome variant="ie3" title="Sign-in · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: '440px', width: '100%', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '0.75rem' }}>
@@ -116,7 +116,7 @@ export default function AuthCallback() {
   }
 
   return (
-    <BrowserChrome variant="ie3" title="Signing in… — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
+    <BrowserChrome variant="ie3" title="Signing in… · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/auth/callback">
     <main
       className="loading-screen"
       role="status"

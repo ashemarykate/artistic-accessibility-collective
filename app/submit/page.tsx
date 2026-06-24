@@ -375,11 +375,11 @@ export default function SubmitProfile() {
 
   if (step === 'invite') {
     return (
-      <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <BrowserChrome variant="ie3" title="Join the Collective · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{loading ? 'Checking your invite code…' : ''}</div>
 
-        <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={100} />
         </Link>
@@ -436,9 +436,9 @@ export default function SubmitProfile() {
 
   if (step === 'type_select') {
     return (
-      <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <BrowserChrome variant="ie3" title="Join the Collective · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={100} />
         </Link>
@@ -497,9 +497,9 @@ export default function SubmitProfile() {
 
   if (step === 'success') {
     return (
-      <BrowserChrome variant="ie3" title="Application Submitted — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+      <BrowserChrome variant="ie3" title="Application Submitted · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%', background: '#0d5c4a' }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={72} />
         </Link>
@@ -563,13 +563,13 @@ export default function SubmitProfile() {
   // ── Main form ──────────────────────────────────────────────────────────
 
   return (
-    <BrowserChrome variant="ie3" title="Join the Collective — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
+    <BrowserChrome variant="ie3" title="Join the Collective · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
     <main className="page-wrapper" style={{ padding: '2rem 1rem 4rem', background: '#0d5c4a' }}>
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{tagAnnouncement}</div>
 
       <div className="page-container" style={{ maxWidth: '700px' }}>
         <div style={{ textAlign: 'center', marginBottom: '0' }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo alt="" height={72} />
           </Link>

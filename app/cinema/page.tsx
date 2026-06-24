@@ -179,7 +179,7 @@ export default function CinemaPage() {
   return (
     <BrowserChrome
       variant="netscape"
-      title="AAC Presents: The Cinema — Netscape Navigator"
+      title="AAC Presents: The Cinema · Netscape Navigator"
       url="http://cinema.artisticaccessibility.com/"
     >
     <main

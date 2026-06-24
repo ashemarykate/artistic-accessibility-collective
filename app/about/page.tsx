@@ -18,10 +18,10 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Who Are We — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/about">
+    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Who Are We · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/about">
       <>
         <header style={{ background: TEAL, padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
             <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>
         </header>

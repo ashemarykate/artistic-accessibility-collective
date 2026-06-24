@@ -94,7 +94,7 @@ export default function ContactPage() {
     return (
       <BrowserChrome variant="ie3" title="Message Sent · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
       <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={72} />
         </Link>
@@ -125,7 +125,7 @@ export default function ContactPage() {
       {/* Status live region */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{status}</div>
 
-      <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '0', display: 'inline-block' }}>
+      <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <Logo alt="" height={72} />
       </Link>

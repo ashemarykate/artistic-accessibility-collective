@@ -46,7 +46,7 @@ export default function CinemaItemPage() {
 
   if (!item) {
     return (
-      <BrowserChrome variant="netscape" title="Title Not Found — The Cinema" url="http://cinema.artisticaccessibility.com/">
+      <BrowserChrome variant="netscape" title="Title Not Found · The Cinema" url="http://cinema.artisticaccessibility.com/">
         <main style={{ minHeight: '100%', background: C.teal, fontFamily: C.sans, color: C.black, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
           <div style={{ fontFamily: C.mono, fontSize: 15, fontWeight: 700 }}>TITLE NOT FOUND: <code>{slug}</code></div>
           <Link href="/cinema" style={{ color: C.black, fontWeight: 700, textDecoration: 'underline' }}>← Back to The Cinema</Link>

@@ -82,7 +82,7 @@ export default function ShareFeedback() {
   };
 
   return (
-    <BrowserChrome variant="aol" desktopBg="#00007a" title="Share Feedback — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/share-feedback">
+    <BrowserChrome variant="aol" desktopBg="#00007a" title="Share Feedback · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/share-feedback">
     <main
       style={{
         background: 'var(--aac-blue)',

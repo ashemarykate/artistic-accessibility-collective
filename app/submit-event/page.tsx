@@ -310,7 +310,7 @@ export default function SubmitEventPage() {
         }}>
           <span style={{ fontSize: 14 }}>💿</span>
           <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 11, flex: 1 }}>
-            AAC Events Calendar — Submit Event
+            AAC Events Calendar: Submit Event
           </span>
         </div>
 

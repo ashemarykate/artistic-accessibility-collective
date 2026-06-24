@@ -16,8 +16,8 @@ export default function Collective() {
   }, []);
 
   return (
-    <BrowserChrome variant="netscape" title="Artistic Accessibility Collective — Welcome" url="http://www.artisticaccessibility.com/collective">
-    <main aria-label="Artistic Accessibility Collective — Welcome">
+    <BrowserChrome variant="netscape" title="Artistic Accessibility Collective · Welcome" url="http://www.artisticaccessibility.com/collective">
+    <main aria-label="Artistic Accessibility Collective, Welcome">
       <section
         aria-label="Welcome"
         style={{ background: 'var(--aac-blue)', minHeight: '100%', padding: '4rem 1.5rem 3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}

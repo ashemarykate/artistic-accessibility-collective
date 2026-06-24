@@ -53,7 +53,7 @@ All design tokens are CSS custom properties in `app/globals.css`.
 - `logo-across-white-bg.svg` — horizontal logo for white backgrounds (currently unused in UI)
 - `logo-stacked-white-bg.svg` — stacked logo for white backgrounds (currently unused in UI)
 
-Always use `logo-across-blue-bg.svg` in the site header and on colored-background pages. Logo link always has `aria-label="Artistic Accessibility Collective — Home"` and the `<img>` has `alt=""` (decorative, label is on the link).
+Always use `logo-across-blue-bg.svg` in the site header and on colored-background pages. Logo link always has `aria-label="Artistic Accessibility Collective, home"` and the `<img>` has `alt=""` (decorative, label is on the link).
 
 Logo height: **72px** on most pages. **100px** on the invite code and type-select screens of the submit flow.
 
@@ -144,6 +144,22 @@ This project targets **WCAG 2.1 AA**. Key patterns already implemented:
 
 ---
 
+## Copy Rules
+
+**Zero em dashes.** Never write `—` or `–` or `--` in user-facing copy. This includes visible text, placeholder text, aria-labels, and page titles. Em dashes read as AI-generated and are not the voice of this project.
+
+When an em dash is tempting, rewrite with:
+- A comma: "we can help, or connect you with someone who can"
+- A colon: "We use a magic link: enter your email"
+- A period: split the sentence
+- Parentheses: "all Access Card features (plus a directory listing)"
+
+Page title separators use `·` (interpunct, U+00B7), not `—`. Example: `"Help · Artistic Accessibility Collective"`.
+
+Write clearly and casually. No formal punctuation markers that signal AI writing.
+
+---
+
 ## Test Accounts (Supabase)
 
 Two accounts exist in Supabase for local testing. Both have password `justtestit`.
@@ -186,8 +202,8 @@ Deferred to a future round. Will use **Supabase Storage** — a bucket needs to 
 
 ## Working with Mary Kate
 
-- Non-technical — explain things in plain language, no jargon
-- Design-forward — she has strong visual opinions and will give specific feedback
-- Accessibility is a core value of the organization, not an afterthought — treat it seriously
+- Non-technical: explain things in plain language, no jargon
+- Design-forward: she has strong visual opinions and will give specific feedback
+- Accessibility is a core value of the organization, not an afterthought. Treat it seriously.
 - She gives feedback iteratively; expect multiple small rounds of refinement per feature
-- When suggesting approaches, give a recommendation + the main tradeoff in 2–3 sentences, then wait for her to agree before implementing
+- When suggesting approaches, give a recommendation + the main tradeoff in 2-3 sentences, then wait for her to agree before implementing

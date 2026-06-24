@@ -431,7 +431,7 @@ export default function AccessCardPage() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="ie3" title="Access Card — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card">
+      <BrowserChrome variant="ie3" title="Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card">
         <main className="loading-screen" role="status" aria-live="polite">
           <span className="spinner" aria-hidden="true" />
           <p>Loading your card…</p>
@@ -441,7 +441,7 @@ export default function AccessCardPage() {
   }
 
   return (
-    <BrowserChrome variant="ie3" title="Access Card — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card">
+    <BrowserChrome variant="ie3" title="Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card">
       <main style={{
         background: 'var(--aac-blue)',
         minHeight: '100%',
@@ -450,7 +450,7 @@ export default function AccessCardPage() {
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '2rem', display: 'inline-block' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo height={56} />
         </Link>

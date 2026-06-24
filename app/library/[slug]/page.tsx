@@ -53,7 +53,7 @@ export default function LibraryItemPage() {
 
   if (!item) {
     return (
-      <BrowserChrome variant="mosaic" title="Record Not Found — The Library" url="http://library.artisticaccessibility.com/">
+      <BrowserChrome variant="mosaic" title="Record Not Found · The Library" url="http://library.artisticaccessibility.com/">
         <main style={{ minHeight: '100%', background: C.bg, fontFamily: C.mono, color: C.amber, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
           <div style={{ fontSize: 16, letterSpacing: '0.1em' }}>▶ RECORD NOT FOUND: <code style={{ color: C.hi }}>{slug}</code></div>
           <Link href="/library" style={{ color: C.amber, textDecoration: 'underline' }}>← Back to The Library</Link>

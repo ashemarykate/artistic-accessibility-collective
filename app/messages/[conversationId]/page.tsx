@@ -181,7 +181,7 @@ export default function ConversationPage() {
   // ── States ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+      <BrowserChrome variant="aol" title="Messages · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading conversation">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -194,7 +194,7 @@ export default function ConversationPage() {
 
   if (accessError) {
     return (
-      <BrowserChrome variant="aol" title="Messages — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
+      <BrowserChrome variant="aol" title="Messages · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/messages">
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
         <div className="content-card" style={{ maxWidth: 420, textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.25rem', marginBottom: '1rem' }}>
@@ -235,12 +235,12 @@ export default function ConversationPage() {
     : 'Messages';
 
   return (
-    <BrowserChrome variant="aol" title={`${convTitle} — Artistic Accessibility Collective`} url="http://members.artisticaccessibility.com/messages">
+    <BrowserChrome variant="aol" title={`${convTitle} · Artistic Accessibility Collective`} url="http://members.artisticaccessibility.com/messages">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>

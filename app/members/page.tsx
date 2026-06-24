@@ -136,7 +136,7 @@ export default function MemberDirectory() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="netscape" title="The Collective — Member Directory" url="http://members.artisticaccessibility.com/members">
+      <BrowserChrome variant="netscape" title="The Collective · Member Directory" url="http://members.artisticaccessibility.com/members">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading member directory">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -148,10 +148,10 @@ export default function MemberDirectory() {
   }
 
   return (
-    <BrowserChrome variant="netscape" title="The Collective — Member Directory" url="http://members.artisticaccessibility.com/members">
+    <BrowserChrome variant="netscape" title="The Collective · Member Directory" url="http://members.artisticaccessibility.com/members">
     <main className="page-wrapper" style={{ background: 'var(--aac-blue)' }}>
       <header className="site-header">
-        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home"><Logo alt="" /></Link>
+        <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/dashboard"   className="nav-link">Backstage</Link>
           <Link href="/messages"  className="nav-link">Messages</Link>

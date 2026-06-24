@@ -70,7 +70,7 @@ export default function MyListsPage() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="netscape" title="My Lists — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
+      <BrowserChrome variant="netscape" title="My Lists · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -82,12 +82,12 @@ export default function MyListsPage() {
   }
 
   return (
-    <BrowserChrome variant="netscape" title="My Lists — Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
+    <BrowserChrome variant="netscape" title="My Lists · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/my-lists">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
-        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective — Home">
+        <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>

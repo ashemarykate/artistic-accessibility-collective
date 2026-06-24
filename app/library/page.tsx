@@ -204,7 +204,7 @@ export default function LibraryPage() {
   return (
     <BrowserChrome
       variant="mosaic"
-      title="The Library — Artistic Accessibility Collective · NCSA Mosaic"
+      title="The Library · Artistic Accessibility Collective · NCSA Mosaic"
       url="http://library.artisticaccessibility.com/"
     >
     <main
@@ -240,7 +240,7 @@ export default function LibraryPage() {
         {/* Masthead */}
         <div className="lib-masthead" style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start', marginBottom: 14 }}>
           <div>
-            <a href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
+            <a href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
               ▶ AAC PRESENTS:
             </a>
             <div className="lib-title" style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>

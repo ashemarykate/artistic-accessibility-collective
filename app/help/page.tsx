@@ -40,7 +40,7 @@ const SECTIONS: FAQSection[] = [
       },
       {
         q: 'What if I just want to learn more on my own first?',
-        a: <>We have you covered. Our resources section includes guides, reading lists, films, and more — all focused on accessibility in the arts. <A href="/resources">Start with Accessibility Resources</A>, or browse <A href="/library">The Library</A> and <A href="/cinema">The Cinema</A>.</>,
+        a: <>We have you covered. Our resources section includes guides, reading lists, films, and more, all focused on accessibility in the arts. <A href="/resources">Start with Accessibility Resources</A>, or browse <A href="/library">The Library</A> and <A href="/cinema">The Cinema</A>.</>,
       },
     ],
   },
@@ -51,7 +51,7 @@ const SECTIONS: FAQSection[] = [
     items: [
       {
         q: 'What does the Collective offer?',
-        a: <>We offer advising, staffing, training, and evaluation for events, festivals, and artistic projects of all sizes. Whether you need a full accessibility plan or just a second set of eyes, we can help — or connect you with someone who can.</>,
+        a: <>We offer advising, staffing, training, and evaluation for events, festivals, and artistic projects of all sizes. Whether you need a full accessibility plan or just a second set of eyes, we can help, or connect you with someone who can.</>,
       },
       {
         q: 'How does pricing work?',
@@ -104,7 +104,7 @@ const SECTIONS: FAQSection[] = [
       },
       {
         q: 'How do I log in?',
-        a: <>Head to the <A href="/login">login page</A>. We use a magic link — enter your email and we will send you a sign-in link. No password required, though you can set one if you prefer.</>,
+        a: <>Head to the <A href="/login">login page</A>. We use a magic link: enter your email and we will send you a sign-in link. No password required, though you can set one if you prefer.</>,
       },
     ],
   },
@@ -130,10 +130,10 @@ export default function HelpPage() {
   }
 
   return (
-    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Help — Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/help">
+    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Help · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/help">
       <>
         <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective — Home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
             <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>
         </header>
