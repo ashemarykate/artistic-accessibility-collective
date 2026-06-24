@@ -70,7 +70,7 @@ const ITEMS: Record<string, ItemDef> = {
   'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'Your key to member benefits, discounts and accessible bookings.' },
 };
 
-const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
+const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'hire', 'collective'];
 
 const POSITIONS: Record<string, { x: string; y: number }> = {
   'about':       { x: 'max(8px, 2%)',    y: 8   },
@@ -80,6 +80,7 @@ const POSITIONS: Record<string, { x: string; y: number }> = {
   'calendar':    { x: 'max(8px, 2%)',    y: 355 },
   'resources':   { x: 'max(276px, 33%)', y: 18  },
   'contact':     { x: 'max(276px, 33%)', y: 215 },
+  'hire':        { x: 'max(276px, 33%)', y: 358 },
   'learning':    { x: 'max(148px, 18%)', y: 380 },
 };
 
@@ -729,11 +730,11 @@ export default function Home() {
           .start-sub{position:static!important;left:auto!important;top:auto!important;min-width:0!important;box-shadow:none!important;background:#d4d4d4!important;border-left:3px solid #9a9a9a!important;margin:0 8px 4px 30px!important;padding:2px 0!important}
           .start-folder:hover>.start-sub{display:none}
           .start-folder:focus-within>.start-sub{display:block}
-          .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:14px!important;padding:16px!important;align-content:center!important;pointer-events:none!important}
+          .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:8px!important;padding:10px!important;align-content:center!important;pointer-events:none!important}
           .dsk-item{position:static!important;pointer-events:all!important}
-          .dsk-icon{width:100%!important;padding:18px 10px 14px!important;min-height:160px!important;justify-content:center!important}
-          .dsk-icon-img-wrap img{width:88px!important;height:88px!important}
-          .dsk-label{font-size:13.5px!important;max-width:none!important}
+          .dsk-icon{width:100%!important;padding:11px 10px!important;justify-content:center!important}
+          .dsk-icon-img-wrap img{width:80px!important;height:80px!important}
+          .dsk-label{font-size:13px!important;max-width:none!important}
         }
       `}</style>
     </div>
