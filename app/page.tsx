@@ -67,7 +67,7 @@ const ITEMS: Record<string, ItemDef> = {
   'library':          { label: 'The Library',            icon: 82,        kind: 'app',      cat: 'Resources',     href: '/library',         blurb: 'Browse our growing collection of accessible reading and reference material.' },
   'cinema':           { label: 'The Cinema',             icon: 56,        kind: 'app',      cat: 'Resources',     href: '/cinema',          blurb: 'Watch films, recorded talks and described screenings on demand.' },
   'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room, drop PDFs and worksheets here so members can help each other.' },
-  'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'Your key to member benefits, discounts and accessible bookings.' },
+  'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'A free account to save, like and comment on resources and listings.' },
 };
 
 const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
@@ -228,10 +228,10 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
     return (
       <div style={{ padding: 12 }}>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          Your Access Card is your digital ID for the arts accessibility community. It shows your credentials, specialties, and how to hire or contact you.
+          Your Access Card is a free account for the arts accessibility community. Use it to save, like, and comment on the resources and listings you find here.
         </p>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          Once you have a card, you'll show up in our public directory and professionals in the field can find you directly.
+          It is a lighter way to be part of the Collective. You do not have to be listed in the directory yourself.
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Link href="/login" style={btnLink}>I Already Have One</Link>
