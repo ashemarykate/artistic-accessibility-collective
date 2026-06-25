@@ -57,9 +57,12 @@ export default function Collective() {
             </ul>
           </nav>
 
-          {/* My Resources — shown only when logged in */}
+          {/* Logged-in shortcut to your own hub */}
           {isLoggedIn && (
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <Link href="/dashboard" className="btn btn-on-blue btn-lg">
+                Go to My Collective →
+              </Link>
               <Link
                 href="/my-resources"
                 style={{
@@ -72,7 +75,7 @@ export default function Collective() {
                   textUnderlineOffset: 3,
                 }}
               >
-                ♥ Open my resources
+                ♥ Open my saved resources
               </Link>
             </div>
           )}
@@ -83,13 +86,8 @@ export default function Collective() {
             style={{ marginTop: '4rem', display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', listStyle: 'none', padding: 0 }}
           >
             <li>
-              <Link href="/admin" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
-                Admin
-              </Link>
-            </li>
-            <li>
               <Link href="/" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
-                Landing Page
+                Home
               </Link>
             </li>
           </ul>

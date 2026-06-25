@@ -353,7 +353,7 @@ export default function EditProfilePage() {
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"    className="nav-link">Backstage</Link>
+          <Link href="/dashboard"    className="nav-link">My Collective</Link>
           <Link href="/messages"   className="nav-link">Messages</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <button
@@ -841,7 +841,7 @@ export default function EditProfilePage() {
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>Backstage</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Collective</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

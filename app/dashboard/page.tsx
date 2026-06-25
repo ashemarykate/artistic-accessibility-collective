@@ -47,11 +47,20 @@ export default function MemberHub() {
   const [convPreviews,  setConvPreviews]  = useState<ConvPreview[]>([]);
   const [savedResources, setSavedResources] = useState<{ slug: string; name: string; categoryTitle: string; categoryEmoji: string }[]>([]);
   const [adminUserIds,  setAdminUserIds]  = useState<Set<string>>(new Set());
+  const [introDismissed, setIntroDismissed] = useState(false);
 
   useEffect(() => {
     document.title = 'My Collective · Artistic Accessibility Collective';
+    if (typeof window !== 'undefined' && localStorage.getItem('mc-intro-dismissed') === '1') {
+      setIntroDismissed(true);
+    }
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
+
+  const dismissIntro = () => {
+    setIntroDismissed(true);
+    if (typeof window !== 'undefined') localStorage.setItem('mc-intro-dismissed', '1');
+  };
 
   useEffect(() => { loadHub(); }, []);
 
@@ -204,7 +213,7 @@ export default function MemberHub() {
 
   if (loading) {
     return (
-      <BrowserChrome variant="aol" title="Backstage · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+      <BrowserChrome variant="aol" title="My Collective · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
       <main className="page-wrapper">
         <div className="loading-screen" role="status" aria-label="Loading your hub">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
@@ -222,7 +231,7 @@ export default function MemberHub() {
   const initial     = displayName.charAt(0).toUpperCase();
 
   return (
-    <BrowserChrome variant="aol" title="Backstage · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+    <BrowserChrome variant="aol" title="My Collective · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
     <main className="page-wrapper">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
@@ -378,6 +387,48 @@ export default function MemberHub() {
 
         {/* ════════════════ CENTER COLUMN ════════════════ */}
         <div role="region" aria-label="Your hub">
+
+          {/* Welcome / how-to intro */}
+          {!introDismissed && (
+            <div className="ms-box" style={{ marginBottom: '8px' }}>
+              <div className="ms-box-header">
+                <h2><span aria-hidden="true">🌼 </span>Welcome to My Collective</h2>
+                <button
+                  onClick={dismissIntro}
+                  aria-label="Hide this welcome message"
+                  style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, textDecoration: 'underline' }}
+                >
+                  got it ✕
+                </button>
+              </div>
+              <div style={{ padding: '10px 12px', fontSize: '0.8125rem', color: 'var(--aac-navy)', lineHeight: 1.5 }}>
+                <p style={{ margin: '0 0 8px' }}>
+                  This little corner is yours. Think of it as your own workspace inside The Collective, a place to keep the things and people you need close while you do your thing.
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '1.15rem', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <li>
+                    <strong>Make it yours.</strong>{' '}
+                    <Link href="/profile/edit" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Edit your profile</Link>{' '}
+                    any time to add your work, your links, and the way you like to be reached. It saves as soon as you hit save.
+                  </li>
+                  <li>
+                    <strong>Save what you love.</strong> Tap the heart on any resource over in{' '}
+                    <Link href="/resources" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Resources</Link>{' '}
+                    and it lands in your My Resources box, ready whenever you need it.
+                  </li>
+                  <li>
+                    <strong>Keep your people close.</strong> Find collaborators in the{' '}
+                    <Link href="/members" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Directory</Link>{' '}
+                    and tell us how you want to save your favorites over in{' '}
+                    <Link href="/my-lists" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>My Lists</Link>.
+                  </li>
+                </ul>
+                <p style={{ margin: '8px 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                  Use My Collective like a work tool: everything you save lives here, just for you.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Messages preview */}
           <div className="ms-box" style={{ marginBottom: '8px' }}>
@@ -710,7 +761,7 @@ export default function MemberHub() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>Backstage</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Collective</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

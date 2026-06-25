@@ -92,7 +92,7 @@ export default function MyListsPage() {
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"    className="nav-link">Backstage</Link>
+          <Link href="/dashboard"    className="nav-link">My Collective</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
         </nav>
@@ -135,7 +135,7 @@ export default function MyListsPage() {
                   Your feedback goes directly into building this feature.
                 </p>
                 <Link href="/dashboard" className="btn btn-primary btn-sm">
-                  Back to Backstage
+                  Back to My Collective
                 </Link>
               </div>
             ) : (
@@ -204,7 +204,7 @@ export default function MyListsPage() {
 
         <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
           <Link href="/dashboard" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-            ← Back to Backstage
+            ← Back to My Collective
           </Link>
         </p>
       </div>

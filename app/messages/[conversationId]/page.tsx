@@ -410,7 +410,7 @@ export default function ConversationPage() {
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="ms-footer" aria-label="Site footer">
         <nav aria-label="Footer navigation" style={{ display: 'inline' }}>
-          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>Backstage</Link>
+          <Link href="/dashboard"    style={{ color: 'inherit', textDecoration: 'none' }}>My Collective</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <Link href="/messages"   style={{ color: 'inherit', textDecoration: 'none' }}>Messages</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

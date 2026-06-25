@@ -138,10 +138,10 @@ function LoginForm() {
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>
         <h1 style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem', textAlign: 'center' }}>
-          Log In
+          Log in to The Collective
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.75rem' }}>
-          welcome back
+          welcome back to your corner of the community
         </p>
 
         {/* Mode toggle */}

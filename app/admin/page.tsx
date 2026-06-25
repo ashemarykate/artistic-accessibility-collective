@@ -272,7 +272,7 @@ export default function AdminDashboard() {
         <nav className="site-nav" aria-label="Main navigation">
           <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
           {hasMemberProfile && (
-            <Link href="/dashboard" className="nav-link">Backstage</Link>
+            <Link href="/dashboard" className="nav-link">My Collective</Link>
           )}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}

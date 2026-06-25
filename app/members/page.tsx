@@ -153,7 +153,7 @@ export default function MemberDirectory() {
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <Link href="/dashboard"   className="nav-link">Backstage</Link>
+          <Link href="/dashboard"   className="nav-link">My Collective</Link>
           <Link href="/messages"  className="nav-link">Messages</Link>
           <Link href="/resources" className="nav-link">Resources</Link>
           <Link href="/feedback"  className="nav-link">Feedback</Link>
