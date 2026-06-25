@@ -7,7 +7,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins';
+
+type AdminRow = { user_id: string; email: string | null; role: string; full_name: string | null };
 
 type ResourceSubmission = {
   id: string;
@@ -48,6 +50,12 @@ export default function AdminDashboard() {
   const [assignName, setAssignName] = useState('');
   const [assignEmail, setAssignEmail] = useState('');
   const [savingAssign, setSavingAssign] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [admins, setAdmins] = useState<AdminRow[]>([]);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminRole, setNewAdminRole] = useState<'admin' | 'super_admin'>('admin');
+  const [addingAdmin, setAddingAdmin] = useState(false);
+  const [adminActionMsg, setAdminActionMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const assignNameRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +83,8 @@ export default function AdminDashboard() {
     }
 
     setIsAdmin(true);
+    setIsSuperAdmin(adminData.role === 'super_admin');
+    fetchAdmins();
 
     // Check whether this admin also has an approved member profile
     const { data: memberProfile } = await supabase
@@ -222,6 +232,54 @@ export default function AdminDashboard() {
     tabRefs.current[next]?.focus();
   };
 
+  const fetchAdmins = async () => {
+    const { data, error } = await supabase.rpc('list_admins');
+    if (!error && data) setAdmins(data as AdminRow[]);
+  };
+
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = newAdminEmail.trim();
+    if (!email) return;
+    setAddingAdmin(true);
+    setAdminActionMsg(null);
+    const { data, error } = await supabase.rpc('add_admin_by_email', { target_email: email, target_role: newAdminRole });
+    setAddingAdmin(false);
+    if (error) { setAdminActionMsg({ type: 'err', text: error.message }); return; }
+    const roleLabel = newAdminRole === 'super_admin' ? 'a super-admin' : 'an admin';
+    if (data === 'added') {
+      setAdminActionMsg({ type: 'ok', text: `${email} is now ${roleLabel}.` });
+      setNewAdminEmail('');
+      fetchAdmins();
+    } else if (data === 'already_admin') {
+      setAdminActionMsg({ type: 'ok', text: `${email} was already an admin. Their role is now ${newAdminRole.replace('_', ' ')}.` });
+      setNewAdminEmail('');
+      fetchAdmins();
+    } else if (data === 'no_account') {
+      setAdminActionMsg({ type: 'err', text: `No account found for ${email}. They need to log in once with the email link before you can make them an admin.` });
+    } else {
+      setAdminActionMsg({ type: 'err', text: 'Something went wrong. Please try again.' });
+    }
+  };
+
+  const handleRemoveAdmin = async (userId: string, email: string | null) => {
+    const who = email || 'this admin';
+    if (typeof window !== 'undefined' && !window.confirm(`Remove admin access for ${who}? They will still keep their member account.`)) return;
+    setAdminActionMsg(null);
+    const { data, error } = await supabase.rpc('remove_admin', { target_user_id: userId });
+    if (error) { setAdminActionMsg({ type: 'err', text: error.message }); return; }
+    if (data === 'removed') {
+      setAdminActionMsg({ type: 'ok', text: `Removed admin access for ${who}.` });
+      fetchAdmins();
+    } else if (data === 'cannot_remove_self') {
+      setAdminActionMsg({ type: 'err', text: 'You cannot remove your own admin access.' });
+    } else if (data === 'last_super_admin') {
+      setAdminActionMsg({ type: 'err', text: 'You cannot remove the last super-admin. Add another super-admin first.' });
+    } else {
+      setAdminActionMsg({ type: 'err', text: 'Could not remove that admin.' });
+    }
+  };
+
   const profilesNeedingUpdate = approvedProfiles.filter(
     (p) => (p.profile_version ?? 1) < REQUIRED_PROFILE_VERSION
   );
@@ -236,6 +294,7 @@ export default function AdminDashboard() {
     { id: 'content', label: 'Content' },
     { id: 'events', label: 'Events', count: events.filter(e => e.is_visible).length },
     { id: 'resource-contacts', label: 'Resource Contacts' },
+    ...(isSuperAdmin ? [{ id: 'admins' as Tab, label: 'Admins', count: admins.length }] : []),
   ];
 
   if (accessError) {
@@ -549,6 +608,71 @@ export default function AdminDashboard() {
         {activeTab === 'resource-contacts' && (
           <div id="panel-resource-contacts" role="tabpanel" aria-labelledby="tab-resource-contacts">
             <ResourceContactsPanel />
+          </div>
+        )}
+
+        {activeTab === 'admins' && (
+          <div id="panel-admins" role="tabpanel" aria-labelledby="tab-admins">
+            <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--aac-blue)', marginBottom: '0.25rem' }}>Add an admin</h2>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                Enter the email of someone who has already logged in at least once. They get access to this dashboard so you can share the work. They keep their member account either way.
+              </p>
+              <form onSubmit={handleAddAdmin} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <div className="form-group" style={{ flex: '1 1 240px', marginBottom: 0 }}>
+                  <label htmlFor="new-admin-email" className="form-label">Email address</label>
+                  <input id="new-admin-email" type="email" className="form-input" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="person@example.com" autoComplete="off" />
+                </div>
+                <div className="form-group" style={{ flex: '0 1 220px', marginBottom: 0 }}>
+                  <label htmlFor="new-admin-role" className="form-label">Role</label>
+                  <select id="new-admin-role" className="form-input" value={newAdminRole} onChange={(e) => setNewAdminRole(e.target.value as 'admin' | 'super_admin')}>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super-admin (can manage admins)</option>
+                  </select>
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={addingAdmin}>
+                  {addingAdmin ? 'Adding…' : 'Add admin'}
+                </button>
+              </form>
+              {adminActionMsg && (
+                <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginTop: '1rem' }}>
+                  {adminActionMsg.text}
+                </div>
+              )}
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '1rem' }}>
+                Admins can review applications, manage content, and use everything on this page. Super-admins can also add and remove other admins.
+              </p>
+            </div>
+
+            <div className="content-card">
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--aac-blue)', marginBottom: '1rem' }}>
+                Current admins{admins.length > 0 ? ` (${admins.length})` : ''}
+              </h2>
+              {admins.length === 0 ? (
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>No admins loaded yet.</p>
+              ) : (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {admins.map((a) => (
+                    <li key={a.user_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', padding: '0.625rem 0.75rem', border: '1px solid var(--ms-border)', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontWeight: 600, color: 'var(--aac-navy)', fontSize: '0.9375rem' }}>
+                          {a.full_name || a.email || a.user_id.slice(0, 8)}
+                          {a.role === 'super_admin' && (
+                            <span className="tag" style={{ marginLeft: '0.5rem', background: 'var(--aac-blue)', color: '#fff', fontSize: '0.6875rem', padding: '1px 7px', borderRadius: '999px' }}>Super-admin</span>
+                          )}
+                        </p>
+                        {a.email && a.full_name && (
+                          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>{a.email}</p>
+                        )}
+                      </div>
+                      <button onClick={() => handleRemoveAdmin(a.user_id, a.email)} className="btn btn-sm btn-ghost" style={{ color: 'var(--color-error)' }} aria-label={`Remove admin access for ${a.email || a.full_name || 'this admin'}`}>
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
