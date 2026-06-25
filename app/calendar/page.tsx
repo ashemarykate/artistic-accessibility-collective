@@ -84,6 +84,7 @@ export default function CalendarPage() {
   const [events,      setEvents]      = useState<CalEvent[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [isLoggedIn,  setIsLoggedIn]  = useState(false);
+  const [syncedCals,  setSyncedCals]  = useState<{ name: string; website: string | null }[]>([]);
 
   const filterRef = useRef<HTMLHeadingElement>(null);
   const appRef    = useRef<HTMLHeadingElement>(null);
@@ -121,6 +122,14 @@ export default function CalendarPage() {
   // Check login state (to show "Submit Event" button)
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setIsLoggedIn(!!user));
+  }, []);
+
+  // Load external calendars that have synced successfully (left rail).
+  // Safe before the migration runs: a missing RPC just returns no data.
+  useEffect(() => {
+    supabase.rpc('list_synced_calendars').then(({ data }) => {
+      if (data) setSyncedCals(data as { name: string; website: string | null }[]);
+    });
   }, []);
 
   // Fetch events when the calendar opens
@@ -953,6 +962,31 @@ export default function CalendarPage() {
                   Change filter
                 </button>
               </div>
+
+              {/* Synced calendars (external feeds that pulled in successfully) */}
+              {syncedCals.length > 0 && (
+                <div style={{ margin: '8px 8px 0', background: '#fff', border: '1px inset #aaa', padding: '6px 8px' }}>
+                  <div style={{ fontSize: 9, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
+                    SYNCED CALENDARS
+                  </div>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {syncedCals.map((c) => (
+                      <li key={c.name} style={{ fontSize: 10, lineHeight: 1.3 }}>
+                        {c.website ? (
+                          <a href={c.website} target="_blank" rel="noopener noreferrer" style={{ color: '#263590', textDecoration: 'underline' }}>
+                            {c.name}
+                          </a>
+                        ) : (
+                          <span style={{ color: '#263590' }}>{c.name}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  <div style={{ fontSize: 8, color: '#888', marginTop: 5, lineHeight: 1.4 }}>
+                    Events from these partners pull in automatically.
+                  </div>
+                </div>
+              )}
 
               {/* Expand to 1-day hint (shown in 3-day/week views on mobile — sidebar visible on desktop only) */}
               <div style={{ margin: '8px 8px 0', fontSize: 9, color: '#777', lineHeight: 1.5 }}>
