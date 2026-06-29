@@ -217,6 +217,8 @@ export default function EditProfilePage() {
       .select('*')
       .eq('user_id', user.id)
       .eq('status', 'approved')
+      .order('approved_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (!data) { router.push('/login'); return; }

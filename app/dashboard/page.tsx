@@ -83,6 +83,8 @@ export default function MemberHub() {
       .select('*')
       .eq('user_id', user.id)
       .eq('status', 'approved')
+      .order('approved_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (!profileData) {

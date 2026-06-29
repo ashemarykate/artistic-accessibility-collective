@@ -129,7 +129,7 @@ export default function AdminDashboard() {
   const handleApprove = async (profileId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     const { data: adminProfile } = await supabase
-      .from('profiles').select('id').eq('user_id', user!.id).single();
+      .from('profiles').select('id').eq('user_id', user!.id).eq('status', 'approved').limit(1).maybeSingle();
 
     await supabase.from('profiles').update({
       status: 'approved',
