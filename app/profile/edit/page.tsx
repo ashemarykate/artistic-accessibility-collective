@@ -146,8 +146,23 @@ type EditableProfile = Pick<Profile,
   | 'specialties' | 'certifications' | 'languages'
   | 'years_of_experience' | 'has_captioning' | 'is_student'
   | 'website' | 'linkedin_url' | 'instagram_url'
-  | 'public_visible' | 'email_public'
+  | 'public_visible' | 'email_public' | 'profile_bg_color'
 >;
+
+// Background colors a member can pick for their profile page. All are deep
+// enough that the white text and cream content cards stay readable (WCAG AA).
+const BG_PRESETS: { name: string; value: string }[] = [
+  { name: 'AAC Blue', value: '#263590' },
+  { name: 'Midnight', value: '#0d1e4a' },
+  { name: 'Forest',   value: '#0d5c4a' },
+  { name: 'Plum',     value: '#3f2566' },
+  { name: 'Wine',     value: '#6b1f3a' },
+  { name: 'Pine',     value: '#1f4a2c' },
+  { name: 'Espresso', value: '#4a3322' },
+  { name: 'Slate',    value: '#2f3e4d' },
+  { name: 'Charcoal', value: '#232a33' },
+];
+const DEFAULT_BG = '#263590';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -182,6 +197,7 @@ export default function EditProfilePage() {
   const [avatarPath,       setAvatarPath]       = useState<string | null>(null);
   const [volunteerStatus,  setVolunteerStatus]  = useState<'yes' | 'no' | ''>('');
   const [volunteerNotes,   setVolunteerNotes]   = useState('');
+  const [bgColor,          setBgColor]          = useState(DEFAULT_BG);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -229,6 +245,7 @@ export default function EditProfilePage() {
     setAvatarPath(data.avatar_url     ?? null);
     setVolunteerStatus((data.volunteer_status as 'yes' | 'no') ?? '');
     setVolunteerNotes(data.volunteer_notes   ?? '');
+    setBgColor(data.profile_bg_color  ?? DEFAULT_BG);
 
     setLoading(false);
     headingRef.current?.focus();
@@ -304,6 +321,7 @@ export default function EditProfilePage() {
       email_public:       emailPublic,
       volunteer_status:   volunteerStatus || null,
       volunteer_notes:    volunteerStatus === 'yes' ? volunteerNotes.trim() || null : null,
+      profile_bg_color:   bgColor,
     } as any;
 
     const { error } = await supabase
@@ -498,6 +516,59 @@ export default function EditProfilePage() {
                 />
               </div>
 
+            </div>
+          </div>
+
+          {/* ══ Section: Make It Yours (profile background color) ═════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Make It Yours</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+                <legend className="form-label" style={{ marginBottom: '0.375rem' }}>Profile background color</legend>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+                  Pick the color behind your profile page. Every option keeps your text easy to read.
+                </p>
+                <div
+                  role="radiogroup"
+                  aria-label="Profile background color"
+                  style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(92px, 1fr))', gap: '0.625rem' }}
+                >
+                  {BG_PRESETS.map((preset) => {
+                    const selected = bgColor.toLowerCase() === preset.value.toLowerCase();
+                    return (
+                      <button
+                        key={preset.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        aria-label={preset.name}
+                        onClick={() => setBgColor(preset.value)}
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '0.375rem',
+                          padding: '0.375rem', cursor: 'pointer', borderRadius: '8px',
+                          background: 'transparent',
+                          border: selected ? '2px solid var(--aac-blue)' : '2px solid transparent',
+                        }}
+                      >
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            height: '48px', borderRadius: '6px', background: preset.value,
+                            color: '#fff', fontSize: '1rem', fontWeight: 700,
+                            border: '1px solid rgba(0,0,0,0.15)',
+                          }}
+                        >
+                          {selected ? '✓' : ''}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--aac-navy)', textAlign: 'center' }}>
+                          {preset.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
             </div>
           </div>
 
