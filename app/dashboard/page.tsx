@@ -32,6 +32,14 @@ type ConvPreview = {
   unread: boolean;
 };
 
+// ── Browse destinations (the Resources hub + Library + Cinema) ─────────────────
+// Surfaced as a dropdown under "Save what you love" and the Control Panel.
+const BROWSE_LINKS = [
+  { href: '/resources', label: 'Resources',   emoji: '📚' },
+  { href: '/library',   label: 'The Library', emoji: '📖' },
+  { href: '/cinema',    label: 'The Cinema',  emoji: '🎬' },
+];
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MemberHub() {
@@ -48,6 +56,8 @@ export default function MemberHub() {
   const [savedResources, setSavedResources] = useState<{ slug: string; name: string; categoryTitle: string; categoryEmoji: string }[]>([]);
   const [adminUserIds,  setAdminUserIds]  = useState<Set<string>>(new Set());
   const [introDismissed, setIntroDismissed] = useState(false);
+  const [browseOpen,     setBrowseOpen]     = useState(false);  // "Save what you love" dropdown
+  const [cpResourcesOpen, setCpResourcesOpen] = useState(false); // Control Panel "Resources" submenu
 
   useEffect(() => {
     document.title = 'My Collective · Artistic Accessibility Collective';
@@ -341,34 +351,71 @@ export default function MemberHub() {
               <h2><span role="img" aria-label="little lavender wrench emoticon"><WrenchIcon /></span> Control Panel</h2>
             </div>
             <nav aria-label="Member navigation" style={{ padding: '4px 0' }}>
-              {[
+              {([
                 { href: '/messages', label: '📬 Messages', badge: unreadCount > 0 ? unreadCount : null },
                 { href: '/members', label: '👥 Directory', badge: null },
-                { href: '/resources', label: '📚 Resources', badge: null },
+                { label: '📚 Resources', badge: null, expandable: true },
                 { href: '/feedback', label: '💬 Feedback', badge: null },
                 ...(isAdmin ? [{ href: '/admin', label: '⚙️ Admin', badge: null }] : []),
-              ].map(({ href, label, badge }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="ms-hub-row"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--aac-navy)',
-                    textDecoration: 'none', borderBottom: '1px solid var(--ms-border)',
-                  }}
-                >
-                  <span>{label}</span>
-                  {badge !== null && (
-                    <span
-                      style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700 }}
-                      aria-label={`${badge} unread`}
-                    >
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
+              ] as { href?: string; label: string; badge: number | null; expandable?: boolean }[]).map((item) => {
+                const rowStyle = {
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--aac-navy)',
+                  textDecoration: 'none', borderBottom: '1px solid var(--ms-border)',
+                } as const;
+
+                if (item.expandable) {
+                  return (
+                    <div key="resources">
+                      <button
+                        type="button"
+                        onClick={() => setCpResourcesOpen((o) => !o)}
+                        aria-expanded={cpResourcesOpen}
+                        aria-controls="cp-resources-submenu"
+                        className="ms-hub-row"
+                        style={{ ...rowStyle, width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                      >
+                        <span>{item.label}</span>
+                        <span aria-hidden="true" style={{ fontSize: '0.625rem', color: 'var(--color-text-muted)' }}>{cpResourcesOpen ? '▾' : '▸'}</span>
+                      </button>
+                      {cpResourcesOpen && (
+                        <ul id="cp-resources-submenu" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                          {BROWSE_LINKS.map((b) => (
+                            <li key={b.href}>
+                              <Link
+                                href={b.href}
+                                className="ms-hub-row"
+                                style={{ ...rowStyle, paddingLeft: '28px', fontSize: '0.78125rem' }}
+                              >
+                                <span>{b.emoji} {b.label}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href!}
+                    className="ms-hub-row"
+                    style={rowStyle}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge !== null && (
+                      <span
+                        style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700 }}
+                        aria-label={`${item.badge} unread`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
               <button
                 onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
                 className="ms-hub-row"
@@ -412,9 +459,41 @@ export default function MemberHub() {
                     any time to add your work, your links, and the way you like to be reached. It saves as soon as you hit save.
                   </li>
                   <li>
-                    <strong>Save what you love.</strong> Tap the heart on any resource over in{' '}
-                    <Link href="/resources" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Resources</Link>{' '}
-                    and it lands in your My Resources box, ready whenever you need it.
+                    <button
+                      type="button"
+                      onClick={() => setBrowseOpen((o) => !o)}
+                      aria-expanded={browseOpen}
+                      aria-controls="sw-browse-menu"
+                      style={{ background: 'transparent', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
+                    >
+                      <strong style={{ color: 'var(--aac-blue)', textDecoration: 'underline', textUnderlineOffset: 2 }}>Save what you love</strong>
+                      <span aria-hidden="true" style={{ fontSize: '0.6875rem', marginLeft: '4px', color: 'var(--aac-blue)' }}>{browseOpen ? '▾' : '▸'}</span>
+                    </button>{' '}
+                    Heart any resource to keep it in your My Resources box. On the Library and Cinema you can rate and comment too, so you can tell everyone which picks are great and which to take with a grain of salt.
+                    {browseOpen && (
+                      <ul
+                        id="sw-browse-menu"
+                        aria-label="Browse the collection"
+                        style={{ listStyle: 'none', margin: '6px 0 2px', padding: '4px', display: 'flex', flexDirection: 'column', gap: '2px', background: 'var(--aac-cream)', border: '1px solid var(--ms-border)', borderRadius: '4px' }}
+                      >
+                        {BROWSE_LINKS.map((b) => (
+                          <li key={b.href}>
+                            <Link
+                              href={b.href}
+                              className="ms-hub-row"
+                              style={{ display: 'block', padding: '5px 8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--aac-blue)', textDecoration: 'none' }}
+                            >
+                              {b.emoji} {b.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                  <li>
+                    <strong>Make things together.</strong> Hop into{' '}
+                    <Link href="/make-art" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>Make Art</Link>{' '}
+                    for community art projects and accessible prompts, then add your piece to the gallery.
                   </li>
                   <li>
                     <strong>Keep your people close.</strong> Find collaborators in the{' '}
