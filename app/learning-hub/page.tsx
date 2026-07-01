@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 // ── Subject toolbar icons ─────────────────────────────────────────────────────
 const SUBJECTS = [
@@ -193,7 +194,7 @@ export default function LearningHubPage() {
             }}
           >
             {/* Home button */}
-            <a
+            <Link
               href="/"
               aria-label="Back to Home"
               style={{
@@ -209,7 +210,7 @@ export default function LearningHubPage() {
               }}
             >
               🏠
-            </a>
+            </Link>
             <a
               href="/resources"
               aria-label="Accessibility Resources"
@@ -256,6 +257,7 @@ export default function LearningHubPage() {
                   key={sub.label}
                   onClick={() => setActiveSubject(i)}
                   aria-label={`${sub.label} (coming soon)`}
+                  className="hub-subject-btn"
                   style={{
                     width: 34, height: 34,
                     background: activeSubject === i ? GREENS[i] : '#bbb',
@@ -378,6 +380,10 @@ export default function LearningHubPage() {
               border-bottom: 3px solid #888 !important;
               padding: 3px 4px !important;
               gap: 3px !important;
+            }
+            .hub-subject-btn {
+              width: 44px !important;
+              height: 44px !important;
             }
             .hub-canvas {
               overflow: visible !important;

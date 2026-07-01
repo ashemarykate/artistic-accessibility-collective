@@ -51,8 +51,6 @@ export default function ConversationPage() {
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
-  useEffect(() => { loadConversation(); }, [conversationId]);
-
   // ── Auto-scroll to bottom when messages change ────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -122,6 +120,8 @@ export default function ConversationPage() {
         .in('id', unreadIds);
     }
   }, [conversationId, router]);
+
+  useEffect(() => { queueMicrotask(() => { loadConversation(); }); }, [loadConversation]);
 
   // ── Send a message ────────────────────────────────────────────────────────
   const handleSend = useCallback(async (e?: React.FormEvent) => {
@@ -241,7 +241,6 @@ export default function ConversationPage() {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
         <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">

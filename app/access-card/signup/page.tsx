@@ -76,8 +76,9 @@ export default function AccessCardSignup() {
       if (otpError) throw otpError;
 
       setDone(true);
-    } catch (err: any) {
-      setErrors({ form: err.message || 'Something went wrong. Please try again.' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrors({ form: message || 'Something went wrong. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -88,7 +89,6 @@ export default function AccessCardSignup() {
       <BrowserChrome variant="ie3" title="Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card/signup">
         <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
           <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1.5rem', display: 'inline-block' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo height={72} />
           </Link>
           <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
@@ -119,7 +119,6 @@ export default function AccessCardSignup() {
       <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.25rem 1rem 3rem', minHeight: '100%' }}>
 
         <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo height={72} />
         </Link>
 
@@ -131,7 +130,7 @@ export default function AccessCardSignup() {
               Get an Access Card
             </h1>
             <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.5rem' }}>
-              free and open to everyone
+              together, together
             </p>
 
             <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-body)', lineHeight: 1.7, marginBottom: '1.25rem' }}>

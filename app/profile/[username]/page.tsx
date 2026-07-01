@@ -378,7 +378,6 @@ export default function ProfilePage() {
       <header>
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-            { }
             <Logo alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">

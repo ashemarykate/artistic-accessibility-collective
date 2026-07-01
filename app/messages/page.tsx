@@ -54,14 +54,12 @@ function MessagesInner() {
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
-  useEffect(() => { loadInbox(); }, []);
-
   // ── Handle ?to= param — navigate directly to a new/existing conversation ──
   useEffect(() => {
     const toId = searchParams.get('to');
     if (!toId || !myProfile) return;
 
-    setRedirecting(true);
+    queueMicrotask(() => setRedirecting(true));
     getOrCreateConversation(myProfile.id, toId).then((convId) => {
       if (convId) router.replace(`/messages/${convId}`);
       else setRedirecting(false);
@@ -138,9 +136,11 @@ function MessagesInner() {
     setLoading(false);
   }, [router]);
 
+  useEffect(() => { queueMicrotask(() => { loadInbox(); }); }, [loadInbox]);
+
   // ── Member search for compose ──────────────────────────────────────────────
   useEffect(() => {
-    if (!composeSearch.trim()) { setMemberResults([]); return; }
+    if (!composeSearch.trim()) { queueMicrotask(() => setMemberResults([])); return; }
     const q = composeSearch.trim();
     const timer = setTimeout(async () => {
       setSearching(true);
@@ -265,8 +265,6 @@ function MessagesInner() {
                   placeholder="Search members by name…"
                   value={composeSearch}
                   onChange={(e) => setComposeSearch(e.target.value)}
-                  aria-autocomplete="list"
-                  aria-controls="compose-results"
                   aria-describedby="compose-hint"
                 />
                 <p id="compose-hint" className="sr-only">
@@ -283,14 +281,13 @@ function MessagesInner() {
               {!searching && memberResults.length > 0 && (
                 <ul
                   id="compose-results"
-                  role="listbox"
                   aria-label="Member search results"
                   style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', border: '1px solid var(--ms-border)' }}
                 >
                   {memberResults.map((m) => {
                     const mName = m.display_name || m.full_name;
                     return (
-                      <li key={m.id} role="option" aria-selected="false">
+                      <li key={m.id}>
                         <button
                           onClick={() => startConversation(m.id)}
                           style={{

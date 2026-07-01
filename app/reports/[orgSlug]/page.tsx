@@ -652,7 +652,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
         marginBottom: 32,
       }}>
         <strong style={{ color: '#f5d84a' }}>Included with this document:</strong> Overview of Current State of Org (COMPLIMENTARY)<br />
-        Genuine access shouldn't require an expensive consultant. For organizations ready to go further, we offer hands-on services priced on a sliding scale based on annual budget. No org is too small.
+        {"Genuine access shouldn't require an expensive consultant."} For organizations ready to go further, we offer hands-on services priced on a sliding scale based on annual budget. No org is too small.
       </div>
 
       <div style={{ overflowX: 'auto' }}>
@@ -708,7 +708,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
             PRICING NOTE
           </div>
           <p style={{ fontSize: 13, color: '#d8dcf5', margin: 0, lineHeight: 1.7 }}>
-            Pricing is based on your organization's total annual operating budget. Please self-select your tier honestly. Bundled services are discounted 15–20%.
+            {"Pricing is based on your organization's total annual operating budget."} Please self-select your tier honestly. Bundled services are discounted 15–20%.
           </p>
         </div>
         <div style={{

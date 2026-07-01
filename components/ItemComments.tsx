@@ -13,7 +13,7 @@ type Comment = {
 
 type Props = {
   itemSlug: string;
-  itemType: 'library' | 'cinema' | 'resource' | 'event';
+  itemType: 'library' | 'cinema' | 'resource' | 'event' | 'image-description';
   palette?: 'amber' | 'blue';
 };
 

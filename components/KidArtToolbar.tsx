@@ -84,7 +84,6 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               textDecoration: 'none',
               flexShrink: 0,
-              outline: 'none',
             }}
           >
             {tool.emoji}

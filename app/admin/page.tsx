@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'super_admin'>('admin');
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [adminActionMsg, setAdminActionMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [profileActionPending, setProfileActionPending] = useState<{ id: string; action: 'approve' | 'reject' | 'toggle-public' } | null>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const assignNameRef = useRef<HTMLInputElement>(null);
 
@@ -127,28 +128,61 @@ export default function AdminDashboard() {
   };
 
   const handleApprove = async (profileId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: adminProfile } = await supabase
-      .from('profiles').select('id').eq('user_id', user!.id).eq('status', 'approved').limit(1).maybeSingle();
+    setAdminActionMsg(null);
+    setProfileActionPending({ id: profileId, action: 'approve' });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: adminProfile } = await supabase
+        .from('profiles').select('id').eq('user_id', user!.id).eq('status', 'approved').limit(1).maybeSingle();
 
-    await supabase.from('profiles').update({
-      status: 'approved',
-      approved_at: new Date().toISOString(),
-      approved_by: adminProfile?.id,
-    }).eq('id', profileId);
+      const { error } = await supabase.from('profiles').update({
+        status: 'approved',
+        approved_at: new Date().toISOString(),
+        approved_by: adminProfile?.id,
+      }).eq('id', profileId);
 
-    fetchAll();
+      if (error) throw error;
+      setAdminActionMsg({ type: 'ok', text: 'Profile approved.' });
+      fetchAll();
+    } catch (err) {
+      console.error('Approve profile error:', err);
+      setAdminActionMsg({ type: 'err', text: 'Could not approve that profile. Please try again.' });
+    } finally {
+      setProfileActionPending(null);
+    }
   };
 
   const handleReject = async (profileId: string) => {
     if (!confirm('Reject this profile?')) return;
-    await supabase.from('profiles').update({ status: 'rejected' }).eq('id', profileId);
-    fetchAll();
+    setAdminActionMsg(null);
+    setProfileActionPending({ id: profileId, action: 'reject' });
+    try {
+      const { error } = await supabase.from('profiles').update({ status: 'rejected' }).eq('id', profileId);
+      if (error) throw error;
+      setAdminActionMsg({ type: 'ok', text: 'Profile rejected.' });
+      fetchAll();
+    } catch (err) {
+      console.error('Reject profile error:', err);
+      setAdminActionMsg({ type: 'err', text: 'Could not reject that profile. Please try again.' });
+    } finally {
+      setProfileActionPending(null);
+    }
   };
 
   const handleTogglePublic = async (profileId: string, current: boolean) => {
-    await supabase.from('profiles').update({ public_visible: !current }).eq('id', profileId);
-    fetchAll();
+    setAdminActionMsg(null);
+    setProfileActionPending({ id: profileId, action: 'toggle-public' });
+    try {
+      const { error } = await supabase.from('profiles').update({ public_visible: !current }).eq('id', profileId);
+      if (error) throw error;
+      setAdminActionMsg({ type: 'ok', text: `Profile is now ${current ? 'private' : 'public'}.` });
+      fetchAll();
+    } catch (err) {
+      console.error('Toggle public error:', err);
+      setAdminActionMsg({ type: 'err', text: 'Could not update visibility. Please try again.' });
+    } finally {
+      setProfileActionPending(null);
+    }
   };
 
   const handleSendLoginEmail = async (profileId: string) => {
@@ -303,7 +337,7 @@ export default function AdminDashboard() {
       <main style={{ background: 'var(--aac-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
         <div role="alert" style={{ color: 'var(--aac-white)', textAlign: 'center' }}>
           <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>{accessError}</p>
-          <a href="/" className="btn btn-outline-white">Go Home</a>
+          <Link href="/" className="btn btn-outline-white">Go Home</Link>
         </div>
       </main>
       </BrowserChrome>
@@ -404,6 +438,11 @@ export default function AdminDashboard() {
         {/* Panels */}
         {(activeTab === 'pending' || activeTab === 'approved' || activeTab === 'rejected') && (
           <div id={`panel-${activeTab}`} role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
+            {adminActionMsg && (
+              <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginBottom: '1rem' }}>
+                {adminActionMsg.text}
+              </div>
+            )}
             <ProfileList
               profiles={
                 activeTab === 'pending' ? pendingProfiles
@@ -417,6 +456,7 @@ export default function AdminDashboard() {
               onSendLoginEmail={handleSendLoginEmail}
               sendingEmail={sendingEmail}
               emailStatus={emailStatus}
+              profileActionPending={profileActionPending}
             />
           </div>
         )}
@@ -1436,6 +1476,7 @@ function ProfileList({
   onSendLoginEmail,
   sendingEmail,
   emailStatus,
+  profileActionPending,
 }: {
   profiles: Profile[];
   status: 'pending' | 'approved' | 'rejected';
@@ -1445,6 +1486,7 @@ function ProfileList({
   onSendLoginEmail: (id: string) => void;
   sendingEmail: string | null;
   emailStatus: Record<string, 'sent' | 'error'>;
+  profileActionPending: { id: string; action: 'approve' | 'reject' | 'toggle-public' } | null;
 }) {
   if (profiles.length === 0) {
     return (
@@ -1529,11 +1571,21 @@ function ProfileList({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 160 }}>
                 {status === 'pending' && (
                   <>
-                    <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm" aria-label={`Approve ${name}`}>
-                      Approve
+                    <button
+                      onClick={() => onApprove(p.id)}
+                      disabled={profileActionPending?.id === p.id}
+                      className="btn btn-primary btn-sm"
+                      aria-label={`Approve ${name}`}
+                    >
+                      {profileActionPending?.id === p.id && profileActionPending.action === 'approve' ? 'Approving…' : 'Approve'}
                     </button>
-                    <button onClick={() => onReject(p.id)} className="btn btn-danger btn-sm" aria-label={`Reject ${name}`}>
-                      Reject
+                    <button
+                      onClick={() => onReject(p.id)}
+                      disabled={profileActionPending?.id === p.id}
+                      className="btn btn-danger btn-sm"
+                      aria-label={`Reject ${name}`}
+                    >
+                      {profileActionPending?.id === p.id && profileActionPending.action === 'reject' ? 'Rejecting…' : 'Reject'}
                     </button>
                   </>
                 )}
@@ -1542,11 +1594,14 @@ function ProfileList({
                   <>
                     <button
                       onClick={() => onTogglePublic(p.id, p.public_visible)}
+                      disabled={profileActionPending?.id === p.id}
                       className={`btn btn-sm ${p.public_visible ? 'btn-outline' : 'btn-ghost'}`}
                       aria-pressed={p.public_visible}
                       aria-label={`${name} is ${p.public_visible ? 'public' : 'private'}. Click to make ${p.public_visible ? 'private' : 'public'}`}
                     >
-                      {p.public_visible ? 'Public' : 'Private'}
+                      {profileActionPending?.id === p.id && profileActionPending.action === 'toggle-public'
+                        ? 'Updating…'
+                        : p.public_visible ? 'Public' : 'Private'}
                     </button>
 
                     <button
@@ -1566,15 +1621,25 @@ function ProfileList({
                       )}
                     </button>
 
-                    <button onClick={() => onReject(p.id)} className="btn btn-ghost btn-sm" aria-label={`Revoke access for ${name}`}>
-                      Revoke
+                    <button
+                      onClick={() => onReject(p.id)}
+                      disabled={profileActionPending?.id === p.id}
+                      className="btn btn-ghost btn-sm"
+                      aria-label={`Revoke access for ${name}`}
+                    >
+                      {profileActionPending?.id === p.id && profileActionPending.action === 'reject' ? 'Revoking…' : 'Revoke'}
                     </button>
                   </>
                 )}
 
                 {status === 'rejected' && (
-                  <button onClick={() => onApprove(p.id)} className="btn btn-primary btn-sm" aria-label={`Re-approve ${name}`}>
-                    Re-approve
+                  <button
+                    onClick={() => onApprove(p.id)}
+                    disabled={profileActionPending?.id === p.id}
+                    className="btn btn-primary btn-sm"
+                    aria-label={`Re-approve ${name}`}
+                  >
+                    {profileActionPending?.id === p.id && profileActionPending.action === 'approve' ? 'Approving…' : 'Re-approve'}
                   </button>
                 )}
               </div>
@@ -1637,158 +1702,49 @@ const LIBRARY_CATS   = ['foundations-classics','disability-justice','deaf-cultur
 const CINEMA_CATS    = ['documentaries','performance','short-film','podcasts','series-tv','narrative-film','talks-lectures','festival-recent'];
 const ACCESS_CATS    = ['law-policy','captioning','audio-description','asl-interpretation','theater-live-events','film-media-production','digital-web','disability-justice-arts','funding-organizations','training-education'];
 
-function ContentManagementPanel() {
-  const [section,    setSection]    = useState<ContentSection>('library');
-  const [items,      setItems]      = useState<ContentItem[]>([]);
-  const [loading,    setLoading]    = useState(false);
-  const [showAdd,    setShowAdd]    = useState(false);
-  const [editingId,  setEditingId]  = useState<string | null>(null);
-  const [form,       setForm]       = useState({ ...BLANK_ITEM });
-  const [saving,     setSaving]     = useState(false);
-  const [saveMsg,    setSaveMsg]    = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+type ItemFormValues = typeof BLANK_ITEM;
 
-  const fetchItems = async (sec: ContentSection) => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('resources')
-      .select('*')
-      .eq('section', sec)
-      .order('created_at', { ascending: false });
-    setItems((data ?? []) as ContentItem[]);
-    setLoading(false);
-  };
+const CONTENT_FORM_INP: React.CSSProperties = {
+  width: '100%', padding: '6px 8px', fontSize: '0.875rem',
+  border: '1px solid var(--color-border)', borderRadius: 4,
+  fontFamily: 'inherit', boxSizing: 'border-box' as const,
+};
+const CONTENT_FORM_LABEL: React.CSSProperties = {
+  display: 'block', fontSize: '0.75rem', fontWeight: 600,
+  color: 'var(--color-text-muted)', marginBottom: 3,
+};
+const CONTENT_FORM_ROW: React.CSSProperties = { marginBottom: '0.75rem' };
+const CONTENT_FORM_ROW2: React.CSSProperties = { display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' };
 
-  useEffect(() => { fetchItems(section); }, [section]);
+function ItemForm({
+  section,
+  editingId,
+  form,
+  setForm,
+  typesForSection,
+  catsForSection,
+  saveMsg,
+  saving,
+  handleSave,
+  cancelForm,
+}: {
+  section: ContentSection;
+  editingId: string | null;
+  form: ItemFormValues;
+  setForm: React.Dispatch<React.SetStateAction<ItemFormValues>>;
+  typesForSection: string[];
+  catsForSection: string[];
+  saveMsg: string;
+  saving: boolean;
+  handleSave: (e: React.FormEvent) => void;
+  cancelForm: () => void;
+}) {
+  const inp = CONTENT_FORM_INP;
+  const label = CONTENT_FORM_LABEL;
+  const row = CONTENT_FORM_ROW;
+  const row2 = CONTENT_FORM_ROW2;
 
-  const switchSection = (sec: ContentSection) => {
-    setSection(sec);
-    setShowAdd(false);
-    setEditingId(null);
-    setSaveMsg('');
-  };
-
-  const startAdd = () => {
-    setForm({ ...BLANK_ITEM });
-    setEditingId(null);
-    setShowAdd(true);
-    setSaveMsg('');
-  };
-
-  const startEdit = (item: ContentItem) => {
-    setForm({
-      title:            item.title          ?? '',
-      author:           item.author         ?? '',
-      director:         item.director       ?? '',
-      creator:          item.creator        ?? '',
-      year:             item.year?.toString()        ?? '',
-      description:      item.description    ?? '',
-      url:              item.url            ?? '',
-      item_type:        item.item_type      ?? '',
-      category:         item.category       ?? '',
-      tags:             (item.tags ?? []).join(', '),
-      is_free:          item.is_free        ?? false,
-      how_to_access:    item.how_to_access  ?? '',
-      is_essential:     item.is_essential   ?? false,
-      format_list:      (item.format_list   ?? []).join(', '),
-      platform_list:    (item.platform_list ?? []).join(', '),
-      has_ad:           item.has_ad         ?? false,
-      has_captions:     item.has_captions   ?? false,
-      duration_minutes: item.duration_minutes?.toString() ?? '',
-      location_note:    item.location_note  ?? '',
-      slug:             item.slug           ?? '',
-      admin_notes:      item.admin_notes    ?? '',
-      status:           item.status         ?? 'approved',
-    });
-    setEditingId(item.id);
-    setShowAdd(false);
-    setSaveMsg('');
-  };
-
-  const cancelForm = () => {
-    setShowAdd(false);
-    setEditingId(null);
-    setSaveMsg('');
-  };
-
-  const tagsArray = (s: string) =>
-    s.split(',').map((t) => t.trim()).filter(Boolean);
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.title.trim()) return;
-    setSaving(true);
-    setSaveMsg('');
-
-    const slug = form.slug.trim() ||
-      form.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-    const payload = {
-      section,
-      title:            form.title.trim(),
-      author:           form.author.trim()       || null,
-      director:         form.director.trim()     || null,
-      creator:          form.creator.trim()      || null,
-      year:             form.year ? parseInt(form.year) : null,
-      description:      form.description.trim()  || null,
-      url:              form.url.trim()           || null,
-      item_type:        form.item_type            || null,
-      category:         form.category             || null,
-      tags:             tagsArray(form.tags),
-      is_free:          form.is_free,
-      how_to_access:    form.how_to_access.trim() || null,
-      is_essential:     form.is_essential,
-      format_list:      tagsArray(form.format_list),
-      platform_list:    tagsArray(form.platform_list),
-      has_ad:           form.has_ad,
-      has_captions:     form.has_captions,
-      duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
-      location_note:    form.location_note.trim() || null,
-      slug,
-      admin_notes:      form.admin_notes.trim()   || null,
-      status:           form.status,
-    };
-
-    let error;
-    if (editingId) {
-      ({ error } = await supabase.from('resources').update(payload).eq('id', editingId));
-    } else {
-      ({ error } = await supabase.from('resources').insert(payload));
-    }
-
-    setSaving(false);
-    if (error) {
-      setSaveMsg('Error saving: ' + error.message);
-    } else {
-      setSaveMsg(editingId ? 'Saved!' : 'Item added!');
-      setShowAdd(false);
-      setEditingId(null);
-      fetchItems(section);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    await supabase.from('resources').delete().eq('id', id);
-    setDeleteConfirm(null);
-    fetchItems(section);
-  };
-
-  const typesForSection = section === 'library' ? LIBRARY_TYPES : section === 'cinema' ? CINEMA_TYPES : ACCESS_TYPES;
-  const catsForSection  = section === 'library' ? LIBRARY_CATS  : section === 'cinema' ? CINEMA_CATS  : ACCESS_CATS;
-
-  const inp: React.CSSProperties = {
-    width: '100%', padding: '6px 8px', fontSize: '0.875rem',
-    border: '1px solid var(--color-border)', borderRadius: 4,
-    fontFamily: 'inherit', boxSizing: 'border-box' as const,
-  };
-  const label: React.CSSProperties = {
-    display: 'block', fontSize: '0.75rem', fontWeight: 600,
-    color: 'var(--color-text-muted)', marginBottom: 3,
-  };
-  const row: React.CSSProperties = { marginBottom: '0.75rem' };
-  const row2: React.CSSProperties = { display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' };
-
-  const ItemForm = () => (
+  return (
     <form onSubmit={handleSave} style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '1.25rem', marginBottom: '1.5rem' }} noValidate>
       <h3 style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '1rem' }}>
         {editingId ? 'Edit Item' : `Add New ${section === 'library' ? 'Library' : section === 'cinema' ? 'Cinema' : 'Accessibility'} Item`}
@@ -1958,6 +1914,146 @@ function ContentManagementPanel() {
       </div>
     </form>
   );
+}
+
+function ContentManagementPanel() {
+  const [section,    setSection]    = useState<ContentSection>('library');
+  const [items,      setItems]      = useState<ContentItem[]>([]);
+  const [loading,    setLoading]    = useState(false);
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [editingId,  setEditingId]  = useState<string | null>(null);
+  const [form,       setForm]       = useState({ ...BLANK_ITEM });
+  const [saving,     setSaving]     = useState(false);
+  const [saveMsg,    setSaveMsg]    = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const fetchItems = async (sec: ContentSection) => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('resources')
+      .select('*')
+      .eq('section', sec)
+      .order('created_at', { ascending: false });
+    setItems((data ?? []) as ContentItem[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { queueMicrotask(() => { fetchItems(section); }); }, [section]);
+
+  const switchSection = (sec: ContentSection) => {
+    setSection(sec);
+    setShowAdd(false);
+    setEditingId(null);
+    setSaveMsg('');
+  };
+
+  const startAdd = () => {
+    setForm({ ...BLANK_ITEM });
+    setEditingId(null);
+    setShowAdd(true);
+    setSaveMsg('');
+  };
+
+  const startEdit = (item: ContentItem) => {
+    setForm({
+      title:            item.title          ?? '',
+      author:           item.author         ?? '',
+      director:         item.director       ?? '',
+      creator:          item.creator        ?? '',
+      year:             item.year?.toString()        ?? '',
+      description:      item.description    ?? '',
+      url:              item.url            ?? '',
+      item_type:        item.item_type      ?? '',
+      category:         item.category       ?? '',
+      tags:             (item.tags ?? []).join(', '),
+      is_free:          item.is_free        ?? false,
+      how_to_access:    item.how_to_access  ?? '',
+      is_essential:     item.is_essential   ?? false,
+      format_list:      (item.format_list   ?? []).join(', '),
+      platform_list:    (item.platform_list ?? []).join(', '),
+      has_ad:           item.has_ad         ?? false,
+      has_captions:     item.has_captions   ?? false,
+      duration_minutes: item.duration_minutes?.toString() ?? '',
+      location_note:    item.location_note  ?? '',
+      slug:             item.slug           ?? '',
+      admin_notes:      item.admin_notes    ?? '',
+      status:           item.status         ?? 'approved',
+    });
+    setEditingId(item.id);
+    setShowAdd(false);
+    setSaveMsg('');
+  };
+
+  const cancelForm = () => {
+    setShowAdd(false);
+    setEditingId(null);
+    setSaveMsg('');
+  };
+
+  const tagsArray = (s: string) =>
+    s.split(',').map((t) => t.trim()).filter(Boolean);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim()) return;
+    setSaving(true);
+    setSaveMsg('');
+
+    const slug = form.slug.trim() ||
+      form.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const payload = {
+      section,
+      title:            form.title.trim(),
+      author:           form.author.trim()       || null,
+      director:         form.director.trim()     || null,
+      creator:          form.creator.trim()      || null,
+      year:             form.year ? parseInt(form.year) : null,
+      description:      form.description.trim()  || null,
+      url:              form.url.trim()           || null,
+      item_type:        form.item_type            || null,
+      category:         form.category             || null,
+      tags:             tagsArray(form.tags),
+      is_free:          form.is_free,
+      how_to_access:    form.how_to_access.trim() || null,
+      is_essential:     form.is_essential,
+      format_list:      tagsArray(form.format_list),
+      platform_list:    tagsArray(form.platform_list),
+      has_ad:           form.has_ad,
+      has_captions:     form.has_captions,
+      duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
+      location_note:    form.location_note.trim() || null,
+      slug,
+      admin_notes:      form.admin_notes.trim()   || null,
+      status:           form.status,
+    };
+
+    let error;
+    if (editingId) {
+      ({ error } = await supabase.from('resources').update(payload).eq('id', editingId));
+    } else {
+      ({ error } = await supabase.from('resources').insert(payload));
+    }
+
+    setSaving(false);
+    if (error) {
+      setSaveMsg('Error saving: ' + error.message);
+    } else {
+      setSaveMsg(editingId ? 'Saved!' : 'Item added!');
+      setShowAdd(false);
+      setEditingId(null);
+      fetchItems(section);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from('resources').delete().eq('id', id);
+    setDeleteConfirm(null);
+    fetchItems(section);
+  };
+
+  const typesForSection = section === 'library' ? LIBRARY_TYPES : section === 'cinema' ? CINEMA_TYPES : ACCESS_TYPES;
+  const catsForSection  = section === 'library' ? LIBRARY_CATS  : section === 'cinema' ? CINEMA_CATS  : ACCESS_CATS;
 
   return (
     <div>
@@ -1988,7 +2084,20 @@ function ContentManagementPanel() {
         Adding an item with the same slug as an existing one will override the hardcoded version.
       </p>
 
-      {(showAdd || editingId) && <ItemForm />}
+      {(showAdd || editingId) && (
+        <ItemForm
+          section={section}
+          editingId={editingId}
+          form={form}
+          setForm={setForm}
+          typesForSection={typesForSection}
+          catsForSection={catsForSection}
+          saveMsg={saveMsg}
+          saving={saving}
+          handleSave={handleSave}
+          cancelForm={cancelForm}
+        />
+      )}
 
       {saveMsg && !showAdd && !editingId && (
         <p role="status" style={{ fontSize: '0.875rem', color: 'green', marginBottom: '0.75rem' }}>{saveMsg}</p>

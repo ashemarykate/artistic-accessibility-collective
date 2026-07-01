@@ -8,6 +8,29 @@ const BLUE = 'var(--aac-blue)';
 const TEXT = '#1e2444';
 const MUTED = '#4a5280';
 
+const SERVICES = [
+  {
+    num: '01',
+    name: 'Advising',
+    description: 'Not sure where to start? We sit with you, learn about your project, and help you figure out what genuine accessibility looks like for your specific situation. No judgment on where you are starting from.',
+  },
+  {
+    num: '02',
+    name: 'Staffing',
+    description: 'Need ASL interpreters, CART captioners, audio describers, or other accessibility professionals? We will help you find the right people for your project, timeline, and budget.',
+  },
+  {
+    num: '03',
+    name: 'Training',
+    description: 'Teach your team how to think about and build accessibility in from the start, so future projects do not have to play catch-up.',
+  },
+  {
+    num: '04',
+    name: 'Evaluation',
+    description: 'Already have something built? We will review what is working, what is not, and what to do next: whether that is a live event, a digital platform, or a long-running program.',
+  },
+];
+
 export default function WorkWithUsPage() {
   const h1Ref = useRef<HTMLHeadingElement>(null);
 
@@ -50,20 +73,50 @@ export default function WorkWithUsPage() {
 
             <section aria-labelledby="services-heading" style={{ marginBottom: '2.5rem' }}>
               <h2 id="services-heading" style={{
-                color: BLUE,
+                color: MUTED,
                 fontSize: '0.6875rem',
                 fontWeight: 700,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                marginBottom: '1rem',
+                marginBottom: '1.5rem',
               }}>
-                What We Do
+                What We Offer
               </h2>
 
-              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75, marginBottom: '0.875rem' }}>
-                We offer advising, staffing, accessibility designing, captioning, and producing. Not sure where to start? We sit with you and figure it out. Need ASL interpreters, CART captioners, audio describers, or other accessibility professionals for your project? We find them. Something already built that needs a look? We can evaluate it and tell you what to do next.
-              </p>
-              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75 }}>
+              <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {SERVICES.map((s, i) => (
+                  <li
+                    key={s.num}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'auto 1fr',
+                      gap: '1.25rem',
+                      paddingBottom: '1.75rem',
+                      marginBottom: i < SERVICES.length - 1 ? '1.75rem' : 0,
+                      borderBottom: i < SERVICES.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none',
+                      alignItems: 'start',
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="font-display hire-service-num"
+                      style={{ color: 'var(--aac-blue)', lineHeight: 1, userSelect: 'none' }}
+                    >
+                      {s.num}
+                    </span>
+                    <div>
+                      <h3 className="font-display hire-service-name" style={{ color: TEXT, lineHeight: 1.1, marginBottom: '0.5rem' }}>
+                        {s.name}
+                      </h3>
+                      <p className="hire-service-desc" style={{ color: MUTED, lineHeight: 1.7 }}>
+                        {s.description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75, marginTop: '1.75rem' }}>
                 We work directly with you, or connect you with the right person from our network, depending on what the job calls for. <Link href="/contact" style={{ color: BLUE, textDecoration: 'underline' }}>Reach out any time</Link> and we will take it from there.
               </p>
             </section>
@@ -148,6 +201,7 @@ export default function WorkWithUsPage() {
 
             <nav aria-label="Page navigation" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
               <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
+              <Link href="/about" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>About Us</Link>
               <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
             </nav>
 
@@ -156,9 +210,14 @@ export default function WorkWithUsPage() {
           <style>{`
             .hire-h1 { font-size: clamp(2rem, 6vw, 3.25rem); }
             .hire-lede { font-size: clamp(0.9375rem, 2vw, 1.0625rem); max-width: 60ch; }
+            .hire-service-num { font-size: clamp(1.5rem, 4vw, 2.25rem); }
+            .hire-service-name { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+            .hire-service-desc { font-size: 0.9375rem; max-width: 55ch; }
             .hire-body { font-size: 0.9375rem; max-width: 60ch; }
             @media (max-width: 580px) {
               .hire-h1 { font-size: 2rem !important; }
+              .hire-service-num { font-size: 1.5rem !important; }
+              .hire-service-name { font-size: 1.25rem !important; }
             }
           `}</style>
         </main>

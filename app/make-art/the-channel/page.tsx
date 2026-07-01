@@ -3,8 +3,31 @@
 import { useState, useEffect, useRef } from 'react';
 import KidArtToolbar from '@/components/KidArtToolbar';
 
+interface YTPlayerEvent {
+  target: {
+    setShuffle: (shuffle: boolean) => void;
+    playVideoAt: (index: number) => void;
+  };
+}
+
+interface YTPlayer {
+  destroy?: () => void;
+  setShuffle: (shuffle: boolean) => void;
+  playVideoAt: (index: number) => void;
+}
+
+interface YTNamespace {
+  Player: new (
+    element: HTMLDivElement,
+    options: {
+      playerVars: Record<string, unknown>;
+      events: { onReady: (event: YTPlayerEvent) => void };
+    }
+  ) => YTPlayer;
+}
+
 declare global {
-  interface Window { YT: any; onYouTubeIframeAPIReady?: () => void; }
+  interface Window { YT: YTNamespace; onYouTubeIframeAPIReady?: () => void; }
 }
 
 const PLAYLIST_ID  = 'PLhDUBYZHjb_ji_1JcGeqTgb0Gn-Fk5LZy';
@@ -22,8 +45,9 @@ export default function TheChannelMakeArtPage() {
   const [booting, setBooting]   = useState(true);
   const [bootText, setBootText] = useState('Tuning in to AAC The Channel');
   const [ready, setReady]       = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const headingRef    = useRef<HTMLHeadingElement>(null);
-  const playerRef     = useRef<any>(null);
+  const playerRef     = useRef<YTPlayer | null>(null);
   const playerDivRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,7 +78,7 @@ export default function TheChannelMakeArtPage() {
       playerRef.current = new window.YT.Player(playerDivRef.current, {
         playerVars: { list: PLAYLIST_ID, listType: 'playlist', modestbranding: 1, rel: 0 },
         events: {
-          onReady: (e: any) => {
+          onReady: (e: YTPlayerEvent) => {
             if (dead) return;
             e.target.setShuffle(true);
             e.target.playVideoAt(Math.floor(Math.random() * 15));
@@ -63,6 +87,10 @@ export default function TheChannelMakeArtPage() {
         },
       });
     };
+
+    const loadTimer = setTimeout(() => {
+      if (!dead && !playerRef.current) setLoadFailed(true);
+    }, 7000);
 
     if (window.YT?.Player) {
       init();
@@ -78,6 +106,7 @@ export default function TheChannelMakeArtPage() {
 
     return () => {
       dead = true;
+      clearTimeout(loadTimer);
       playerRef.current?.destroy?.();
       playerRef.current = null;
     };
@@ -188,6 +217,12 @@ export default function TheChannelMakeArtPage() {
                   style={{ width: '100%', aspectRatio: '16/9', display: 'block', background: '#000' }}
                 />
               </div>
+
+              {loadFailed && !ready && (
+                <p role="alert" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#ffcc66', margin: 0 }}>
+                  Having trouble loading the video? Try refreshing the page.
+                </p>
+              )}
 
               {/* Controls */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

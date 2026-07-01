@@ -25,6 +25,7 @@ export default function MyListsPage() {
   const [other,     setOther]     = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [saving,    setSaving]    = useState(false);
+  const [error,     setError]     = useState('');
 
   useEffect(() => {
     document.title = 'My Lists · Artistic Accessibility Collective';
@@ -47,25 +48,34 @@ export default function MyListsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setError('');
 
     const body = [
       selected.map(id => LIST_IDEAS.find(l => l.id === id)?.label).filter(Boolean).join(', '),
       other.trim() ? `Other: ${other.trim()}` : '',
     ].filter(Boolean).join(' | ');
 
-    await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name:    'My Lists Feedback',
-        email:   'feedback@internal',
-        message: body || '(no selections made)',
-        subject: 'My Lists: member feedback',
-      }),
-    });
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:    'My Lists Feedback',
+          email:   'feedback@internal',
+          message: body || '(no selections made)',
+          subject: 'My Lists: member feedback',
+        }),
+      });
 
-    setSaving(false);
-    setSubmitted(true);
+      if (!response.ok) throw new Error('Failed to send feedback');
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Error sending My Lists feedback:', err);
+      setError('Something went wrong sending your feedback. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -88,7 +98,6 @@ export default function MyListsPage() {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
         <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
@@ -120,7 +129,7 @@ export default function MyListsPage() {
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.6, marginBottom: '24px' }}>
               Think of it like your own personal Rolodex inside the directory. Filter by specialty, location,
-              language, availability, or just make a list called "people I want to collaborate with someday"
+              language, availability, or just make a list called {'"people I want to collaborate with someday"'}
               and add whoever speaks to you.
             </p>
 
@@ -140,12 +149,18 @@ export default function MyListsPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate>
+                {error && (
+                  <div className="alert alert-error" role="alert" style={{ marginBottom: '20px' }}>
+                    {error}
+                  </div>
+                )}
+
                 <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
                   <legend style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '14px' }}>
                     What kinds of lists would be most useful to you?
                   </legend>
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '14px' }}>
-                    Check everything that applies, or just the ones you'd actually use.
+                    {"Check everything that applies, or just the ones you'd actually use."}
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>

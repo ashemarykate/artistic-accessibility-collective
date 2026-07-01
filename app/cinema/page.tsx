@@ -106,7 +106,7 @@ export default function CinemaPage() {
     if (mine) setCinFavSlugs(new Set(mine.map((r) => r.item_slug)));
   }, []);
 
-  useEffect(() => { loadCinFavs(); }, [loadCinFavs]);
+  useEffect(() => { queueMicrotask(() => { loadCinFavs(); }); }, [loadCinFavs]);
 
   const toggleCinFav = useCallback(async (slug: string) => {
     if (!cinUserId || cinFavPending.has(slug)) return;
@@ -114,10 +114,13 @@ export default function CinemaPage() {
     const isFaved = cinFavSlugs.has(slug);
     setCinFavSlugs((p) => { const n = new Set(p); isFaved ? n.delete(slug) : n.add(slug); return n; });
     setCinFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? -1 : 1)) }));
-    if (isFaved) {
-      await supabase.from('content_favorites').delete().eq('user_id', cinUserId).eq('section', 'cinema').eq('item_slug', slug);
-    } else {
-      await supabase.from('content_favorites').insert({ user_id: cinUserId, section: 'cinema', item_slug: slug });
+    const { error } = isFaved
+      ? await supabase.from('content_favorites').delete().eq('user_id', cinUserId).eq('section', 'cinema').eq('item_slug', slug)
+      : await supabase.from('content_favorites').insert({ user_id: cinUserId, section: 'cinema', item_slug: slug });
+    if (error) {
+      // Revert optimistic update if the write failed.
+      setCinFavSlugs((p) => { const n = new Set(p); isFaved ? n.add(slug) : n.delete(slug); return n; });
+      setCinFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? 1 : -1)) }));
     }
     setCinFavPending((p) => { const n = new Set(p); n.delete(slug); return n; });
   }, [cinUserId, cinFavSlugs, cinFavPending]);
@@ -164,7 +167,7 @@ export default function CinemaPage() {
       );
       return true;
     });
-  }, [search, activeCategory, showFreeOnly]);
+  }, [search, activeCategory, showFreeOnly, allItems]);
 
   const byCategory = useMemo(() => {
     const map = new Map<string, CinemaItem[]>();

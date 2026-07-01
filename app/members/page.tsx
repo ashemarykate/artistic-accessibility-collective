@@ -3,6 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useEffect, useState } from 'react';
 import { supabase, type Profile, profileHref } from '@/lib/supabase';
+import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -56,7 +57,7 @@ export default function MemberDirectory() {
   const [profiles, setProfiles] = useState<ProfileWithEndorsements[]>([]);
   const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [volunteerOnly, setVolunteerOnly] = useState(false);
@@ -130,7 +131,7 @@ export default function MemberDirectory() {
     const matchSpecialty =
       !selectedSpecialty || (p.specialties ?? []).includes(selectedSpecialty);
     const matchVolunteer =
-      !volunteerOnly || (p as any).volunteer_status === 'yes';
+      !volunteerOnly || p.volunteer_status === 'yes';
     return matchSearch && matchSpecialty && matchVolunteer;
   });
 
@@ -306,7 +307,7 @@ export default function MemberDirectory() {
                         {isBusiness && (
                           <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Business</span>
                         )}
-                        {(p as any).volunteer_status === 'yes' && (
+                        {p.volunteer_status === 'yes' && (
                           <span style={{ fontSize: '0.6875rem', color: '#2d6a2d', background: '#e8f5e8', border: '1px solid #a8d5a8', borderRadius: 3, padding: '1px 5px' }} aria-label="Open to volunteering">
                             🌱 Volunteers
                           </span>

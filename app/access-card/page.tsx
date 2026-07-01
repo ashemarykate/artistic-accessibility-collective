@@ -3,7 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { SavedResource } from '@/lib/supabase';
+import type { SavedResource, Profile } from '@/lib/supabase';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -24,7 +24,9 @@ const CARD_ICONS = [
   { src: '/images/icons/Tree Icon.jpg',               alt: 'A leafy tree' },
 ];
 
-const PREVIEW_PROFILE = {
+type AccessCardProfile = Pick<Profile, 'id' | 'full_name' | 'bio' | 'created_at' | 'member_type'>;
+
+const PREVIEW_PROFILE: AccessCardProfile = {
   id: 'preview-00000000-0000-0000',
   full_name: 'Your Name Here',
   bio: 'A sentence or two about who you are and what you care about.',
@@ -65,6 +67,7 @@ function EditableField({
   const [draft, setDraft]       = useState(value);
   const [saving, setSaving]     = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const inputRef      = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const buttonRef     = useRef<HTMLButtonElement>(null);
   const wasEditing    = useRef(false);   // tracks whether we need to return focus
@@ -97,15 +100,23 @@ function EditableField({
     }
 
     setSaving(true);
-    await onSave(draft.trim());
-    setSaving(false);
-    setSavedMsg('Saved');
-    wasEditing.current = true;
-    setEditing(false);
-    isCommitting.current = false;
+    try {
+      await onSave(draft.trim());
+      setSaving(false);
+      setErrorMsg('');
+      setSavedMsg('Saved');
+      wasEditing.current = true;
+      setEditing(false);
 
-    // Clear the saved announcement after it's been read
-    setTimeout(() => setSavedMsg(''), 2000);
+      // Clear the saved announcement after it's been read
+      setTimeout(() => setSavedMsg(''), 2000);
+    } catch {
+      setSaving(false);
+      setErrorMsg('Could not save. Please try again.');
+      // Stay in edit mode so the person can retry without losing their draft.
+    } finally {
+      isCommitting.current = false;
+    }
   };
 
   const sharedInputStyle: React.CSSProperties = {
@@ -126,10 +137,16 @@ function EditableField({
       {/* Screen reader save confirmation */}
       <span role="status" aria-live="polite" className="sr-only">{savedMsg}</span>
 
+      {errorMsg && (
+        <p role="alert" style={{ color: '#a12626', fontSize: '0.75rem', margin: '0 0 4px' }}>
+          {errorMsg}
+        </p>
+      )}
+
       {editing ? (
         multiline ? (
           <textarea
-            ref={inputRef as any}
+            ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}
@@ -143,7 +160,7 @@ function EditableField({
           />
         ) : (
           <input
-            ref={inputRef as any}
+            ref={inputRef}
             type="text"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -434,7 +451,7 @@ function AccessCardContent() {
   const searchParams  = useSearchParams();
   const isPreview     = searchParams.get('preview') === '1';
 
-  const [profile, setProfile]     = useState<any>(isPreview ? PREVIEW_PROFILE : null);
+  const [profile, setProfile]     = useState<AccessCardProfile | null>(isPreview ? PREVIEW_PROFILE : null);
   const [userId, setUserId]       = useState<string | null>(isPreview ? 'preview' : null);
   const [loading, setLoading]     = useState(!isPreview);
   const [logoIndex, setLogoIndex] = useState(0);
@@ -472,7 +489,7 @@ function AccessCardContent() {
   useEffect(() => {
     if (!profile?.id) return;
     const saved = localStorage.getItem(`aac-logo-${profile.id}`);
-    if (saved !== null) setLogoIndex(Number(saved));
+    if (saved !== null) queueMicrotask(() => setLogoIndex(Number(saved)));
   }, [profile?.id]);
 
   const handleLogoChange = (idx: number) => {
@@ -482,15 +499,16 @@ function AccessCardContent() {
 
   const handleSave = async (field: 'full_name' | 'bio', value: string) => {
     if (!profile) return;
-    if (isPreview) { setProfile((p: any) => ({ ...p, [field]: value })); return; }
+    if (isPreview) { setProfile((p) => (p ? { ...p, [field]: value } : p)); return; }
     const { error } = await supabase
       .from('profiles')
       .update({ [field]: value || null })
       .eq('id', profile.id);
-    if (!error) setProfile((p: any) => ({ ...p, [field]: value }));
+    if (error) throw error;
+    setProfile((p) => (p ? { ...p, [field]: value } : p));
   };
 
-  if (loading) {
+  if (loading || !profile) {
     return (
       <BrowserChrome variant="ie3" title="Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card">
         <main className="loading-screen" role="status" aria-live="polite">
@@ -512,7 +530,6 @@ function AccessCardContent() {
         alignItems: 'center',
       }}>
         <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo height={56} />
         </Link>
 
@@ -625,7 +642,7 @@ function AccessCardContent() {
               {iconIndex !== null && (
                 <button
                   onClick={() => { setIconIndex(null); localStorage.removeItem('aac-card-icon'); }}
-                  style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.75)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                 >
                   Remove icon
                 </button>

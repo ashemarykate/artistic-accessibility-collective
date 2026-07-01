@@ -192,7 +192,8 @@ function FavoriteButton({ slug, count, isFaved, isLoggedIn, onToggle }: {
   const base: React.CSSProperties = {
     background: 'none', border: 'none', fontSize: '0.8125rem', padding: '0 2px',
     flexShrink: 0, fontFamily: NP.fontMono, color: isFaved ? NP.red : NP.ink3,
-    display: 'inline-flex', alignItems: 'center', gap: 2,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2,
+    minWidth: 44, minHeight: 44,
   };
   if (!isLoggedIn) return (
     <span aria-label={count > 0 ? `${count} saved` : 'Log in to save'} style={{ ...base, cursor: 'default' }}>
@@ -257,7 +258,7 @@ export default function ResourcesPage() {
     if (mine) setUserFavs(new Set(mine.map((r) => r.resource_slug)));
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { queueMicrotask(() => { loadData(); }); }, [loadData]);
 
   const toggleFavorite = useCallback(async (slug: string) => {
     if (!userId || favPending.has(slug)) return;
@@ -265,10 +266,13 @@ export default function ResourcesPage() {
     const isFaved = userFavs.has(slug);
     setUserFavs((p) => { const n = new Set(p); isFaved ? n.delete(slug) : n.add(slug); return n; });
     setFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? -1 : 1)) }));
-    if (isFaved) {
-      await supabase.from('resource_favorites').delete().eq('user_id', userId).eq('resource_slug', slug);
-    } else {
-      await supabase.from('resource_favorites').insert({ user_id: userId, resource_slug: slug });
+    const { error } = isFaved
+      ? await supabase.from('resource_favorites').delete().eq('user_id', userId).eq('resource_slug', slug)
+      : await supabase.from('resource_favorites').insert({ user_id: userId, resource_slug: slug });
+    if (error) {
+      // Revert optimistic update if the write failed.
+      setUserFavs((p) => { const n = new Set(p); isFaved ? n.add(slug) : n.delete(slug); return n; });
+      setFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? 1 : -1)) }));
     }
     setFavPending((p) => { const n = new Set(p); n.delete(slug); return n; });
   }, [userId, userFavs, favPending]);
@@ -574,7 +578,7 @@ export default function ResourcesPage() {
               {/* Category pills */}
               <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
                 <button onClick={() => setActiveCategoryId(null)} aria-pressed={activeCategoryId === null}
-                  style={{ flexShrink: 0, padding: '5px 10px', cursor: 'pointer', border: `1.5px solid ${activeCategoryId === null ? NP.ink : NP.border}`, background: activeCategoryId === null ? NP.goldLight : 'transparent', fontFamily: NP.fontUI, fontSize: '0.8125rem', color: NP.ink, whiteSpace: 'nowrap' }}>
+                  style={{ flexShrink: 0, minHeight: 44, minWidth: 44, padding: '5px 10px', cursor: 'pointer', border: `1.5px solid ${activeCategoryId === null ? NP.ink : NP.border}`, background: activeCategoryId === null ? NP.goldLight : 'transparent', fontFamily: NP.fontUI, fontSize: '0.8125rem', color: NP.ink, whiteSpace: 'nowrap' }}>
                   All ({search || activeType !== 'all' ? visibleCount : totalCount})
                 </button>
                 {CATEGORIES.map((cat) => {
@@ -582,7 +586,7 @@ export default function ResourcesPage() {
                   const count = categoryFilteredCounts[cat.id] ?? cat.resources.length;
                   return (
                     <button key={cat.id} onClick={() => setActiveCategoryId(isActive ? null : cat.id)} aria-pressed={isActive}
-                      style={{ flexShrink: 0, padding: '5px 10px', cursor: 'pointer', border: `1.5px solid ${isActive ? NP.ink : NP.border}`, background: isActive ? NP.goldLight : 'transparent', fontFamily: NP.fontUI, fontSize: '0.8125rem', color: NP.ink, whiteSpace: 'nowrap' }}>
+                      style={{ flexShrink: 0, minHeight: 44, minWidth: 44, padding: '5px 10px', cursor: 'pointer', border: `1.5px solid ${isActive ? NP.ink : NP.border}`, background: isActive ? NP.goldLight : 'transparent', fontFamily: NP.fontUI, fontSize: '0.8125rem', color: NP.ink, whiteSpace: 'nowrap' }}>
                       {cat.emoji} {cat.title} ({count})
                     </button>
                   );

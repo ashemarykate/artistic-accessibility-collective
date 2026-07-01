@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Logo from '@/components/Logo';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -63,10 +64,10 @@ const ITEMS: Record<string, ItemDef> = {
   'instagram':        { label: 'Instagram',              icon: 51,        kind: 'ext',      href: 'https://instagram.com/artisticaccessibility' },
   'collective':       { label: 'The Collective',         icon: 63,        kind: 'app',      cat: 'Members',       href: '/collective',      blurb: 'Member homepages, shared studios and the collective gallery.' },
   'contact':          { label: 'Contact Us',             icon: 64,        kind: 'app',      cat: 'Connect',       href: '/contact',         blurb: 'Drop us a line, we would love to hear from you.', links: [{ key: 'instagram', label: 'Instagram', icon: 51, ext: true }] },
-  'access-resources': { label: 'Accessibility Resources', icon: 71,       kind: 'app',      cat: 'Resources',     href: '/accessibility',   blurb: 'Tools, guides and links to help make art accessible for every body and mind.' },
+  'access-resources': { label: 'Accessibility Resources', icon: 71,       kind: 'app',      cat: 'Resources',     href: '/accessibility',   blurb: 'Tools, guides and links to help make art accessible for every body and mind.', soon: true },
   'library':          { label: 'The Library',            icon: 82,        kind: 'app',      cat: 'Resources',     href: '/library',         blurb: 'Browse our growing collection of accessible reading and reference material.' },
   'cinema':           { label: 'The Cinema',             icon: 56,        kind: 'app',      cat: 'Resources',     href: '/cinema',          blurb: 'Watch films, recorded talks and described screenings on demand.' },
-  'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room, drop PDFs and worksheets here so members can help each other.' },
+  'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room, drop PDFs and worksheets here so members can help each other.', soon: true },
   'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'A free account to save, like and comment on resources and listings.' },
 };
 
@@ -191,10 +192,10 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
           Welcome to ArtisticAccessibility.com! This is a community project filled with resources for those working and playing where the arts and accessibility overlap.
         </p>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          If you're here to play, search for something new to watch or read, or just explore, we suggest just clicking around!
+          {"If you're here to play, search for something new to watch or read, or just explore, we suggest just clicking around!"}
         </p>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          If you're here looking for professional help with advising, staffing, accessibility designing, captioning, producing, or anything that it seems like we might know something about, click "Work With Us" below for more information.
+          {'If you\'re here looking for professional help with advising, staffing, accessibility designing, captioning, producing, or anything that it seems like we might know something about, click "Work With Us" below for more information.'}
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Btn onClick={() => onOpen('all-folders')}>All Folders</Btn>
@@ -211,7 +212,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
           {it.blurb}
         </p>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          We're working on pulling in event calendars from organizations across the arts and accessibility space so their events get more eyes, and we all get a richer calendar in one place.
+          {"We're working on pulling in event calendars from organizations across the arts and accessibility space so their events get more eyes, and we all get a richer calendar in one place."}
         </p>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
           This will include both in-person and online events. Coming soon!
@@ -248,7 +249,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
           The Collective is currently in beta testing. A testing code is required to join at this stage.
         </p>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          Click below if you have a code and we'll get you set up!
+          {"Click below if you have a code and we'll get you set up!"}
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Btn onClick={onClose}>Close</Btn>
@@ -330,17 +331,21 @@ function FolderBody({ onOpen }: { onOpen: (key: string) => void }) {
   );
 }
 
-function AimBody({ onOpen, account, onSignOut, onNavigate }: {
-  onOpen: (key: string) => void;
-  account: 'out' | 'collective' | 'access_card';
-  onSignOut: () => void;
-  onNavigate: (href: string) => void;
-}) {
-  const GroupHdr = ({ children }: { children: React.ReactNode }) => (
+function GroupHdr({ children }: { children: React.ReactNode }) {
+  return (
     <div aria-hidden="true" style={{ background: 'linear-gradient(to bottom,#eae7df,#d8d4cc)', borderTop: '1px solid #c8c4bc', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', fontSize: 10, fontWeight: 700, color: '#1a4fbb', letterSpacing: '.04em' }}>
       ▶ {children}
     </div>
   );
+}
+
+function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
+  onOpen: (key: string) => void;
+  account: 'out' | 'collective' | 'access_card';
+  onSignOut: () => void;
+  onNavigate: (href: string) => void;
+  signOutError?: string | null;
+}) {
   return (
     <div style={{ background: '#fff' }}>
       <GroupHdr>CONNECT</GroupHdr>
@@ -357,6 +362,11 @@ function AimBody({ onOpen, account, onSignOut, onNavigate }: {
         <Row icon={46} label="Log In to The Collective"   onClick={() => onNavigate('/login')} />
         <Row icon={52} label="Log In to Your Access Card" onClick={() => onNavigate('/login')} />
       </>)}
+      {signOutError && (
+        <div role="alert" style={{ padding: '8px 10px', fontSize: 12, color: '#8e1a11', background: '#fdeceb', borderTop: '1px solid #c8c4bc' }}>
+          {signOutError}
+        </div>
+      )}
       <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', textAlign: 'center', fontFamily: UIFONT }}>
         artisticaccessibility.com
       </div>
@@ -385,7 +395,7 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
   );
 }
 
-function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate }: {
+function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate, signOutError }: {
   win: WinState;
   z: number;
   onClose: (id: string) => void;
@@ -394,6 +404,7 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate 
   account: 'out' | 'collective' | 'access_card';
   onSignOut: () => void;
   onNavigate: (href: string) => void;
+  signOutError?: string | null;
 }) {
   const it = ITEMS[win.key];
   const { kind } = win;
@@ -417,7 +428,7 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate 
   useEffect(() => {
     const el = ref.current?.querySelector<HTMLElement>('a,button,input');
     (el ?? ref.current)?.focus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);  
 
   const titleBarStyle: React.CSSProperties = kind === 'aim'
     ? { background: 'linear-gradient(to bottom,#ffe566 0%,#e8a800 55%,#c88000 100%)', color: '#3a2000', borderBottom: '1px solid #a06800' }
@@ -455,24 +466,31 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate 
       <div style={{ overflowY: 'auto', maxHeight: 'calc(100dvh - 136px)' }}>
         {kind === 'app'      && <AppBody k={win.key} onOpen={onOpen} onClose={() => onClose(win.id)} />}
         {kind === 'folder'   && <FolderBody onOpen={onOpen} />}
-        {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} />}
+        {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} signOutError={signOutError} />}
         {kind === 'explorer' && <ExplorerBody onOpen={onOpen} />}
       </div>
     </div>
   );
 }
 
-function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose: () => void }) {
-  const Leaf = ({ k, size = 26 }: { k: string; size?: number }) => (
+function StartMenuLeaf({ k, size = 26, onOpen }: { k: string; size?: number; onOpen: (key: string) => void }) {
+  return (
     <button onClick={() => onOpen(k)} className="win-row"
       style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: '5px 14px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010' }}>
       <span aria-hidden="true" style={{ width: size, height: size, flexShrink: 0 }}><Ico n={ITEMS[k].icon} size={size} /></span>
       <span>{ITEMS[k].label}</span>
     </button>
   );
-  const Folder = ({ name, kids }: { name: string; kids: string[] }) => (
-    <div className="start-folder" style={{ position: 'relative' }}>
-      <div className="win-row" tabIndex={0} role="menuitem" aria-haspopup="true"
+}
+
+function StartMenuFolder({ name, kids, onOpen }: { name: string; kids: string[]; onOpen: (key: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const toggle = () => setOpen(o => !o);
+  return (
+    <div className={'start-folder' + (open ? ' open' : '')} style={{ position: 'relative' }}>
+      <div className="win-row" tabIndex={0} role="menuitem" aria-haspopup="true" aria-expanded={open}
+        onClick={toggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', cursor: 'default' }}>
         <span aria-hidden="true" style={{ width: 26, height: 26, flexShrink: 0 }}><Ico n={48} size={26} /></span>
         <span style={{ flex: 1 }}>{name}</span>
@@ -480,10 +498,13 @@ function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose
       </div>
       <div className="start-sub" role="menu" aria-label={name}
         style={{ position: 'absolute', left: '100%', top: -3, minWidth: 214, background: SILVER, boxShadow: RAISED, padding: 3, zIndex: 9002 }}>
-        {kids.map(c => <Leaf key={c} k={c} size={24} />)}
+        {kids.map(c => <StartMenuLeaf key={c} k={c} size={24} onOpen={onOpen} />)}
       </div>
     </div>
   );
+}
+
+function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose: () => void }) {
   return (
     <>
       <button aria-label="Close menu" onClick={onClose}
@@ -497,11 +518,11 @@ function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose
         </div>
         <div className="start-list" style={{ flex: 1, padding: '4px 0' }}>
           {TREE.map((node, i) => node.type === 'leaf'
-            ? <Leaf key={i} k={node.key} />
-            : <Folder key={i} name={node.name} kids={node.children} />)}
+            ? <StartMenuLeaf key={i} k={node.key} onOpen={onOpen} />
+            : <StartMenuFolder key={i} name={node.name} kids={node.children} onOpen={onOpen} />)}
           <div aria-hidden="true" style={{ height: 2, background: '#808080', boxShadow: '0 1px 0 #fff', margin: '4px 6px' }} />
-          <Leaf k="connect" />
-          <Leaf k="all-folders" />
+          <StartMenuLeaf k="connect" onOpen={onOpen} />
+          <StartMenuLeaf k="all-folders" onOpen={onOpen} />
         </div>
       </div>
     </>
@@ -521,8 +542,20 @@ export default function Home() {
   const [beta, setBeta]             = useState(true);
   const [time, setTime]             = useState('');
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 600px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
   const cascade = useRef(0);
-  const headerH = 44 + (beta ? 38 : 0);
+  const TOPBAR_H = isMobile ? 64 : 88;
+  const headerH = TOPBAR_H + (beta ? 38 : 0);
+  const openers = useRef<Map<string, HTMLElement>>(new Map());
+  const deskRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.title = 'Artistic Accessibility Collective';
@@ -562,12 +595,14 @@ export default function Home() {
   const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema'];
 
   const open = useCallback((k: string) => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setStartOpen(false);
     const it = ITEMS[k];
     if (!it) return;
     if (it.kind === 'ext') { window.open(it.href, '_blank', 'noopener'); return; }
     if (k === 'collective' && user) { router.push('/dashboard'); return; }
     if (DIRECT_NAV.includes(k) && it.href) { router.push(it.href); return; }
+    if (opener) openers.current.set(k, opener);
     setWins(ws => {
       const existing = ws.find(w => w.id === k);
       const nz = zTop + 1;
@@ -582,10 +617,26 @@ export default function Home() {
     });
   }, [zTop, headerH, router, user]);
 
-  const closeWin = (id: string) => setWins(ws => ws.filter(w => w.id !== id));
+  const closeWin = (id: string) => {
+    setWins(ws => ws.filter(w => w.id !== id));
+    const opener = openers.current.get(id);
+    openers.current.delete(id);
+    if (opener && document.contains(opener)) {
+      opener.focus();
+    } else {
+      deskRef.current?.focus();
+    }
+  };
+
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setSignOutError("Sign out didn't go through. Please try again.");
+      return;
+    }
+    setSignOutError(null);
     setUser(null);
     setMemberType(null);
   };
@@ -610,16 +661,15 @@ export default function Home() {
       {/* Top bar */}
       <div
         onPointerDown={(e) => e.stopPropagation()}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 44, zIndex: 5, background: 'linear-gradient(to bottom,#e8e5e0,#ccc9c2)', borderBottom: '2px solid #8a8680', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: TOPBAR_H, zIndex: 5, background: 'linear-gradient(to bottom,#e8e5e0,#ccc9c2)', borderBottom: '2px solid #8a8680', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <button
           onClick={() => open('about')}
-          aria-label="About, ArtisticAccessibility.com"
+          aria-label="About, Artistic Accessibility Collective"
           className="top-bar-btn"
-          style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: '0 10px' }}
+          style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: '4px 14px' }}
         >
-          <span aria-hidden="true" style={{ width: 20, height: 20 }}><Ico n="about-blue" size={20} /></span>
-          <span style={{ fontFamily: UIFONT, fontSize: 14, fontWeight: 700, color: '#1a1a2e', letterSpacing: '.01em' }}>ArtisticAccessibility.com</span>
+          <Logo height={isMobile ? 40 : 56} />
         </button>
       </div>
 
@@ -628,7 +678,7 @@ export default function Home() {
         <div
           role="status"
           onPointerDown={(e) => e.stopPropagation()}
-          style={{ position: 'absolute', top: 44, left: 0, right: 0, height: 38, zIndex: 5, background: '#000', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', overflow: 'hidden' }}
+          style={{ position: 'absolute', top: TOPBAR_H, left: 0, right: 0, height: 38, zIndex: 5, background: '#000', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', overflow: 'hidden' }}
         >
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <div className="beta-scroll" style={{ display: 'inline-flex', whiteSpace: 'nowrap', willChange: 'transform' }}>
@@ -646,6 +696,8 @@ export default function Home() {
 
       {/* Desktop icons — hand-placed on desktop, grid on mobile */}
       <div
+        ref={deskRef}
+        tabIndex={-1}
         onPointerDown={(e) => e.stopPropagation()}
         role="list"
         aria-label="Desktop"
@@ -664,7 +716,7 @@ export default function Home() {
 
       {/* Windows */}
       {wins.map(w => (
-        <Win key={w.id} win={w} z={w.z} onClose={closeWin} onFocus={focusWin} onOpen={open} account={account} onSignOut={handleSignOut} onNavigate={(href) => router.push(href)} />
+        <Win key={w.id} win={w} z={w.z} onClose={closeWin} onFocus={focusWin} onOpen={open} account={account} onSignOut={handleSignOut} onNavigate={(href) => router.push(href)} signOutError={signOutError} />
       ))}
 
       {/* Start menu */}
@@ -712,13 +764,12 @@ export default function Home() {
         .win-close::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);min-width:44px;min-height:44px;display:block}
         .dsk-label{color:#fff;font-family:${UIFONT};font-size:13px;font-weight:600;text-align:center;line-height:1.3;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5);padding:2px 5px;max-width:112px;border:1px dotted transparent}
         .dsk-label.sel{background:#0a246a;border:1px dotted #fff;text-shadow:none}
-        .dsk-icon:focus-visible{outline:none}
         .dsk-icon:focus-visible .dsk-label{background:#0a246a;border:1px dotted #fff;text-shadow:none}
         .win-row:hover,.win-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
         .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#d0cdc8,#b8b4ae);outline:2px solid #ffd21a;outline-offset:-2px}
         .start-sub{display:none}
-        .start-folder:hover>.start-sub,.start-folder:focus-within>.start-sub{display:block}
-        .start-folder:hover>.win-row,.start-folder:focus-within>.win-row{background:#0a246a;color:#fff}
+        .start-folder:hover>.start-sub,.start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
+        .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a;color:#fff}
         .beta-scroll{animation:beta-marq 30s linear infinite}
         @keyframes beta-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important}.beta-scroll{animation:none!important;transform:none!important}}
@@ -727,7 +778,7 @@ export default function Home() {
           .start-list{max-height:calc(100dvh - 96px)!important;overflow-y:auto!important}
           .start-sub{position:static!important;left:auto!important;top:auto!important;min-width:0!important;box-shadow:none!important;background:#d4d4d4!important;border-left:3px solid #9a9a9a!important;margin:0 8px 4px 30px!important;padding:2px 0!important}
           .start-folder:hover>.start-sub{display:none}
-          .start-folder:focus-within>.start-sub{display:block}
+          .start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
           .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:12px!important;padding:14px!important;align-content:start!important;pointer-events:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
           .dsk-item{position:static!important;pointer-events:all!important}
           .dsk-icon{width:100%!important;padding:14px 10px 12px!important;justify-content:center!important}

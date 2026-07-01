@@ -95,7 +95,6 @@ export default function ContactPage() {
       <BrowserChrome variant="ie3" title="Message Sent · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/contact">
       <main style={{ ...navyBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
         <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={72} />
         </Link>
         <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
@@ -108,7 +107,7 @@ export default function ContactPage() {
             Message Sent!
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-            Thank you for reaching out. We'll get back to you soon at {formData.email}.
+            Thank you for reaching out. {"We'll"} get back to you soon at {formData.email}.
           </p>
           <button onClick={() => router.push('/')} className="btn btn-primary">
             Back to Home
@@ -126,7 +125,6 @@ export default function ContactPage() {
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{status}</div>
 
       <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <Logo alt="" height={72} />
       </Link>
 

@@ -153,14 +153,13 @@ export default function DevPreview() {
       {/* Dev banner */}
       <div role="status" style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center', padding: '4px' }}>
         ⚠️ DEV PREVIEW: sample data only,{' '}
-        <a href="/" style={{ color: 'inherit' }}>back to home</a>
+        <Link href="/" style={{ color: 'inherit' }}>back to home</Link>
       </div>
 
       {/* Header */}
       <header>
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
@@ -611,9 +610,9 @@ export default function DevPreview() {
       {/* Footer */}
       <footer aria-label="Site footer" className="ms-footer" style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
         <nav aria-label="Footer links" style={{ display: 'inline' }}>
-          <a href="/" style={{ color: 'inherit' }}>Home</a>
+          <Link href="/" style={{ color: 'inherit' }}>Home</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
-          <a href="/contact" style={{ color: 'inherit' }}>Contact Us</a>
+          <Link href="/contact" style={{ color: 'inherit' }}>Contact Us</Link>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>
           <a href="#" style={{ color: 'inherit' }}>Safety Tips</a>
           <span className="ms-footer-pipe" aria-hidden="true">|</span>

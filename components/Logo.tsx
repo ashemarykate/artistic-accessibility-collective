@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useSyncExternalStore } from 'react';
+
 /**
  * Each version has a visual description so screen reader users get
  * the same sense of aesthetic variety that sighted users experience.
@@ -39,10 +41,36 @@ const LOGO_VERSIONS_LIGHT = [
   { src: '/images/wordmark-light-v7.svg', description: 'Artistic Accessibility Collective: light style 7' },
 ];
 
-// Picked once when the module first loads — consistent across all Logo instances on the page
-const SESSION_LOGO_INDEX = typeof window !== 'undefined'
-  ? Math.floor(Math.random() * 1000)
-  : 0;
+// The server always renders index 0 (no `window` to randomize with), so every
+// Logo instance's first client render must also read 0, or React's hydration
+// will mismatch. Once mounted, one client-side effect picks a random index and
+// broadcasts it to every Logo instance on the page, which then re-render
+// together showing the same "random for this page load" variant.
+let clientLogoIndex = 0;
+let logoIndexPicked = false;
+const logoIndexListeners = new Set<() => void>();
+
+function subscribeToLogoIndex(listener: () => void) {
+  logoIndexListeners.add(listener);
+  return () => logoIndexListeners.delete(listener);
+}
+function getLogoIndexSnapshot() {
+  return clientLogoIndex;
+}
+function getLogoIndexServerSnapshot() {
+  return 0;
+}
+
+function useLogoIndex() {
+  const index = useSyncExternalStore(subscribeToLogoIndex, getLogoIndexSnapshot, getLogoIndexServerSnapshot);
+  useEffect(() => {
+    if (logoIndexPicked) return;
+    logoIndexPicked = true;
+    clientLogoIndex = Math.floor(Math.random() * 1000);
+    logoIndexListeners.forEach((notify) => notify());
+  }, []);
+  return index;
+}
 
 export { LOGO_VERSIONS, LOGO_VERSIONS_LIGHT };
 
@@ -62,7 +90,8 @@ export default function Logo({
   variant?: 'dark' | 'light';
 }) {
   const arr = variant === 'light' ? LOGO_VERSIONS_LIGHT : LOGO_VERSIONS;
-  const version = arr[SESSION_LOGO_INDEX % arr.length];
+  const index = useLogoIndex();
+  const version = arr[index % arr.length];
 
   // alt="" means decorative (caller's parent link handles the label).
   // No alt prop means: use the version's visual description.

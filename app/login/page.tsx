@@ -79,8 +79,9 @@ function LoginForm() {
       } else {
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      showMsg(err.message || 'Could not log in. Please check your email and password.', 'error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      showMsg(message || 'Could not log in. Please check your email and password.', 'error');
     } finally {
       setLoading(false);
     }
@@ -121,8 +122,9 @@ function LoginForm() {
       });
       if (error) throw error;
       showMsg("We've sent a login link to your email. Check your inbox (and spam just in case).");
-    } catch (err: any) {
-      showMsg(err.message || 'Something went wrong. Please try again.', 'error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      showMsg(message || 'Something went wrong. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -132,7 +134,6 @@ function LoginForm() {
     <BrowserChrome variant="ie3" title="Log In · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <Logo height={72} />
       </Link>
 
@@ -141,7 +142,7 @@ function LoginForm() {
           Log in to The Collective
         </h1>
         <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.75rem' }}>
-          welcome back to your corner of the community
+          together, together
         </p>
 
         {/* Mode toggle */}

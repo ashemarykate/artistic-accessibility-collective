@@ -41,6 +41,7 @@ const PIECES: Piece[] = [
 
 type Description = { id: string; text: string; author: string; isNew?: boolean; isAutoGen?: boolean };
 
+// Always shown alongside real submissions as a reference point, not stored in the database.
 const SEEDED: Description[] = [
   {
     id: 'auto-gen',
@@ -69,18 +70,45 @@ export default function ImageDescriptionPage() {
   const successRef = useRef<HTMLDivElement>(null);
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState('You');
   const [descText, setDescText] = useState('');
   const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
-  const [descriptions, setDescriptions] = useState<Description[]>(SEEDED);
+  const [descriptions, setDescriptions] = useState<Description[]>([]);
+
+  const piece = PIECES[0];
 
   useEffect(() => {
     document.title = 'Image Description as Art · Artistic Accessibility Collective';
     headingRef.current?.focus();
-    supabase.auth.getSession().then(({ data }) => {
-      setIsLoggedIn(!!data.session);
+
+    supabase.auth.getUser().then(async ({ data }) => {
+      const uid = data.user?.id ?? null;
+      setUserId(uid);
+      setIsLoggedIn(!!uid);
+
+      if (uid) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name, full_name')
+          .eq('user_id', uid)
+          .maybeSingle();
+        setDisplayName(profile?.display_name || profile?.full_name || 'You');
+      }
     });
+
+    supabase
+      .from('item_comments')
+      .select('id, body, display_name, created_at')
+      .eq('item_slug', piece.id)
+      .eq('item_type', 'image-description')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setDescriptions((data ?? []).map((row) => ({ id: row.id, text: row.body, author: row.display_name || 'Community Member' })));
+      });
+
     return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
+  }, [piece.id]);
 
   useEffect(() => {
     if (submitState === 'done') {
@@ -88,24 +116,37 @@ export default function ImageDescriptionPage() {
     }
   }, [submitState]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!descText.trim()) return;
+    if (!descText.trim() || !userId) return;
     setSubmitState('submitting');
-    // UI prototype: no DB yet — simulate a brief delay and show success
-    setTimeout(() => {
-      setDescriptions(prev => [{
-        id: `new-${Date.now()}`,
-        text: descText.trim(),
-        author: 'You',
-        isNew: true,
-      }, ...prev]);
-      setDescText('');
-      setSubmitState('done');
-    }, 600);
-  }
 
-  const piece = PIECES[0];
+    const { data, error } = await supabase
+      .from('item_comments')
+      .insert({
+        user_id: userId,
+        display_name: displayName,
+        item_slug: piece.id,
+        item_type: 'image-description',
+        body: descText.trim(),
+      })
+      .select('id, body')
+      .single();
+
+    if (error || !data) {
+      setSubmitState('error');
+      return;
+    }
+
+    setDescriptions(prev => [{
+      id: data.id,
+      text: data.body,
+      author: displayName,
+      isNew: true,
+    }, ...prev]);
+    setDescText('');
+    setSubmitState('done');
+  }
 
   return (
     <div
@@ -275,7 +316,9 @@ export default function ImageDescriptionPage() {
               )}
 
               {/* Community descriptions wall */}
-              {descriptions.length > 0 && (
+              {(() => {
+                const allDescriptions = [...descriptions, ...SEEDED];
+                return (
                 <section aria-labelledby="descriptions-heading">
                   <h3
                     id="descriptions-heading"
@@ -284,7 +327,7 @@ export default function ImageDescriptionPage() {
                     What the community sees
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {descriptions.map((d) => (
+                    {allDescriptions.map((d) => (
                       <div
                         key={d.id}
                         style={{
@@ -307,7 +350,8 @@ export default function ImageDescriptionPage() {
                     ))}
                   </div>
                 </section>
-              )}
+                );
+              })()}
 
             </div>
           </div>

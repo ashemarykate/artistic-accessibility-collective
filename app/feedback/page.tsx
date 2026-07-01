@@ -88,12 +88,19 @@ export default function FeedbackPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/login'); return; }
 
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
       .eq('status', 'approved')
       .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('Feedback profile lookup error:', profileError);
+      setError('Something went wrong loading your profile. Please refresh and try again.');
+      setLoading(false);
+      return;
+    }
 
     if (!profileData) {
       setLoading(false);
@@ -103,12 +110,19 @@ export default function FeedbackPage() {
     setProfile(profileData);
 
     // Load any existing round-1 feedback
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('tester_feedback')
       .select('*')
       .eq('profile_id', profileData.id)
       .eq('tester_round', 1)
       .single();
+
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('Feedback lookup error:', existingError);
+      setError('Something went wrong loading your previous feedback. Please refresh and try again.');
+      setLoading(false);
+      return;
+    }
 
     if (existing) {
       setExistingId(existing.id);
@@ -159,7 +173,7 @@ export default function FeedbackPage() {
 
   if (loading) {
     return (
-      <div className="loading-screen">
+      <div className="loading-screen" role="status" aria-label="Loading">
         <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
         <span>Loading…</span>
       </div>
@@ -177,6 +191,11 @@ export default function FeedbackPage() {
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
             This page is only available to approved members.
           </p>
+          {error && (
+            <div className="alert alert-error" role="alert" style={{ marginBottom: '1.5rem' }}>
+              {error}
+            </div>
+          )}
           <Link href="/login" className="btn btn-primary">Log In</Link>
         </div>
       </main>

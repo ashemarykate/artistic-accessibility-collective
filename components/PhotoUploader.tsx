@@ -141,7 +141,7 @@ export default function PhotoUploader({ userId, currentPath, displayName, onSave
     };
     document.addEventListener('keydown', trapFocus);
     return () => document.removeEventListener('keydown', trapFocus);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [showCropper]);
 
   const closeCropper = () => {

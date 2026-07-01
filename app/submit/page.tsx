@@ -400,10 +400,11 @@ export default function SubmitProfile() {
                 style={{ textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', fontSize: '1.25rem' }}
                 value={inviteCode} onChange={(e) => setInviteCode(e.target.value)}
                 placeholder="XXXX-XXXX" maxLength={9} required aria-required="true"
-                aria-describedby={inviteError ? 'invite-error' : undefined}
+                aria-describedby={inviteError ? 'invite-error invite-code-hint' : 'invite-code-hint'}
                 aria-invalid={inviteError ? 'true' : undefined}
                 autoComplete="off"
               />
+              <p id="invite-code-hint" className="form-hint">Format: 4 characters, a dash, then 4 characters (like XXXX-XXXX).</p>
               {inviteError && <p id="invite-error" className="form-error" role="alert">{inviteError}</p>}
             </div>
             <button type="submit" className="btn btn-primary btn-full btn-lg"
@@ -875,28 +876,26 @@ export default function SubmitProfile() {
                     Are you open to volunteering your skills?
                   </legend>
 
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                  <label className="check-item">
                     <input
                       type="radio"
                       name="volunteer_status"
                       value="yes"
                       checked={volunteerStatus === 'yes'}
                       onChange={() => setVolunteerStatus('yes')}
-                      style={{ width: 16, height: 16 }}
                     />
-                    <span>Yes, for the right gig! 🌱</span>
+                    <span className="check-item-label">Yes, for the right gig! 🌱</span>
                   </label>
 
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem', cursor: 'pointer' }}>
+                  <label className="check-item">
                     <input
                       type="radio"
                       name="volunteer_status"
                       value="no"
                       checked={volunteerStatus === 'no'}
                       onChange={() => setVolunteerStatus('no')}
-                      style={{ width: 16, height: 16 }}
                     />
-                    <span>Not at this time</span>
+                    <span className="check-item-label">Not at this time</span>
                   </label>
                 </fieldset>
 

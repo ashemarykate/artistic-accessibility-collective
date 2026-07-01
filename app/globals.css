@@ -212,6 +212,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 }
 
 /* Headings inside box headers inherit the header's styling */
+.ms-box-header h1,
 .ms-box-header h2,
 .ms-box-header h3 {
   margin: 0;
@@ -940,6 +941,26 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Visually-hidden-but-focusable checkbox for chip/pill style tag toggles.
+   Uses the same clip technique as .sr-only (a real 1px box, not width/height:0)
+   so keyboard focus has something to render an outline around. The sibling
+   text gets the focus ring since the checkbox itself is invisible. */
+.chip-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.chip-checkbox:focus-visible + * {
+  outline: 3px solid var(--aac-yellow);
+  outline-offset: 2px;
 }
 
 .text-muted  { color: var(--color-text-muted); }

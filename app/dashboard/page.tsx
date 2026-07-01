@@ -72,9 +72,7 @@ export default function MemberHub() {
     if (typeof window !== 'undefined') localStorage.setItem('mc-intro-dismissed', '1');
   };
 
-  useEffect(() => { loadHub(); }, []);
-
-  const loadHub = useCallback(async () => {
+  const loadHub = useCallback(async function loadHub() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/login'); return; }
 
@@ -166,7 +164,7 @@ export default function MemberHub() {
         ]);
 
         const otherMap = Object.fromEntries(
-          (otherProfiles ?? []).map((p: any) => [p.id, p])
+          (otherProfiles ?? []).map((p: Pick<Profile, 'id' | 'full_name' | 'display_name' | 'avatar_url' | 'username'>) => [p.id, p])
         );
 
         // Group last messages by conversation
@@ -220,6 +218,8 @@ export default function MemberHub() {
 
     setLoading(false);
   }, [router]);
+
+  useEffect(() => { loadHub(); }, [loadHub]);
 
   // ── Loading ───────────────────────────────────────────────────────────────
 
@@ -418,18 +418,18 @@ export default function MemberHub() {
                   </Link>
                 );
               })}
-              <button
-                onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
-                className="ms-hub-row"
-                style={{
-                  display: 'block', width: '100%', textAlign: 'left',
-                  padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--color-text-muted)',
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                }}
-              >
-                🔒 Sign Out
-              </button>
             </nav>
+            <button
+              onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+              className="ms-hub-row"
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '5px 10px', fontSize: '0.8125rem', color: 'var(--color-text-muted)',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+              }}
+            >
+              🔒 Sign Out
+            </button>
           </div>
 
         </aside>

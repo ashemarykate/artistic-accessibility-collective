@@ -135,7 +135,7 @@ export default function SubmitEventPage() {
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      router.push('/login?next=/submit-event');
+      router.push('/login');
       return;
     }
     const { data: profile } = await supabase
@@ -174,17 +174,36 @@ export default function SubmitEventPage() {
     setSaving(true);
     setSaveError('');
 
-    const startTs = isAllDay
-      ? new Date(`${startDate}T00:00:00`).toISOString()
-      : new Date(`${startDate}T${startTime}`).toISOString();
+    let startTs: string;
+    let endTs: string | null;
 
-    const endTs = endDate
-      ? isAllDay
-        ? new Date(`${endDate}T23:59:59`).toISOString()
-        : endTime
-          ? new Date(`${endDate}T${endTime}`).toISOString()
-          : null
-      : null;
+    try {
+      const startDateObj = isAllDay
+        ? new Date(`${startDate}T00:00:00`)
+        : new Date(`${startDate}T${startTime}`);
+      if (isNaN(startDateObj.getTime())) throw new Error('invalid start date');
+      startTs = startDateObj.toISOString();
+
+      if (endDate) {
+        const endDateObj = isAllDay
+          ? new Date(`${endDate}T23:59:59`)
+          : endTime
+            ? new Date(`${endDate}T${endTime}`)
+            : null;
+        if (endDateObj) {
+          if (isNaN(endDateObj.getTime())) throw new Error('invalid end date');
+          endTs = endDateObj.toISOString();
+        } else {
+          endTs = null;
+        }
+      } else {
+        endTs = null;
+      }
+    } catch {
+      setSaveError('that date or time doesn\'t look right. Please double-check the date and time fields.');
+      setSaving(false);
+      return;
+    }
 
     const { error } = await supabase.from('events').insert({
       title:         title.trim(),
@@ -213,11 +232,15 @@ export default function SubmitEventPage() {
   // ── Loading / auth check ──────────────────────────────────────────────────
   if (checking) {
     return (
-      <div style={{
-        position: 'fixed', inset: 0,
-        background: '#008080',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          position: 'fixed', inset: 0,
+          background: '#008080',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
         <div style={{
           background: '#d4d0c8', border: '2px outset #fff',
           padding: '24px 32px', textAlign: 'center',
@@ -565,9 +588,9 @@ export default function SubmitEventPage() {
                       type="checkbox"
                       checked={tags.includes(tag)}
                       onChange={() => toggleTag(tag)}
-                      style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
+                      className="chip-checkbox"
                     />
-                    {tag}
+                    <span>{tag}</span>
                   </label>
                 ))}
               </div>

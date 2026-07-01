@@ -99,7 +99,7 @@ export default function LibraryPage() {
     if (mine) setLibFavSlugs(new Set(mine.map((r) => r.item_slug)));
   }, []);
 
-  useEffect(() => { loadLibFavs(); }, [loadLibFavs]);
+  useEffect(() => { queueMicrotask(() => { loadLibFavs(); }); }, [loadLibFavs]);
 
   const toggleLibFav = useCallback(async (slug: string) => {
     if (!libUserId || libFavPending.has(slug)) return;
@@ -107,10 +107,13 @@ export default function LibraryPage() {
     const isFaved = libFavSlugs.has(slug);
     setLibFavSlugs((p) => { const n = new Set(p); isFaved ? n.delete(slug) : n.add(slug); return n; });
     setLibFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? -1 : 1)) }));
-    if (isFaved) {
-      await supabase.from('content_favorites').delete().eq('user_id', libUserId).eq('section', 'library').eq('item_slug', slug);
-    } else {
-      await supabase.from('content_favorites').insert({ user_id: libUserId, section: 'library', item_slug: slug });
+    const { error } = isFaved
+      ? await supabase.from('content_favorites').delete().eq('user_id', libUserId).eq('section', 'library').eq('item_slug', slug)
+      : await supabase.from('content_favorites').insert({ user_id: libUserId, section: 'library', item_slug: slug });
+    if (error) {
+      // Revert the optimistic update since the save didn't actually persist
+      setLibFavSlugs((p) => { const n = new Set(p); isFaved ? n.add(slug) : n.delete(slug); return n; });
+      setLibFavCounts((p) => ({ ...p, [slug]: Math.max(0, (p[slug] ?? 0) + (isFaved ? 1 : -1)) }));
     }
     setLibFavPending((p) => { const n = new Set(p); n.delete(slug); return n; });
   }, [libUserId, libFavSlugs, libFavPending]);
@@ -166,7 +169,7 @@ export default function LibraryPage() {
       }
       return true;
     });
-  }, [search, activeCategory, showFreeOnly]);
+  }, [search, activeCategory, showFreeOnly, allItems]);
 
   // Group filtered items by category order
   const byCategory = useMemo(() => {
@@ -234,15 +237,15 @@ export default function LibraryPage() {
             SYSTEM ONLINE · OPAC v3.04
           </span>
           <span style={{ textAlign: 'center', color: C.dim }}>THE LIBRARY</span>
-          <span style={{ textAlign: 'right', color: C.dim }}>{clock}</span>
+          <span className="lib-clock-cell" style={{ textAlign: 'right', color: C.dim }}>{clock}</span>
         </div>
 
         {/* Masthead */}
         <div className="lib-masthead" style={{ padding: '16px 20px', border: `1px solid ${C.amber}`, background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`, display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start', marginBottom: 14 }}>
           <div>
-            <a href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
+            <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block', textDecoration: 'none', color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.16em', fontWeight: 900 }}>
               ▶ AAC PRESENTS:
-            </a>
+            </Link>
             <div className="lib-title" style={{ fontSize: 36, fontWeight: 400, letterSpacing: '0.04em', margin: '6px 0 0', color: C.hi, textShadow: `0 0 4px rgba(255,209,102,0.4)` }}>
               THE LIBRARY
             </div>
@@ -472,7 +475,7 @@ export default function LibraryPage() {
         {/* Function key bar */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: `1px solid ${C.amber}`, marginTop: 14 }} aria-label="Navigation">
           {[['F1', 'Resources', '/resources'], ['F2', 'Cinema', '/cinema'], ['F3', 'Home', '/'], ['F4', 'Contact', '/contact']].map(([key, label, href]) => (
-            <Link key={key} href={href} style={{ padding: '8px 12px', textDecoration: 'none', color: C.amber, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, letterSpacing: '0.04em', borderRight: `1px solid ${C.dim}` }} className="opac-fkey">
+            <Link key={key} href={href} style={{ padding: '8px 12px', textDecoration: 'none', color: C.amber, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, letterSpacing: '0.04em', borderRight: `1px solid ${C.dim}`, minHeight: 44 }} className="opac-fkey">
               <span style={{ background: C.amber, color: C.bg, padding: '1px 6px', fontWeight: 700, textShadow: 'none', fontSize: 12 }}>{key}</span>
               {label}
             </Link>
@@ -601,7 +604,7 @@ function LibraryRow({
           cursor: userId ? 'pointer' : 'default',
           fontSize: '15px', fontFamily: C.mono, flexShrink: 0,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
-          minWidth: 36,
+          minWidth: 44, minHeight: 44,
         }}
       >
         <span aria-hidden="true">{isFaved ? '♥' : '♡'}</span>

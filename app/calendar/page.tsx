@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase, type CalEvent } from '@/lib/supabase';
 
 // ── Stars (same field as Make Art / Learning Hub) ─────────────────────────────
@@ -69,6 +70,248 @@ const TAG_COLORS: Record<string, string> = {
   'Relaxed Performance': '#a06000',
 };
 
+/** Events that start on the given calendar date */
+function eventsForDate(events: CalEvent[], d: Date): CalEvent[] {
+  return events.filter(ev => {
+    const s = new Date(ev.start_at);
+    return s.getFullYear() === d.getFullYear() &&
+           s.getMonth()    === d.getMonth()    &&
+           s.getDate()     === d.getDate();
+  });
+}
+
+/** A small colored event chip */
+function EventChip({ ev }: { ev: CalEvent }) {
+  const start   = new Date(ev.start_at);
+  const timeStr = ev.is_all_day
+    ? '' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return (
+    <a
+      href={ev.event_url ?? '#'}
+      target="_blank" rel="noopener noreferrer"
+      style={{
+        display: 'block', background: '#263590', color: '#fff',
+        fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
+        padding: '1px 4px', marginBottom: 2, borderRadius: 1,
+        overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+        textDecoration: 'none', cursor: 'pointer',
+      }}
+      title={[ev.title, timeStr, ev.organization].filter(Boolean).join(' · ')}
+    >
+      {timeStr && <span style={{ opacity: 0.75 }}>{timeStr} </span>}
+      {ev.title}
+    </a>
+  );
+}
+
+function TimeGrid({ colDays, numCols, events, showComingSoon }: {
+  colDays: Date[];
+  numCols: number;
+  events: CalEvent[];
+  showComingSoon: boolean;
+}) {
+  return (
+    <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
+      {/* Day header row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
+        borderBottom: '2px solid #b4b0a8',
+        background: '#ece9d8',
+        position: 'sticky', top: 0, zIndex: 2,
+      }}>
+        <div style={{ borderRight: '1px solid #b4b0a8' }} />
+        {colDays.map((d, i) => {
+          const dayEvs = eventsForDate(events, d);
+          return (
+            <div
+              key={i}
+              style={{
+                padding: '4px 3px 2px',
+                textAlign: 'center',
+                borderRight: i < numCols - 1 ? '1px solid #b4b0a8' : undefined,
+                background: isToday(d) ? '#dce8ff' : undefined,
+                fontWeight: isToday(d) ? 'bold' : 'normal',
+                color: isToday(d) ? '#263590' : '#333',
+                fontSize: 11,
+              }}
+            >
+              <div>{DAY_NAMES[d.getDay()]}</div>
+              <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: dayEvs.length ? 3 : 0 }}>{d.getDate()}</div>
+              {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Time rows */}
+      <div style={{ position: 'relative' }}>
+        {HOURS.map((h, hi) => (
+          <div
+            key={h}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
+              borderBottom: '1px solid #e8e4dc',
+              minHeight: 44,
+            }}
+          >
+            <div style={{
+              fontSize: 9, color: '#888',
+              padding: '3px 4px 0',
+              borderRight: '1px solid #b4b0a8',
+              textAlign: 'right',
+              userSelect: 'none',
+              lineHeight: 1,
+            }}>
+              {hi === 0 ? fmtHour(h) : fmtHour(h).replace(':00 ', '')}
+            </div>
+            {colDays.map((d, ci) => (
+              <div
+                key={ci}
+                style={{
+                  borderRight: ci < numCols - 1 ? '1px solid #e8e4dc' : undefined,
+                  background: isToday(d) ? 'rgba(38,53,144,0.04)' : hi % 2 === 0 ? '#fff' : '#fafaf8',
+                  minHeight: 44,
+                }}
+              />
+            ))}
+          </div>
+        ))}
+
+        {/* Coming soon overlay — only when no events exist yet */}
+        {showComingSoon && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 10,
+            background: 'rgba(255,255,255,0.82)',
+            pointerEvents: 'none',
+          }}>
+            <span style={{
+              background: '#263590', color: 'white',
+              fontFamily: '"MS Sans Serif", Arial, sans-serif',
+              fontSize: 10, fontWeight: 'bold',
+              padding: '2px 12px', letterSpacing: '0.08em',
+              border: '1px solid #1a2568',
+            }}>
+              ★ COMING SOON ★
+            </span>
+            <p style={{
+              fontFamily: '"MS Sans Serif", Arial, sans-serif',
+              fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+              maxWidth: 240, lineHeight: 1.5,
+            }}>
+              Events are on their way. Once live, you&apos;ll see accessibility
+              events, interpreted performances, and community happenings here.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Render helper: Month grid ─────────────────────────────────────────────────
+function MonthGrid({ monthDate, monthGrid, events, showComingSoon }: {
+  monthDate: Date;
+  monthGrid: (number | null)[][];
+  events: CalEvent[];
+  showComingSoon: boolean;
+}) {
+  const today = new Date();
+  const todayNum = today.getDate();
+  const isCurrentMonth = monthDate.getMonth() === today.getMonth() &&
+    monthDate.getFullYear() === today.getFullYear();
+  return (
+    <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
+      {/* Day names header */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+        borderBottom: '2px solid #b4b0a8',
+        background: '#ece9d8',
+      }}>
+        {DAY_NAMES.map(d => (
+          <div key={d} style={{
+            textAlign: 'center', padding: '3px 0',
+            fontSize: 10, fontWeight: 'bold', color: '#555',
+            borderRight: '1px solid #b4b0a8',
+          }}>{d}</div>
+        ))}
+      </div>
+      {/* Weeks */}
+      {monthGrid.map((week, wi) => (
+        <div key={wi} style={{
+          display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+          borderBottom: '1px solid #e0dcd4',
+          minHeight: 72,
+        }}>
+          {week.map((day, di) => {
+            const cellDate = day !== null ? new Date(monthDate.getFullYear(), monthDate.getMonth(), day) : null;
+            const dayEvs   = cellDate ? eventsForDate(events, cellDate) : [];
+            return (
+              <div key={di} style={{
+                borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
+                padding: '3px 5px',
+                background: day && isCurrentMonth && day === todayNum ? '#dce8ff' : '#fff',
+              }}>
+                {day !== null && (
+                  <>
+                    <span style={{
+                      display: 'inline-block',
+                      width: 20, height: 20,
+                      lineHeight: '20px',
+                      textAlign: 'center',
+                      borderRadius: 10,
+                      fontSize: 11,
+                      fontWeight: isCurrentMonth && day === todayNum ? 'bold' : 'normal',
+                      background: isCurrentMonth && day === todayNum ? '#263590' : 'transparent',
+                      color: isCurrentMonth && day === todayNum ? '#fff' : '#333',
+                      marginBottom: dayEvs.length ? 2 : 0,
+                    }}>
+                      {day}
+                    </span>
+                    {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* Coming soon overlay — only when no events exist yet */}
+      {showComingSoon && (
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        gap: 10,
+        background: 'rgba(255,255,255,0.82)',
+        pointerEvents: 'none',
+      }}>
+        <span style={{
+          background: '#263590', color: 'white',
+          fontFamily: '"MS Sans Serif", Arial, sans-serif',
+          fontSize: 10, fontWeight: 'bold',
+          padding: '2px 12px', letterSpacing: '0.08em',
+          border: '1px solid #1a2568',
+        }}>★ COMING SOON ★</span>
+        <p style={{
+          fontFamily: '"MS Sans Serif", Arial, sans-serif',
+          fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+          maxWidth: 240, lineHeight: 1.5,
+        }}>
+          Events are on their way. Once live, you&apos;ll see accessibility
+          events, interpreted performances, and community happenings here.
+        </p>
+      </div>
+      )}
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
   const router = useRouter();
@@ -83,6 +326,7 @@ export default function CalendarPage() {
   const [monthDate,   setMonthDate]   = useState(() => new Date());
   const [events,      setEvents]      = useState<CalEvent[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [eventsError, setEventsError] = useState(false);
   const [isLoggedIn,  setIsLoggedIn]  = useState(false);
   const [syncedCals,  setSyncedCals]  = useState<{ name: string; website: string | null }[]>([]);
 
@@ -96,7 +340,7 @@ export default function CalendarPage() {
 
     // Default to 3-day on mobile
     if (typeof window !== 'undefined' && window.innerWidth < 580) {
-      setView('3day');
+      queueMicrotask(() => setView('3day'));
     }
 
     let dots = 0;
@@ -144,7 +388,13 @@ export default function CalendarPage() {
       .eq('is_visible', true)
       .gte('start_at', lookback.toISOString())
       .order('start_at')
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          setEventsError(true);
+          setEventsLoaded(true);
+          return;
+        }
+        setEventsError(false);
         setEvents((data ?? []) as CalEvent[]);
         setEventsLoaded(true);
       });
@@ -209,238 +459,7 @@ export default function CalendarPage() {
   const colDays  = view === '3day' ? threeDays : view === 'day' ? [today] : weekDays;
   const numCols  = colDays.length;
 
-  const showComingSoon = eventsLoaded && events.length === 0;
-
-  /** Events that start on the given calendar date */
-  function eventsForDate(d: Date): CalEvent[] {
-    return events.filter(ev => {
-      const s = new Date(ev.start_at);
-      return s.getFullYear() === d.getFullYear() &&
-             s.getMonth()    === d.getMonth()    &&
-             s.getDate()     === d.getDate();
-    });
-  }
-
-  /** A small colored event chip */
-  function EventChip({ ev }: { ev: CalEvent }) {
-    const start   = new Date(ev.start_at);
-    const timeStr = ev.is_all_day
-      ? '' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    return (
-      <a
-        href={ev.event_url ?? '#'}
-        target="_blank" rel="noopener noreferrer"
-        style={{
-          display: 'block', background: '#263590', color: '#fff',
-          fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
-          padding: '1px 4px', marginBottom: 2, borderRadius: 1,
-          overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-          textDecoration: 'none', cursor: 'pointer',
-        }}
-        title={[ev.title, timeStr, ev.organization].filter(Boolean).join(' · ')}
-      >
-        {timeStr && <span style={{ opacity: 0.75 }}>{timeStr} </span>}
-        {ev.title}
-      </a>
-    );
-  }
-
-  function TimeGrid() {
-    return (
-      <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-        {/* Day header row */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
-          borderBottom: '2px solid #b4b0a8',
-          background: '#ece9d8',
-          position: 'sticky', top: 0, zIndex: 2,
-        }}>
-          <div style={{ borderRight: '1px solid #b4b0a8' }} />
-          {colDays.map((d, i) => {
-            const dayEvs = eventsForDate(d);
-            return (
-              <div
-                key={i}
-                style={{
-                  padding: '4px 3px 2px',
-                  textAlign: 'center',
-                  borderRight: i < numCols - 1 ? '1px solid #b4b0a8' : undefined,
-                  background: isToday(d) ? '#dce8ff' : undefined,
-                  fontWeight: isToday(d) ? 'bold' : 'normal',
-                  color: isToday(d) ? '#263590' : '#333',
-                  fontSize: 11,
-                }}
-              >
-                <div>{DAY_NAMES[d.getDay()]}</div>
-                <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: dayEvs.length ? 3 : 0 }}>{d.getDate()}</div>
-                {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Time rows */}
-        <div style={{ position: 'relative' }}>
-          {HOURS.map((h, hi) => (
-            <div
-              key={h}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
-                borderBottom: '1px solid #e8e4dc',
-                minHeight: 44,
-              }}
-            >
-              <div style={{
-                fontSize: 9, color: '#888',
-                padding: '3px 4px 0',
-                borderRight: '1px solid #b4b0a8',
-                textAlign: 'right',
-                userSelect: 'none',
-                lineHeight: 1,
-              }}>
-                {hi === 0 ? fmtHour(h) : fmtHour(h).replace(':00 ', '')}
-              </div>
-              {colDays.map((d, ci) => (
-                <div
-                  key={ci}
-                  style={{
-                    borderRight: ci < numCols - 1 ? '1px solid #e8e4dc' : undefined,
-                    background: isToday(d) ? 'rgba(38,53,144,0.04)' : hi % 2 === 0 ? '#fff' : '#fafaf8',
-                    minHeight: 44,
-                  }}
-                />
-              ))}
-            </div>
-          ))}
-
-          {/* Coming soon overlay — only when no events exist yet */}
-          {showComingSoon && (
-            <div style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-              gap: 10,
-              background: 'rgba(255,255,255,0.82)',
-              pointerEvents: 'none',
-            }}>
-              <span style={{
-                background: '#263590', color: 'white',
-                fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                fontSize: 10, fontWeight: 'bold',
-                padding: '2px 12px', letterSpacing: '0.08em',
-                border: '1px solid #1a2568',
-              }}>
-                ★ COMING SOON ★
-              </span>
-              <p style={{
-                fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
-                maxWidth: 240, lineHeight: 1.5,
-              }}>
-                Events are on their way. Once live, you&apos;ll see accessibility
-                events, interpreted performances, and community happenings here.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Render helper: Month grid ─────────────────────────────────────────────────
-  function MonthGrid() {
-    const todayNum = today.getDate();
-    const isCurrentMonth = monthDate.getMonth() === today.getMonth() &&
-      monthDate.getFullYear() === today.getFullYear();
-    return (
-      <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-        {/* Day names header */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-          borderBottom: '2px solid #b4b0a8',
-          background: '#ece9d8',
-        }}>
-          {DAY_NAMES.map(d => (
-            <div key={d} style={{
-              textAlign: 'center', padding: '3px 0',
-              fontSize: 10, fontWeight: 'bold', color: '#555',
-              borderRight: '1px solid #b4b0a8',
-            }}>{d}</div>
-          ))}
-        </div>
-        {/* Weeks */}
-        {monthGrid.map((week, wi) => (
-          <div key={wi} style={{
-            display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-            borderBottom: '1px solid #e0dcd4',
-            minHeight: 72,
-          }}>
-            {week.map((day, di) => {
-              const cellDate = day !== null ? new Date(monthDate.getFullYear(), monthDate.getMonth(), day) : null;
-              const dayEvs   = cellDate ? eventsForDate(cellDate) : [];
-              return (
-                <div key={di} style={{
-                  borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
-                  padding: '3px 5px',
-                  background: day && isCurrentMonth && day === todayNum ? '#dce8ff' : '#fff',
-                }}>
-                  {day !== null && (
-                    <>
-                      <span style={{
-                        display: 'inline-block',
-                        width: 20, height: 20,
-                        lineHeight: '20px',
-                        textAlign: 'center',
-                        borderRadius: 10,
-                        fontSize: 11,
-                        fontWeight: isCurrentMonth && day === todayNum ? 'bold' : 'normal',
-                        background: isCurrentMonth && day === todayNum ? '#263590' : 'transparent',
-                        color: isCurrentMonth && day === todayNum ? '#fff' : '#333',
-                        marginBottom: dayEvs.length ? 2 : 0,
-                      }}>
-                        {day}
-                      </span>
-                      {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-
-        {/* Coming soon overlay — only when no events exist yet */}
-        {showComingSoon && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          gap: 10,
-          background: 'rgba(255,255,255,0.82)',
-          pointerEvents: 'none',
-        }}>
-          <span style={{
-            background: '#263590', color: 'white',
-            fontFamily: '"MS Sans Serif", Arial, sans-serif',
-            fontSize: 10, fontWeight: 'bold',
-            padding: '2px 12px', letterSpacing: '0.08em',
-            border: '1px solid #1a2568',
-          }}>★ COMING SOON ★</span>
-          <p style={{
-            fontFamily: '"MS Sans Serif", Arial, sans-serif',
-            fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
-            maxWidth: 240, lineHeight: 1.5,
-          }}>
-            Events are on their way. Once live, you&apos;ll see accessibility
-            events, interpreted performances, and community happenings here.
-          </p>
-        </div>
-        )}
-      </div>
-    );
-  }
+  const showComingSoon = eventsLoaded && !eventsError && events.length === 0;
 
   // ── Mini sidebar calendar ─────────────────────────────────────────────────────
   const sideGrid = getMonthGrid(today.getFullYear(), today.getMonth());
@@ -809,7 +828,7 @@ export default function CalendarPage() {
             </span>
 
             {/* Home + Resources nav buttons */}
-            <a
+            <Link
               href="/"
               aria-label="Home"
               className="cal-nav-btn"
@@ -824,7 +843,7 @@ export default function CalendarPage() {
                 textDecoration: 'none', flexShrink: 0,
               }}
               title="Home"
-            >🏠</a>
+            >🏠</Link>
             <a
               href="/resources"
               aria-label="Accessibility Resources"
@@ -1009,10 +1028,47 @@ export default function CalendarPage() {
                 AAC Events Calendar: {periodLabel}
               </h2>
 
-              {view === 'month' ? <MonthGrid /> : <TimeGrid />}
+              {eventsError ? (
+                <div
+                  role="alert"
+                  style={{
+                    flex: 1, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    gap: 10, padding: '24px',
+                  }}
+                >
+                  <span style={{
+                    background: '#a12626', color: 'white',
+                    fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                    fontSize: 10, fontWeight: 'bold',
+                    padding: '2px 12px', letterSpacing: '0.08em',
+                    border: '1px solid #7a1a1a',
+                  }}>
+                    ⚠ COULDN&apos;T LOAD EVENTS
+                  </span>
+                  <p style={{
+                    fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                    fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+                    maxWidth: 260, lineHeight: 1.5,
+                  }}>
+                    We couldn&apos;t load events right now. Try refreshing the page.
+                  </p>
+                </div>
+              ) : view === 'month'
+                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={events} showComingSoon={showComingSoon} />
+                : <TimeGrid colDays={colDays} numCols={numCols} events={events} showComingSoon={showComingSoon} />}
 
             </div>
           </div>
+
+          {/* Event count announcement for screen reader users (the visual status
+              bar below is decorative and duplicates the sidebar's active filter,
+              but the live event count isn't available anywhere else on the page). */}
+          <p role="status" aria-live="polite" className="sr-only">
+            {eventsLoaded && !eventsError
+              ? `${events.length} ${events.length === 1 ? 'event' : 'events'} shown, filter: ${filterLabel}`
+              : ''}
+          </p>
 
           {/* ── Status bar ───────────────────────────────────────────────────── */}
           <div style={{
