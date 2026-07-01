@@ -14,6 +14,12 @@
 -- ── 1. Delete the leftover duplicate rows for MK's three accounts ─────────────
 -- These are the rejected duplicates only. The single approved profile that each
 -- account keeps is NOT touched. Safe to run; affects only these test/owner rows.
+--
+-- One old mk-admin row (id d231209a-...) is excluded on purpose: it's still
+-- referenced as approved_by on three real member profiles (Sarah Grasso, Jen
+-- Allman, Alec Cunningham) as their "who approved this" record. Deleting it
+-- would violate a foreign key and isn't necessary, it's harmless sitting there
+-- as 'rejected' and doesn't affect login. Leave it in place.
 
 DELETE FROM profiles
 WHERE email IN (
@@ -21,7 +27,8 @@ WHERE email IN (
   'mk-member@artisticaccessibility.com',
   'mk-admin@artisticaccessibility.com'
 )
-AND status = 'rejected';
+AND status = 'rejected'
+AND id != 'd231209a-4fe5-4856-ae45-e9e66cb7cadd';
 
 -- ── 2. Prevent recurrence: one approved profile per user ─────────────────────
 -- A partial unique index so the same auth user can never have two approved
