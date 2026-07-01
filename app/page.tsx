@@ -351,7 +351,7 @@ function AimBody({ onOpen, account, onSignOut, onNavigate }: {
         <Row icon={52} label="My Access Card"     onClick={() => onNavigate('/access-card')} />
         <Row icon={50} label="Sign Out"           onClick={onSignOut} />
       </>) : account === 'collective' ? (<>
-        <Row icon={63} label="The Collective"     onClick={() => onNavigate('/collective')} />
+        <Row icon={63} label="The Collective"     onClick={() => onNavigate('/dashboard')} />
         <Row icon={50} label="Sign Out"           onClick={onSignOut} />
       </>) : (<>
         <Row icon={46} label="Log In to The Collective"   onClick={() => onNavigate('/login')} />
@@ -566,6 +566,7 @@ export default function Home() {
     const it = ITEMS[k];
     if (!it) return;
     if (it.kind === 'ext') { window.open(it.href, '_blank', 'noopener'); return; }
+    if (k === 'collective' && user) { router.push('/dashboard'); return; }
     if (DIRECT_NAV.includes(k) && it.href) { router.push(it.href); return; }
     setWins(ws => {
       const existing = ws.find(w => w.id === k);
@@ -579,7 +580,7 @@ export default function Home() {
       const pos = { x, y: headerH + 14 + c * 30 };
       return [...ws, { id: k, key: k, kind: it.kind as WinKind, pos, z: nz }];
     });
-  }, [zTop, headerH, router]);
+  }, [zTop, headerH, router, user]);
 
   const closeWin = (id: string) => setWins(ws => ws.filter(w => w.id !== id));
 
