@@ -661,7 +661,7 @@ export default function Home() {
       {/* Top bar */}
       <div
         onPointerDown={(e) => e.stopPropagation()}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: TOPBAR_H, zIndex: 5, background: 'linear-gradient(to bottom,#e8e5e0,#ccc9c2)', borderBottom: '2px solid #8a8680', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: TOPBAR_H, zIndex: 5, background: 'linear-gradient(to bottom,#2d3ba0,#1a2568)', borderBottom: '2px solid #10163d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <button
           onClick={() => open('about')}
@@ -766,7 +766,7 @@ export default function Home() {
         .dsk-label.sel{background:#0a246a;border:1px dotted #fff;text-shadow:none}
         .dsk-icon:focus-visible .dsk-label{background:#0a246a;border:1px dotted #fff;text-shadow:none}
         .win-row:hover,.win-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
-        .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#d0cdc8,#b8b4ae);outline:2px solid #ffd21a;outline-offset:-2px}
+        .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#3a49b8,#22306e);outline:2px solid #ffd21a;outline-offset:-2px}
         .start-sub{display:none}
         .start-folder:hover>.start-sub,.start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
         .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a;color:#fff}
