@@ -140,14 +140,19 @@ const LANGUAGE_SUGGESTIONS = [
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-type EditableProfile = Pick<Profile,
+type EditableProfile = Omit<Pick<Profile,
   | 'display_name' | 'pronouns' | 'username' | 'bio'
   | 'location_city' | 'location_state' | 'location_country'
   | 'specialties' | 'certifications' | 'languages'
   | 'years_of_experience' | 'has_captioning' | 'is_student'
   | 'website' | 'linkedin_url' | 'instagram_url'
   | 'public_visible' | 'email_public' | 'profile_bg_color'
->;
+  | 'volunteer_status' | 'volunteer_notes'
+  | 'career_highlights' | 'passionate_about' | 'strengths'
+  | 'availability_status' | 'communication_style' | 'preferred_contact'
+  | 'experience_level' | 'rate_info' | 'education'
+  | 'not_great_at' | 'learning_now' | 'want_to_learn'
+>, 'volunteer_notes'> & { volunteer_notes?: string | null };
 
 // Background colors a member can pick for their profile page. All are deep
 // enough that the white text and cream content cards stay readable (WCAG AA).
@@ -199,14 +204,26 @@ export default function EditProfilePage() {
   const [volunteerNotes,   setVolunteerNotes]   = useState('');
   const [bgColor,          setBgColor]          = useState(DEFAULT_BG);
 
+  // v26 personalization fields
+  const [previousExperience, setPreviousExperience] = useState(''); // stored as career_highlights
+  const [passionateAbout,    setPassionateAbout]    = useState('');
+  const [strengths,          setStrengths]          = useState<string[]>([]);
+  const [availabilityStatus, setAvailabilityStatus] = useState('By Inquiry');
+  const [communicationStyle, setCommunicationStyle] = useState<string[]>([]);
+  const [preferredContact,   setPreferredContact]   = useState('Email');
+  const [experienceLevel,    setExperienceLevel]    = useState('entry');
+  const [rateInfo,           setRateInfo]           = useState('');
+  const [education,          setEducation]          = useState('');
+  const [notGreatAt,         setNotGreatAt]         = useState('');
+  const [learningNow,        setLearningNow]        = useState('');
+  const [wantToLearn,        setWantToLearn]        = useState('');
+
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     document.title = 'Edit Profile · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
-
-  useEffect(() => { loadProfile(); }, []);
 
   const loadProfile = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -249,9 +266,24 @@ export default function EditProfilePage() {
     setVolunteerNotes(data.volunteer_notes   ?? '');
     setBgColor(data.profile_bg_color  ?? DEFAULT_BG);
 
+    setPreviousExperience(data.career_highlights   ?? '');
+    setPassionateAbout(data.passionate_about       ?? '');
+    setStrengths(data.strengths                    ?? []);
+    setAvailabilityStatus(data.availability_status ?? 'By Inquiry');
+    setCommunicationStyle(data.communication_style ?? []);
+    setPreferredContact(data.preferred_contact     ?? 'Email');
+    setExperienceLevel(data.experience_level       ?? 'entry');
+    setRateInfo(data.rate_info                     ?? '');
+    setEducation(data.education                    ?? '');
+    setNotGreatAt(data.not_great_at                ?? '');
+    setLearningNow(data.learning_now               ?? '');
+    setWantToLearn(data.want_to_learn              ?? '');
+
     setLoading(false);
     headingRef.current?.focus();
   }, [router]);
+
+  useEffect(() => { queueMicrotask(() => { loadProfile(); }); }, [loadProfile]);
 
   // ── Username uniqueness check ─────────────────────────────────────────────
 
@@ -324,7 +356,19 @@ export default function EditProfilePage() {
       volunteer_status:   volunteerStatus || null,
       volunteer_notes:    volunteerStatus === 'yes' ? volunteerNotes.trim() || null : null,
       profile_bg_color:   bgColor,
-    } as any;
+      career_highlights:  previousExperience.trim() || undefined,
+      passionate_about:   passionateAbout.trim()    || undefined,
+      strengths,
+      availability_status: availabilityStatus,
+      communication_style: communicationStyle,
+      preferred_contact:  preferredContact,
+      experience_level:   experienceLevel,
+      rate_info:          rateInfo.trim()           || undefined,
+      education:          education.trim()          || undefined,
+      not_great_at:       notGreatAt.trim()         || undefined,
+      learning_now:       learningNow.trim()        || undefined,
+      want_to_learn:      wantToLearn.trim()        || undefined,
+    };
 
     const { error } = await supabase
       .from('profiles')
@@ -338,7 +382,12 @@ export default function EditProfilePage() {
     } else {
       setSaveStatus('saved');
       // Update local profile so profileHref works with new username
-      setProfile((prev) => prev ? { ...prev, ...updates, username: username.trim() || undefined } : prev);
+      setProfile((prev) => prev ? {
+        ...prev,
+        ...updates,
+        username: username.trim() || undefined,
+        volunteer_notes: updates.volunteer_notes ?? undefined,
+      } : prev);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -369,7 +418,6 @@ export default function EditProfilePage() {
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <header className="site-header">
         <Link href="/dashboard" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" />
         </Link>
         <nav className="site-nav" aria-label="Main navigation">
@@ -725,6 +773,215 @@ export default function EditProfilePage() {
                   {errors.languages}
                 </p>
               )}
+            </div>
+          </div>
+
+          {/* ══ Section: Your Story ══════════════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Your Story</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+
+              <div className="form-group">
+                <label htmlFor="previousExperience" className="form-label">Previous Experience</label>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  A quick rundown of where you&apos;ve worked and what you&apos;ve done. e.g. &quot;5 years captioning live theater, previously worked in TV production for 3 years.&quot;
+                </p>
+                <textarea
+                  id="previousExperience"
+                  className="form-input form-textarea"
+                  rows={4}
+                  value={previousExperience}
+                  onChange={(e) => setPreviousExperience(e.target.value)}
+                  placeholder="Where you've worked and what you've done…"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="passionateAbout" className="form-label">What You&apos;re Passionate About</label>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  What lights you up about this work. e.g. &quot;Making sure every audience member feels the joy of live performance, no matter how they experience it.&quot;
+                </p>
+                <textarea
+                  id="passionateAbout"
+                  className="form-input form-textarea"
+                  rows={3}
+                  value={passionateAbout}
+                  onChange={(e) => setPassionateAbout(e.target.value)}
+                  placeholder="What draws you to this work…"
+                />
+              </div>
+
+            </div>
+          </div>
+
+          {/* ══ Section: What You're Great At ════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">What You&apos;re Great At</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <TagInput
+                id="strengths"
+                label="Your Strengths"
+                tags={strengths}
+                onChange={setStrengths}
+                suggestions={['Production Management', 'Schedule Building', 'Grip & Lighting Setups', 'Technical Skills', 'Problem Solving', 'Team Leadership', 'Budgeting', 'Client Communication']}
+                placeholder="e.g. Production Management, Schedule Building…"
+                hint="The skills you'd put on a resume, or the ones people always ask you for help with."
+              />
+            </div>
+          </div>
+
+          {/* ══ Section: Working With You ════════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Working With You</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                A few practical details for anyone thinking about booking or reaching out to you.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="availabilityStatus" className="form-label">Availability</label>
+                  <select
+                    id="availabilityStatus"
+                    className="form-input"
+                    value={availabilityStatus}
+                    onChange={(e) => setAvailabilityStatus(e.target.value)}
+                  >
+                    <option value="Available Now">Available Now</option>
+                    <option value="Booking Out 1 Month">Booking Out 1 Month</option>
+                    <option value="Booking Out 3 Months">Booking Out 3 Months</option>
+                    <option value="Booking Out 6 Months">Booking Out 6 Months</option>
+                    <option value="By Inquiry">By Inquiry</option>
+                    <option value="Not Available">Not Available</option>
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="experienceLevel" className="form-label">Entry Level or Seasoned?</label>
+                  <select
+                    id="experienceLevel"
+                    className="form-input"
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                  >
+                    <option value="student">Student</option>
+                    <option value="entry">Entry Level</option>
+                    <option value="mid">Mid Level</option>
+                    <option value="seasoned">Seasoned Professional</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '1rem' }}>
+                <label htmlFor="preferredContact" className="form-label">Preferred Method of Contact</label>
+                <select
+                  id="preferredContact"
+                  className="form-input"
+                  value={preferredContact}
+                  onChange={(e) => setPreferredContact(e.target.value)}
+                >
+                  <option value="Email">Email</option>
+                  <option value="Phone">Phone</option>
+                  <option value="Text">Text</option>
+                  <option value="Site Message">Site Message (through The Collective)</option>
+                </select>
+              </div>
+
+              <div style={{ marginTop: '1rem' }}>
+                <TagInput
+                  id="communicationStyle"
+                  label="Communication Style"
+                  tags={communicationStyle}
+                  onChange={setCommunicationStyle}
+                  suggestions={['Direct & to the point', 'Warm & chatty', 'Detail-oriented', 'Prefers written notes', 'Prefers a quick call', 'Quick responder']}
+                  placeholder="e.g. Direct & to the point, Quick responder…"
+                  hint="How you like to communicate on a job."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ══ Section: Rates & Background ══════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Rates &amp; Background</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+
+              <div className="form-group">
+                <label htmlFor="rateInfo" className="form-label">Rates for Your Services</label>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  As specific or general as you like. e.g. &quot;$75/hr for captioning, package rates available for multi-day events.&quot;
+                </p>
+                <textarea
+                  id="rateInfo"
+                  className="form-input form-textarea"
+                  rows={3}
+                  value={rateInfo}
+                  onChange={(e) => setRateInfo(e.target.value)}
+                  placeholder="Your rates, or how you like to talk about pricing…"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="education" className="form-label">Education Background</label>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  Degrees, training programs, workshops, whatever feels relevant. e.g. &quot;BFA in Theater, Interpreter Training Program at XYZ.&quot;
+                </p>
+                <textarea
+                  id="education"
+                  className="form-input form-textarea"
+                  rows={3}
+                  value={education}
+                  onChange={(e) => setEducation(e.target.value)}
+                  placeholder="Degrees, training, workshops…"
+                />
+              </div>
+
+            </div>
+          </div>
+
+          {/* ══ Section: Always Growing ══════════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Always Growing</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+                Nobody&apos;s finished learning. A little honesty here goes a long way, and this whole section is optional.
+              </p>
+
+              <div className="form-group">
+                <label htmlFor="notGreatAt" className="form-label">Things You&apos;re Not Great At (Yet)</label>
+                <textarea
+                  id="notGreatAt"
+                  className="form-input form-textarea"
+                  rows={2}
+                  value={notGreatAt}
+                  onChange={(e) => setNotGreatAt(e.target.value)}
+                  placeholder="e.g. Spreadsheets. I will find a workaround before I open Excel."
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="learningNow" className="form-label">Things You&apos;re Learning Right Now</label>
+                <textarea
+                  id="learningNow"
+                  className="form-input form-textarea"
+                  rows={2}
+                  value={learningNow}
+                  onChange={(e) => setLearningNow(e.target.value)}
+                  placeholder="e.g. Learning Braille transcription this year."
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="wantToLearn" className="form-label">Things You&apos;d Like to Learn</label>
+                <textarea
+                  id="wantToLearn"
+                  className="form-input form-textarea"
+                  rows={2}
+                  value={wantToLearn}
+                  onChange={(e) => setWantToLearn(e.target.value)}
+                  placeholder="e.g. Would love to pick up audio description someday."
+                />
+              </div>
             </div>
           </div>
 

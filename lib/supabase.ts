@@ -78,6 +78,12 @@ export type Profile = {
   volunteer_notes?: string;
   // v17 Access Card tier
   member_type?: 'collective' | 'access_card';
+  // v26 profile personalization fields
+  passionate_about?: string;
+  strengths?: string[];
+  not_great_at?: string;
+  learning_now?: string;
+  want_to_learn?: string;
 };
 
 export type SavedResource = {

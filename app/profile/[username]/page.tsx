@@ -2,6 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -48,18 +49,20 @@ function levelLabel(level: string): string {
 function MsBox({
   header,
   headerEl,
+  headingLevel: HeadingTag = 'h2',
   action,
   children,
 }: {
   header?: string;
   headerEl?: React.ReactNode;
+  headingLevel?: 'h1' | 'h2';
   action?: { label: string; onClick?: () => void; href?: string; srLabel?: string };
   children: React.ReactNode;
 }) {
   return (
     <div className="ms-box">
       <div className="ms-box-header">
-        <span>{headerEl ?? header}</span>
+        <HeadingTag>{headerEl ?? header}</HeadingTag>
         {action && (
           action.href ? (
             <a href={action.href} target={action.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
@@ -90,14 +93,16 @@ export default function ProfilePage() {
   const slug   = params.username as string;
 
   const [profile,            setProfile]            = useState<Profile | null>(null);
+  const [loadFailed,         setLoadFailed]          = useState(false);
   const [endorsements,       setEndorsements]        = useState<EndorsementWithEndorser[]>([]);
   const [goTos,              setGoTos]               = useState<Profile[]>([]);
-  const [currentUser,        setCurrentUser]         = useState<any>(null);
+  const [currentUser,        setCurrentUser]         = useState<User | null>(null);
   const [currentUserProfile, setCurrentUserProfile]  = useState<Profile | null>(null);
   const [isProfileAdmin,     setIsProfileAdmin]      = useState(false);
   const [loading,            setLoading]             = useState(true);
   const [endorsing,          setEndorsing]           = useState(false);
   const [hasEndorsed,        setHasEndorsed]         = useState(false);
+  const [endorseError,       setEndorseError]        = useState('');
 
   // Username setup state
   const [usernameFormOpen,  setUsernameFormOpen]  = useState(false);
@@ -107,6 +112,7 @@ export default function ProfilePage() {
   const [usernameSaving,    setUsernameSaving]    = useState(false);
   const [usernameError,     setUsernameError]     = useState('');
   const usernameInputRef = useRef<HTMLInputElement>(null);
+  const usernameCheckTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Photo upload state
   const [photoFormOpen,  setPhotoFormOpen]  = useState(false);
@@ -126,6 +132,7 @@ export default function ProfilePage() {
   useEffect(() => { fetchData(); }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
+    setLoadFailed(false);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
@@ -143,7 +150,7 @@ export default function ProfilePage() {
           .from('profiles').select('*').eq('id', slug).maybeSingle();
         profileData = byId;
       }
-      if (!profileData) throw new Error('Profile not found');
+      if (!profileData) return;
       setProfile(profileData);
 
       // Check whether this profile belongs to an admin
@@ -174,14 +181,18 @@ export default function ProfilePage() {
         .from('endorsements')
         .select('*, endorsed:profiles!endorsed_id(*)')
         .eq('endorser_id', profileData.id);
-      setGoTos(((goToData ?? []) as any[]).map((e) => e.endorsed).filter(Boolean));
+      setGoTos(
+        ((goToData ?? []) as { endorsed: Profile | null }[])
+          .map((e) => e.endorsed)
+          .filter((p): p is Profile => Boolean(p))
+      );
 
       // Has current user already endorsed this profile?
       if (user && endorsementsData) {
         const { data: up2 } = await supabase
           .from('profiles').select('id').eq('user_id', user.id).single();
         if (up2) {
-          setHasEndorsed(endorsementsData.some((e: any) => e.endorser_id === up2.id));
+          setHasEndorsed((endorsementsData as Endorsement[]).some((e) => e.endorser_id === up2.id));
         }
       }
 
@@ -191,6 +202,7 @@ export default function ProfilePage() {
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -199,6 +211,7 @@ export default function ProfilePage() {
   const handleEndorse = async () => {
     if (!currentUserProfile || !profile) { router.push('/login'); return; }
     setEndorsing(true);
+    setEndorseError('');
     try {
       if (hasEndorsed) {
         await supabase.from('endorsements').delete()
@@ -210,6 +223,7 @@ export default function ProfilePage() {
       await fetchData();
     } catch (err) {
       console.error('Error toggling endorsement:', err);
+      setEndorseError('Something went wrong. Please try again.');
     } finally {
       setEndorsing(false);
     }
@@ -229,8 +243,8 @@ export default function ProfilePage() {
     setUsernameInput(clean);
     setUsernameError('');
     setUsernameAvailable(null);
-    clearTimeout((handleUsernameChange as any)._t);
-    (handleUsernameChange as any)._t = setTimeout(() => checkUsername(clean), 500);
+    clearTimeout(usernameCheckTimer.current);
+    usernameCheckTimer.current = setTimeout(() => checkUsername(clean), 500);
   };
 
   const handleUsernameSave = async () => {
@@ -320,12 +334,17 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <BrowserChrome variant="aol" title="Profile Not Found · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/profile">
+      <BrowserChrome variant="aol" title={loadFailed ? 'Couldn’t Load Profile · Artistic Accessibility Collective' : 'Profile Not Found · Artistic Accessibility Collective'} url="http://members.artisticaccessibility.com/profile">
       <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem 1rem', minHeight: '100%' }}>
-        <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }}>
+        <div className="content-card" style={{ maxWidth: '400px', textAlign: 'center' }} role={loadFailed ? 'alert' : undefined}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.5rem', marginBottom: '1rem' }}>
-            Profile Not Found
+            {loadFailed ? 'Couldn’t Load This Profile' : 'Profile Not Found'}
           </h1>
+          {loadFailed && (
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+              Something went wrong loading this profile. Please try again.
+            </p>
+          )}
           <Link href="/members" className="btn btn-primary">← Browse Members</Link>
         </div>
       </main>
@@ -359,7 +378,7 @@ export default function ProfilePage() {
       <header>
         <div className="site-header">
           <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <Logo alt="" />
           </Link>
           <nav className="site-nav" aria-label="Main navigation">
@@ -381,16 +400,17 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* ── Profile grid ── */}
-      <div style={{ maxWidth: '980px', margin: '0 auto', padding: '12px 10px', display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      {/* ── Profile column ── */}
+      <div style={{ maxWidth: '640px', margin: '0 auto', padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
         {/* ════════════════════════════════════
-            LEFT SIDEBAR
+            PROFILE CARD (photo, badges, basics)
         ════════════════════════════════════ */}
-        <aside aria-label="Profile sidebar" style={{ width: '280px', minWidth: '280px', flexShrink: 0 }}>
+        <aside aria-label="Profile summary" style={{ width: '100%' }}>
 
           {/* ── Photo + basic info ── */}
           <MsBox
+            headingLevel="h1"
             headerEl={
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 {displayName}
@@ -408,32 +428,91 @@ export default function ProfilePage() {
           >
             <div style={{ padding: '8px' }}>
 
-              {/* Square photo */}
-              <div style={{ width: '100%', aspectRatio: '1/1', border: '2px solid #fff', outline: '1px solid var(--ms-border)', overflow: 'hidden', background: 'var(--aac-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
-                {pendingPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={pendingPreview} alt="Preview of your chosen photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : profile.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profile.avatar_url} alt={profile.avatar_alt || `Photo of ${displayName}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <span aria-hidden="true" style={{ fontSize: '5rem', fontWeight: 700, color: 'var(--aac-blue)', lineHeight: 1 }}>
-                    {initial}
-                  </span>
-                )}
+              {/* Photo + basic info row — stacks on narrow screens, side by side on wider ones */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start' }}>
+
+                {/* Photo column */}
+                <div style={{ width: '160px', flexShrink: 0 }}>
+                  <div style={{ width: '100%', aspectRatio: '1/1', border: '2px solid #fff', outline: '1px solid var(--ms-border)', overflow: 'hidden', background: 'var(--aac-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {pendingPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={pendingPreview} alt="Preview of your chosen photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : profile.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={profile.avatar_url} alt={profile.avatar_alt || `Photo of ${displayName}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span aria-hidden="true" style={{ fontSize: '3.5rem', fontWeight: 700, color: 'var(--aac-blue)', lineHeight: 1 }}>
+                        {initial}
+                      </span>
+                    )}
+                  </div>
+
+                  {isOwnProfile && !photoFormOpen && (
+                    <button
+                      onClick={() => setPhotoFormOpen(true)}
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: '100%', marginTop: '6px', fontSize: '0.75rem' }}
+                    >
+                      {profile.avatar_url ? 'Change photo' : '+ Add photo'}
+                    </button>
+                  )}
+                </div>
+
+                {/* Info column */}
+                <div style={{ flex: 1, minWidth: '200px' }}>
+                  <div style={{ marginBottom: '5px' }}>
+                    <span className={availClass(availStatus)}>
+                      <span aria-hidden="true">{availDot(availStatus)}</span>
+                      {availStatus}
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: '6px' }}>
+                    <span className="ms-level-badge" aria-label={`Experience level: ${levelLabel(expLevel)}`}>
+                      {levelLabel(expLevel)}
+                    </span>
+                  </div>
+
+                  {profile.pronouns && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>{profile.pronouns}</p>
+                  )}
+                  {(profile.location_city || profile.location_state) && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
+                      <span aria-hidden="true">📍 </span>
+                      {[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
+                      {profile.willing_to_travel && ' · Will travel'}
+                    </p>
+                  )}
+                  {profile.timezone && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
+                      <span aria-hidden="true">🕐 </span>{profile.timezone}
+                    </p>
+                  )}
+                  {profile.mood && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '4px 0' }}>
+                      Mood: <em>{profile.mood}</em>
+                    </p>
+                  )}
+
+                  <div className="ms-stats-row" style={{ marginTop: '8px' }}>
+                    <div className="ms-stat">
+                      <strong>{lovedByCount}</strong>
+                      loved by
+                    </div>
+                    {profile.years_of_experience != null && (
+                      <div className="ms-stat">
+                        <strong>{profile.years_of_experience}</strong>
+                        yrs exp
+                      </div>
+                    )}
+                  </div>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
+                    Member since: <strong>{profile.member_since_display || 'Summer 2026'}</strong>
+                  </p>
+                </div>
               </div>
 
-              {/* Photo upload controls */}
-              {isOwnProfile && !photoFormOpen && (
-                <button
-                  onClick={() => setPhotoFormOpen(true)}
-                  className="btn btn-ghost btn-sm"
-                  style={{ width: '100%', marginBottom: '6px', fontSize: '0.75rem' }}
-                >
-                  {profile.avatar_url ? 'Change photo' : '+ Add photo'}
-                </button>
-              )}
-
+              {/* Photo upload form — full width below the row when open */}
               {isOwnProfile && photoFormOpen && (
                 <div style={{ marginBottom: '8px', padding: '6px', background: 'var(--aac-blue-light)', border: '1px solid var(--ms-border)' }}>
                   {!pendingPreview ? (
@@ -494,57 +573,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
-
-              {/* Availability badge */}
-              <div style={{ textAlign: 'center', marginBottom: '5px' }}>
-                <span className={availClass(availStatus)}>
-                  <span aria-hidden="true">{availDot(availStatus)}</span>
-                  {availStatus}
-                </span>
-              </div>
-
-              <div style={{ textAlign: 'center', marginBottom: '6px' }}>
-                <span className="ms-level-badge" aria-label={`Experience level: ${levelLabel(expLevel)}`}>
-                  {levelLabel(expLevel)}
-                </span>
-              </div>
-
-              {profile.pronouns && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>{profile.pronouns}</p>
-              )}
-              {(profile.location_city || profile.location_state) && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
-                  <span aria-hidden="true">📍 </span>
-                  {[profile.location_city, profile.location_state].filter(Boolean).join(', ')}
-                  {profile.willing_to_travel && ' · Will travel'}
-                </p>
-              )}
-              {profile.timezone && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>
-                  <span aria-hidden="true">🕐 </span>{profile.timezone}
-                </p>
-              )}
-              {profile.mood && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '4px 0' }}>
-                  Mood: <em>{profile.mood}</em>
-                </p>
-              )}
-
-              <div className="ms-stats-row" style={{ marginTop: '8px' }}>
-                <div className="ms-stat">
-                  <strong>{lovedByCount}</strong>
-                  loved by
-                </div>
-                {profile.years_of_experience != null && (
-                  <div className="ms-stat">
-                    <strong>{profile.years_of_experience}</strong>
-                    yrs exp
-                  </div>
-                )}
-              </div>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
-                Member since: <strong>{profile.member_since_display || 'Summer 2026'}</strong>
-              </p>
             </div>
           </MsBox>
 
@@ -594,6 +622,11 @@ export default function ProfilePage() {
                 </a>
               )}
             </div>
+            {endorseError && (
+              <p role="alert" style={{ color: 'var(--color-error)', fontSize: '0.75rem', margin: '0', padding: '4px 8px 0' }}>
+                {endorseError}
+              </p>
+            )}
             <div style={{ padding: '4px 8px 6px', borderTop: '1px solid var(--ms-border)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               {profile.preferred_contact && (
                 <>Preferred contact: <strong style={{ color: 'var(--aac-blue)' }}>{profile.preferred_contact}</strong></>
@@ -608,7 +641,6 @@ export default function ProfilePage() {
           {lovedByCount > 0 && (
             <MsBox
               header="People Who Love To Work With Me"
-              action={{ label: `see all ${lovedByCount}`, href: '#', srLabel: ` people who love to work with ${firstName}` }}
             >
               <div style={{ padding: '6px 8px' }}>
                 <p className="sr-only">
@@ -889,7 +921,7 @@ export default function ProfilePage() {
         {/* ════════════════════════════════════
             RIGHT MAIN CONTENT
         ════════════════════════════════════ */}
-        <div id="main-content" style={{ flex: 1, minWidth: '300px' }}>
+        <div id="main-content" style={{ width: '100%' }}>
 
           {/* ── Highlights ── */}
           {profile.highlights && (
@@ -976,14 +1008,25 @@ export default function ProfilePage() {
             </MsBox>
           )}
 
-          {/* ── Career Highlights ── */}
-          {profile.career_highlights && (
+          {/* ── Your Story ── */}
+          {(profile.career_highlights || profile.passionate_about) && (
             <MsBox
-              header={`🌟 ${firstName}'s Career Highlights`}
+              header={`📖 ${firstName}'s Story`}
               action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
             >
               <div className="ms-box-body">
-                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{profile.career_highlights}</p>
+                {profile.career_highlights && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Previous experience:</p>
+                    <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: '0 0 10px' }}>{profile.career_highlights}</p>
+                  </>
+                )}
+                {profile.passionate_about && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>What I&apos;m passionate about:</p>
+                    <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{profile.passionate_about}</p>
+                  </>
+                )}
               </div>
             </MsBox>
           )}
@@ -1007,6 +1050,31 @@ export default function ProfilePage() {
                     <p style={{ color: 'var(--aac-blue)', margin: 0, lineHeight: 1.6 }}>{profile.favorite_event}</p>
                   </>
                 )}
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Strengths ── */}
+          {profile.strengths && profile.strengths.length > 0 && (
+            <MsBox
+              header={`💪 ${firstName}'s Strengths`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '8px' }}>
+                <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', listStyle: 'none', padding: 0, margin: 0 }}>
+                  {profile.strengths.map((s) => (
+                    <li
+                      key={s}
+                      style={{
+                        background: 'var(--aac-blue-light)', color: 'var(--aac-blue-dark)',
+                        borderRadius: '999px', padding: '3px 10px',
+                        fontSize: '0.8125rem', fontWeight: 600,
+                      }}
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </MsBox>
           )}
@@ -1046,10 +1114,38 @@ export default function ProfilePage() {
             </MsBox>
           )}
 
+          {/* ── Always Growing ── */}
+          {(profile.not_great_at || profile.learning_now || profile.want_to_learn) && (
+            <MsBox
+              header={`🌱 ${firstName}'s Always Growing`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div className="ms-box-body">
+                {profile.not_great_at && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Not great at (yet):</p>
+                    <p style={{ margin: '0 0 10px', lineHeight: 1.6 }}>{profile.not_great_at}</p>
+                  </>
+                )}
+                {profile.learning_now && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Learning right now:</p>
+                    <p style={{ margin: '0 0 10px', lineHeight: 1.6 }}>{profile.learning_now}</p>
+                  </>
+                )}
+                {profile.want_to_learn && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Want to learn:</p>
+                    <p style={{ margin: 0, lineHeight: 1.6 }}>{profile.want_to_learn}</p>
+                  </>
+                )}
+              </div>
+            </MsBox>
+          )}
+
           {/* ── Go-To's ── */}
           <MsBox
             header={`⭐ ${firstName}'s Go-To's`}
-            action={goTos.length > 6 ? { label: `view all ${goTos.length}`, href: '#', srLabel: ` of ${firstName}'s Go-To colleagues` } : undefined}
           >
             <div className="ms-box-body">
               <p style={{ fontSize: '0.75rem', margin: '0 0 8px', color: 'var(--color-text-muted)' }}>
