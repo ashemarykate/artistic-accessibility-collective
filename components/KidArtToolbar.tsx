@@ -36,12 +36,12 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
       aria-label="Play tools"
       className="kid-art-toolbar"
       style={{
-        background: '#d0d0d0',
-        borderRight: '3px solid #888',
+        background: '#e8e4da',
+        borderRight: '3px solid #111',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        padding: '4px 3px',
+        gap: 6,
+        padding: '6px 5px',
         flexShrink: 0,
       }}
     >
@@ -49,12 +49,14 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
       <Link
         href="/"
         aria-label="Back to Home"
+        className="kp-tool"
         style={{
-          width: 34, height: 34,
+          width: 44, height: 44,
           background: '#263590',
-          border: '2px outset #eee',
-          borderRadius: 3,
-          fontSize: 18, lineHeight: 1,
+          border: '3px solid #111',
+          borderRadius: 8,
+          boxShadow: '2px 2px 0 #111',
+          fontSize: 22, lineHeight: 1,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           textDecoration: 'none',
           flexShrink: 0,
@@ -64,7 +66,7 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
       </Link>
 
       {/* Divider */}
-      <div aria-hidden="true" style={{ height: 2, background: '#999', margin: '2px 2px' }} />
+      <div aria-hidden="true" style={{ height: 3, background: '#111', margin: '1px 4px', borderRadius: 2 }} />
 
       {/* Project nav buttons */}
       {TOOLS.map((tool) => {
@@ -75,12 +77,16 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
             href={tool.href}
             aria-label={tool.label}
             aria-current={isActive ? 'page' : undefined}
+            className="kp-tool"
             style={{
-              width: 34, height: 34,
+              width: 44, height: 44,
               background: isActive ? tool.activeBg : tool.bg,
-              border: isActive ? '2px inset #444' : '2px outset #eee',
-              borderRadius: 3,
-              fontSize: 18, lineHeight: 1,
+              border: '3px solid #111',
+              borderRadius: 8,
+              boxShadow: isActive ? 'inset 2px 2px 0 rgba(0,0,0,.5)' : '2px 2px 0 #111',
+              outline: isActive ? '3px solid #f5d84a' : 'none',
+              outlineOffset: isActive ? 1 : 0,
+              fontSize: 22, lineHeight: 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               textDecoration: 'none',
               flexShrink: 0,
@@ -92,14 +98,17 @@ export default function KidArtToolbar({ active }: { active: KidArtPage }) {
       })}
 
       <style>{`
+        .kp-tool{transition:transform .08s ease-out}
+        .kp-tool:hover{transform:rotate(-4deg) scale(1.08)}
+        .kp-tool:focus-visible{outline:3px solid #f5d84a;outline-offset:2px}
+        @media (prefers-reduced-motion: reduce){.kp-tool:hover{transform:none}}
         @media (max-width: 580px) {
           .kid-art-toolbar {
             flex-direction: row !important;
             flex-wrap: wrap !important;
             border-right: none !important;
-            border-bottom: 3px solid #888 !important;
-            padding: 3px 4px !important;
-            gap: 3px !important;
+            border-bottom: 3px solid #111 !important;
+            padding: 5px 6px !important;
           }
         }
       `}</style>

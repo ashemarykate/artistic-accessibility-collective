@@ -235,27 +235,33 @@ export default function ResourcesPage() {
   const [submitStatus, setSubmitStatus]           = useState<'idle' | 'success' | 'error'>('idle');
   const [submitError, setSubmitError]             = useState('');
 
+  const [netStatus, setNetStatus] = useState<'connecting' | 'done'>('connecting');
+
   const loadData = useCallback(async () => {
-    const { data: submissions } = await supabase
-      .from('resource_submissions').select('resource_name,resource_url,description,special_tags')
-      .eq('status', 'approved').order('created_at', { ascending: false });
-    if (submissions?.length) {
-      setMemberResources(submissions.map((s) => ({
-        name: s.resource_name, url: s.resource_url,
-        description: s.description || '', type: 'org' as ResourceType, tags: s.special_tags || [],
-      })));
+    try {
+      const { data: submissions } = await supabase
+        .from('resource_submissions').select('resource_name,resource_url,description,special_tags')
+        .eq('status', 'approved').order('created_at', { ascending: false });
+      if (submissions?.length) {
+        setMemberResources(submissions.map((s) => ({
+          name: s.resource_name, url: s.resource_url,
+          description: s.description || '', type: 'org' as ResourceType, tags: s.special_tags || [],
+        })));
+      }
+      const { data: counts } = await supabase.from('resource_favorites').select('resource_slug');
+      if (counts) {
+        const tally: Record<string, number> = {};
+        for (const row of counts) tally[row.resource_slug] = (tally[row.resource_slug] ?? 0) + 1;
+        setFavCounts(tally);
+      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+      const { data: mine } = await supabase.from('resource_favorites').select('resource_slug').eq('user_id', user.id);
+      if (mine) setUserFavs(new Set(mine.map((r) => r.resource_slug)));
+    } finally {
+      setNetStatus('done');
     }
-    const { data: counts } = await supabase.from('resource_favorites').select('resource_slug');
-    if (counts) {
-      const tally: Record<string, number> = {};
-      for (const row of counts) tally[row.resource_slug] = (tally[row.resource_slug] ?? 0) + 1;
-      setFavCounts(tally);
-    }
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    setUserId(user.id);
-    const { data: mine } = await supabase.from('resource_favorites').select('resource_slug').eq('user_id', user.id);
-    if (mine) setUserFavs(new Set(mine.map((r) => r.resource_slug)));
   }, []);
 
   useEffect(() => { queueMicrotask(() => { loadData(); }); }, [loadData]);
@@ -764,7 +770,9 @@ export default function ResourcesPage() {
             padding: '0 8px', borderTop: `1px solid ${IE.border}`,
             fontSize: '11px', fontFamily: IE.font, gap: '0',
           }}>
-            <span style={{ paddingRight: '10px', borderRight: `1px solid ${IE.border}`, marginRight: '10px' }}>✓ Done</span>
+            <span style={{ paddingRight: '10px', borderRight: `1px solid ${IE.border}`, marginRight: '10px' }}>
+              {netStatus === 'connecting' ? '⏳ Connecting to artisticaccessibility.com…' : '✓ Done'}
+            </span>
             <span style={{ color: '#555' }}>
               {search ? `Searching: "${search}"` : `${totalCount} resources`}
             </span>
