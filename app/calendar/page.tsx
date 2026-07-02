@@ -15,6 +15,7 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
 
 // ── Calendar helpers ──────────────────────────────────────────────────────────
 const DAY_NAMES  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_NAMES_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTH_NAMES = ['January','February','March','April','May','June',
                      'July','August','September','October','November','December'];
 const ROW_H = 46; // px per hour in the day/week time grid
@@ -59,7 +60,7 @@ function isToday(d: Date) {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type FilterMode = 'all' | 'online';
-type CalView   = 'day' | '3day' | 'week' | 'month';
+type CalView   = 'day' | '3day' | 'week' | 'month' | 'list';
 type Phase     = 'boot' | 'filter' | 'app';
 
 // ── Event type classification + colors ────────────────────────────────────────
@@ -442,6 +443,89 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation }: {
   );
 }
 
+// ── Render helper: List / agenda view ─────────────────────────────────────────
+function ListRow({ ev }: { ev: CalEvent }) {
+  const type    = classifyEvent(ev);
+  const start   = new Date(ev.start_at);
+  const timeStr = ev.is_all_day ? 'All day' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const place   = shortLocation(ev.location_name);
+  const meta    = [TYPE_META[type].label, place, ev.organization].filter(Boolean).join(' · ');
+  return (
+    <a
+      href={ev.event_url ?? '#'}
+      target="_blank" rel="noopener noreferrer"
+      className="cal-list-row"
+      title={[ev.title, timeStr, ev.location_name, ev.organization].filter(Boolean).join(' · ')}
+      style={{
+        display: 'flex', gap: 10, alignItems: 'flex-start',
+        padding: '8px 12px', borderBottom: '1px solid #eae7df',
+        textDecoration: 'none', color: '#1a1a2e',
+        fontFamily: '"Tahoma", Arial, sans-serif',
+      }}
+    >
+      <span style={{ width: 62, flexShrink: 0, fontSize: 11, color: '#555', textAlign: 'right', paddingTop: 1, fontVariantNumeric: 'tabular-nums' }}>
+        {timeStr}
+      </span>
+      <span aria-hidden="true" style={{ width: 10, height: 10, marginTop: 3, flexShrink: 0, background: TYPE_META[type].color, borderRadius: 2 }} />
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, lineHeight: 1.3 }}>{ev.title}</span>
+        <span style={{ display: 'block', fontSize: 11, color: '#666', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta}</span>
+      </span>
+    </a>
+  );
+}
+
+function ListView({ events, overlay }: { events: CalEvent[]; overlay: { badge: string; body: string } | null }) {
+  const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+  const upcoming = events
+    .filter(e => new Date(e.start_at) >= startOfToday)
+    .sort((a, b) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime());
+
+  // Group by calendar day, preserving chronological order.
+  const groups: { key: string; date: Date; items: CalEvent[] }[] = [];
+  for (const e of upcoming) {
+    const d = new Date(e.start_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    let g = groups[groups.length - 1];
+    if (!g || g.key !== key) { g = { key, date: d, items: [] }; groups.push(g); }
+    g.items.push(e);
+  }
+
+  if (groups.length === 0) {
+    const badge = overlay?.badge ?? 'NOTHING UPCOMING';
+    const body = overlay?.body ?? 'There are no upcoming events to list right now.';
+    return (
+      <div style={{ flex: 1, position: 'relative', background: '#fafaf6' }}>
+        <GridOverlay badge={badge} body={body} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', background: '#fafaf6' }}>
+      {groups.map(g => (
+        <div key={g.key}>
+          <div style={{
+            position: 'sticky', top: 0, zIndex: 1,
+            background: isToday(g.date) ? '#dce8ff' : '#ece9d8',
+            borderBottom: '1px solid #b4b0a8', borderTop: '1px solid #cdc9bf',
+            padding: '4px 12px', fontSize: 12, fontWeight: 'bold',
+            color: isToday(g.date) ? '#263590' : '#333',
+            fontFamily: '"Tahoma", Arial, sans-serif',
+          }}>
+            {DAY_NAMES_LONG[g.date.getDay()]}, {MONTH_NAMES[g.date.getMonth()]} {g.date.getDate()}
+            {isToday(g.date) && <span style={{ fontWeight: 'normal' }}> · Today</span>}
+            <span style={{ fontWeight: 'normal', color: '#888', float: 'right', fontSize: 11 }}>
+              {g.items.length} {g.items.length === 1 ? 'event' : 'events'}
+            </span>
+          </div>
+          {g.items.map(ev => <ListRow key={ev.id} ev={ev} />)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
   const router = useRouter();
@@ -596,7 +680,9 @@ export default function CalendarPage() {
   };
 
   // Period label
-  const periodLabel = view === 'month'
+  const periodLabel = view === 'list'
+    ? 'Upcoming events'
+    : view === 'month'
     ? `${MONTH_NAMES[monthDate.getMonth()]} ${monthDate.getFullYear()}`
     : view === 'week'
       ? `${MONTH_NAMES[weekDays[0].getMonth()]} ${weekDays[0].getDate()} – ${weekDays[6].getDate()}, ${weekDays[6].getFullYear()}`
@@ -649,6 +735,7 @@ export default function CalendarPage() {
           .cal-boot { animation: none !important; display: none !important; }
         }
         .cal-view-btn:hover { background: #316ac5 !important; color: #fff !important; }
+        .cal-list-row:hover, .cal-list-row:focus-visible { background: #eef1fb; outline: 2px solid #f5d84a; outline-offset: -2px; }
         .cal-view-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
         .cal-nav-btn:hover { background: #c8c4bc !important; }
         .cal-nav-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
@@ -909,41 +996,43 @@ export default function CalendarPage() {
             display: 'flex', alignItems: 'center', gap: 6,
             flexShrink: 0, flexWrap: 'wrap',
           }}>
-            {/* Period navigation */}
-            <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <button
-                onClick={navPrev}
-                aria-label="Previous"
-                className="cal-nav-btn"
-                style={{
-                  background: '#d4d0c8', border: '1px outset #fff',
-                  padding: '1px 8px', fontSize: 11, cursor: 'pointer',
-                  fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                  borderRadius: 2,
-                }}
-              >◄</button>
-              <button
-                onClick={navToday}
-                className="cal-nav-btn"
-                style={{
-                  background: '#d4d0c8', border: '1px outset #fff',
-                  padding: '1px 8px', fontSize: 11, cursor: 'pointer',
-                  fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                  borderRadius: 2, fontWeight: 'bold',
-                }}
-              >Today</button>
-              <button
-                onClick={navNext}
-                aria-label="Next"
-                className="cal-nav-btn"
-                style={{
-                  background: '#d4d0c8', border: '1px outset #fff',
-                  padding: '1px 8px', fontSize: 11, cursor: 'pointer',
-                  fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                  borderRadius: 2,
-                }}
-              >►</button>
-            </div>
+            {/* Period navigation — an agenda list scrolls, so paging is hidden there */}
+            {view !== 'list' && (
+              <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <button
+                  onClick={navPrev}
+                  aria-label="Previous"
+                  className="cal-nav-btn"
+                  style={{
+                    background: '#d4d0c8', border: '1px outset #fff',
+                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                    borderRadius: 2,
+                  }}
+                >◄</button>
+                <button
+                  onClick={navToday}
+                  className="cal-nav-btn"
+                  style={{
+                    background: '#d4d0c8', border: '1px outset #fff',
+                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                    borderRadius: 2, fontWeight: 'bold',
+                  }}
+                >Today</button>
+                <button
+                  onClick={navNext}
+                  aria-label="Next"
+                  className="cal-nav-btn"
+                  style={{
+                    background: '#d4d0c8', border: '1px outset #fff',
+                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    fontFamily: '"MS Sans Serif", Arial, sans-serif',
+                    borderRadius: 2,
+                  }}
+                >►</button>
+              </div>
+            )}
 
             {/* Period label */}
             <span style={{
@@ -1046,7 +1135,7 @@ export default function CalendarPage() {
               aria-label="Calendar view"
               style={{ display: 'flex', gap: 1 }}
             >
-              {(['day','3day','week','month'] as CalView[]).map(v => (
+              {(['list','day','3day','week','month'] as CalView[]).map(v => (
                 <button
                   key={v}
                   role="tab"
@@ -1062,7 +1151,7 @@ export default function CalendarPage() {
                     borderRadius: 2, transition: 'background 0.1s',
                   }}
                 >
-                  {v === '3day' ? '3 Days' : v.charAt(0).toUpperCase() + v.slice(1)}
+                  {v === '3day' ? '3 Days' : v === 'list' ? '☰ List' : v.charAt(0).toUpperCase() + v.slice(1)}
                 </button>
               ))}
             </div>
@@ -1229,7 +1318,9 @@ export default function CalendarPage() {
                     We couldn&apos;t load events right now. Try refreshing the page.
                   </p>
                 </div>
-              ) : view === 'month'
+              ) : view === 'list'
+                ? <ListView events={shownEvents} overlay={overlay} />
+                : view === 'month'
                 ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} overlay={overlay} showLocation={showLocation} />
                 : <TimeGrid colDays={colDays} numCols={numCols} events={shownEvents} overlay={overlay} showLocation={showLocation} />}
 
