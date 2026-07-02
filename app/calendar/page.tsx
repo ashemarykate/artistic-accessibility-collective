@@ -17,7 +17,7 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
 const DAY_NAMES  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['January','February','March','April','May','June',
                      'July','August','September','October','November','December'];
-const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8 am – 8 pm
+const ROW_H = 46; // px per hour in the day/week time grid
 
 function getWeekStart(d: Date): Date {
   const s = new Date(d);
@@ -122,6 +122,59 @@ function shortLocation(loc: string | null): string | null {
   return city ?? (segs[segs.length - 1] ?? loc).slice(0, 22);
 }
 
+// Minutes-of-day for a timed event's start, and its end (default 1h, clamped).
+function evStartMin(ev: CalEvent): number {
+  const s = new Date(ev.start_at);
+  return s.getHours() * 60 + s.getMinutes();
+}
+function evEndMin(ev: CalEvent): number {
+  const start = evStartMin(ev);
+  if (!ev.end_at) return start + 60;
+  const dur = (new Date(ev.end_at).getTime() - new Date(ev.start_at).getTime()) / 60000;
+  return start + Math.max(20, Math.min(dur, 8 * 60));
+}
+// A "timed" event sits in an hour slot. All-day flags, midnight-with-no-time,
+// and anything running 8h+ (multi-day festivals, exhibitions) go to the
+// all-day header band instead of a giant block.
+function isTimed(ev: CalEvent): boolean {
+  if (ev.is_all_day) return false;
+  const s = new Date(ev.start_at);
+  if (ev.end_at) {
+    const hrs = (new Date(ev.end_at).getTime() - s.getTime()) / 3600000;
+    if (hrs >= 8) return false;
+  }
+  if (s.getHours() === 0 && s.getMinutes() === 0 && !ev.end_at) return false;
+  return true;
+}
+
+// Lay overlapping events out into side-by-side columns (Google-Calendar style):
+// each returned item gets its column index and the total columns in its cluster.
+type Packed = { ev: CalEvent; start: number; end: number; col: number; cols: number };
+function packDay(evs: CalEvent[]): Packed[] {
+  const items = evs
+    .map(ev => ({ ev, start: evStartMin(ev), end: evEndMin(ev), col: 0, cols: 0 }))
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+  const out: Packed[] = [];
+  let cluster: Packed[] = [];
+  let colEnds: number[] = []; // running end-minute per column in the active cluster
+  const flush = () => {
+    const cols = colEnds.length || 1;
+    cluster.forEach(it => { it.cols = cols; });
+    out.push(...cluster);
+    cluster = []; colEnds = [];
+  };
+  for (const it of items) {
+    if (colEnds.length && it.start >= Math.max(...colEnds)) flush();
+    let col = colEnds.findIndex(end => end <= it.start);
+    if (col === -1) { col = colEnds.length; colEnds.push(it.end); }
+    else colEnds[col] = it.end;
+    it.col = col;
+    cluster.push(it);
+  }
+  flush();
+  return out;
+}
+
 /** Events that start on the given calendar date */
 function eventsForDate(events: CalEvent[], d: Date): CalEvent[] {
   return events.filter(ev => {
@@ -159,6 +212,31 @@ function EventChip({ ev, showLocation }: { ev: CalEvent; showLocation?: boolean 
   );
 }
 
+/** An absolutely-positioned event block inside the day/week time grid */
+function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) {
+  const type    = classifyEvent(ev);
+  const start   = new Date(ev.start_at);
+  const timeStr = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return (
+    <a
+      href={ev.event_url ?? '#'}
+      target="_blank" rel="noopener noreferrer"
+      title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
+      style={{
+        position: 'absolute', zIndex: 1,
+        ...style,
+        background: TYPE_META[type].color, color: '#fff',
+        fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
+        padding: '1px 3px', borderRadius: 2, overflow: 'hidden',
+        textDecoration: 'none', cursor: 'pointer', lineHeight: 1.15,
+        boxShadow: '0 0 0 1px rgba(255,255,255,0.4)',
+      }}
+    >
+      <span style={{ opacity: 0.8 }}>{timeStr}</span> {ev.title}
+    </a>
+  );
+}
+
 /** Centered overlay used for the empty / no-match / coming-soon states */
 function GridOverlay({ badge, body }: { badge: string; body: string }) {
   return (
@@ -191,19 +269,31 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
   overlay: { badge: string; body: string } | null;
   showLocation?: boolean;
 }) {
+  // Fit the hour range to the timed events actually shown (default 8am–8pm).
+  const allTimed = colDays.flatMap(d => eventsForDate(events, d).filter(isTimed));
+  let startH = 8, endH = 20;
+  if (allTimed.length) {
+    startH = Math.max(0, Math.min(8, Math.floor(Math.min(...allTimed.map(evStartMin)) / 60)));
+    endH   = Math.min(24, Math.max(20, Math.ceil(Math.max(...allTimed.map(evEndMin)) / 60)));
+  }
+  const hours = Array.from({ length: endH - startH }, (_, i) => startH + i);
+  const gridH = (endH - startH) * ROW_H;
+  const colLeft = (ci: number) => `calc(52px + ${ci} * (100% - 52px) / ${numCols})`;
+  const colW = `calc((100% - 52px) / ${numCols})`;
+
   return (
     <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-      {/* Day header row */}
+      {/* Day header row (day name + date + any all-day events) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
         borderBottom: '2px solid #b4b0a8',
         background: '#ece9d8',
-        position: 'sticky', top: 0, zIndex: 2,
+        position: 'sticky', top: 0, zIndex: 3,
       }}>
-        <div style={{ borderRight: '1px solid #b4b0a8' }} />
+        <div style={{ borderRight: '1px solid #b4b0a8', fontSize: 8, color: '#999', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 4px 3px' }}>all day</div>
         {colDays.map((d, i) => {
-          const dayEvs = eventsForDate(events, d);
+          const allDay = eventsForDate(events, d).filter(e => !isTimed(e));
           return (
             <div
               key={i}
@@ -218,47 +308,59 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
               }}
             >
               <div>{DAY_NAMES[d.getDay()]}</div>
-              <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: dayEvs.length ? 3 : 0 }}>{d.getDate()}</div>
-              {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
+              <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: allDay.length ? 3 : 0 }}>{d.getDate()}</div>
+              {allDay.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
             </div>
           );
         })}
       </div>
 
-      {/* Time rows */}
-      <div style={{ position: 'relative' }}>
-        {HOURS.map((h, hi) => (
-          <div
-            key={h}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `52px repeat(${numCols}, 1fr)`,
-              borderBottom: '1px solid #e8e4dc',
-              minHeight: 44,
-            }}
-          >
+      {/* Time grid — hour lines behind, timed events positioned at their times */}
+      <div style={{ position: 'relative', height: gridH }}>
+        {/* Hour rows (background stripes + gutter labels) */}
+        {hours.map((h, hi) => (
+          <div key={h} aria-hidden="true" style={{
+            position: 'absolute', top: hi * ROW_H, left: 0, right: 0, height: ROW_H,
+            borderTop: '1px solid #e8e4dc',
+            background: hi % 2 === 0 ? '#fff' : '#fafaf8',
+          }}>
             <div style={{
-              fontSize: 9, color: '#888',
-              padding: '3px 4px 0',
-              borderRight: '1px solid #b4b0a8',
-              textAlign: 'right',
-              userSelect: 'none',
-              lineHeight: 1,
+              position: 'absolute', left: 0, top: 0, width: 52, height: '100%',
+              boxSizing: 'border-box', borderRight: '1px solid #b4b0a8',
+              fontSize: 9, color: '#888', textAlign: 'right', padding: '2px 4px 0',
+              userSelect: 'none', background: '#fbfaf7',
             }}>
               {hi === 0 ? fmtHour(h) : fmtHour(h).replace(':00 ', '')}
             </div>
-            {colDays.map((d, ci) => (
-              <div
-                key={ci}
-                style={{
-                  borderRight: ci < numCols - 1 ? '1px solid #e8e4dc' : undefined,
-                  background: isToday(d) ? 'rgba(38,53,144,0.04)' : hi % 2 === 0 ? '#fff' : '#fafaf8',
-                  minHeight: 44,
-                }}
-              />
-            ))}
           </div>
         ))}
+
+        {/* Column separators + today tint */}
+        {colDays.map((d, ci) => (
+          <div key={'c' + ci} aria-hidden="true" style={{
+            position: 'absolute', top: 0, bottom: 0,
+            left: colLeft(ci), width: colW,
+            borderRight: ci < numCols - 1 ? '1px solid #e8e4dc' : undefined,
+            background: isToday(d) ? 'rgba(38,53,144,0.05)' : undefined,
+            pointerEvents: 'none',
+          }} />
+        ))}
+
+        {/* Timed events, positioned by start time and packed into columns */}
+        {colDays.map((d, ci) =>
+          packDay(eventsForDate(events, d).filter(isTimed)).map(({ ev, start, end, col, cols }) => (
+            <TimeBlock
+              key={ev.id}
+              ev={ev}
+              style={{
+                top: Math.max(0, (start - startH * 60) / 60 * ROW_H),
+                height: Math.max(15, (end - start) / 60 * ROW_H - 1),
+                left: `calc(${colLeft(ci)} + ${col} * ${colW} / ${cols})`,
+                width: `calc(${colW} / ${cols} - 2px)`,
+              }}
+            />
+          ))
+        )}
 
         {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
       </div>
