@@ -379,7 +379,7 @@ export default function SubmitProfile() {
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
         <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{loading ? 'Checking your invite code…' : ''}</div>
 
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block', transform: 'rotate(-1.2deg)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={100} />
         </Link>
@@ -439,7 +439,7 @@ export default function SubmitProfile() {
     return (
       <BrowserChrome variant="ie3" title="Join the Collective · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '6rem', paddingBottom: '4rem', paddingLeft: '1rem', paddingRight: '1rem', minHeight: '100%', background: '#0d5c4a' }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block', transform: 'rotate(-1.2deg)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={100} />
         </Link>
@@ -500,7 +500,7 @@ export default function SubmitProfile() {
     return (
       <BrowserChrome variant="ie3" title="Application Submitted · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/submit">
       <main className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%', background: '#0d5c4a' }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block', transform: 'rotate(-1.2deg)' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Logo alt="" height={72} />
         </Link>
@@ -570,7 +570,7 @@ export default function SubmitProfile() {
 
       <div className="page-container" style={{ maxWidth: '700px' }}>
         <div style={{ textAlign: 'center', marginBottom: '0' }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', display: 'inline-block' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <Logo alt="" height={72} />
           </Link>

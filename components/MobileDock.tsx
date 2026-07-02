@@ -61,6 +61,14 @@ export default function MobileDock() {
         }
         .mobile-dock-btn[aria-current="page"] .mobile-dock-label { font-weight: 700; }
         .mobile-dock-label { font-size: 10px; line-height: 1; }
+        /* Sticker tilt: each button sits slightly off-square; the active one
+           is pressed flat. Decorative only, hit areas unchanged. */
+        .mobile-dock-btn:nth-child(1) { transform: rotate(-1.5deg); }
+        .mobile-dock-btn:nth-child(2) { transform: rotate(1deg); }
+        .mobile-dock-btn:nth-child(3) { transform: rotate(-1deg); }
+        .mobile-dock-btn:nth-child(4) { transform: rotate(1.5deg); }
+        .mobile-dock-btn[aria-current="page"] { transform: none; }
+        .mobile-dock-btn:active { transform: translate(1px, 1px); }
         @media (max-width: 640px) {
           .mobile-dock { display: flex; }
         }

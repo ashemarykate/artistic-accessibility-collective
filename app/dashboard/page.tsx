@@ -572,7 +572,7 @@ export default function MemberHub() {
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little yellow person with speech bubble emoticon"><PersonBubbleIcon /></span> Discussion Board</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-2deg)' }}>
                 Coming Soon
               </span>
             </div>
@@ -587,7 +587,7 @@ export default function MemberHub() {
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little orange person with star emoticon"><PersonStarIcon /></span> Job Board</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(1.5deg)' }}>
                 Coming Soon
               </span>
             </div>
@@ -667,7 +667,7 @@ export default function MemberHub() {
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little purple monitor with play button emoticon"><MonitorPlayIcon /></span> Learning Portal</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-1.5deg)' }}>
                 Coming Soon
               </span>
             </div>
@@ -682,7 +682,7 @@ export default function MemberHub() {
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little magenta camera with live dot emoticon"><LiveCameraIcon /></span> Upcoming Live Events</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(2deg)' }}>
                 Coming Soon
               </span>
             </div>
@@ -697,7 +697,7 @@ export default function MemberHub() {
           <div className="ms-box">
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little amber location pin emoticon"><LocationPinIcon /></span> Upcoming In-Person Events</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-1deg)' }}>
                 Coming Soon
               </span>
             </div>

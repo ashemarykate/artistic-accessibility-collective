@@ -133,7 +133,7 @@ export default function HelpPage() {
     <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Help · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/help">
       <>
         <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', display: 'inline-block' }}>
             <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>
         </header>

@@ -44,7 +44,7 @@ export default function WorkWithUsPage() {
     <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Work With Us · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/work-with-us">
       <>
         <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', display: 'inline-block' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/logo-across-blue-bg.svg" alt="" style={{ display: 'block', height: 44, width: 'auto' }} />
           </Link>

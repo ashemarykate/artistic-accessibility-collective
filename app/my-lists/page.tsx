@@ -115,7 +115,7 @@ export default function MyListsPage() {
             <h1 style={{ margin: 0, padding: 0, fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit', fontFamily: 'inherit' }}>
               My Lists: Coming Soon
             </h1>
-            <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-2deg)', display: 'inline-block' }}>
               Coming Soon
             </span>
           </div>

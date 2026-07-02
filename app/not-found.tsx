@@ -37,7 +37,7 @@ export default function NotFound() {
     >
       <div style={{ maxWidth: 620, width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <span style={{ background: '#aaaaaa', color: '#0000aa', padding: '2px 14px', fontWeight: 700, fontSize: 15, letterSpacing: 1 }}>
+          <span style={{ background: '#aaaaaa', color: '#0000aa', padding: '2px 14px', fontWeight: 700, fontSize: 15, letterSpacing: 1, display: 'inline-block', transform: 'rotate(-2deg)' }}>
             Artistic Accessibility
           </span>
         </div>

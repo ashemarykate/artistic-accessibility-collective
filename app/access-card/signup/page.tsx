@@ -88,7 +88,7 @@ export default function AccessCardSignup() {
     return (
       <BrowserChrome variant="ie3" title="Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card/signup">
         <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
-          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1.5rem', display: 'inline-block' }}>
+          <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', marginBottom: '1.5rem', display: 'inline-block' }}>
             <Logo height={72} />
           </Link>
           <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
@@ -118,7 +118,7 @@ export default function AccessCardSignup() {
     <BrowserChrome variant="ie3" title="Get an Access Card · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/access-card/signup">
       <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.25rem 1rem 3rem', minHeight: '100%' }}>
 
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', marginBottom: '1rem', display: 'inline-block' }}>
           <Logo height={72} />
         </Link>
 

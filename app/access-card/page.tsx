@@ -529,7 +529,7 @@ function AccessCardContent() {
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '1rem', display: 'inline-block' }}>
+        <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', marginBottom: '1rem', display: 'inline-block' }}>
           <Logo height={56} />
         </Link>
 

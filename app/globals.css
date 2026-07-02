@@ -497,6 +497,21 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 .ms-avail-inquiry    { background: var(--aac-blue-light); border-color: #a0b0e8; color: var(--aac-blue-dark); }
 .ms-avail-unavailable{ background: #fde8e6; border-color: #f5b7b1; color: var(--color-error); }
 
+/* ── Sticker tilt ─────────────────────────────────────────────────────────────
+   Identity elements (badges, logos, icons) sit a degree or two off-square,
+   like hand-placed stickers. Functional surfaces (text, forms, browser chrome)
+   always stay straight. Static transforms only: nothing moves on its own, so
+   reduced-motion users get the identical experience. */
+.ms-admin-badge  { transform: rotate(1deg); }
+.ms-member-badge { transform: rotate(-1.5deg); }
+.ms-bot-badge    { transform: rotate(1.5deg); }
+.ms-avail-badge  { transform: rotate(-1deg); }
+/* Inside ruled tables, straight wins: a tilt between two hairline rules reads
+   as misalignment, not play. */
+.ms-table .ms-avail-badge { transform: none; }
+.site-header-logo { transform: rotate(-1.2deg); transition: transform .12s ease-out; }
+.site-header-logo:hover, .site-header-logo:focus-visible { transform: rotate(0deg); }
+
 /* Experience level badge */
 .ms-level-badge {
   display: inline-flex;

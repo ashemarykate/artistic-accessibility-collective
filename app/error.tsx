@@ -42,7 +42,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         </div>
 
         <div style={{ padding: '18px 16px 16px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <svg aria-hidden="true" width="40" height="40" viewBox="0 0 40 40" style={{ flexShrink: 0 }}>
+          <svg aria-hidden="true" width="40" height="40" viewBox="0 0 40 40" style={{ flexShrink: 0, transform: 'rotate(-3deg)' }}>
             <circle cx="20" cy="20" r="19" fill="#c0392b" stroke="#7a150b" />
             <path d="M13 13 L27 27 M27 13 L13 27" stroke="#fff" strokeWidth="4.5" strokeLinecap="round" />
           </svg>

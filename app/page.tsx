@@ -84,16 +84,6 @@ const ITEMS: Record<string, ItemDef> = {
 
 const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
 
-const POSITIONS: Record<string, { x: string; y: number }> = {
-  'about':       { x: 'max(8px, 2%)',    y: 8   },
-  'all-folders': { x: 'max(8px, 2%)',    y: 185 },
-  'make-art':    { x: 'max(148px, 18%)', y: 55  },
-  'collective':  { x: 'max(148px, 18%)', y: 265 },
-  'calendar':    { x: 'max(8px, 2%)',    y: 355 },
-  'resources':   { x: 'max(276px, 33%)', y: 18  },
-  'contact':     { x: 'max(276px, 33%)', y: 215 },
-  'learning':    { x: 'max(148px, 18%)', y: 380 },
-};
 
 const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string; children: string[] }> = [
   { type: 'leaf',   key: 'about' },
@@ -114,23 +104,62 @@ function Ico({ n, size }: { n: string | number; size: number }) {
   );
 }
 
-function DeskIcon({ k, onOpen, selected, onSelect }: {
+// Deterministic per-icon hash so the giant icons read as hand-slapped
+// stickers of mismatched size, tilt and placement, not a uniformly
+// scaled-up UI. Same key always gets the same values (stable across renders).
+function hash(seed: string, salt: string): number {
+  let h = 0;
+  const s = seed + salt;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 2147483647;
+  return h;
+}
+function iconTilt(k: string): number { return (hash(k, 'tilt') % 23) - 11; }        // -11..11deg
+function iconScale(k: string): number { return 130 + (hash(k, 'scale') % 61); }     // 130..190px
+// Kept within +-8px so two neighbours can converge at most 16px, always less
+// than the 20px container gap: adjacent hit areas can never overlap.
+function iconJitterX(k: string): number { return (hash(k, 'jx') % 17) - 8; }        // -8..8px
+function iconJitterY(k: string): number { return (hash(k, 'jy') % 17) - 8; }        // -8..8px
+
+function DeskIcon({ k, onOpen, selected, onSelect, isMobile }: {
   k: string;
   onOpen: (key: string) => void;
   selected: boolean;
   onSelect: (key: string) => void;
+  isMobile: boolean;
 }) {
   const it = ITEMS[k];
+  // Sticker treatment: oversized + mismatched on desktop; mobile keeps its
+  // compact uniform grid but shares the tilt and sticker shadow, gentler.
+  const size = isMobile ? 64 : iconScale(k);
+  const tilt = isMobile ? Math.round(iconTilt(k) * 0.45) : iconTilt(k);
+  const shadowOff = Math.round(size / 176 * 7);
   return (
     <button
       onClick={() => { onSelect(k); onOpen(k); }}
       onFocus={() => onSelect(k)}
       className="dsk-icon"
       aria-label={it.kind === 'ext' ? `${it.label} (opens in new tab)` : it.label}
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 116, padding: '10px 6px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, WebkitTapHighlightColor: 'transparent' }}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        width: isMobile ? 116 : Math.max(150, size + 22), padding: isMobile ? '10px 6px 8px' : '12px 8px 10px',
+        background: 'none', border: 'none', cursor: 'pointer', borderRadius: 4, WebkitTapHighlightColor: 'transparent',
+        // Jitter rides on custom props (not inline transform) so the global
+        // button :active press-down rule still wins on click.
+        ...(isMobile ? {} : { ['--jx' as string]: `${iconJitterX(k)}px`, ['--jy' as string]: `${iconJitterY(k)}px` }),
+      }}
     >
-      <span className="dsk-icon-img-wrap" style={{ filter: 'drop-shadow(1px 2px 0 rgba(0,0,0,.45))' }}>
-        <Ico n={it.icon} size={64} />
+      <span
+        className="dsk-icon-img-wrap"
+        style={{
+          // --tilt drives the resting angle; hover/focus straightens it (see stylesheet).
+          ['--tilt' as string]: `${tilt}deg`,
+          filter: isMobile
+            ? `drop-shadow(0 0 3px rgba(255,255,255,.7)) drop-shadow(3px 4px 0 rgba(0,0,0,.5))`
+            : `drop-shadow(0 0 4px rgba(255,255,255,.85)) drop-shadow(${shadowOff}px ${shadowOff + 2}px 0 rgba(0,0,0,.55))`,
+          display: 'inline-block',
+        }}
+      >
+        <Ico n={it.icon} size={size} />
       </span>
       <span className={'dsk-label' + (selected ? ' sel' : '')}>{it.label}</span>
     </button>
@@ -778,23 +807,28 @@ export default function Home() {
       )}
 
       {/* Desktop icons — hand-placed on desktop, grid on mobile */}
+      <p id="desktop-desc" className="sr-only">
+        {isMobile
+          ? 'The icons below are playfully tilted, like hand-placed stickers. They work exactly like normal buttons.'
+          : 'The icons below are playfully oversized, tilted, and mismatched in size, like hand-placed stickers. They work exactly like normal buttons.'}
+      </p>
       <div
         ref={deskRef}
         tabIndex={-1}
         onPointerDown={(e) => e.stopPropagation()}
         role="list"
         aria-label="Desktop"
+        aria-describedby="desktop-desc"
         className="dsk-container"
-        style={{ position: 'absolute', top: headerH, left: 0, right: 0, bottom: 58, zIndex: 2, pointerEvents: 'none' }}
+        style={isMobile
+          ? { position: 'absolute', top: headerH, left: 0, right: 0, bottom: 58, zIndex: 2, pointerEvents: 'none' }
+          : { position: 'absolute', top: headerH, left: 0, right: 0, bottom: 122, zIndex: 2, pointerEvents: 'none', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignContent: 'center', alignItems: 'flex-start', gap: 20, padding: '0 32px' }}
       >
-        {DESKTOP.map(k => {
-          const pos = POSITIONS[k] ?? { x: '8px', y: 8 };
-          return (
-            <div role="listitem" key={k} className="dsk-item" style={{ position: 'absolute', left: pos.x, top: pos.y, pointerEvents: 'all' }}>
-              <DeskIcon k={k} onOpen={open} selected={sel === k} onSelect={setSel} />
-            </div>
-          );
-        })}
+        {DESKTOP.map(k => (
+          <div role="listitem" key={k} className="dsk-item" style={isMobile ? undefined : { pointerEvents: 'all' }}>
+            <DeskIcon k={k} onOpen={open} selected={sel === k} onSelect={setSel} isMobile={isMobile} />
+          </div>
+        ))}
       </div>
 
       {/* Windows */}
@@ -813,23 +847,24 @@ export default function Home() {
       {/* Start menu */}
       {startOpen && <StartMenu onOpen={open} onClose={() => setStartOpen(false)} />}
 
-      {/* Taskbar */}
+      {/* Taskbar — oversized sticker treatment on desktop; compact classic bar on mobile. */}
       <div
         onPointerDown={(e) => e.stopPropagation()}
         role="presentation"
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 44, background: SILVER, boxShadow: 'inset 0 2px 0 #fff', borderTop: '1px solid #fff', display: 'flex', alignItems: 'center', gap: 5, padding: '0 5px', zIndex: 8500, fontFamily: UIFONT }}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: isMobile ? 44 : 114, background: SILVER, boxShadow: `inset 0 ${isMobile ? 2 : 3}px 0 #fff`, borderTop: `${isMobile ? 1 : 2}px solid #fff`, display: 'flex', alignItems: 'center', gap: isMobile ? 5 : 10, padding: isMobile ? '0 5px' : '0 10px', zIndex: 8500, fontFamily: UIFONT }}
       >
         <button
           onClick={() => setStartOpen(s => !s)}
           aria-haspopup="menu"
           aria-expanded={startOpen}
-          style={{ height: 36, background: SILVER, boxShadow: startOpen ? SUNKEN : RAISED, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px 0 7px', fontFamily: UIFONT, fontWeight: 700, fontSize: 14, color: '#0a0a0a' }}
+          className={isMobile ? undefined : 'start-btn'}
+          style={{ height: isMobile ? 36 : 90, background: SILVER, boxShadow: startOpen ? SUNKEN : RAISED, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 10px 0 7px' : '0 22px 0 10px', fontFamily: UIFONT, fontWeight: 700, fontSize: isMobile ? 14 : 24, color: '#0a0a0a' }}
         >
-          <span aria-hidden="true" style={{ width: 20, height: 20 }}><Ico n={56} size={20} /></span>
+          <span aria-hidden="true" style={{ width: isMobile ? 20 : 66, height: isMobile ? 20 : 66, flexShrink: 0 }}><Ico n={56} size={isMobile ? 20 : 66} /></span>
           Start
         </button>
-        <div aria-hidden="true" style={{ width: 1, height: 24, background: '#808080', boxShadow: '1px 0 0 #fff', margin: '0 3px' }} />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{ width: isMobile ? 1 : 2, height: isMobile ? 24 : 64, background: '#808080', boxShadow: `${isMobile ? 1 : 2}px 0 0 #fff`, margin: '0 3px' }} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: isMobile ? 4 : 8, overflow: 'hidden' }}>
           {wins.map(w => {
             const wIt = ITEMS[w.key];
             const wTitle = w.kind === 'aim' ? 'Buddy List' : w.kind === 'explorer' ? 'Resources' : w.kind === 'folder' ? 'All Folders' : wIt?.label ?? '';
@@ -837,14 +872,14 @@ export default function Home() {
             const top = wins.length > 0 && Math.max(...wins.map(x => x.z)) === w.z;
             return (
               <button key={w.id} onClick={() => focusWin(w.id)}
-                style={{ height: 36, maxWidth: 150, boxShadow: top ? SUNKEN : RAISED, background: top ? '#bcbcbc' : SILVER, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, padding: '0 9px', fontSize: 12.5, color: '#0a0a0a', fontFamily: UIFONT }}>
-                <span aria-hidden="true" style={{ width: 16, height: 16, flexShrink: 0 }}><Ico n={wIc} size={16} /></span>
+                style={{ height: isMobile ? 36 : 76, maxWidth: isMobile ? 150 : 260, boxShadow: top ? SUNKEN : RAISED, background: top ? '#bcbcbc' : SILVER, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 9px' : '0 16px', fontSize: isMobile ? 12.5 : 20, color: '#0a0a0a', fontFamily: UIFONT }}>
+                <span aria-hidden="true" style={{ width: isMobile ? 16 : 30, height: isMobile ? 16 : 30, flexShrink: 0 }}><Ico n={wIc} size={isMobile ? 16 : 30} /></span>
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{wTitle}</span>
               </button>
             );
           })}
         </div>
-        <div aria-hidden="true" style={{ boxShadow: FIELD, padding: '5px 10px', fontSize: 12.5, color: '#0a0a0a' }}>
+        <div aria-hidden="true" style={{ boxShadow: FIELD, padding: isMobile ? '5px 10px' : '10px 20px', fontSize: isMobile ? 12.5 : 26, color: '#0a0a0a', flexShrink: 0, transform: isMobile ? undefined : 'rotate(1.5deg)' }}>
           {time}
         </div>
       </div>
@@ -853,9 +888,13 @@ export default function Home() {
         .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
         .win-close{position:relative;overflow:visible}
         .win-close::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);min-width:44px;min-height:44px;display:block}
-        .dsk-label{color:#fff;font-family:${UIFONT};font-size:13px;font-weight:600;text-align:center;line-height:1.3;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5);padding:2px 5px;max-width:112px;border:1px dotted transparent}
+        .dsk-label{color:#fff;font-family:${UIFONT};font-size:17px;font-weight:600;text-align:center;line-height:1.25;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5);padding:2px 6px;max-width:160px;border:1px dotted transparent}
         .dsk-label.sel{background:#0a246a;border:1px dotted #fff;text-shadow:none}
         .dsk-icon:focus-visible .dsk-label{background:#0a246a;border:1px dotted #fff;text-shadow:none}
+        .dsk-icon{transform:translate(var(--jx,0px),var(--jy,0px))}
+        .start-btn{transform:rotate(-2deg)}
+        .dsk-icon-img-wrap{transform:rotate(var(--tilt,0deg));transition:transform .12s ease-out}
+        .dsk-icon:hover .dsk-icon-img-wrap,.dsk-icon:focus-visible .dsk-icon-img-wrap{transform:rotate(0deg) scale(1.05)}
         .win-row:hover,.win-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
         .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#3a49b8,#22306e);outline:2px solid #ffd21a;outline-offset:-2px}
         .start-sub{display:none}
@@ -876,7 +915,7 @@ export default function Home() {
           .start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
           .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:12px!important;padding:14px!important;align-content:start!important;pointer-events:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
           .dsk-item{position:static!important;pointer-events:all!important}
-          .dsk-icon{width:100%!important;padding:14px 10px 12px!important;justify-content:center!important}
+          .dsk-icon{width:100%!important;padding:14px 10px 12px!important;justify-content:center!important;--jx:0px!important;--jy:0px!important}
           .dsk-icon-img-wrap img{width:80px!important;height:80px!important}
           .dsk-label{font-size:13px!important;max-width:none!important}
         }
