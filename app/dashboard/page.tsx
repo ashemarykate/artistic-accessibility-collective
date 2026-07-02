@@ -272,42 +272,29 @@ export default function MemberHub() {
         </nav>
       </header>
 
-      {/* ── Hello bar ──────────────────────────────────────────────────── */}
-      <div style={{ background: 'var(--aac-cream)', borderBottom: '1px solid var(--ms-border)', padding: '6px 12px' }}>
-        <h1 style={{ fontWeight: 'bold', fontSize: '1.125rem', color: 'var(--aac-navy)', margin: 0 }}>
-          Hello, {firstName}!
-        </h1>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-          My URL:{' '}
-          <Link href={profileHref(profile)} style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-            artisticaccessibility.com/profile/{profile.username ?? profile.id.slice(0, 8)}
-          </Link>
-          {' · '}
-          <Link href="/profile/edit" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>
-            <PencilIcon />Edit Profile
-          </Link>
-        </p>
-      </div>
-
       {/* ── Three-column layout ────────────────────────────────────────── */}
       <div className="ms-hub-grid">
 
         {/* ════════════════ LEFT SIDEBAR ════════════════ */}
         <aside aria-label="Profile sidebar">
 
-          {/* Profile card */}
+          {/* Profile card — doubles as the page's "Hello" greeting so it
+              isn't duplicated in a separate strip above the grid. */}
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header" style={{ fontSize: '0.8rem' }}>
-              <h2>
-                {displayName}
+              <h1 style={{ margin: 0, fontSize: 'inherit', fontWeight: 'inherit' }}>
+                Hello, {firstName}!
                 {isAdmin ? (
                   <span className="ms-admin-badge" style={{ marginLeft: '4px' }} aria-label="Admin">✦ Admin</span>
                 ) : (
                   <span className="ms-member-badge" style={{ marginLeft: '4px' }} aria-label="Member">✦ Member</span>
                 )}
-              </h2>
+              </h1>
             </div>
             <div style={{ padding: '8px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+                {displayName} · {profile.username ?? profile.id.slice(0, 8)}
+              </p>
               <Link href={profileHref(profile)} aria-label="View my profile">
                 <div
                   className="member-avatar"
@@ -589,8 +576,8 @@ export default function MemberHub() {
                 Coming Soon
               </span>
             </div>
-            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+            <div style={{ padding: '8px 10px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 A community space for questions, announcements, and conversations across the Collective. Coming in a future update.
               </p>
             </div>
@@ -604,8 +591,8 @@ export default function MemberHub() {
                 Coming Soon
               </span>
             </div>
-            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+            <div style={{ padding: '8px 10px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 Gig postings, contract opportunities, and full-time roles in arts accessibility, posted by and for Collective members.
               </p>
             </div>
@@ -684,8 +671,8 @@ export default function MemberHub() {
                 Coming Soon
               </span>
             </div>
-            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+            <div style={{ padding: '8px 10px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 Custom learning videos built for Collective members: skill-building, industry knowledge, and professional development, right here in your hub.
               </p>
             </div>
@@ -699,8 +686,8 @@ export default function MemberHub() {
                 Coming Soon
               </span>
             </div>
-            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+            <div style={{ padding: '8px 10px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 Virtual events, webinars, and live sessions hosted by and for the Collective, streamed directly to members.
               </p>
             </div>
@@ -714,8 +701,8 @@ export default function MemberHub() {
                 Coming Soon
               </span>
             </div>
-            <div style={{ padding: '16px 10px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', maxWidth: '340px', margin: '0 auto' }}>
+            <div style={{ padding: '8px 10px' }}>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 Workshops, meetups, and gatherings happening near you. Connect with Collective members in real life.
               </p>
             </div>
