@@ -58,7 +58,7 @@ function isToday(d: Date) {
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type FilterMode = 'all' | 'local-online' | 'online';
+type FilterMode = 'all' | 'online';
 type CalView   = 'day' | '3day' | 'week' | 'month';
 type Phase     = 'boot' | 'filter' | 'app';
 
@@ -319,10 +319,9 @@ export default function CalendarPage() {
   const [bootText,    setBootText]    = useState('Loading AAC Events Calendar');
   const [booting,     setBooting]     = useState(true);
   const [filterMode,  setFilterMode]  = useState<FilterMode>('all');
-  const [postalCode,  setPostalCode]  = useState('');
-  const [postalError, setPostalError] = useState('');
   const [view,        setView]        = useState<CalView>('week');
   const [weekStart,   setWeekStart]   = useState(() => getWeekStart(new Date()));
+  const [dayAnchor,   setDayAnchor]   = useState(() => new Date());
   const [monthDate,   setMonthDate]   = useState(() => new Date());
   const [events,      setEvents]      = useState<CalEvent[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
@@ -402,11 +401,6 @@ export default function CalendarPage() {
   }, [phase]);
 
   const handleContinue = () => {
-    if (filterMode === 'local-online' && !postalCode.trim()) {
-      setPostalError('Please enter your postal / zip code to find local events.');
-      return;
-    }
-    setPostalError('');
     setPhase('app');
     setTimeout(() => appRef.current?.focus(), 150);
   };
@@ -414,21 +408,24 @@ export default function CalendarPage() {
   // Derived state
   const weekDays   = getWeekDays(weekStart);
   const threeDays  = Array.from({ length: 3 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    const d = new Date(dayAnchor);
+    d.setDate(dayAnchor.getDate() + i);
     return d;
   });
   const monthGrid  = getMonthGrid(monthDate.getFullYear(), monthDate.getMonth());
-  const filterLabel = filterMode === 'all'          ? 'All Events'
-                    : filterMode === 'online'        ? 'Online Events Only'
-                    : `Local + Online${postalCode.trim() ? ` · ${postalCode.trim()}` : ''}`;
+  const filterLabel = filterMode === 'online' ? 'Online Events Only' : 'All Events';
+
+  // Online filter genuinely narrows to events you can attend remotely (online + hybrid).
+  const shownEvents = filterMode === 'online'
+    ? events.filter(e => e.location_type === 'online' || e.location_type === 'hybrid')
+    : events;
 
   // Navigation
   const navPrev = () => {
     if (view === 'week') {
       setWeekStart(s => { const d = new Date(s); d.setDate(d.getDate() - 7); return d; });
     } else if (view === '3day' || view === 'day') {
-      setWeekStart(s => { const d = new Date(s); d.setDate(d.getDate() - (view === 'day' ? 1 : 3)); return d; });
+      setDayAnchor(s => { const d = new Date(s); d.setDate(d.getDate() - (view === 'day' ? 1 : 3)); return d; });
     } else {
       setMonthDate(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
     }
@@ -437,13 +434,14 @@ export default function CalendarPage() {
     if (view === 'week') {
       setWeekStart(s => { const d = new Date(s); d.setDate(d.getDate() + 7); return d; });
     } else if (view === '3day' || view === 'day') {
-      setWeekStart(s => { const d = new Date(s); d.setDate(d.getDate() + (view === 'day' ? 1 : 3)); return d; });
+      setDayAnchor(s => { const d = new Date(s); d.setDate(d.getDate() + (view === 'day' ? 1 : 3)); return d; });
     } else {
       setMonthDate(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
     }
   };
   const navToday = () => {
     setWeekStart(getWeekStart(new Date()));
+    setDayAnchor(new Date());
     setMonthDate(new Date());
   };
 
@@ -454,10 +452,10 @@ export default function CalendarPage() {
       ? `${MONTH_NAMES[weekDays[0].getMonth()]} ${weekDays[0].getDate()} – ${weekDays[6].getDate()}, ${weekDays[6].getFullYear()}`
       : view === '3day'
         ? `${MONTH_NAMES[threeDays[0].getMonth()]} ${threeDays[0].getDate()} – ${threeDays[2].getDate()}`
-        : `${DAY_NAMES[today.getDay()]}, ${MONTH_NAMES[today.getMonth()]} ${today.getDate()}`;
+        : `${DAY_NAMES[dayAnchor.getDay()]}, ${MONTH_NAMES[dayAnchor.getMonth()]} ${dayAnchor.getDate()}`;
 
   // ── Render helper: Week/3-day time grid ──────────────────────────────────────
-  const colDays  = view === '3day' ? threeDays : view === 'day' ? [today] : weekDays;
+  const colDays  = view === '3day' ? threeDays : view === 'day' ? [dayAnchor] : weekDays;
   const numCols  = colDays.length;
 
   const showComingSoon = eventsLoaded && !eventsError && events.length === 0;
@@ -629,8 +627,6 @@ export default function CalendarPage() {
               {([
                 { value: 'all',           label: 'All Events',
                   desc: 'Show every event in the calendar, worldwide.' },
-                { value: 'local-online',  label: 'Local + Online Events',
-                  desc: 'Events near you plus all online / virtual events.' },
                 { value: 'online',        label: 'Online Events Only',
                   desc: 'Virtual, livestreamed, and remote-access events only.' },
               ] as { value: FilterMode; label: string; desc: string }[]).map(opt => (
@@ -653,7 +649,7 @@ export default function CalendarPage() {
                     name="filter"
                     value={opt.value}
                     checked={filterMode === opt.value}
-                    onChange={() => { setFilterMode(opt.value); setPostalError(''); }}
+                    onChange={() => setFilterMode(opt.value)}
                     style={{ marginTop: 2, flexShrink: 0, accentColor: '#263590' }}
                   />
                   <div>
@@ -667,46 +663,6 @@ export default function CalendarPage() {
                 </label>
               ))}
             </fieldset>
-
-            {/* Postal code input — shown when local-online is selected */}
-            {filterMode === 'local-online' && (
-              <div style={{ marginTop: 10 }}>
-                <label htmlFor="postal-code" style={{
-                  display: 'block', fontWeight: 'bold', fontSize: 11,
-                  color: '#333', marginBottom: 4,
-                }}>
-                  Your postal / zip code:
-                </label>
-                <input
-                  id="postal-code"
-                  type="text"
-                  value={postalCode}
-                  onChange={e => { setPostalCode(e.target.value); setPostalError(''); }}
-                  onKeyDown={e => { if (e.key === 'Enter') handleContinue(); }}
-                  placeholder="e.g. 78701  ·  SW1A 1AA  ·  2000"
-                  autoComplete="postal-code"
-                  aria-invalid={!!postalError}
-                  aria-describedby={postalError ? 'postal-error' : 'postal-hint'}
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    border: postalError ? '2px solid #cc0000' : '2px inset #999',
-                    padding: '4px 8px', fontSize: 12,
-                    fontFamily: '"Tahoma", Arial, sans-serif',
-                    background: '#fff',
-                  }}
-                />
-                {postalError && (
-                  <p id="postal-error" role="alert" style={{ color: '#cc0000', fontSize: 11, margin: '4px 0 0' }}>
-                    {postalError}
-                  </p>
-                )}
-                {!postalError && (
-                  <p id="postal-hint" style={{ fontSize: 10, color: '#777', margin: '4px 0 0' }}>
-                    Works with US zip codes, UK postcodes, Australian postcodes, and more.
-                  </p>
-                )}
-              </div>
-            )}
 
             {/* Continue button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18, gap: 8 }}>
@@ -1072,8 +1028,8 @@ export default function CalendarPage() {
                   </p>
                 </div>
               ) : view === 'month'
-                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={events} showComingSoon={showComingSoon} />
-                : <TimeGrid colDays={colDays} numCols={numCols} events={events} showComingSoon={showComingSoon} />}
+                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} showComingSoon={showComingSoon} />
+                : <TimeGrid colDays={colDays} numCols={numCols} events={shownEvents} showComingSoon={showComingSoon} />}
 
             </div>
           </div>
@@ -1083,7 +1039,7 @@ export default function CalendarPage() {
               but the live event count isn't available anywhere else on the page). */}
           <p role="status" aria-live="polite" className="sr-only">
             {eventsLoaded && !eventsError
-              ? `${events.length} ${events.length === 1 ? 'event' : 'events'} shown, filter: ${filterLabel}`
+              ? `${shownEvents.length} ${shownEvents.length === 1 ? 'event' : 'events'} shown, filter: ${filterLabel}`
               : ''}
           </p>
 
@@ -1097,7 +1053,7 @@ export default function CalendarPage() {
             fontFamily: '"MS Sans Serif", Arial, sans-serif',
             flexShrink: 0, userSelect: 'none',
           }} aria-hidden="true">
-            <span>{events.length} {events.length === 1 ? 'event' : 'events'}</span>
+            <span>{shownEvents.length} {shownEvents.length === 1 ? 'event' : 'events'}</span>
             <span>·</span>
             <span>Filter: {filterLabel}</span>
             <div style={{ flex: 1 }} />
