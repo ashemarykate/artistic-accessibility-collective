@@ -134,7 +134,7 @@ export default function ContactPage() {
           {['Send','Delete','Reply','Forward'].map((lbl) => (
             <span key={lbl} style={{ padding: '2px 8px', background: '#c3c3c3', boxShadow: 'inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #fff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf', cursor: 'default', userSelect: 'none', fontSize: 11 }}>{lbl}</span>
           ))}
-          <span style={{ marginLeft: 8, color: '#555', fontSize: 11 }}>New Message</span>
+          <span style={{ marginLeft: 8, color: '#555', fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>New Message</span>
         </div>
         {/* Email header */}
         <div style={{ background: '#fff', borderBottom: '1px solid #ccc', padding: '6px 14px', fontFamily: '"Tahoma","MS Sans Serif",Arial,sans-serif', fontSize: 12 }}>
