@@ -295,6 +295,29 @@ export default function MakeArtPage() {
                 </Link>
               </div>
 
+              {/* Project: Submissions (design our banner) */}
+              <div style={{ border: '3px solid #111', borderRadius: 6, background: '#f4eefa', padding: '12px 14px', boxShadow: '5px 5px 0 rgba(17,17,17,.85)', transform: 'rotate(0.5deg)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span aria-hidden="true" style={{ fontSize: 20 }}>🪧</span>
+                  <strong style={{ fontFamily: KIDFONT, fontSize: 14, color: '#5a2a7a' }}>
+                    Submissions
+                  </strong>
+                  <span style={{ fontFamily: UIFONT, fontSize: 10, background: '#5a2a7a', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                    OPEN
+                  </span>
+                </div>
+                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#333', lineHeight: 1.6, margin: '0 0 12px' }}>
+                  Every time this site loads, the logo up top is picked at random from a small set of styles. Design one in your own style and it could join the rotation.
+                </p>
+                <Link
+                  href="/make-art/submit-logo"
+                  className="kp-btn"
+                  style={{ fontFamily: KIDFONT, fontSize: 13, fontWeight: 'bold', color: '#fff', background: '#5a2a7a', padding: '8px 16px', textDecoration: 'none', border: '3px solid #111', borderRadius: 6, boxShadow: '4px 4px 0 #111', display: 'inline-block', minHeight: 44, boxSizing: 'border-box' }}
+                >
+                  🪧 See What's Needed
+                </Link>
+              </div>
+
               {/* Coming soon */}
               <div style={{ border: '3px dashed #aaa', borderRadius: 6, background: '#fafafa', padding: '10px 14px', textAlign: 'center', transform: 'rotate(-0.4deg)' }}>
                 <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#777', margin: 0 }}>

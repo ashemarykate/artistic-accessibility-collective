@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export type KidArtPage = 'make-art' | 'image-description' | 'the-channel';
+export type KidArtPage = 'make-art' | 'image-description' | 'the-channel' | 'submit-logo';
 
 const TOOLS = [
   {
@@ -26,6 +26,14 @@ const TOOLS = [
     href: '/make-art/the-channel',
     bg: '#7a4500',
     activeBg: '#4a2a00',
+  },
+  {
+    id: 'submit-logo' as KidArtPage,
+    emoji: '🪧',
+    label: 'Submissions: design our banner',
+    href: '/make-art/submit-logo',
+    bg: '#5a2a7a',
+    activeBg: '#35154a',
   },
 ];
 
