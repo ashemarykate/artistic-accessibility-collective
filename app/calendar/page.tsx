@@ -329,6 +329,7 @@ export default function CalendarPage() {
   const [eventsError, setEventsError] = useState(false);
   const [isLoggedIn,  setIsLoggedIn]  = useState(false);
   const [syncedCals,  setSyncedCals]  = useState<{ name: string; website: string | null }[]>([]);
+  const [showSources, setShowSources] = useState(false);
 
   const filterRef = useRef<HTMLHeadingElement>(null);
   const appRef    = useRef<HTMLHeadingElement>(null);
@@ -878,6 +879,22 @@ export default function CalendarPage() {
               + Event
             </button>
 
+            {/* Calendar sources link — always reachable, including on mobile where the sidebar is hidden */}
+            <button
+              onClick={() => setShowSources(true)}
+              className="cal-nav-btn"
+              style={{
+                background: '#d4d0c8', color: '#000',
+                border: '1px outset #fff',
+                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                fontFamily: '"Tahoma", Arial, sans-serif',
+                borderRadius: 2,
+              }}
+              title="See every calendar this page pulls events from"
+            >
+              📋 Sources
+            </button>
+
             <div style={{ flex: 1 }} />
 
             {/* View tabs */}
@@ -1085,6 +1102,78 @@ export default function CalendarPage() {
             <span>Filter: {filterLabel}</span>
             <div style={{ flex: 1 }} />
             <span style={{ fontStyle: 'italic' }}>AAC Events Calendar · artisticaccessibility.com</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── Calendar sources modal — reachable from the toolbar on every viewport ── */}
+      {showSources && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cal-sources-heading"
+          onKeyDown={(e) => { if (e.key === 'Escape') setShowSources(false); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 16,
+          }}
+          onPointerDown={(e) => { if (e.target === e.currentTarget) setShowSources(false); }}
+        >
+          <div style={{
+            background: '#ece8df', width: '100%', maxWidth: 440, maxHeight: '80vh',
+            display: 'flex', flexDirection: 'column',
+            border: '2px outset #fff', boxShadow: '2px 2px 8px rgba(0,0,0,0.5)',
+            fontFamily: '"Tahoma", "MS Sans Serif", Arial, sans-serif',
+          }}>
+            <div style={{
+              background: 'linear-gradient(to right,#263590,#4a5fc9)', color: '#fff',
+              padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexShrink: 0,
+            }}>
+              <span id="cal-sources-heading" style={{ fontSize: 12, fontWeight: 'bold' }}>
+                📋 Calendar Sources
+              </span>
+              <button
+                onClick={() => setShowSources(false)}
+                aria-label="Close"
+                style={{
+                  width: 20, height: 18, background: '#d4d0c8', border: '1px outset #fff',
+                  fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2,
+                }}
+              >✕</button>
+            </div>
+            <div style={{ padding: '12px 14px', overflowY: 'auto' }}>
+              <p style={{ fontSize: 11, color: '#333', lineHeight: 1.5, margin: '0 0 10px' }}>
+                {"This calendar pulls in events from accessible arts organizations around the world. Here's every calendar that's currently syncing in successfully:"}
+              </p>
+              {syncedCals.length > 0 ? (
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {syncedCals.map((c) => (
+                    <li key={c.name} style={{
+                      fontSize: 12, lineHeight: 1.35,
+                      padding: '6px 8px', background: '#fff', border: '1px inset #aaa',
+                    }}>
+                      {c.website ? (
+                        <a href={c.website} target="_blank" rel="noopener noreferrer" style={{ color: '#263590', textDecoration: 'underline', fontWeight: 'bold' }}>
+                          {c.name}
+                        </a>
+                      ) : (
+                        <span style={{ color: '#263590', fontWeight: 'bold' }}>{c.name}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ fontSize: 11, color: '#666', fontStyle: 'italic', margin: 0 }}>
+                  New calendars were just added and are syncing in for the first time. Check back soon, this list fills in automatically as each one comes online.
+                </p>
+              )}
+              <p style={{ fontSize: 10, color: '#888', marginTop: 10, marginBottom: 0, lineHeight: 1.4 }}>
+                Know an accessible arts organization with a public calendar we should add? <Link href="/contact" style={{ color: '#263590', textDecoration: 'underline' }}>Let us know</Link>.
+              </p>
+            </div>
           </div>
         </div>
       )}

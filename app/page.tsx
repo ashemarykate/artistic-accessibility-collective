@@ -54,7 +54,7 @@ const ITEMS: Record<string, ItemDef> = {
   'about':            { label: 'About Us',               icon: 'about-blue', kind: 'app',      cat: 'Artistic Accessibility', href: '/about',           blurb: 'Meet the people behind Artistic Accessibility, artists and advocates making creativity open to everyone.' },
   'all-folders':      { label: 'All Folders',            icon: 'folders', kind: 'folder' },
   'make-art':         { label: 'Make Art',               icon: 70,        kind: 'app',      cat: 'Play',          href: '/make-art',        blurb: 'Step into the studio. Paint, draw and experiment with our accessible online art tools.' },
-  'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'More to Come',  href: '/calendar',        blurb: 'Workshops, classes and community events, all in one place. Save your spot.' },
+  'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'Resources',     href: '/calendar',        blurb: 'Workshops, classes and community events, all in one place. Save your spot.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
   'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
@@ -87,8 +87,8 @@ const POSITIONS: Record<string, { x: string; y: number }> = {
 const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string; children: string[] }> = [
   { type: 'leaf',   key: 'about' },
   { type: 'folder', name: 'PLAY',          children: ['make-art'] },
-  { type: 'folder', name: 'MORE TO COME',  children: ['calendar', 'learning'] },
-  { type: 'folder', name: 'RESOURCES',     children: ['access-resources', 'library', 'cinema', 'printer'] },
+  { type: 'folder', name: 'MORE TO COME',  children: ['learning'] },
+  { type: 'folder', name: 'RESOURCES',     children: ['access-resources', 'library', 'cinema', 'printer', 'calendar'] },
   { type: 'folder', name: 'CONNECT',       children: ['access-card', 'hire', 'contact', 'instagram'] },
   { type: 'folder', name: 'MEMBERS',       children: ['collective'] },
 ];
@@ -200,26 +200,6 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <Btn onClick={() => onOpen('all-folders')}>All Folders</Btn>
           <Link href="/work-with-us" style={btnLink}>Work With Us</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (k === 'calendar') {
-    return (
-      <div style={{ padding: 12 }}>
-        <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          {it.blurb}
-        </p>
-        <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          {"We're working on pulling in event calendars from organizations across the arts and accessibility space so their events get more eyes, and we all get a richer calendar in one place."}
-        </p>
-        <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          This will include both in-person and online events. Coming soon!
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <Btn onClick={() => onOpen('all-folders')}>All Folders</Btn>
-          <Btn primary onClick={onClose}>OK</Btn>
         </div>
       </div>
     );
