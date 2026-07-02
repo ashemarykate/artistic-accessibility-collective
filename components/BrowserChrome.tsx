@@ -13,6 +13,7 @@
  */
 
 import React from 'react';
+import MobileDock from './MobileDock';
 
 export type BrowserVariant = 'mosaic' | 'netscape' | 'ie3' | 'aol';
 
@@ -335,7 +336,14 @@ export default function BrowserChrome({
         </div>
       </div>
 
+      {/* Member pages (AOL chrome) get the phone-only bottom taskbar */}
+      {variant === 'aol' && <MobileDock />}
+
       <style>{`
+        ${variant === 'aol' ? `@media (max-width: 640px) {
+          /* keep scrolled content clear of the fixed bottom dock */
+          #browser-content { padding-bottom: 70px; }
+        }` : ''}
         /* Small screens: drop the decorative menu bar and address bar so the
            working Back / Fwd / Home buttons sit on one clean row */
         @media (max-width: 560px) {

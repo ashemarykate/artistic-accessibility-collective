@@ -1,4 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: "#263590",
+};
 import "./globals.css";
 import { DevAutoLogin } from "@/components/DevAutoLogin";
 
@@ -10,6 +14,11 @@ export const metadata: Metadata = {
       { url: '/favicon.png', type: 'image/png' },
     ],
     apple: '/favicon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AAC',
   },
 };
 
