@@ -48,6 +48,17 @@ interface WinState {
   z: number;
 }
 
+// Phone-sized windows on mobile stay as designed; desktop gets real window widths.
+// The Buddy List stays narrow on both: real AIM buddy lists were skinny.
+const winWidth = (kind: WinKind, mobile: boolean) => mobile
+  ? (kind === 'aim' ? 268 : kind === 'explorer' ? 286 : kind === 'folder' ? 300 : 308)
+  : (kind === 'aim' ? 280 : kind === 'explorer' ? 430 : kind === 'folder' ? 400 : 440);
+
+const prefersReduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+type FxRect = { x: number; y: number; w: number; h: number };
+const toFxRect = (r: DOMRect): FxRect => ({ x: r.left, y: r.top, w: r.width, h: r.height });
+
 // ── content model ─────────────────────────────────────────────────────────────
 
 const ITEMS: Record<string, ItemDef> = {
@@ -137,10 +148,10 @@ function WinClose({ onClose, label, red }: { onClose: () => void; label: string;
   );
 }
 
-function Placeholder({ label }: { label: string }) {
+function Placeholder({ label, wide }: { label: string; wide?: boolean }) {
   return (
     <div style={{ boxShadow: FIELD, background: '#fff', padding: 3 }} aria-hidden="true">
-      <div style={{ height: 90, background: 'repeating-linear-gradient(45deg,#e9e9e9 0 8px,#f6f6f6 8px 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: wide ? 130 : 90, background: 'repeating-linear-gradient(45deg,#e9e9e9 0 8px,#f6f6f6 8px 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#8a8a8a', letterSpacing: 1 }}>{label}</span>
       </div>
     </div>
@@ -181,13 +192,14 @@ function Row({ icon, label, onClick, indent = 0, external, href }: {
   return <button onClick={onClick} className="win-row" style={rowStyle}>{inner}</button>;
 }
 
-function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => void; onClose?: () => void }) {
+function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string) => void; onClose?: () => void; wide?: boolean }) {
   const it = ITEMS[k];
+  const pad = wide ? 16 : 12;
   const btnLink: React.CSSProperties = { minWidth: 74, minHeight: 44, background: SILVER, boxShadow: RAISED, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: '0 12px', outline: '1px solid #0a0a0a', outlineOffset: -3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' };
 
   if (k === 'about') {
     return (
-      <div style={{ padding: 12 }}>
+      <div style={{ padding: pad }}>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
           Welcome to ArtisticAccessibility.com! This is a community project filled with resources for those working and playing where the arts and accessibility overlap.
         </p>
@@ -207,7 +219,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
 
   if (k === 'access-card') {
     return (
-      <div style={{ padding: 12 }}>
+      <div style={{ padding: pad }}>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
           Your Access Card is a free account for the arts accessibility community. Use it to save, like, and comment on the resources and listings you find here.
         </p>
@@ -224,7 +236,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
 
   if (k === 'join') {
     return (
-      <div style={{ padding: 12 }}>
+      <div style={{ padding: pad }}>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
           The Collective is currently in beta testing. A testing code is required to join at this stage.
         </p>
@@ -255,7 +267,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
   }
 
   return (
-    <div style={{ padding: 12 }}>
+    <div style={{ padding: pad }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
         <span aria-hidden="true" style={{ flexShrink: 0 }}><Ico n={it.icon} size={52} /></span>
         <div>
@@ -263,7 +275,7 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
           <p style={{ margin: 0, fontSize: 13.5, color: '#101010', lineHeight: '19px' }}>{it.blurb}</p>
         </div>
       </div>
-      <Placeholder label={it.soon ? 'coming soon' : `${k} page`} />
+      <Placeholder label={it.soon ? 'coming soon' : `${k} page`} wide={wide} />
       {it.links && (
         <div style={{ marginTop: 12, boxShadow: FIELD, background: '#fff' }}>
           {it.links.map(l => (
@@ -287,10 +299,10 @@ function AppBody({ k, onOpen, onClose }: { k: string; onOpen: (key: string) => v
   );
 }
 
-function FolderBody({ onOpen }: { onOpen: (key: string) => void }) {
+function FolderBody({ onOpen, wide }: { onOpen: (key: string) => void; wide?: boolean }) {
   return (
     <div style={{ padding: 8 }}>
-      <div style={{ boxShadow: FIELD, background: '#fff', maxHeight: 340, overflowY: 'auto' }}>
+      <div style={{ boxShadow: FIELD, background: '#fff', maxHeight: wide ? 440 : 340, overflowY: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px 6px' }}>
           <span aria-hidden="true" style={{ width: 24, height: 24 }}><Ico n={56} size={24} /></span>
           <span style={{ fontFamily: UIFONT, fontSize: 14, fontWeight: 700, color: '#101010' }}>Artistic Accessibility</span>
@@ -375,26 +387,28 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
   );
 }
 
-function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate, signOutError }: {
+function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate, signOutError, isMobile }: {
   win: WinState;
   z: number;
-  onClose: (id: string) => void;
+  onClose: (id: string, rect?: DOMRect) => void;
   onFocus: (id: string) => void;
   onOpen: (key: string) => void;
   account: 'out' | 'collective' | 'access_card';
   onSignOut: () => void;
   onNavigate: (href: string) => void;
   signOutError?: string | null;
+  isMobile: boolean;
 }) {
   const it = ITEMS[win.key];
   const { kind } = win;
   const title = kind === 'aim' ? 'Buddy List' : kind === 'explorer' ? 'Resources' : kind === 'folder' ? 'All Folders' : it?.label ?? '';
   const titleIcon = kind === 'aim' ? 'aim' : kind === 'explorer' ? 48 : kind === 'folder' ? 'folders' : (it?.icon ?? 56);
-  const width = kind === 'aim' ? 268 : kind === 'explorer' ? 286 : kind === 'folder' ? 300 : 308;
+  const width = winWidth(kind, isMobile);
   const redClose = kind === 'aim' || kind === 'explorer';
 
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(win.pos);
+  const close = () => onClose(win.id, ref.current?.getBoundingClientRect());
 
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     onFocus(win.id);
@@ -424,7 +438,7 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate,
       aria-label={title}
       tabIndex={-1}
       onPointerDown={() => onFocus(win.id)}
-      onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(win.id); } }}
+      onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}
       style={{
         position: 'absolute', left: pos.x, top: pos.y,
         width: `min(${width}px, calc(100vw - 16px))`,
@@ -433,6 +447,7 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate,
         boxShadow: redClose ? '0 0 0 1px rgba(0,0,0,.35), 0 8px 28px rgba(0,0,0,.5)' : `${RAISED}, 0 8px 28px rgba(0,0,0,.45)`,
         borderRadius: redClose ? 4 : 0, overflow: 'hidden',
         padding: redClose ? 0 : 3, fontFamily: UIFONT,
+        animation: isMobile ? undefined : 'win-open .14s cubic-bezier(.16,1,.3,1) .16s backwards',
       }}
     >
       <div
@@ -441,11 +456,11 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate,
       >
         <span aria-hidden="true" style={{ width: 18, height: 18, flexShrink: 0 }}><Ico n={titleIcon} size={18} /></span>
         <span style={{ flex: 1, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textShadow: kind === 'explorer' ? '0 1px 1px rgba(0,0,0,.4)' : 'none' }}>{title}</span>
-        <WinClose onClose={() => onClose(win.id)} label={`Close ${title}`} red={redClose} />
+        <WinClose onClose={close} label={`Close ${title}`} red={redClose} />
       </div>
       <div style={{ overflowY: 'auto', maxHeight: 'calc(100dvh - 136px)' }}>
-        {kind === 'app'      && <AppBody k={win.key} onOpen={onOpen} onClose={() => onClose(win.id)} />}
-        {kind === 'folder'   && <FolderBody onOpen={onOpen} />}
+        {kind === 'app'      && <AppBody k={win.key} onOpen={onOpen} onClose={close} wide={!isMobile} />}
+        {kind === 'folder'   && <FolderBody onOpen={onOpen} wide={!isMobile} />}
         {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} signOutError={signOutError} />}
         {kind === 'explorer' && <ExplorerBody onOpen={onOpen} />}
       </div>
@@ -506,6 +521,64 @@ function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose
         </div>
       </div>
     </>
+  );
+}
+
+// Win95-style zoom: dotted outline rectangles trace from the clicked icon out to
+// the window (or back, on close). Purely decorative, desktop only.
+function ZoomFX({ from, to, onDone }: { from: FxRect; to: FxRect; onDone: () => void }) {
+  const done = useRef(onDone);
+  done.current = onDone;
+  useEffect(() => {
+    const t = setTimeout(() => done.current(), 420);
+    return () => clearTimeout(t);
+  }, []);
+  const steps = [0.25, 0.5, 0.75, 1];
+  return (
+    <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 9400, pointerEvents: 'none' }}>
+      {steps.map((t, i) => (
+        <div key={i} style={{
+          position: 'absolute', boxSizing: 'border-box',
+          left: from.x + (to.x - from.x) * t,
+          top: from.y + (to.y - from.y) * t,
+          width: from.w + (to.w - from.w) * t,
+          height: from.h + (to.h - from.h) * t,
+          border: '2px dotted rgba(255,255,255,.95)',
+          boxShadow: '0 0 0 1px rgba(0,0,0,.35)',
+          opacity: 0,
+          animation: `zoom-step .11s linear ${i * 0.05}s both`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// Full-screen "program starting" takeover: a window frame zooms out from the
+// clicked icon to fill the screen, shows a loading bar, then the route changes.
+function Launcher({ k, from }: { k: string; from: DOMRect }) {
+  const it = ITEMS[k];
+  const vars = {
+    '--lx': `${from.left}px`,
+    '--ly': `${from.top}px`,
+    '--lsx': String(from.width / window.innerWidth),
+    '--lsy': String(from.height / window.innerHeight),
+  } as React.CSSProperties;
+  return (
+    <div role="status" style={{ position: 'fixed', inset: 0, zIndex: 9500, background: SILVER, boxShadow: RAISED, padding: 3, fontFamily: UIFONT, display: 'flex', flexDirection: 'column', transformOrigin: '0 0', animation: 'launch-zoom .38s cubic-bezier(.16,1,.3,1) both', ...vars }}>
+      <div style={{ background: 'linear-gradient(90deg,#000a7a,#1c84d8)', color: '#fff', height: 30, display: 'flex', alignItems: 'center', gap: 8, padding: '0 8px', flexShrink: 0 }}>
+        <span aria-hidden="true" style={{ width: 20, height: 20 }}><Ico n={it.icon} size={20} /></span>
+        <span style={{ fontWeight: 700, fontSize: 13 }}>{it.label}</span>
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+        <span aria-hidden="true"><Ico n={it.icon} size={72} /></span>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#0a0a0a' }}>Starting {it.label}…</div>
+        <div aria-hidden="true" style={{ boxShadow: FIELD, background: '#fff', padding: 3, display: 'flex', gap: 2 }}>
+          {Array.from({ length: 14 }, (_, i) => (
+            <span key={i} style={{ width: 14, height: 16, background: 'linear-gradient(#1c84d8,#000a7a)', opacity: 0, animation: `blockon .01s linear ${0.3 + i * 0.04}s forwards` }} />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -574,35 +647,65 @@ export default function Home() {
 
   const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema'];
 
+  const [fx, setFx] = useState<Array<{ id: number; from: FxRect; to: FxRect }>>([]);
+  const fxId = useRef(0);
+  const addFx = useCallback((from: FxRect, to: FxRect) => {
+    const id = ++fxId.current;
+    setFx(f => [...f, { id, from, to }]);
+  }, []);
+
+  const [launching, setLaunching] = useState<{ key: string; href: string; from: DOMRect } | null>(null);
+
+  const launch = useCallback((k: string, href: string, opener: HTMLElement | null) => {
+    if (isMobile || prefersReduced() || !opener) { router.push(href); return; }
+    router.prefetch(href);
+    setLaunching({ key: k, href, from: opener.getBoundingClientRect() });
+  }, [isMobile, router]);
+
+  useEffect(() => {
+    if (!launching) return;
+    const t = setTimeout(() => router.push(launching.href), 900);
+    return () => clearTimeout(t);
+  }, [launching, router]);
+
   const open = useCallback((k: string) => {
+    if (launching) return;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setStartOpen(false);
     const it = ITEMS[k];
     if (!it) return;
     if (it.kind === 'ext') { window.open(it.href, '_blank', 'noopener'); return; }
-    if (k === 'collective' && user) { router.push('/dashboard'); return; }
-    if (DIRECT_NAV.includes(k) && it.href) { router.push(it.href); return; }
+    if (k === 'collective' && user) { launch(k, '/dashboard', opener); return; }
+    if (DIRECT_NAV.includes(k) && it.href) { launch(k, it.href, opener); return; }
     if (opener) openers.current.set(k, opener);
-    setWins(ws => {
-      const existing = ws.find(w => w.id === k);
-      const nz = zTop + 1;
-      setZTop(nz);
-      if (existing) return ws.map(w => w.id === k ? { ...w, z: nz } : w);
-      const c = cascade.current;
-      cascade.current = (c + 1) % 6;
-      const vw = typeof window !== 'undefined' ? window.innerWidth : 1024;
-      const x = Math.max(8, Math.min(60 + c * 34, vw - 324));
-      const pos = { x, y: headerH + 14 + c * 30 };
-      return [...ws, { id: k, key: k, kind: it.kind as WinKind, pos, z: nz }];
-    });
-  }, [zTop, headerH, router, user]);
+    const existing = wins.find(w => w.id === k);
+    const nz = zTop + 1;
+    setZTop(nz);
+    if (existing) { setWins(ws => ws.map(w => w.id === k ? { ...w, z: nz } : w)); return; }
+    const c = cascade.current;
+    cascade.current = (c + 1) % 6;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1024;
+    const width = winWidth(it.kind as WinKind, isMobile);
+    const x = Math.max(8, Math.min(60 + c * 34, vw - (width + 16)));
+    const pos = { x, y: headerH + 14 + c * 30 };
+    setWins(ws => [...ws, { id: k, key: k, kind: it.kind as WinKind, pos, z: nz }]);
+    if (!isMobile && opener && !prefersReduced()) {
+      addFx(toFxRect(opener.getBoundingClientRect()), { x, y: pos.y, w: width, h: Math.min(340, width * 0.85) });
+    }
+  }, [wins, zTop, headerH, user, isMobile, launching, launch, addFx]);
 
-  const closeWin = (id: string) => {
+  const closeWin = (id: string, rect?: DOMRect) => {
     setWins(ws => ws.filter(w => w.id !== id));
     const opener = openers.current.get(id);
     openers.current.delete(id);
-    if (opener && document.contains(opener)) {
-      opener.focus();
+    const openerLive = opener && document.contains(opener) ? opener : null;
+    if (rect && !isMobile && !prefersReduced()) {
+      // Shrink back to whatever opened the window, or down to the taskbar.
+      const target = openerLive ? toFxRect(openerLive.getBoundingClientRect()) : { x: 8, y: window.innerHeight - 44, w: 120, h: 36 };
+      addFx(toFxRect(rect), target);
+    }
+    if (openerLive) {
+      openerLive.focus();
     } else {
       deskRef.current?.focus();
     }
@@ -696,8 +799,16 @@ export default function Home() {
 
       {/* Windows */}
       {wins.map(w => (
-        <Win key={w.id} win={w} z={w.z} onClose={closeWin} onFocus={focusWin} onOpen={open} account={account} onSignOut={handleSignOut} onNavigate={(href) => router.push(href)} signOutError={signOutError} />
+        <Win key={w.id} win={w} z={w.z} onClose={closeWin} onFocus={focusWin} onOpen={open} account={account} onSignOut={handleSignOut} onNavigate={(href) => router.push(href)} signOutError={signOutError} isMobile={isMobile} />
       ))}
+
+      {/* Zoom open/close rectangles */}
+      {fx.map(f => (
+        <ZoomFX key={f.id} from={f.from} to={f.to} onDone={() => setFx(l => l.filter(x => x.id !== f.id))} />
+      ))}
+
+      {/* Program launch takeover */}
+      {launching && <Launcher k={launching.key} from={launching.from} />}
 
       {/* Start menu */}
       {startOpen && <StartMenu onOpen={open} onClose={() => setStartOpen(false)} />}
@@ -752,7 +863,11 @@ export default function Home() {
         .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a;color:#fff}
         .beta-scroll{animation:beta-marq 30s linear infinite}
         @keyframes beta-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-        @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important}.beta-scroll{animation:none!important;transform:none!important}}
+        @keyframes zoom-step{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+        @keyframes win-open{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+        @keyframes launch-zoom{from{transform:translate(var(--lx),var(--ly)) scale(var(--lsx),var(--lsy))}to{transform:none}}
+        @keyframes blockon{to{opacity:1}}
+        @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-delay:0s!important}.beta-scroll{animation:none!important;transform:none!important}}
         @media (max-width: 600px){
           .start-menu{width:calc(100vw - 10px)!important}
           .start-list{max-height:calc(100dvh - 96px)!important;overflow-y:auto!important}
