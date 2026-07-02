@@ -927,15 +927,29 @@ a.btn:active {
   display: grid;
   grid-template-columns: 200px 1fr 200px;
   gap: 8px;
-  align-items: flex-start;
+  /* stretch, not flex-start: the sidebars need a full-height box to give their
+     sticky inner content room to stick (see .ms-sticky-inner below). */
+  align-items: stretch;
   max-width: 980px;
   margin: 8px auto;
   padding: 0 8px 24px;
 }
 
-/* Keep the profile card, Control Panel, and right-rail boxes in view while
-   the long center column scrolls, so quick links never need a scroll back up. */
+/* Keep the profile card, Control Panel, and right-rail boxes in view while the
+   long center column scrolls, so quick links never need a scroll back up.
+   This needs TWO boxes, not one: <aside> spans the full row height (matching
+   the tall center column) so a sticky element inside it has room to stay
+   stuck all the way to the bottom of the page; .ms-sticky-inner is the box
+   that's actually sticky and visually capped to a viewport-ish height. Putting
+   both the "room to stick" height and the "visible" height-cap on the SAME
+   element doesn't work: capping the outer box's height also caps its sticky
+   containing block, so the shorter right column (My Resources / My Lists)
+   used to run out of room and detach before the page finished scrolling,
+   while the taller left column stayed put (confirmed in testing). */
 .ms-hub-grid > aside {
+  height: 100%;
+}
+.ms-sticky-inner {
   position: sticky;
   top: 8px;
   max-height: calc(100vh - 16px);
@@ -947,6 +961,9 @@ a.btn:active {
     grid-template-columns: 1fr;
   }
   .ms-hub-grid > aside {
+    height: auto;
+  }
+  .ms-sticky-inner {
     position: static;
     max-height: none;
     overflow-y: visible;

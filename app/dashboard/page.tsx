@@ -277,6 +277,7 @@ export default function MemberHub() {
 
         {/* ════════════════ LEFT SIDEBAR ════════════════ */}
         <aside aria-label="Profile sidebar">
+        <div className="ms-sticky-inner">
 
           {/* Profile card — doubles as the page's "Hello" greeting so it
               isn't duplicated in a separate strip above the grid. */}
@@ -419,6 +420,7 @@ export default function MemberHub() {
             </button>
           </div>
 
+        </div>
         </aside>
 
         {/* ════════════════ CENTER COLUMN ════════════════ */}
@@ -712,6 +714,7 @@ export default function MemberHub() {
 
         {/* ════════════════ RIGHT SIDEBAR ════════════════ */}
         <aside aria-label="Right sidebar">
+        <div className="ms-sticky-inner">
 
           {/* Saved resources */}
           <div className="ms-box" style={{ marginBottom: '8px' }}>
@@ -822,6 +825,7 @@ export default function MemberHub() {
             </div>
           )}
 
+        </div>
         </aside>
 
       </div>{/* end ms-hub-grid */}
