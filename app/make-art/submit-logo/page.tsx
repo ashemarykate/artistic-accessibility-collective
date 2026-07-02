@@ -120,6 +120,33 @@ export default function SubmitLogoPage() {
                 Every time someone loads a page on this site, the logo at the top gets picked at random from a small set of styles, so regulars see something a little different each visit. There are six right now. Design one in your own style, send it our way, and if it fits the spec below, we&rsquo;ll add it to the rotation.
               </div>
 
+              {/* Examples: real versions already in the rotation */}
+              <section aria-labelledby="examples-heading">
+                <h3 id="examples-heading" style={{ fontFamily: KIDFONT, fontSize: 13, color: '#333', margin: '0 0 4px', borderBottom: '2px solid #ccc', paddingBottom: 4 }}>
+                  A few from the current rotation
+                </h3>
+                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#555', margin: '0 0 8px' }}>
+                  These three are already live on the site today. Yours could sit right alongside them.
+                </p>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {[
+                    { src: '/images/wordmark-dark-v1.svg', bg: '#0d1e4a', alt: 'Artistic Accessibility Collective: bold rounded white letters with a thick outline, carnival-sign style' },
+                    { src: '/images/wordmark-dark-v4.svg', bg: '#263590', alt: 'Artistic Accessibility Collective: soft lavender-pink letters with a candy-stripe shadow' },
+                    { src: '/images/wordmark-medium-v1.png', bg: '#0d1e4a', alt: 'Artistic Accessibility Collective: bold, chunky letters with a heavy drop shadow' },
+                  ].map((ex) => (
+                    <figure key={ex.src} style={{ flex: '1 1 200px', margin: 0 }}>
+                      <div style={{ background: ex.bg, padding: '16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={ex.src} alt={ex.alt} style={{ maxHeight: 34, maxWidth: '100%', width: 'auto', height: 'auto' }} />
+                      </div>
+                      <figcaption style={{ fontFamily: UIFONT, fontSize: 10, fontStyle: 'italic', color: '#777', padding: '4px 2px 0' }}>
+                        &ldquo;{ex.alt}&rdquo;
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </section>
+
               {/* Spec */}
               <section aria-labelledby="spec-heading">
                 <h3 id="spec-heading" style={{ fontFamily: KIDFONT, fontSize: 13, color: '#333', margin: '0 0 4px', borderBottom: '2px solid #ccc', paddingBottom: 4 }}>
