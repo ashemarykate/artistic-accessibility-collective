@@ -62,13 +62,65 @@ type FilterMode = 'all' | 'online';
 type CalView   = 'day' | '3day' | 'week' | 'month';
 type Phase     = 'boot' | 'filter' | 'app';
 
-// Tag colors for event chips
-const TAG_COLORS: Record<string, string> = {
-  'Captioned':           '#1a5c2a',
-  'ASL-Interpreted':     '#2952c8',
-  'Audio Described':     '#5a1a6e',
-  'Relaxed Performance': '#a06000',
+// ── Event type classification + colors ────────────────────────────────────────
+// Derived on the fly from title + organisation, so it works for synced, member,
+// and admin events with no schema change. Colors are dark enough for white text
+// (each clears WCAG AA against #fff at small sizes).
+type EventType = 'theatre' | 'dance' | 'music' | 'film' | 'education' | 'community' | 'visual' | 'other';
+
+const TYPE_META: Record<EventType, { label: string; color: string }> = {
+  theatre:   { label: 'Theatre & Performance', color: '#9c2a63' },
+  dance:     { label: 'Dance',                 color: '#b0511d' },
+  music:     { label: 'Music',                 color: '#5a3aa8' },
+  film:      { label: 'Film & Screening',      color: '#196a78' },
+  education: { label: 'Education & Workshops',  color: '#2e7d3e' },
+  community: { label: 'Community & Social',     color: '#8a5a10' },
+  visual:    { label: 'Visual Art',            color: '#a5324e' },
+  other:     { label: 'Other',                 color: '#4a5478' },
 };
+// The order the legend lists them (roughly most to least common).
+const TYPE_ORDER: EventType[] = ['theatre', 'community', 'dance', 'film', 'education', 'visual', 'music', 'other'];
+
+// Organisation → default type, used when a title is just a proper noun (a show
+// or film name carries no keyword). Substring match on the organisation name.
+const ORG_TYPE: [string, EventType][] = [
+  ['AXIS Dance', 'dance'], ['Young Dance', 'dance'], ['Propeller Dance', 'dance'],
+  ['DanceAbility', 'dance'], ['Portland Art Museum', 'film'],
+  ['Auslan Stage Left', 'theatre'], ['Starcatchers', 'theatre'],
+  ['Detour Company Theatre', 'theatre'], ['School for the Deaf', 'theatre'],
+  ['Interact Center', 'visual'], ['Arts Project Australia', 'visual'],
+  ['Arts of Life', 'visual'], ['accessArts', 'visual'],
+  ['Access Living', 'community'], ['Tierra del Sol', 'community'],
+];
+
+function classifyEvent(ev: CalEvent): EventType {
+  const s = `${ev.title ?? ''} ${(ev.description ?? '').slice(0, 80)}`.toLowerCase();
+  if (/\b(musical|theatre|theater|\bplay\b|opera|panto|cabaret|circus|stage show)\b/.test(s)) return 'theatre';
+  if (/\b(film|screening|cinema|movie|documentary|\bshorts?\b)\b|x qdoc|video store/.test(s)) return 'film';
+  if (/\b(dance|movement|ballet|choreo|storytime)\b/.test(s)) return 'dance';
+  if (/\b(workshop|class(?:es)?|camp|course|lesson|seminar|training|lecture|panel|game jam|composition|masterclass|intensive)\b/.test(s)) return 'education';
+  if (/\b(concert|\bband\b|karaoke|choir|orchestra|open mic|poetry|singer|song)\b/.test(s)) return 'music';
+  if (/exhibit|\b(gallery|open studio|art open|artwork|painting|craft|first thursday|art beat|art walk)\b/.test(s)) return 'visual';
+  if (/\b(social|meetup|mixer|gathering|celebration|\bparty\b|pride|festival|market|\bfair\b|reception|potluck|dinner|breakfast|pancake|walk n|5k|10k|fundraiser|gala|showcase|meeting)\b/.test(s)) return 'community';
+  // Accessibility suffixes (- OC / ASL / AD / SF / CC) almost always mark a live
+  // performance made accessible, so default those to theatre.
+  if (/[-–]\s*(oc|asl|ad|sf|cc|ad\/asl|asl\/ad|ad\/cc|cc\/ad)\b|\b(open captioned|audio described|sign(ed| language) performance|relaxed performance)\b/.test(s)) return 'theatre';
+  for (const [name, type] of ORG_TYPE) if ((ev.organization ?? '').includes(name)) return type;
+  return 'other';
+}
+
+/** Short "City, ST" (or best-effort place) from a full venue string. */
+function shortLocation(loc: string | null): string | null {
+  if (!loc) return null;
+  const usState = loc.match(/([A-Za-z.'\- ]{2,}),\s*([A-Z]{2})(?:[\s,]|$)/); // City, ST
+  if (usState) return `${usState[1].trim()}, ${usState[2]}`;
+  const segs = loc.split(/[·,]/).map(s => s.trim()).filter(Boolean).filter(s =>
+    !/^\d/.test(s) &&                                  // street numbers / postal
+    !/^[A-Z0-9]{3,4}\s?[A-Z0-9]{3}$/.test(s) &&        // postcodes
+    !/^(united states|usa|canada|australia|uk|united kingdom)$/i.test(s));
+  const city = [...segs].reverse().find(s => /^[A-Za-z .'\-]+$/.test(s) && s.length <= 22);
+  return city ?? (segs[segs.length - 1] ?? loc).slice(0, 22);
+}
 
 /** Events that start on the given calendar date */
 function eventsForDate(events: CalEvent[], d: Date): CalEvent[] {
@@ -80,35 +132,64 @@ function eventsForDate(events: CalEvent[], d: Date): CalEvent[] {
   });
 }
 
-/** A small colored event chip */
-function EventChip({ ev }: { ev: CalEvent }) {
+/** A small colored event chip, colored by event type */
+function EventChip({ ev, showLocation }: { ev: CalEvent; showLocation?: boolean }) {
   const start   = new Date(ev.start_at);
   const timeStr = ev.is_all_day
     ? '' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const type    = classifyEvent(ev);
+  const place   = showLocation ? shortLocation(ev.location_name) : null;
   return (
     <a
       href={ev.event_url ?? '#'}
       target="_blank" rel="noopener noreferrer"
       style={{
-        display: 'block', background: '#263590', color: '#fff',
+        display: 'block', background: TYPE_META[type].color, color: '#fff',
         fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 4px', marginBottom: 2, borderRadius: 1,
         overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
         textDecoration: 'none', cursor: 'pointer',
       }}
-      title={[ev.title, timeStr, ev.organization].filter(Boolean).join(' · ')}
+      title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
     >
       {timeStr && <span style={{ opacity: 0.75 }}>{timeStr} </span>}
       {ev.title}
+      {place && <span style={{ opacity: 0.7 }}> · {place}</span>}
     </a>
   );
 }
 
-function TimeGrid({ colDays, numCols, events, showComingSoon }: {
+/** Centered overlay used for the empty / no-match / coming-soon states */
+function GridOverlay({ badge, body }: { badge: string; body: string }) {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 10,
+      background: 'rgba(255,255,255,0.82)', pointerEvents: 'none',
+    }}>
+      <span style={{
+        background: '#263590', color: 'white',
+        fontFamily: '"MS Sans Serif", Arial, sans-serif',
+        fontSize: 10, fontWeight: 'bold',
+        padding: '2px 12px', letterSpacing: '0.08em',
+        border: '1px solid #1a2568',
+      }}>{badge}</span>
+      <p style={{
+        fontFamily: '"MS Sans Serif", Arial, sans-serif',
+        fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+        maxWidth: 260, lineHeight: 1.5,
+      }}>{body}</p>
+    </div>
+  );
+}
+
+function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
   colDays: Date[];
   numCols: number;
   events: CalEvent[];
-  showComingSoon: boolean;
+  overlay: { badge: string; body: string } | null;
+  showLocation?: boolean;
 }) {
   return (
     <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
@@ -138,7 +219,7 @@ function TimeGrid({ colDays, numCols, events, showComingSoon }: {
             >
               <div>{DAY_NAMES[d.getDay()]}</div>
               <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: dayEvs.length ? 3 : 0 }}>{d.getDate()}</div>
-              {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+              {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
             </div>
           );
         })}
@@ -179,46 +260,19 @@ function TimeGrid({ colDays, numCols, events, showComingSoon }: {
           </div>
         ))}
 
-        {/* Coming soon overlay — only when no events exist yet */}
-        {showComingSoon && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            gap: 10,
-            background: 'rgba(255,255,255,0.82)',
-            pointerEvents: 'none',
-          }}>
-            <span style={{
-              background: '#263590', color: 'white',
-              fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 10, fontWeight: 'bold',
-              padding: '2px 12px', letterSpacing: '0.08em',
-              border: '1px solid #1a2568',
-            }}>
-              ★ COMING SOON ★
-            </span>
-            <p style={{
-              fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
-              maxWidth: 240, lineHeight: 1.5,
-            }}>
-              Events are on their way. Once live, you&apos;ll see accessibility
-              events, interpreted performances, and community happenings here.
-            </p>
-          </div>
-        )}
+        {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
       </div>
     </div>
   );
 }
 
 // ── Render helper: Month grid ─────────────────────────────────────────────────
-function MonthGrid({ monthDate, monthGrid, events, showComingSoon }: {
+function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation }: {
   monthDate: Date;
   monthGrid: (number | null)[][];
   events: CalEvent[];
-  showComingSoon: boolean;
+  overlay: { badge: string; body: string } | null;
+  showLocation?: boolean;
 }) {
   const today = new Date();
   const todayNum = today.getDate();
@@ -272,7 +326,7 @@ function MonthGrid({ monthDate, monthGrid, events, showComingSoon }: {
                     }}>
                       {day}
                     </span>
-                    {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} />)}
+                    {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
                   </>
                 )}
               </div>
@@ -281,33 +335,7 @@ function MonthGrid({ monthDate, monthGrid, events, showComingSoon }: {
         </div>
       ))}
 
-      {/* Coming soon overlay — only when no events exist yet */}
-      {showComingSoon && (
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        gap: 10,
-        background: 'rgba(255,255,255,0.82)',
-        pointerEvents: 'none',
-      }}>
-        <span style={{
-          background: '#263590', color: 'white',
-          fontFamily: '"MS Sans Serif", Arial, sans-serif',
-          fontSize: 10, fontWeight: 'bold',
-          padding: '2px 12px', letterSpacing: '0.08em',
-          border: '1px solid #1a2568',
-        }}>★ COMING SOON ★</span>
-        <p style={{
-          fontFamily: '"MS Sans Serif", Arial, sans-serif',
-          fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
-          maxWidth: 240, lineHeight: 1.5,
-        }}>
-          Events are on their way. Once live, you&apos;ll see accessibility
-          events, interpreted performances, and community happenings here.
-        </p>
-      </div>
-      )}
+      {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
     </div>
   );
 }
@@ -316,9 +344,11 @@ function MonthGrid({ monthDate, monthGrid, events, showComingSoon }: {
 export default function CalendarPage() {
   const router = useRouter();
   const [phase,       setPhase]       = useState<Phase>('boot');
-  const [bootText,    setBootText]    = useState('Loading AAC Events Calendar');
+  const [bootText,    setBootText]    = useState('Loading Community Events Calendar');
   const [booting,     setBooting]     = useState(true);
   const [filterMode,  setFilterMode]  = useState<FilterMode>('all');
+  const [locQuery,    setLocQuery]    = useState('');   // "near me" text filter
+  const [locDraft,    setLocDraft]    = useState('');   // dialog input before Continue
   const [view,        setView]        = useState<CalView>('week');
   const [weekStart,   setWeekStart]   = useState(() => getWeekStart(new Date()));
   const [dayAnchor,   setDayAnchor]   = useState(() => new Date());
@@ -336,7 +366,7 @@ export default function CalendarPage() {
 
   // Boot sequence
   useEffect(() => {
-    document.title = 'AAC Events Calendar · Artistic Accessibility Collective';
+    document.title = 'Community Events Calendar · Artistic Accessibility Collective';
 
     // Default to 3-day on mobile
     if (typeof window !== 'undefined' && window.innerWidth < 580) {
@@ -346,7 +376,7 @@ export default function CalendarPage() {
     let dots = 0;
     const dotInt = setInterval(() => {
       dots = (dots + 1) % 4;
-      setBootText('Loading AAC Events Calendar' + '.'.repeat(dots));
+      setBootText('Loading Community Events Calendar' + '.'.repeat(dots));
     }, 350);
     const bootTimer = setTimeout(() => {
       clearInterval(dotInt);
@@ -378,7 +408,7 @@ export default function CalendarPage() {
 
   // Fetch events when the calendar opens
   useEffect(() => {
-    if (phase !== 'app') return;
+    // Load on mount (not gated on phase) so the welcome popup can show a real count.
     const now = new Date();
     // Show events from 1 week ago onward so recently-passed events still appear briefly
     const lookback = new Date(now.getTime() - 7 * 86_400_000);
@@ -398,9 +428,10 @@ export default function CalendarPage() {
         setEvents((data ?? []) as CalEvent[]);
         setEventsLoaded(true);
       });
-  }, [phase]);
+  }, []);
 
   const handleContinue = () => {
+    setLocQuery(locDraft.trim());
     setPhase('app');
     setTimeout(() => appRef.current?.focus(), 150);
   };
@@ -413,12 +444,29 @@ export default function CalendarPage() {
     return d;
   });
   const monthGrid  = getMonthGrid(monthDate.getFullYear(), monthDate.getMonth());
-  const filterLabel = filterMode === 'online' ? 'Online Events Only' : 'All Events';
 
-  // Online filter genuinely narrows to events you can attend remotely (online + hybrid).
-  const shownEvents = filterMode === 'online'
-    ? events.filter(e => e.location_type === 'online' || e.location_type === 'hybrid')
-    : events;
+  // Filters: an online-only toggle and a free-text "near me" location search.
+  // ICS feeds don't reliably set location_type, so also treat clearly-virtual
+  // wording as online, otherwise the online filter would show almost nothing.
+  const loc = locQuery.trim().toLowerCase();
+  const isOnline = (e: CalEvent) =>
+    e.location_type === 'online' || e.location_type === 'hybrid' ||
+    /\b(online|virtual|zoom|livestream|live[- ]?stream|webinar|remote|streamed|telehealth)\b/i.test(`${e.title} ${e.location_name ?? ''} ${e.description ?? ''}`);
+  const shownEvents = events.filter(e => {
+    if (filterMode === 'online' && !isOnline(e)) return false;
+    if (loc && !`${e.location_name ?? ''} ${e.organization ?? ''}`.toLowerCase().includes(loc)) return false;
+    return true;
+  });
+
+  const filterLabel = [
+    filterMode === 'online' ? 'Online only' : 'All events',
+    loc ? `near “${locQuery.trim()}”` : null,
+  ].filter(Boolean).join(' · ');
+
+  // Location shows in the event line when nothing is narrowing the view. Skipped
+  // only in week view, whose 7 columns are too narrow to fit it without clutter
+  // (day / 3-day / month all have room; 3-day is the mobile default).
+  const showLocation = filterMode === 'all' && !loc && view !== 'week';
 
   // Navigation
   const navPrev = () => {
@@ -458,7 +506,14 @@ export default function CalendarPage() {
   const colDays  = view === '3day' ? threeDays : view === 'day' ? [dayAnchor] : weekDays;
   const numCols  = colDays.length;
 
-  const showComingSoon = eventsLoaded && !eventsError && events.length === 0;
+  // What (if anything) to show over an empty grid.
+  const overlay: { badge: string; body: string } | null =
+    !eventsLoaded || eventsError ? null
+    : events.length === 0
+      ? { badge: '★ COMING SOON ★', body: "Events are on their way. Once live, you'll see accessible performances, screenings, and community happenings here." }
+    : shownEvents.length === 0
+      ? { badge: 'NO MATCHES', body: 'No events match this filter. Try a different city, switch off Online only, or clear the filter to see everything.' }
+      : null;
 
   // ── Mini sidebar calendar ─────────────────────────────────────────────────────
   const sideGrid = getMonthGrid(today.getFullYear(), today.getMonth());
@@ -523,7 +578,7 @@ export default function CalendarPage() {
         }
       `}</style>
 
-      <h1 className="sr-only">AAC Events Calendar · Artistic Accessibility Collective</h1>
+      <h1 className="sr-only">Community Events Calendar · Artistic Accessibility Collective</h1>
 
       {/* ── Boot splash ────────────────────────────────────────────────────────── */}
       {booting && (
@@ -595,12 +650,12 @@ export default function CalendarPage() {
               fontFamily: '"Tahoma", Arial, sans-serif',
               textShadow: '0 1px 2px rgba(0,0,0,0.4)',
             }}>
-              AAC Events Calendar 2026
+              Community Events Calendar 2026
             </span>
           </div>
 
           {/* Dialog body */}
-          <div style={{ background: '#f0ede8', padding: '20px 20px 16px' }}>
+          <div style={{ background: '#f0ede8', padding: '18px 20px 16px' }}>
             <h2
               ref={filterRef}
               tabIndex={-1}
@@ -612,60 +667,73 @@ export default function CalendarPage() {
                 outline: 'none',
               }}
             >
-              Welcome! Choose your event view:
+              Welcome to the Community Events Calendar
             </h2>
             <p style={{
               fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 11, color: '#555', margin: '0 0 16px', lineHeight: 1.5,
+              fontSize: 11.5, color: '#444', margin: '0 0 16px', lineHeight: 1.55,
             }}>
-              You can change this any time using the Filter button inside the calendar.
+              <strong style={{ color: '#263590' }}>{events.length} accessible events</strong> are on the
+              calendar right now, from partner organizations around the world. Narrow it down below,
+              or just browse everything.
             </p>
 
-            <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
-              <legend className="sr-only">Event filter preference</legend>
+            {/* Near me */}
+            <label htmlFor="loc-input" style={{ display: 'block', fontWeight: 'bold', fontSize: 12, color: '#222', marginBottom: 4 }}>
+              <span aria-hidden="true">📍 </span>See events near you
+            </label>
+            <input
+              id="loc-input"
+              type="text"
+              value={locDraft}
+              onChange={e => setLocDraft(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleContinue(); }}
+              placeholder="Type a city or region, e.g. Portland or Melbourne"
+              autoComplete="off"
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                border: '2px inset #999', padding: '5px 8px', fontSize: 12,
+                fontFamily: '"Tahoma", Arial, sans-serif', background: '#fff', marginBottom: 4,
+              }}
+            />
+            <p style={{ fontSize: 10, color: '#777', margin: '0 0 14px' }}>
+              Matches the city or venue on each event. Leave blank to see everywhere.
+            </p>
 
-              {([
-                { value: 'all',           label: 'All Events',
-                  desc: 'Show every event in the calendar, worldwide.' },
-                { value: 'online',        label: 'Online Events Only',
-                  desc: 'Virtual, livestreamed, and remote-access events only.' },
-              ] as { value: FilterMode; label: string; desc: string }[]).map(opt => (
-                <label
-                  key={opt.value}
-                  className="cal-filter-opt"
-                  style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 10,
-                    padding: '10px 12px',
-                    marginBottom: 6,
-                    background: filterMode === opt.value ? '#dce5ff' : '#fff',
-                    border: filterMode === opt.value ? '2px solid #263590' : '2px solid #c8c4bc',
-                    borderRadius: 3,
-                    cursor: 'pointer',
-                    transition: 'border-color 0.1s, background 0.1s',
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="filter"
-                    value={opt.value}
-                    checked={filterMode === opt.value}
-                    onChange={() => setFilterMode(opt.value)}
-                    style={{ marginTop: 2, flexShrink: 0, accentColor: '#263590' }}
-                  />
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: 12, color: '#222', lineHeight: 1.3 }}>
-                      {opt.label}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
-                      {opt.desc}
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </fieldset>
+            {/* Online only */}
+            <label
+              className="cal-filter-opt"
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: 10,
+                padding: '10px 12px', marginBottom: 14,
+                background: filterMode === 'online' ? '#dce5ff' : '#fff',
+                border: filterMode === 'online' ? '2px solid #263590' : '2px solid #c8c4bc',
+                borderRadius: 3, cursor: 'pointer',
+                transition: 'border-color 0.1s, background 0.1s',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={filterMode === 'online'}
+                onChange={e => setFilterMode(e.target.checked ? 'online' : 'all')}
+                style={{ marginTop: 2, flexShrink: 0, accentColor: '#263590' }}
+              />
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: 12, color: '#222', lineHeight: 1.3 }}>
+                  <span aria-hidden="true">💻 </span>Show online events only
+                </div>
+                <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                  Virtual, livestreamed, and remote-access events you can join from anywhere.
+                </div>
+              </div>
+            </label>
+
+            <p style={{ fontSize: 10, color: '#888', margin: '0 0 2px' }}>
+              You can change these any time with the <strong>Filter</strong> button inside the calendar.
+            </p>
 
             {/* Continue button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18, gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, gap: 8 }}>
               <button
                 onClick={handleContinue}
                 style={{
@@ -679,7 +747,7 @@ export default function CalendarPage() {
                 }}
                 className="cal-nav-btn"
               >
-                Continue →
+                {locDraft.trim() || filterMode === 'online' ? 'Show these events →' : 'Browse all events →'}
               </button>
             </div>
           </div>
@@ -717,7 +785,7 @@ export default function CalendarPage() {
               textShadow: '0 1px 2px rgba(0,0,0,0.4)',
             }}>
               <span aria-hidden="true" style={{ fontSize: 15 }}>💿</span>
-              AAC Events Calendar
+              Community Events Calendar
             </div>
             <div aria-hidden="true" style={{ display: 'flex', gap: 2 }}>
               {['_','□','✕'].map(c => (
@@ -835,6 +903,23 @@ export default function CalendarPage() {
               + Event
             </button>
 
+            {/* Filter button — reachable on every viewport (the sidebar hides on mobile) */}
+            <button
+              onClick={() => { setLocDraft(locQuery); setPhase('filter'); }}
+              className="cal-nav-btn"
+              style={{
+                background: (filterMode === 'online' || locQuery) ? '#263590' : '#d4d0c8',
+                color: (filterMode === 'online' || locQuery) ? '#fff' : '#000',
+                border: '1px outset #fff',
+                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                fontFamily: '"Tahoma", Arial, sans-serif',
+                borderRadius: 2, fontWeight: (filterMode === 'online' || locQuery) ? 'bold' : 'normal',
+              }}
+              title="Filter events by location or online-only"
+            >
+              ⚲ Filter
+            </button>
+
             {/* Calendar sources link — always reachable, including on mobile where the sidebar is hidden */}
             <button
               onClick={() => setShowSources(true)}
@@ -943,7 +1028,7 @@ export default function CalendarPage() {
                   {filterLabel}
                 </div>
                 <button
-                  onClick={() => setPhase('filter')}
+                  onClick={() => { setLocDraft(locQuery); setPhase('filter'); }}
                   style={{
                     marginTop: 6, background: 'none', border: 'none',
                     padding: 0, fontSize: 9, color: '#263590',
@@ -953,6 +1038,21 @@ export default function CalendarPage() {
                 >
                   Change filter
                 </button>
+              </div>
+
+              {/* Color legend — what the event colors mean */}
+              <div style={{ margin: '8px 8px 0', background: '#fff', border: '1px inset #aaa', padding: '6px 8px' }}>
+                <div style={{ fontSize: 9, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
+                  EVENT TYPES
+                </div>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {TYPE_ORDER.map((t) => (
+                    <li key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, lineHeight: 1.3 }}>
+                      <span aria-hidden="true" style={{ width: 11, height: 11, flexShrink: 0, background: TYPE_META[t].color, borderRadius: 2, border: '1px solid rgba(0,0,0,0.25)' }} />
+                      <span style={{ color: '#333' }}>{TYPE_META[t].label}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               {/* Synced calendars (external feeds that pulled in successfully) */}
@@ -998,7 +1098,7 @@ export default function CalendarPage() {
                   width: 1, height: 1, overflow: 'hidden',
                 }}
               >
-                AAC Events Calendar: {periodLabel}
+                Community Events Calendar: {periodLabel}
               </h2>
 
               {eventsError ? (
@@ -1028,8 +1128,8 @@ export default function CalendarPage() {
                   </p>
                 </div>
               ) : view === 'month'
-                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} showComingSoon={showComingSoon} />
-                : <TimeGrid colDays={colDays} numCols={numCols} events={shownEvents} showComingSoon={showComingSoon} />}
+                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} overlay={overlay} showLocation={showLocation} />
+                : <TimeGrid colDays={colDays} numCols={numCols} events={shownEvents} overlay={overlay} showLocation={showLocation} />}
 
             </div>
           </div>
@@ -1057,7 +1157,7 @@ export default function CalendarPage() {
             <span>·</span>
             <span>Filter: {filterLabel}</span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontStyle: 'italic' }}>AAC Events Calendar · artisticaccessibility.com</span>
+            <span style={{ fontStyle: 'italic' }}>Community Events Calendar · artisticaccessibility.com</span>
           </div>
         </div>
       )}

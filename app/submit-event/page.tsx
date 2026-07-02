@@ -273,7 +273,7 @@ export default function SubmitEventPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 11 }}>
-              💿 AAC Events Calendar
+              💿 Community Events Calendar
             </span>
           </div>
           <div style={{ padding: '32px 24px', textAlign: 'center' }}>
@@ -333,7 +333,7 @@ export default function SubmitEventPage() {
         }}>
           <span style={{ fontSize: 14 }}>💿</span>
           <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 11, flex: 1 }}>
-            AAC Events Calendar: Submit Event
+            Community Events Calendar: Submit Event
           </span>
         </div>
 
