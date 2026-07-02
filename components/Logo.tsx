@@ -28,6 +28,15 @@ const LOGO_VERSIONS = [
   { src: '/images/wordmark-dark-v2.svg', description: 'Artistic Accessibility Collective: thin spaced letters with a subtle lean and fine detail' },
   { src: '/images/wordmark-dark-v3.svg', description: 'Artistic Accessibility Collective: compact bold letters with a clean blocky finish' },
   { src: '/images/wordmark-dark-v4.svg', description: 'Artistic Accessibility Collective: soft lavender-pink letters with a candy-stripe shadow' },
+  { src: '/images/wordmark-dark-v5.svg', description: 'Artistic Accessibility Collective: bold white letters with a rough, torn-paper edge' },
+  { src: '/images/wordmark-dark-v6.svg', description: 'Artistic Accessibility Collective: pale yellow letters with a soft pink drop shadow, vintage circus-poster style' },
+  { src: '/images/wordmark-dark-v7.svg', description: 'Artistic Accessibility Collective: peachy orange bubble letters with a thick white outline' },
+  { src: '/images/wordmark-dark-v8.svg', description: 'Artistic Accessibility Collective: playful white script-style letters with a light purple shadow' },
+  { src: '/images/wordmark-dark-v9.svg', description: 'Artistic Accessibility Collective: sleek white letters with a glowing blue outline, futuristic style' },
+  { src: '/images/wordmark-dark-v10.svg', description: 'Artistic Accessibility Collective: pixelated retro letters with a cyan and pink glitch effect' },
+  { src: '/images/wordmark-dark-v11.svg', description: 'Artistic Accessibility Collective: bright green handwritten-style letters with a soft shadow' },
+  { src: '/images/wordmark-dark-v12.svg', description: 'Artistic Accessibility Collective: pale mint bold letters with a clean layered shadow' },
+  { src: '/images/wordmark-dark-v13.svg', description: 'Artistic Accessibility Collective: engraved-look letters with fine white line hatching and a 3D extruded edge' },
 ];
 
 // Light-bg variants — for use on cream/white page backgrounds

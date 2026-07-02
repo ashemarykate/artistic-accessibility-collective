@@ -481,6 +481,21 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   letter-spacing: 0.02em;
 }
 
+/* Bot badge — shown on AAC-Bot, the friendly demo mascot account */
+.ms-bot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #0d5c4a;
+  border: 1px solid #094034;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
 /* Availability badge — color-coded like a traffic light */
 .ms-avail-badge {
   display: inline-flex;

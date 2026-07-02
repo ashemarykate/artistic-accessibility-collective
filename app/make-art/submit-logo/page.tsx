@@ -117,7 +117,7 @@ export default function SubmitLogoPage() {
 
               {/* About this project */}
               <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 11, fontFamily: UIFONT, color: '#222', lineHeight: 1.65 }}>
-                Every time someone loads a page on this site, the logo at the top gets picked at random from a small set of styles, so regulars see something a little different each visit. There are six right now. Design one in your own style, send it our way, and if it fits the spec below, we&rsquo;ll add it to the rotation.
+                Every time someone loads a page on this site, the logo at the top gets picked at random from a small set of styles, so regulars see something a little different each visit. There are fifteen right now. Design one in your own style, send it our way, and if it fits the spec below, we&rsquo;ll add it to the rotation.
               </div>
 
               {/* Examples: real versions already in the rotation */}

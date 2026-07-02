@@ -421,6 +421,9 @@ export default function ProfilePage() {
                 {profile.is_student && (
                   <span className="ms-student-badge" aria-label="Student member">🎓 Student</span>
                 )}
+                {profile.is_bot && (
+                  <span className="ms-bot-badge" aria-label="Robot demo account">🤖 Bot</span>
+                )}
               </span>
             }
             action={isOwnProfile ? { label: 'edit profile', href: `${profileHref(profile)}/edit` } : undefined}

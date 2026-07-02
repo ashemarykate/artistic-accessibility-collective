@@ -78,6 +78,8 @@ export type Profile = {
   volunteer_notes?: string;
   // v17 Access Card tier
   member_type?: 'collective' | 'access_card';
+  // v25 demo mascot account
+  is_bot?: boolean;
   // v26 profile personalization fields
   passionate_about?: string;
   strengths?: string[];

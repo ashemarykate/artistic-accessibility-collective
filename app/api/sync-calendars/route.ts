@@ -129,6 +129,9 @@ export async function GET(request: Request) {
 
   const results: Record<string, { synced: number; skipped: number; error?: string }> = {};
 
+  // Keep events recent enough to fall within the calendar's own lookback window.
+  const cutoff = Date.now() - 7 * 86_400_000;
+
   for (const source of sources) {
     try {
       const res  = await fetch(source.ics_url, { next: { revalidate: 0 } });
@@ -136,52 +139,59 @@ export async function GET(request: Request) {
       const text = await res.text();
 
       const parsed = parseICS(text);
-      let synced = 0;
       let skipped = 0;
+      const rows: Record<string, unknown>[] = [];
+      const seen = new Set<string>();
 
       for (const ev of parsed) {
-        // Skip events in the past (more than 24h ago)
-        if (ev.end && ev.end < new Date(Date.now() - 86_400_000)) {
-          skipped++;
-          continue;
-        }
+        const startMs = ev.start.getTime();
+        // Skip events we can't place: an unparseable start date. Guarding per
+        // event means one bad date no longer aborts the whole feed.
+        if (Number.isNaN(startMs)) { skipped++; continue; }
+        const endMs  = ev.end ? ev.end.getTime() : NaN;
+        const hasEnd = !Number.isNaN(endMs);
+        // Skip anything that already ended before the calendar's window.
+        if ((hasEnd ? endMs : startMs) < cutoff) { skipped++; continue; }
+        // Collapse exact duplicates within a feed (same event listed twice).
+        const key = `${ev.uid}|${startMs}`;
+        if (seen.has(key)) { skipped++; continue; }
+        seen.add(key);
 
-        const { error: upsertErr } = await admin
-          .from('events')
-          .upsert({
-            title:         ev.title,
-            organization:  source.name,
-            description:   ev.description ?? null,
-            start_at:      ev.start.toISOString(),
-            end_at:        ev.end?.toISOString() ?? null,
-            is_all_day:    ev.isAllDay,
-            location_name: ev.location ?? null,
-            event_url:     ev.url ?? null,
-            location_type: 'in-person',   // ICS doesn't reliably encode this
-            source:        source.ics_url,
-            ics_uid:       ev.uid,
-            is_visible:    true,
-            tags:          [],
-          }, {
-            onConflict: 'source,ics_uid',
-            ignoreDuplicates: false,   // update title/time if event changes
-          });
-
-        if (upsertErr) {
-          console.error(`Upsert error for ${ev.uid}:`, upsertErr.message);
-          skipped++;
-        } else {
-          synced++;
-        }
+        rows.push({
+          title:         ev.title,
+          organization:  source.name,
+          description:   ev.description ?? null,
+          start_at:      ev.start.toISOString(),
+          end_at:        hasEnd ? ev.end!.toISOString() : null,
+          is_all_day:    ev.isAllDay,
+          location_name: ev.location ?? null,
+          event_url:     ev.url ?? null,
+          location_type: 'in-person',   // ICS doesn't reliably encode this
+          source:        source.ics_url,
+          ics_uid:       ev.uid,
+          is_visible:    true,
+          tags:          [],
+        });
       }
 
-      // Update last_synced_at
+      // Replace this feed's events wholesale: delete its existing rows, then
+      // insert the current batch. Simpler and more correct than an upsert (it
+      // also drops events the organiser has since removed), and it needs no
+      // matching unique constraint for ON CONFLICT. Only touches this feed's
+      // own rows, so member- and admin-added events are never affected.
+      const { error: delErr } = await admin.from('events').delete().eq('source', source.ics_url);
+      if (delErr) throw delErr;
+      if (rows.length > 0) {
+        const { error: insErr } = await admin.from('events').insert(rows);
+        if (insErr) throw insErr;
+      }
+
       await admin
         .from('ics_sources')
         .update({ last_synced_at: new Date().toISOString(), last_error: null })
         .eq('id', source.id);
 
-      results[source.name] = { synced, skipped };
+      results[source.name] = { synced: rows.length, skipped };
 
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

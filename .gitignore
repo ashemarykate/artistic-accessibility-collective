@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 *.zip
 public/images/wordmark-v*.svg
+
+# large source/reference asset dumps, not used by the deployed site
+/Updated Logo SVGs/
+/public/images/Tons of Icons to Choose From/
