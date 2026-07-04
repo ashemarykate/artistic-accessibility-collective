@@ -535,7 +535,7 @@ export default function CalendarPage() {
   const [filterMode,  setFilterMode]  = useState<FilterMode>('all');
   const [locQuery,    setLocQuery]    = useState('');   // "near me" text filter
   const [locDraft,    setLocDraft]    = useState('');   // dialog input before Continue
-  const [view,        setView]        = useState<CalView>('week');
+  const [view,        setView]        = useState<CalView>('list');
   const [weekStart,   setWeekStart]   = useState(() => getWeekStart(new Date()));
   const [dayAnchor,   setDayAnchor]   = useState(() => new Date());
   const [monthDate,   setMonthDate]   = useState(() => new Date());
@@ -554,11 +554,6 @@ export default function CalendarPage() {
   useEffect(() => {
     document.title = 'Community Events Calendar · Artistic Accessibility Collective';
 
-    // Default to 3-day on mobile
-    if (typeof window !== 'undefined' && window.innerWidth < 580) {
-      queueMicrotask(() => setView('3day'));
-    }
-
     let dots = 0;
     const dotInt = setInterval(() => {
       dots = (dots + 1) % 4;
@@ -568,8 +563,8 @@ export default function CalendarPage() {
       clearInterval(dotInt);
       setBooting(false);
       setTimeout(() => {
-        setPhase('filter');
-        setTimeout(() => filterRef.current?.focus(), 150);
+        setPhase('app');
+        setTimeout(() => appRef.current?.focus(), 150);
       }, 200);
     }, 1800);
     return () => {
