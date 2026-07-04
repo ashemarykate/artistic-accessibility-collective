@@ -30,12 +30,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Profile must be approved before sending login email' }, { status: 400 });
     }
 
+    // Built from the incoming request's own origin (not hardcoded) so this
+    // always matches whatever domain is actually serving the app -- prod,
+    // a Vercel preview, or otherwise -- the same way the client-side magic
+    // link flows already do with window.location.origin.
+    const redirectTo = `${req.nextUrl.origin}/auth/callback`;
+
     // Generate a magic link via Supabase Admin API
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: profile.email,
       options: {
-        redirectTo: 'https://artisticaccessibility.com/auth/callback',
+        redirectTo,
       },
     });
 

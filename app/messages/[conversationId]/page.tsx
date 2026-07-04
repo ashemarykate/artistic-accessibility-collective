@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, type Profile, type Message, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, type Message, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -58,7 +58,7 @@ export default function ConversationPage() {
 
   // ── Load conversation ─────────────────────────────────────────────────────
   const loadConversation = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }
 
     const { data: profileData } = await supabase
@@ -68,7 +68,10 @@ export default function ConversationPage() {
       .eq('status', 'approved')
       .maybeSingle();
 
-    if (!profileData) { router.push('/login'); return; }
+    // Logged in but no linked profile: let My Collective run the linking
+    // flow (and show its help message if that fails) instead of bouncing a
+    // signed-in member to the login screen.
+    if (!profileData) { router.replace('/dashboard'); return; }
     setMyProfile(profileData);
 
     // Fetch the conversation — RLS ensures we only get it if we're a participant

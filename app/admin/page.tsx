@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('pending');
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [emailStatus, setEmailStatus] = useState<Record<string, 'sent' | 'error'>>({});
+  const [emailErrorDetail, setEmailErrorDetail] = useState<Record<string, string>>({});
   const [generatingCodes, setGeneratingCodes] = useState(false);
   const [generateCount, setGenerateCount] = useState(10);
   const [accessError, setAccessError] = useState<string | null>(null);
@@ -131,9 +132,10 @@ export default function AdminDashboard() {
     setAdminActionMsg(null);
     setProfileActionPending({ id: profileId, action: 'approve' });
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: adminProfile } = await supabase
-        .from('profiles').select('id').eq('user_id', user!.id).eq('status', 'approved').limit(1).maybeSingle();
+      const user = await getSessionUser();
+      const { data: adminProfile } = user
+        ? await supabase.from('profiles').select('id').eq('user_id', user.id).eq('status', 'approved').limit(1).maybeSingle()
+        : { data: null };
 
       const { error } = await supabase.from('profiles').update({
         status: 'approved',
@@ -195,11 +197,15 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         setEmailStatus((prev) => ({ ...prev, [profileId]: 'sent' }));
+        setEmailErrorDetail((prev) => { const next = { ...prev }; delete next[profileId]; return next; });
       } else {
+        const body = await res.json().catch(() => null);
         setEmailStatus((prev) => ({ ...prev, [profileId]: 'error' }));
+        setEmailErrorDetail((prev) => ({ ...prev, [profileId]: body?.error || `Request failed (${res.status})` }));
       }
-    } catch {
+    } catch (err) {
       setEmailStatus((prev) => ({ ...prev, [profileId]: 'error' }));
+      setEmailErrorDetail((prev) => ({ ...prev, [profileId]: err instanceof Error ? err.message : 'Network error' }));
     } finally {
       setSendingEmail(null);
     }
@@ -456,6 +462,7 @@ export default function AdminDashboard() {
               onSendLoginEmail={handleSendLoginEmail}
               sendingEmail={sendingEmail}
               emailStatus={emailStatus}
+              emailErrorDetail={emailErrorDetail}
               profileActionPending={profileActionPending}
             />
           </div>
@@ -1476,6 +1483,7 @@ function ProfileList({
   onSendLoginEmail,
   sendingEmail,
   emailStatus,
+  emailErrorDetail,
   profileActionPending,
 }: {
   profiles: Profile[];
@@ -1486,6 +1494,7 @@ function ProfileList({
   onSendLoginEmail: (id: string) => void;
   sendingEmail: string | null;
   emailStatus: Record<string, 'sent' | 'error'>;
+  emailErrorDetail: Record<string, string>;
   profileActionPending: { id: string; action: 'approve' | 'reject' | 'toggle-public' } | null;
 }) {
   if (profiles.length === 0) {
@@ -1620,6 +1629,11 @@ function ProfileList({
                         'Send Login Email'
                       )}
                     </button>
+                    {emailStatus[p.id] === 'error' && emailErrorDetail[p.id] && (
+                      <p role="alert" style={{ fontSize: '0.75rem', color: 'var(--color-error)', margin: '0.25rem 0 0' }}>
+                        {emailErrorDetail[p.id]}
+                      </p>
+                    )}
 
                     <button
                       onClick={() => onReject(p.id)}

@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Profile } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -85,7 +85,7 @@ export default function FeedbackPage() {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }
 
     const { data: profileData, error: profileError } = await supabase

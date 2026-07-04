@@ -3,7 +3,20 @@ import { createClient, type User } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:54321';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-key';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// detectSessionInUrl defaults to true, which auto-redeems a PKCE `?code=`
+// during client init whenever a code_verifier is already cached (i.e. the
+// magic link is clicked in the same browser that requested it). That auto
+// exchange races app/auth/callback/page.tsx's own explicit
+// exchangeCodeForSession(code) call: exchangeCodeForSession() awaits the
+// same initializePromise the auto-detect ran on, so by the time it runs the
+// verifier is already consumed and it throws AuthPKCECodeVerifierMissingError
+// even though the auto-detect already established a real, saved session. The
+// callback page then shows "we couldn't sign you in" to an already-logged-in
+// person. Disabling auto-detection makes the callback page's manual exchange
+// the only path, so it always runs to completion normally.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { detectSessionInUrl: false },
+});
 
 /**
  * Returns the logged-in user from the locally saved session, or null when

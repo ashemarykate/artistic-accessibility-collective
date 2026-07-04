@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, getSessionUser } from '@/lib/supabase';
 
 // ── Tags available for event submissions ──────────────────────────────────────
 const TAG_OPTIONS = [
@@ -133,7 +133,7 @@ export default function SubmitEventPage() {
   }, [submitted]);
 
   const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) {
       router.push('/login');
       return;

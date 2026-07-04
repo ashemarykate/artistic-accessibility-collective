@@ -3,7 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { supabase, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -134,13 +134,17 @@ export default function ProfilePage() {
   const fetchData = async () => {
     setLoadFailed(false);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
+      // This page is public (approved profiles are directory-browsable by
+      // anyone), so a missing session means "logged-out viewer", not a
+      // reason to redirect away.
+      const user = await getSessionUser();
       setCurrentUser(user);
 
-      const { data: up } = await supabase
-        .from('profiles').select('*').eq('user_id', user.id).eq('status', 'approved').single();
-      setCurrentUserProfile(up);
+      if (user) {
+        const { data: up } = await supabase
+          .from('profiles').select('*').eq('user_id', user.id).eq('status', 'approved').single();
+        setCurrentUserProfile(up);
+      }
 
       // Try vanity username first, fall back to UUID.
       let { data: profileData } = await supabase

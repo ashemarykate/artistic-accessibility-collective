@@ -288,7 +288,14 @@ export default function SubmitProfile() {
 
       const languagesArr = languages.split(',').map((l) => l.trim()).filter(Boolean);
 
+      // Generated here (not read back after insert) because no SELECT policy
+      // covers a fresh pending/unlinked profile: reading the id back via
+      // .select().single() would find 0 visible rows and throw, even though
+      // the insert itself already committed.
+      const profileId = crypto.randomUUID();
+
       const insertData: Record<string, unknown> = {
+        id: profileId,
         full_name: formData.full_name.trim(),
         display_name: formData.display_name.trim() || null,
         email: formData.email.trim(),
@@ -331,11 +338,9 @@ export default function SubmitProfile() {
         });
       }
 
-      const { data: profileData, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
-        .insert(insertData)
-        .select('id')
-        .single();
+        .insert(insertData);
 
       if (profileError) {
         console.error('Profile insert error:', profileError);
@@ -344,7 +349,7 @@ export default function SubmitProfile() {
 
       if (testerSelfDescription || testerCollaboratorInfo || testerFeatureInterests.length > 0 || testerOtherFeedback) {
         const { error: feedbackError } = await supabase.from('tester_feedback').insert({
-          profile_id: profileData.id,
+          profile_id: profileId,
           tester_round: 1,
           missing_profile_info: testerSelfDescription.trim() || null,
           work_use_case: testerCollaboratorInfo.trim() || null,
@@ -358,7 +363,7 @@ export default function SubmitProfile() {
         await supabase.from('invite_codes').update({
           used: true,
           used_at: new Date().toISOString(),
-          used_by_profile_id: profileData.id,
+          used_by_profile_id: profileId,
         }).eq('code', code);
       }
 
