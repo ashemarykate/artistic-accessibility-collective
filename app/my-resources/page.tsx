@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, getSessionUser } from '@/lib/supabase';
 import { RESOURCE_BY_SLUG } from '@/lib/resources-data';
 import { LIBRARY_ITEMS, type LibraryItem } from '@/lib/library-data';
 import { CINEMA_ITEMS, type CinemaItem } from '@/lib/cinema-data';
@@ -26,7 +26,7 @@ export default function MyResourcesPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getSessionUser();
       if (!user) { router.push('/login'); return; }
 
       const [

@@ -469,11 +469,24 @@ function AccessCardContent() {
 
       setUserId(session.user.id);
 
-      const { data: prof } = await supabase
+      let { data: prof } = await supabase
         .from('profiles')
         .select('id, full_name, bio, created_at, member_type')
         .eq('user_id', session.user.id)
         .maybeSingle();
+
+      if (!prof) {
+        // First visit after signup: the login may not be connected to the
+        // profile yet. Run the linking function, then look again.
+        const { data: linked } = await supabase.rpc('link_profile_to_auth_user');
+        if (linked) {
+          ({ data: prof } = await supabase
+            .from('profiles')
+            .select('id, full_name, bio, created_at, member_type')
+            .eq('user_id', session.user.id)
+            .maybeSingle());
+        }
+      }
 
       if (!prof) { router.replace('/login?error=profile_not_linked'); return; }
       if (prof.member_type !== 'access_card') { router.replace('/dashboard'); return; }

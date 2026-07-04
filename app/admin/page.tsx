@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
-import { supabase, type Profile, type InviteCode, type TesterFeedback, type CalEvent, type IcsSource, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, type InviteCode, type TesterFeedback, type CalEvent, type IcsSource, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   useEffect(() => { checkAdmin(); }, []);
 
   const checkAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }
 
     const { data: adminData } = await supabase

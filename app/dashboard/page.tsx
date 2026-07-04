@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback } from 'react';
-import { supabase, type Profile, type Conversation, type Message, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, type Conversation, type Message, profileHref } from '@/lib/supabase';
 import { RESOURCE_BY_SLUG } from '@/lib/resources-data';
 import { EnvelopeIcon, PersonBubbleIcon, PersonStarIcon, PeopleIcon, FavoritesStarIcon, PersonPlusIcon, WrenchIcon, PencilIcon, MonitorPlayIcon, ListIcon, LiveCameraIcon, LocationPinIcon } from '@/app/components/PixelIcons';
 import { useRouter } from 'next/navigation';
@@ -56,6 +56,7 @@ export default function MemberHub() {
   const [savedResources, setSavedResources] = useState<{ slug: string; name: string; categoryTitle: string; categoryEmoji: string }[]>([]);
   const [adminUserIds,  setAdminUserIds]  = useState<Set<string>>(new Set());
   const [introDismissed, setIntroDismissed] = useState(false);
+  const [linkFailed,     setLinkFailed]     = useState(false); // logged in, but no profile could be linked
   const [browseOpen,     setBrowseOpen]     = useState(false);  // "Save what you love" dropdown
   const [cpResourcesOpen, setCpResourcesOpen] = useState(false); // Control Panel "Resources" submenu
 
@@ -73,7 +74,7 @@ export default function MemberHub() {
   };
 
   const loadHub = useCallback(async function loadHub() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }
 
     const { data: profileData } = await supabase
@@ -89,16 +90,18 @@ export default function MemberHub() {
       // No profile found by user_id — try to link by email via SECURITY DEFINER RPC.
       // Direct SELECT on unlinked profiles fails due to RLS (no policy covers
       // unlinked rows), so we delegate to a server-side function that bypasses it.
-      const { data: linked } = await supabase.rpc('link_profile_to_auth_user');
-      if (linked) {
+      const { data: linked, error: linkError } = await supabase.rpc('link_profile_to_auth_user');
+      if (linked && !linkError) {
         // Link succeeded — re-run loadHub now that user_id is set in the DB
         loadHub();
         return;
       }
-      await supabase.auth.signOut();
-      router.replace('/login?error=profile_not_linked');
+      // Stay signed in and explain, rather than force-signing the member out.
+      setLinkFailed(true);
+      setLoading(false);
       return;
     }
+    setLinkFailed(false);
     setProfile(profileData);
     const resolvedProfile = profileData;
 
@@ -230,6 +233,40 @@ export default function MemberHub() {
         <div className="loading-screen" role="status" aria-label="Loading your hub">
           <span className="spinner" aria-hidden="true" style={{ width: 36, height: 36, borderWidth: 4 }} />
           <span>Loading…</span>
+        </div>
+      </main>
+      </BrowserChrome>
+    );
+  }
+
+  // Logged in, but this login isn't connected to an approved profile yet.
+  // Stay signed in and explain, instead of force-signing the member out.
+  if (linkFailed) {
+    return (
+      <BrowserChrome variant="aol" title="My Collective · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dashboard">
+      <main className="page-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
+        <div className="content-card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
+          <h1 style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.75rem' }}>
+            We couldn&apos;t find your member profile
+          </h1>
+          <p role="alert" style={{ marginBottom: '1.5rem' }}>
+            You&apos;re logged in, but we couldn&apos;t match this email to an approved member profile.
+            If you just applied, your profile may still be under review. If you think something&apos;s
+            wrong, email <a href="mailto:contact@artisticaccessibility.com" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>contact@artisticaccessibility.com</a> and
+            we&apos;ll get you sorted.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => { setLoading(true); loadHub(); }}>
+              Try Again
+            </button>
+            <button
+              type="button"
+              className="btn btn-full"
+              onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </main>
       </BrowserChrome>

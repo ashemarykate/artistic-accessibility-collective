@@ -54,26 +54,15 @@ function LoginForm() {
     showMsg('');
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Link profile to user if not yet linked
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = signInData.user;
       if (user) {
-        const { data: unlinked } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', user.email)
-          .is('user_id', null)
-          .eq('status', 'approved')
-          .single();
-
-        if (unlinked) {
-          await supabase
-            .from('profiles')
-            .update({ user_id: user.id })
-            .eq('id', unlinked.id);
-        }
+        // Link profile to user if not yet linked. Uses the same SECURITY
+        // DEFINER function as the magic-link flow: a direct SELECT+UPDATE
+        // from the client can't see unlinked rows under RLS.
+        await supabase.rpc('link_profile_to_auth_user');
 
         await routeAfterLogin(user.id);
       } else {

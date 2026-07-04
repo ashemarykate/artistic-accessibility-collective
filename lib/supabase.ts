@@ -1,9 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type User } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:54321';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/**
+ * Returns the logged-in user from the locally saved session, or null when
+ * there is no session. Unlike auth.getUser(), this does not require a network
+ * round-trip on every call, so a slow or flaky connection (common on phones)
+ * can't bounce a genuinely logged-in member back to the login screen.
+ */
+export async function getSessionUser(): Promise<User | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user ?? null;
+}
 
 export type Profile = {
   id: string;

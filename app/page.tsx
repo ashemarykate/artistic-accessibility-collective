@@ -512,14 +512,16 @@ function StartMenuFolder({ name, kids, onOpen }: { name: string; kids: string[];
   const toggle = () => setOpen(o => !o);
   return (
     <div className={'start-folder' + (open ? ' open' : '')} style={{ position: 'relative' }}>
-      <div className="win-row" tabIndex={0} role="menuitem" aria-haspopup="true" aria-expanded={open}
+      {/* A real <button>, not a clickable div: iOS Safari doesn't reliably fire
+          click events on non-interactive elements, which left the submenu
+          stuck in a focus-only state that vanished before item taps landed. */}
+      <button type="button" className="win-row" role="menuitem" aria-haspopup="true" aria-expanded={open}
         onClick={toggle}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
-        style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', cursor: 'default' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', background: 'none', border: 'none', textAlign: 'left', cursor: 'default' }}>
         <span aria-hidden="true" style={{ width: 26, height: 26, flexShrink: 0 }}><Ico n={48} size={26} /></span>
         <span style={{ flex: 1 }}>{name}</span>
         <span aria-hidden="true" style={{ fontSize: 10 }}>▶</span>
-      </div>
+      </button>
       <div className="start-sub" role="menu" aria-label={name}
         style={{ position: 'absolute', left: '100%', top: -3, minWidth: 214, background: SILVER, boxShadow: RAISED, padding: 3, zIndex: 9002 }}>
         {kids.map(c => <StartMenuLeaf key={c} k={c} size={24} onOpen={onOpen} />)}
@@ -898,7 +900,7 @@ export default function Home() {
         .win-row:hover,.win-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
         .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#3a49b8,#22306e);outline:2px solid #ffd21a;outline-offset:-2px}
         .start-sub{display:none}
-        .start-folder:hover>.start-sub,.start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
+        .start-folder:hover>.start-sub,.start-folder.open>.start-sub{display:block}
         .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a;color:#fff}
         .beta-scroll{animation:beta-marq 30s linear infinite}
         @keyframes beta-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -912,7 +914,7 @@ export default function Home() {
           .start-list{max-height:calc(100dvh - 96px)!important;overflow-y:auto!important}
           .start-sub{position:static!important;left:auto!important;top:auto!important;min-width:0!important;box-shadow:none!important;background:#d4d4d4!important;border-left:3px solid #9a9a9a!important;margin:0 8px 4px 30px!important;padding:2px 0!important}
           .start-folder:hover>.start-sub{display:none}
-          .start-folder:focus-within>.start-sub,.start-folder.open>.start-sub{display:block}
+          .start-folder.open>.start-sub{display:block}
           .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:12px!important;padding:14px!important;align-content:start!important;pointer-events:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
           .dsk-item{position:static!important;pointer-events:all!important}
           .dsk-icon{width:100%!important;padding:14px 10px 12px!important;justify-content:center!important;--jx:0px!important;--jy:0px!important}

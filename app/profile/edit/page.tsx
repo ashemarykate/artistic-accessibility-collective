@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_OPTIONS } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_OPTIONS } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PhotoUploader from '@/components/PhotoUploader';
@@ -226,7 +226,7 @@ export default function EditProfilePage() {
   }, []);
 
   const loadProfile = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }
 
     const { data } = await supabase
@@ -238,7 +238,9 @@ export default function EditProfilePage() {
       .limit(1)
       .maybeSingle();
 
-    if (!data) { router.push('/login'); return; }
+    // Logged in but no linked profile: My Collective runs the linking flow
+    // and explains what to do if it fails. Don't bounce to the login screen.
+    if (!data) { router.replace('/dashboard'); return; }
 
     setProfile(data);
 

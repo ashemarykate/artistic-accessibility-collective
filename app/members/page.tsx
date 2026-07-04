@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState } from 'react';
-import { supabase, type Profile, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, profileHref } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -72,7 +72,7 @@ export default function MemberDirectory() {
   }, []);
 
   const checkAuthAndFetch = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser();
     if (!user) {
       router.push('/login');
       return;
