@@ -5,29 +5,34 @@ import { useEffect, useRef } from 'react';
 import BrowserChrome from '@/components/BrowserChrome';
 
 const BLUE = 'var(--aac-blue)';
+const TEAL = '#0d5c4a';
 const TEXT = '#1e2444';
 const MUTED = '#4a5280';
 
 const SERVICES = [
   {
-    num: '01',
-    name: 'Advising',
-    description: 'Not sure where to start? We sit with you, learn about your project, and help you figure out what genuine accessibility looks like for your specific situation. No judgment on where you are starting from.',
+    num: '1',
+    tilt: -1.5,
+    name: 'Talk it through',
+    description: 'Not sure where to start? Almost nobody is. Tell us about your project and we will help you figure out what access can look like for it. No judgment, no jargon, no pop quiz.',
   },
   {
-    num: '02',
-    name: 'Staffing',
-    description: 'Need ASL interpreters, CART captioners, audio describers, or other accessibility professionals? We will help you find the right people for your project, timeline, and budget.',
+    num: '2',
+    tilt: 1.2,
+    name: 'Find your people',
+    description: 'ASL interpreters, CART captioners, audio describers, access consultants: the Collective is full of people who love this work. We will connect you with the right ones for your project.',
   },
   {
-    num: '03',
-    name: 'Training',
-    description: 'Teach your team how to think about and build accessibility in from the start, so future projects do not have to play catch-up.',
+    num: '3',
+    tilt: -1,
+    name: 'Learn it together',
+    description: 'We train teams to think about access from day one, so it stops being the scramble at the end and starts being part of how you make things.',
   },
   {
-    num: '04',
-    name: 'Evaluation',
-    description: 'Already have something built? We will review what is working, what is not, and what to do next: whether that is a live event, a digital platform, or a long-running program.',
+    num: '4',
+    tilt: 1.5,
+    name: 'Get a second look',
+    description: 'Already have something out in the world? An event, a platform, a program? We will tell you what is working, what is not, and what to try next. Kindly, but honestly.',
   },
 ];
 
@@ -57,58 +62,59 @@ export default function WorkWithUsPage() {
               ref={h1Ref}
               tabIndex={-1}
               className="font-display hire-h1"
-              style={{ color: BLUE, lineHeight: 1.05, marginBottom: '1rem', outline: 'none' }}
+              style={{ color: BLUE, lineHeight: 1.05, marginBottom: '1.25rem', outline: 'none' }}
             >
               Work With Us
             </h1>
 
             <p className="hire-lede" style={{ color: TEXT, lineHeight: 1.65, marginBottom: '0.875rem' }}>
-              Every arts project is different. A community reading has different accessibility needs than a three-day festival. A podcast is not a live performance. A gallery opening is not a film premiere.
+              Making art accessible is a craft, and nobody should have to figure it out alone.
             </p>
-            <p className="hire-lede" style={{ color: TEXT, lineHeight: 1.65, marginBottom: '2.5rem' }}>
-              That is where we start: your specific project, your timeline, your goals. Then we figure out together what you actually need.
+            <p className="hire-lede" style={{ color: TEXT, lineHeight: 1.65, marginBottom: '2.75rem' }}>
+              Whether you are putting on a play, opening a gallery show, running a festival, or making something we do not have a name for yet, we would love to help you make it{' '}
+              <span style={{ background: 'var(--aac-yellow)', padding: '0 0.25em', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone' }}>for everyone</span>.
             </p>
 
-            <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.1)', margin: '0 0 2rem' }} />
-
-            <section aria-labelledby="services-heading" style={{ marginBottom: '2.5rem' }}>
-              <h2 id="services-heading" style={{
-                color: MUTED,
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                marginBottom: '1.5rem',
-              }}>
-                What We Offer
+            <section aria-labelledby="services-heading" style={{ marginBottom: '3rem' }}>
+              <h2 id="services-heading" className="font-display hire-h2" style={{ color: TEAL, lineHeight: 1.1, marginBottom: '1.75rem' }}>
+                How We Can Help
               </h2>
 
-              <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {SERVICES.map((s, i) => (
+              <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1.875rem' }}>
+                {SERVICES.map((s) => (
                   <li
                     key={s.num}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: 'auto 1fr',
-                      gap: '1.25rem',
-                      paddingBottom: '1.75rem',
-                      marginBottom: i < SERVICES.length - 1 ? '1.75rem' : 0,
-                      borderBottom: i < SERVICES.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none',
+                      gap: '1.125rem',
                       alignItems: 'start',
                     }}
                   >
                     <span
-                      aria-hidden="true"
                       className="font-display hire-service-num"
-                      style={{ color: 'var(--aac-blue)', lineHeight: 1, userSelect: 'none' }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        background: 'var(--aac-yellow)',
+                        border: '1px solid var(--aac-blue-dark)',
+                        color: 'var(--aac-blue-dark)',
+                        lineHeight: 1,
+                        userSelect: 'none',
+                        transform: `rotate(${s.tilt}deg)`,
+                        marginTop: '0.2rem',
+                      }}
                     >
                       {s.num}
                     </span>
                     <div>
-                      <h3 className="font-display hire-service-name" style={{ color: TEXT, lineHeight: 1.1, marginBottom: '0.5rem' }}>
+                      <h3 className="font-display hire-service-name" style={{ color: BLUE, lineHeight: 1.1, marginBottom: '0.4rem' }}>
                         {s.name}
                       </h3>
-                      <p className="hire-service-desc" style={{ color: MUTED, lineHeight: 1.7 }}>
+                      <p className="hire-service-desc" style={{ color: TEXT, lineHeight: 1.7 }}>
                         {s.description}
                       </p>
                     </div>
@@ -116,83 +122,39 @@ export default function WorkWithUsPage() {
                 ))}
               </ol>
 
-              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75, marginTop: '1.75rem' }}>
-                We work directly with you, or connect you with the right person from our network, depending on what the job calls for. <Link href="/contact" style={{ color: BLUE, textDecoration: 'underline' }}>Reach out any time</Link> and we will take it from there.
+              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75, marginTop: '1.875rem' }}>
+                Sometimes we do the work ourselves, and sometimes we bring in exactly the right person from the Collective. Either way, you are in good hands. <Link href="/contact" style={{ color: BLUE, textDecoration: 'underline' }}>Reach out any time</Link> and we will take it from there.
               </p>
             </section>
 
-            <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.1)', margin: '0 0 2rem' }} />
-
-            {/* Pricing callout */}
+            {/* The money part */}
             <section aria-labelledby="pricing-heading" style={{
               background: 'var(--aac-blue)',
-              padding: '1.5rem',
-              marginBottom: '2.5rem',
+              padding: '1.625rem 1.75rem 1.75rem',
+              marginBottom: '3rem',
             }}>
-              <h2 id="pricing-heading" style={{
-                color: 'var(--aac-yellow)',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                marginBottom: '0.75rem',
-              }}>
-                Pricing
+              <h2 id="pricing-heading" className="font-display hire-h2" style={{ color: 'var(--aac-yellow)', lineHeight: 1.1, marginBottom: '0.875rem' }}>
+                The Money Part
               </h2>
               <p className="hire-body" style={{ color: '#fff', lineHeight: 1.7, marginBottom: '0.75rem' }}>
-                Your first conversation is free, up to one hour, no strings attached.
+                Your first conversation with us is free, full stop. After that, we work on a sliding scale: what you pay depends on what you need and where you are starting from.
               </p>
-              <p className="hire-body" style={{ color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>
-                After that, we work on a sliding scale based on what you need and what we can offer. Accessibility support should be within reach no matter the size of your budget.
-              </p>
-            </section>
-
-            {/* CTA */}
-            <section aria-label="Get started" style={{
-              border: '1px solid rgba(0,0,0,0.1)',
-              padding: '1.5rem',
-              marginBottom: '2.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              gap: '1rem',
-            }}>
-              <p className="hire-body" style={{ color: TEXT, lineHeight: 1.6, margin: 0 }}>
-                Ready to get started? Set up a free call or send us your questions.
+              <p className="hire-body" style={{ color: '#fff', lineHeight: 1.7, marginBottom: '1.375rem' }}>
+                If your budget is small, talk to us anyway. Access should be within everyone&apos;s reach, including yours.
               </p>
               <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap' }}>
-                <Link href="/contact" className="btn btn-primary">Set Up a Free Call</Link>
-                <Link href="/contact" style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '0.625rem 1.25rem',
-                  border: '1px solid var(--aac-blue)',
-                  color: 'var(--aac-blue)',
-                  textDecoration: 'none',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}>
-                  Ask a Question
-                </Link>
+                <Link href="/contact" className="btn btn-on-blue">Set Up a Free Call</Link>
+                <Link href="/contact" className="btn btn-outline-white">Ask a Question</Link>
               </div>
             </section>
 
-            <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.1)', margin: '0 0 2rem' }} />
-
-            {/* Join the network */}
+            {/* Join the collective */}
             <section aria-labelledby="join-heading" style={{ marginBottom: '3rem' }}>
-              <h2 id="join-heading" style={{
-                color: BLUE,
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                marginBottom: '1rem',
-              }}>
-                Are You an Accessibility Professional?
+              <h2 id="join-heading" className="font-display hire-h2" style={{ color: TEAL, lineHeight: 1.1, marginBottom: '0.875rem' }}>
+                Do You Do This Work?
               </h2>
               <p className="hire-body" style={{ color: TEXT, lineHeight: 1.75, marginBottom: '1.25rem' }}>
-                We are building a collective of ASL interpreters, captioners, audio describers, accessibility designers, and others working at the intersection of the arts and accessibility. When our clients need the right person for a job, this is who we call.
+                The Collective is a growing community of ASL interpreters, captioners, audio describers, educators, artists, and access nerds of every kind. When someone needs the right person for a job, this is who we call. Come join us.
               </p>
               <Link href="/submit" className="btn btn-primary">
                 Join the Collective
@@ -209,15 +171,16 @@ export default function WorkWithUsPage() {
 
           <style>{`
             .hire-h1 { font-size: clamp(2rem, 6vw, 3.25rem); }
-            .hire-lede { font-size: clamp(0.9375rem, 2vw, 1.0625rem); max-width: 60ch; }
-            .hire-service-num { font-size: clamp(1.5rem, 4vw, 2.25rem); }
-            .hire-service-name { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+            .hire-h2 { font-size: clamp(1.375rem, 3.5vw, 1.875rem); }
+            .hire-lede { font-size: clamp(1rem, 2.5vw, 1.1875rem); max-width: 58ch; }
+            .hire-service-num { font-size: 1.25rem; }
+            .hire-service-name { font-size: clamp(1.125rem, 2.5vw, 1.5rem); }
             .hire-service-desc { font-size: 0.9375rem; max-width: 55ch; }
             .hire-body { font-size: 0.9375rem; max-width: 60ch; }
             @media (max-width: 580px) {
               .hire-h1 { font-size: 2rem !important; }
-              .hire-service-num { font-size: 1.5rem !important; }
-              .hire-service-name { font-size: 1.25rem !important; }
+              .hire-h2 { font-size: 1.375rem !important; }
+              .hire-service-name { font-size: 1.125rem !important; }
             }
           `}</style>
         </main>
