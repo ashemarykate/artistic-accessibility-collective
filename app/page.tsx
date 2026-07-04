@@ -78,7 +78,7 @@ const ITEMS: Record<string, ItemDef> = {
   'access-resources': { label: 'Accessibility Resources', icon: 71,       kind: 'app',      cat: 'Resources',     href: '/accessibility',   blurb: 'Tools, guides and links to help make art accessible for every body and mind.', soon: true },
   'library':          { label: 'The Library',            icon: 82,        kind: 'app',      cat: 'Resources',     href: '/library',         blurb: 'Browse our growing collection of accessible reading and reference material.' },
   'cinema':           { label: 'The Cinema',             icon: 56,        kind: 'app',      cat: 'Resources',     href: '/cinema',          blurb: 'Watch films, recorded talks and described screenings on demand.' },
-  'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room, drop PDFs and worksheets here so members can help each other.', soon: true },
+  'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room: checklists, posters, worksheets and guides, ready to print and pass around.' },
   'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'A free account to save, like and comment on resources and listings.' },
 };
 
