@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase, type CalEvent } from '@/lib/supabase';
+import Modal from '@/components/Modal';
 
 // ── Stars (same field as Make Art / Learning Hub) ─────────────────────────────
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -61,7 +62,10 @@ function isToday(d: Date) {
 // ── Types ─────────────────────────────────────────────────────────────────────
 type FilterMode = 'all' | 'online';
 type CalView   = 'day' | '3day' | 'week' | 'month' | 'list';
-type Phase     = 'boot' | 'filter' | 'app';
+type Phase     = 'boot' | 'app';
+
+// The five calendar views, in the order the switcher lists them.
+const VIEW_TABS: CalView[] = ['list', 'day', '3day', 'week', 'month'];
 
 // ── Event type classification + colors ────────────────────────────────────────
 // Derived on the fly from title + organisation, so it works for synced, member,
@@ -186,30 +190,87 @@ function eventsForDate(events: CalEvent[], d: Date): CalEvent[] {
   });
 }
 
-/** A small colored event chip, colored by event type */
-function EventChip({ ev, showLocation }: { ev: CalEvent; showLocation?: boolean }) {
+/**
+ * Renders an event as a real link when it has a URL, or a plain non-interactive
+ * element when it doesn't (avoids dead "#" links that open a blank new tab).
+ *
+ * Accessibility:
+ * - With a URL: the link's accessible name is `visibleText, srContext`. Leading
+ *   with the visible text satisfies WCAG 2.5.3 Label in Name (voice control),
+ *   and the trailing srContext adds the date/type context the visual grid
+ *   position would otherwise carry. aria-label supersedes the child text for a
+ *   link, so the children are left visible (not aria-hidden).
+ * - Without a URL: a plain <span> (no role, no aria-label). The visible children
+ *   are read normally and an sr-only span appends the same date/type context, so
+ *   the event is never an empty/skipped node for a screen reader.
+ */
+function EventLeaf({ ev, visibleText, srContext, title, style, className, children }: {
+  ev: CalEvent;
+  visibleText: string;
+  srContext: string;
+  title: string;
+  style: React.CSSProperties;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  if (ev.event_url) {
+    const name = srContext ? `${visibleText}, ${srContext}` : visibleText;
+    return (
+      <a href={ev.event_url} target="_blank" rel="noopener noreferrer"
+         aria-label={name} title={title} style={style} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <span title={title} style={style} className={className}>
+      {children}
+      {srContext && <span className="sr-only">, {srContext}</span>}
+    </span>
+  );
+}
+
+/** The date/type context a screen reader can't get from the visual grid
+ *  position. Appended after the visible text so it never hides the visible
+ *  label. */
+function eventSrContext(ev: CalEvent, type: EventType): string {
+  const start = new Date(ev.start_at);
+  const dateStr = `${DAY_NAMES_LONG[start.getDay()]}, ${MONTH_NAMES[start.getMonth()]} ${start.getDate()}`;
+  return [ev.is_all_day ? 'all day' : null, dateStr, TYPE_META[type].label, ev.location_name, ev.organization]
+    .filter(Boolean).join(', ');
+}
+
+/** A small colored event chip, colored by event type.
+ *  `dense` (month view) uses a compact 24px min target so packed days don't
+ *  balloon; elsewhere chips get the full 44px target. */
+function EventChip({ ev, showLocation, dense }: { ev: CalEvent; showLocation?: boolean; dense?: boolean }) {
   const start   = new Date(ev.start_at);
   const timeStr = ev.is_all_day
     ? '' : start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const type    = classifyEvent(ev);
   const place   = showLocation ? shortLocation(ev.location_name) : null;
+  const visibleText = `${timeStr ? timeStr + ' ' : ''}${ev.title}${place ? ' · ' + place : ''}`;
   return (
-    <a
-      href={ev.event_url ?? '#'}
-      target="_blank" rel="noopener noreferrer"
+    <EventLeaf
+      ev={ev}
+      visibleText={visibleText}
+      srContext={eventSrContext(ev, type)}
+      title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
       style={{
         display: 'flex', alignItems: 'center', background: TYPE_META[type].color, color: '#fff',
         fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 4px', marginBottom: 2, borderRadius: 1,
         overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-        textDecoration: 'none', cursor: 'pointer', minHeight: 44,
+        textDecoration: 'none', cursor: ev.event_url ? 'pointer' : 'default',
+        minHeight: dense ? 24 : 44,
       }}
-      title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
     >
-      {timeStr && <span style={{ opacity: 0.75 }}>{timeStr} </span>}
-      {ev.title}
-      {place && <span style={{ opacity: 0.7 }}> · {place}</span>}
-    </a>
+      {/* Full white (no opacity dim) so the 9px time/place text clears AA on the
+          lighter type colors; the chip colors were chosen for solid white. */}
+      {timeStr && <span>{timeStr} </span>}
+      <span>{ev.title}</span>
+      {place && <span> · {place}</span>}
+    </EventLeaf>
   );
 }
 
@@ -219,9 +280,10 @@ function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) 
   const start   = new Date(ev.start_at);
   const timeStr = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   return (
-    <a
-      href={ev.event_url ?? '#'}
-      target="_blank" rel="noopener noreferrer"
+    <EventLeaf
+      ev={ev}
+      visibleText={`${timeStr} ${ev.title}`}
+      srContext={eventSrContext(ev, type)}
       title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
       style={{
         position: 'absolute', zIndex: 1, display: 'flex', alignItems: 'center',
@@ -229,12 +291,12 @@ function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) 
         background: TYPE_META[type].color, color: '#fff',
         fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 3px', borderRadius: 2, overflow: 'hidden',
-        textDecoration: 'none', cursor: 'pointer', lineHeight: 1.15,
+        textDecoration: 'none', cursor: ev.event_url ? 'pointer' : 'default', lineHeight: 1.15,
         boxShadow: '0 0 0 1px rgba(255,255,255,0.4)', minHeight: 44,
       }}
     >
-      <span style={{ opacity: 0.8 }}>{timeStr}</span> {ev.title}
-    </a>
+      <span>{timeStr} {ev.title}</span>
+    </EventLeaf>
   );
 }
 
@@ -308,8 +370,11 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
                 fontSize: 11,
               }}
             >
-              <div>{DAY_NAMES[d.getDay()]}</div>
-              <div style={{ fontSize: 14, fontWeight: 'bold', marginBottom: allDay.length ? 3 : 0 }}>{d.getDate()}</div>
+              <span className="sr-only">
+                {DAY_NAMES_LONG[d.getDay()]}, {MONTH_NAMES[d.getMonth()]} {d.getDate()}{isToday(d) ? ', today' : ''}
+              </span>
+              <div aria-hidden="true">{DAY_NAMES[d.getDay()]}</div>
+              <div aria-hidden="true" style={{ fontSize: 14, fontWeight: 'bold', marginBottom: allDay.length ? 3 : 0 }}>{d.getDate()}</div>
               {allDay.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
             </div>
           );
@@ -370,12 +435,16 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
 }
 
 // ── Render helper: Month grid ─────────────────────────────────────────────────
-function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation }: {
+// Cap how many event chips a month cell shows, so a busy day doesn't stretch the
+// whole grid; the rest are reachable via "+N more" (opens that day) and the list.
+const MONTH_CELL_MAX = 4;
+function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShowDay }: {
   monthDate: Date;
   monthGrid: (number | null)[][];
   events: CalEvent[];
   overlay: { badge: string; body: string } | null;
   showLocation?: boolean;
+  onShowDay: (date: Date) => void;
 }) {
   const today = new Date();
   const todayNum = today.getDate();
@@ -383,60 +452,91 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation }: {
     monthDate.getFullYear() === today.getFullYear();
   return (
     <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-      {/* Day names header */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-        borderBottom: '2px solid #b4b0a8',
-        background: '#ece9d8',
-      }}>
-        {DAY_NAMES.map(d => (
-          <div key={d} style={{
-            textAlign: 'center', padding: '3px 0',
-            fontSize: 10, fontWeight: 'bold', color: '#555',
-            borderRight: '1px solid #b4b0a8',
-          }}>{d}</div>
-        ))}
-      </div>
-      {/* Weeks */}
-      {monthGrid.map((week, wi) => (
-        <div key={wi} style={{
-          display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-          borderBottom: '1px solid #e0dcd4',
-          minHeight: 72,
-        }}>
-          {week.map((day, di) => {
-            const cellDate = day !== null ? new Date(monthDate.getFullYear(), monthDate.getMonth(), day) : null;
-            const dayEvs   = cellDate ? eventsForDate(events, cellDate) : [];
-            return (
-              <div key={di} style={{
-                borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
-                padding: '3px 5px',
-                background: day && isCurrentMonth && day === todayNum ? '#dce8ff' : '#fff',
+      {/* A real <table> so a screen reader can tell which day a cell (and the
+          events inside it) belongs to: day names are column headers, each cell
+          announces its full date. */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <caption className="sr-only">
+          Events for {MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()}
+        </caption>
+        <thead>
+          <tr style={{ background: '#ece9d8', borderBottom: '2px solid #b4b0a8' }}>
+            {DAY_NAMES.map((d, i) => (
+              <th key={d} scope="col" style={{
+                textAlign: 'center', padding: '3px 0',
+                fontSize: 10, fontWeight: 'bold', color: '#555',
+                borderRight: i < 6 ? '1px solid #b4b0a8' : undefined,
               }}>
-                {day !== null && (
-                  <>
-                    <span style={{
-                      display: 'inline-block',
-                      width: 20, height: 20,
-                      lineHeight: '20px',
-                      textAlign: 'center',
-                      borderRadius: 10,
-                      fontSize: 11,
-                      fontWeight: isCurrentMonth && day === todayNum ? 'bold' : 'normal',
-                      background: isCurrentMonth && day === todayNum ? '#263590' : 'transparent',
-                      color: isCurrentMonth && day === todayNum ? '#fff' : '#333',
-                      marginBottom: dayEvs.length ? 2 : 0,
-                    }}>
-                      {day}
-                    </span>
-                    {dayEvs.map(ev => <EventChip key={ev.id} ev={ev} showLocation={showLocation} />)}
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
+                <span aria-hidden="true">{d}</span>
+                <span className="sr-only">{DAY_NAMES_LONG[i]}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {monthGrid.map((week, wi) => (
+            <tr key={wi}>
+              {week.map((day, di) => {
+                const cellDate = day !== null ? new Date(monthDate.getFullYear(), monthDate.getMonth(), day) : null;
+                const dayEvs   = cellDate ? eventsForDate(events, cellDate) : [];
+                const isTodayCell = !!(day && isCurrentMonth && day === todayNum);
+                return (
+                  <td key={di} style={{
+                    verticalAlign: 'top',
+                    height: 72,
+                    borderRight: di < 6 ? '1px solid #e0dcd4' : undefined,
+                    borderBottom: '1px solid #e0dcd4',
+                    padding: '3px 5px',
+                    background: isTodayCell ? '#dce8ff' : '#fff',
+                  }}>
+                    {day !== null && cellDate && (
+                      <>
+                        <span className="sr-only">
+                          {DAY_NAMES_LONG[cellDate.getDay()]}, {MONTH_NAMES[monthDate.getMonth()]} {day}{isTodayCell ? ', today' : ''}
+                          {dayEvs.length === 0 ? ', no events' : `, ${dayEvs.length} ${dayEvs.length === 1 ? 'event' : 'events'}`}
+                        </span>
+                        <span aria-hidden="true" style={{
+                          display: 'inline-block',
+                          width: 20, height: 20,
+                          lineHeight: '20px',
+                          textAlign: 'center',
+                          borderRadius: 10,
+                          fontSize: 11,
+                          fontWeight: isTodayCell ? 'bold' : 'normal',
+                          background: isTodayCell ? '#263590' : 'transparent',
+                          color: isTodayCell ? '#fff' : '#333',
+                          marginBottom: dayEvs.length ? 2 : 0,
+                        }}>
+                          {day}
+                        </span>
+                        {dayEvs.slice(0, MONTH_CELL_MAX).map(ev => (
+                          <EventChip key={ev.id} ev={ev} showLocation={showLocation} dense />
+                        ))}
+                        {dayEvs.length > MONTH_CELL_MAX && (
+                          <button
+                            type="button"
+                            onClick={() => onShowDay(cellDate)}
+                            className="cal-more-btn"
+                            style={{
+                              display: 'block', width: '100%', textAlign: 'left',
+                              background: 'none', border: 'none', cursor: 'pointer',
+                              fontSize: 9, color: '#263590', fontWeight: 'bold',
+                              fontFamily: '"Tahoma", Arial, sans-serif', padding: '2px 2px',
+                            }}
+                            aria-label={`Show all ${dayEvs.length} events on ${DAY_NAMES_LONG[cellDate.getDay()]}, ${MONTH_NAMES[monthDate.getMonth()]} ${day}`}
+                          >
+                            + {dayEvs.length - MONTH_CELL_MAX} more
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
     </div>
@@ -451,10 +551,11 @@ function ListRow({ ev }: { ev: CalEvent }) {
   const place   = shortLocation(ev.location_name);
   const meta    = [TYPE_META[type].label, place, ev.organization].filter(Boolean).join(' · ');
   return (
-    <a
-      href={ev.event_url ?? '#'}
-      target="_blank" rel="noopener noreferrer"
+    <EventLeaf
+      ev={ev}
       className="cal-list-row"
+      visibleText={`${timeStr}, ${ev.title}, ${meta}`}
+      srContext={`${DAY_NAMES_LONG[start.getDay()]}, ${MONTH_NAMES[start.getMonth()]} ${start.getDate()}`}
       title={[ev.title, timeStr, ev.location_name, ev.organization].filter(Boolean).join(' · ')}
       style={{
         display: 'flex', gap: 10, alignItems: 'flex-start',
@@ -471,7 +572,7 @@ function ListRow({ ev }: { ev: CalEvent }) {
         <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, lineHeight: 1.3 }}>{ev.title}</span>
         <span style={{ display: 'block', fontSize: 11, color: '#666', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta}</span>
       </span>
-    </a>
+    </EventLeaf>
   );
 }
 
@@ -533,6 +634,7 @@ export default function CalendarPage() {
   const [bootText,    setBootText]    = useState('Loading Community Events Calendar');
   const [booting,     setBooting]     = useState(true);
   const [filterMode,  setFilterMode]  = useState<FilterMode>('all');
+  const [filterModeDraft, setFilterModeDraft] = useState<FilterMode>('all'); // dialog value before Apply
   const [locQuery,    setLocQuery]    = useState('');   // "near me" text filter
   const [locDraft,    setLocDraft]    = useState('');   // dialog input before Continue
   const [view,        setView]        = useState<CalView>('list');
@@ -545,14 +647,38 @@ export default function CalendarPage() {
   const [isLoggedIn,  setIsLoggedIn]  = useState(false);
   const [syncedCals,  setSyncedCals]  = useState<{ name: string; website: string | null }[]>([]);
   const [showSources, setShowSources] = useState(false);
+  const [showFilter,  setShowFilter]  = useState(false);
 
-  const filterRef = useRef<HTMLHeadingElement>(null);
-  const appRef    = useRef<HTMLHeadingElement>(null);
+  const appRef        = useRef<HTMLHeadingElement>(null);
+  const filterInputRef = useRef<HTMLInputElement>(null);
+  const sourcesCloseRef = useRef<HTMLButtonElement>(null);
+  const tabRefs       = useRef<(HTMLButtonElement | null)[]>([]);
   const today     = new Date();
+
+  // (Page title is set reliably via app/calendar/layout.tsx metadata; an
+  // imperative document.title here is overridden by Next's metadata on load.)
 
   // Boot sequence
   useEffect(() => {
-    document.title = 'Community Events Calendar · Artistic Accessibility Collective';
+    // Respect prefers-reduced-motion: the retro "boot" is pure decoration, so
+    // skip straight to the calendar instead of holding a blank screen for ~2s.
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Only pull focus to the calendar heading if the user hasn't already moved
+    // focus somewhere (e.g. opened a dialog) while the boot was finishing.
+    const focusAppHeading = () => {
+      const a = document.activeElement;
+      if (!a || a === document.body) appRef.current?.focus();
+    };
+
+    if (prefersReduced) {
+      setBooting(false);
+      setPhase('app');
+      const f = setTimeout(focusAppHeading, 50);
+      return () => clearTimeout(f);
+    }
 
     let dots = 0;
     const dotInt = setInterval(() => {
@@ -564,13 +690,12 @@ export default function CalendarPage() {
       setBooting(false);
       setTimeout(() => {
         setPhase('app');
-        setTimeout(() => appRef.current?.focus(), 150);
+        setTimeout(focusAppHeading, 150);
       }, 200);
     }, 1800);
     return () => {
       clearInterval(dotInt);
       clearTimeout(bootTimer);
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 
@@ -611,10 +736,31 @@ export default function CalendarPage() {
       });
   }, []);
 
+  const openFilter = () => {
+    // Seed the dialog's draft values from what's currently applied, so Cancel
+    // leaves everything untouched.
+    setLocDraft(locQuery);
+    setFilterModeDraft(filterMode);
+    setShowFilter(true);
+  };
   const handleContinue = () => {
     setLocQuery(locDraft.trim());
-    setPhase('app');
-    setTimeout(() => appRef.current?.focus(), 150);
+    setFilterMode(filterModeDraft);
+    setShowFilter(false); // Modal restores focus to the Filter button
+  };
+
+  // View switcher: real tabs keyboard support (roving focus + arrow keys).
+  const selectViewByIndex = (i: number) => {
+    const idx = (i + VIEW_TABS.length) % VIEW_TABS.length;
+    setView(VIEW_TABS[idx]);
+    tabRefs.current[idx]?.focus();
+  };
+  const onTabKeyDown = (e: React.KeyboardEvent, current: CalView) => {
+    const i = VIEW_TABS.indexOf(current);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); selectViewByIndex(i + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); selectViewByIndex(i - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); selectViewByIndex(0); }
+    else if (e.key === 'End')  { e.preventDefault(); selectViewByIndex(VIEW_TABS.length - 1); }
   };
 
   // Derived state
@@ -721,21 +867,31 @@ export default function CalendarPage() {
         @keyframes cal-boot-fade {
           0%  { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; }
         }
-        @keyframes cal-filter-in {
-          from { opacity: 0; transform: translate(-50%, -48%); }
-          to   { opacity: 1; transform: translate(-50%, -50%); }
-        }
+        @keyframes cal-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        .cal-filter-box { animation: cal-fade-in 0.15s ease; }
         @media (prefers-reduced-motion: reduce) {
           .cal-window, .cal-filter-box { animation: none !important; }
           .cal-boot { animation: none !important; display: none !important; }
         }
         .cal-view-btn:hover { background: #316ac5 !important; color: #fff !important; }
-        .cal-list-row:hover, .cal-list-row:focus-visible { background: #eef1fb; outline: 2px solid #f5d84a; outline-offset: -2px; }
-        .cal-view-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
+        /* Focus ring is a two-tone ring so it stays visible on BOTH the light-gray
+           toolbar and the navy selected buttons: a dark hairline hugs the control
+           (contrasts on light gray) and a yellow ring sits outside it (contrasts
+           on navy). At least one color always clears 3:1 against the surface. */
+        .cal-view-btn:focus-visible,
+        .cal-nav-btn:focus-visible {
+          outline: 3px solid #f5d84a;
+          outline-offset: 2px;
+          box-shadow: 0 0 0 2px #1a2568;
+        }
+        .cal-list-row:hover { background: #eef1fb; }
+        .cal-list-row:focus-visible { background: #eef1fb; outline: 3px solid #1a2568; outline-offset: -3px; }
         .cal-nav-btn { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
         .cal-nav-btn:hover { background: #c8c4bc !important; }
-        .cal-nav-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
-        .cal-filter-opt:focus-within { outline: 2px solid #f5d84a; }
+        .cal-more-btn:hover { text-decoration: underline; }
+        .cal-more-btn:focus-visible { outline: 2px solid #1a2568; outline-offset: 1px; }
+        .cal-filter-opt:focus-within { outline: 3px solid #1a2568; }
+        #cal-tabpanel:focus-visible { outline: 3px solid #f5d84a; outline-offset: -3px; }
 
         /* Mobile */
         @media (max-width: 620px) {
@@ -754,12 +910,9 @@ export default function CalendarPage() {
             box-shadow: none !important;
           }
           .cal-sidebar { display: none !important; }
-          .cal-filter-box {
-            position: static !important;
-            transform: none !important;
-            margin: 20px auto !important;
-            width: calc(100% - 32px) !important;
-          }
+          /* The Modal already centers the filter dialog and constrains its width;
+             it just needs to not butt against the screen edges on small phones. */
+          .cal-filter-box { width: calc(100vw - 24px) !important; max-width: 440px; }
         }
       `}</style>
 
@@ -805,62 +958,67 @@ export default function CalendarPage() {
         ))}
       </svg>
 
-      {/* ── Pre-filter dialog ──────────────────────────────────────────────────── */}
-      {phase === 'filter' && (
-        <div
-          className="cal-filter-box"
-          style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
+      {/* ── Filter dialog (overlay; keeps the calendar mounted underneath) ─────── */}
+      {showFilter && (
+        <Modal
+          labelledBy="filter-heading"
+          onClose={() => setShowFilter(false)}
+          initialFocusRef={filterInputRef}
+          dialogClassName="cal-filter-box"
+          dialogStyle={{
             width: 'min(440px, calc(100vw - 32px))',
             border: '2px solid #888',
             borderRadius: 4,
             overflow: 'hidden',
             boxShadow: '0 8px 40px rgba(0,0,0,0.7)',
-            animation: 'cal-filter-in 0.2s ease forwards',
           }}
-          role="dialog"
-          aria-labelledby="filter-heading"
-          aria-modal="true"
         >
           {/* Dialog title bar */}
           <div style={{
             background: 'linear-gradient(to right, #263590 0%, #4060d8 60%, #2a3aaa 100%)',
             padding: '6px 10px',
-            display: 'flex', alignItems: 'center', gap: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
           }}>
-            <span aria-hidden="true" style={{ fontSize: 16 }}>💿</span>
             <span style={{
+              display: 'flex', alignItems: 'center', gap: 8,
               color: 'white', fontWeight: 'bold', fontSize: 12,
               fontFamily: '"Tahoma", Arial, sans-serif',
               textShadow: '0 1px 2px rgba(0,0,0,0.4)',
             }}>
-              Community Events Calendar 2026
+              <span aria-hidden="true" style={{ fontSize: 16 }}>💿</span>
+              Filter events
             </span>
+            <button
+              type="button"
+              onClick={() => setShowFilter(false)}
+              aria-label="Close filter"
+              className="tap-target-btn"
+              style={{
+                width: 20, height: 18, background: '#d4d0c8', border: '1px outset #fff',
+                fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
+              }}
+            >✕</button>
           </div>
 
           {/* Dialog body */}
           <div style={{ background: '#f0ede8', padding: '18px 20px 16px' }}>
             <h2
-              ref={filterRef}
-              tabIndex={-1}
               id="filter-heading"
               style={{
                 fontFamily: '"Tahoma", Arial, sans-serif',
                 fontSize: 14, fontWeight: 'bold',
                 color: '#263590', margin: '0 0 6px',
-                outline: 'none',
               }}
             >
-              Welcome to the Community Events Calendar
+              Filter these events
             </h2>
             <p style={{
               fontFamily: '"MS Sans Serif", Arial, sans-serif',
               fontSize: 11.5, color: '#444', margin: '0 0 16px', lineHeight: 1.55,
             }}>
               <strong style={{ color: '#263590' }}>{events.length} accessible events</strong> are on the
-              calendar right now, from partner organizations around the world. Narrow it down below,
-              or just browse everything.
+              calendar right now, from partner organizations around the world. Narrow them down below,
+              or clear the filter to see everything.
             </p>
 
             {/* Near me */}
@@ -868,6 +1026,7 @@ export default function CalendarPage() {
               <span aria-hidden="true">📍 </span>See events near you
             </label>
             <input
+              ref={filterInputRef}
               id="loc-input"
               type="text"
               value={locDraft}
@@ -885,22 +1044,22 @@ export default function CalendarPage() {
               Matches the city or venue on each event. Leave blank to see everywhere.
             </p>
 
-            {/* Online only */}
+            {/* Online only — staged in a draft so Cancel/Escape leaves it unchanged */}
             <label
               className="cal-filter-opt"
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '10px 12px', marginBottom: 14,
-                background: filterMode === 'online' ? '#dce5ff' : '#fff',
-                border: filterMode === 'online' ? '2px solid #263590' : '2px solid #c8c4bc',
+                background: filterModeDraft === 'online' ? '#dce5ff' : '#fff',
+                border: filterModeDraft === 'online' ? '2px solid #263590' : '2px solid #c8c4bc',
                 borderRadius: 3, cursor: 'pointer',
                 transition: 'border-color 0.1s, background 0.1s',
               }}
             >
               <input
                 type="checkbox"
-                checked={filterMode === 'online'}
-                onChange={e => setFilterMode(e.target.checked ? 'online' : 'all')}
+                checked={filterModeDraft === 'online'}
+                onChange={e => setFilterModeDraft(e.target.checked ? 'online' : 'all')}
                 style={{ marginTop: 2, flexShrink: 0, accentColor: '#263590' }}
               />
               <div>
@@ -913,13 +1072,22 @@ export default function CalendarPage() {
               </div>
             </label>
 
-            <p style={{ fontSize: 10, color: '#888', margin: '0 0 2px' }}>
-              You can change these any time with the <strong>Filter</strong> button inside the calendar.
-            </p>
-
-            {/* Continue button */}
+            {/* Buttons */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12, gap: 8 }}>
               <button
+                type="button"
+                onClick={() => setShowFilter(false)}
+                className="cal-nav-btn"
+                style={{
+                  background: '#d4d0c8', color: '#000', border: '1px outset #fff',
+                  padding: '5px 16px', fontSize: 12,
+                  fontFamily: '"Tahoma", Arial, sans-serif', cursor: 'pointer', borderRadius: 3,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
                 onClick={handleContinue}
                 style={{
                   background: 'linear-gradient(to bottom, #4468d8 0%, #263590 100%)',
@@ -932,17 +1100,20 @@ export default function CalendarPage() {
                 }}
                 className="cal-nav-btn"
               >
-                {locDraft.trim() || filterMode === 'online' ? 'Show these events →' : 'Browse all events →'}
+                {locDraft.trim() || filterModeDraft === 'online' ? 'Show these events →' : 'Browse all events →'}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* ── Calendar app window ────────────────────────────────────────────────── */}
       {phase === 'app' && (
         <div
           className="cal-window"
+          // While a dialog is open, make the calendar behind it inert so neither
+          // keyboard nor screen-reader virtual cursor can reach background content.
+          inert={showFilter || showSources ? true : undefined}
           style={{
             position: 'absolute',
             inset: '50% auto auto 50%',
@@ -1074,9 +1245,10 @@ export default function CalendarPage() {
             >🔵</a>
             <div aria-hidden="true" style={{ width: 1, height: 16, background: '#999', margin: '0 2px' }} />
 
-            {/* Submit Event button */}
+            {/* Submit Event button — logged-out users go to login first, and the
+                lock + accessible label make that requirement visible, not hover-only. */}
             <button
-              onClick={() => router.push('/submit-event')}
+              onClick={() => router.push(isLoggedIn ? '/submit-event' : '/login?next=/submit-event')}
               className="cal-nav-btn"
               style={{
                 background: '#263590', color: '#fff',
@@ -1085,14 +1257,14 @@ export default function CalendarPage() {
                 fontFamily: '"Tahoma", Arial, sans-serif',
                 borderRadius: 2, fontWeight: 'bold',
               }}
-              title={isLoggedIn ? 'Submit a community event' : 'Log in to submit an event'}
+              aria-label={isLoggedIn ? 'Add an event' : 'Log in to add an event'}
             >
-              + Event
+              {isLoggedIn ? '+ Event' : <><span aria-hidden="true">🔒 </span>+ Event</>}
             </button>
 
             {/* Filter button — reachable on every viewport (the sidebar hides on mobile) */}
             <button
-              onClick={() => { setLocDraft(locQuery); setPhase('filter'); }}
+              onClick={openFilter}
               className="cal-nav-btn"
               style={{
                 background: (filterMode === 'online' || locQuery) ? '#263590' : '#d4d0c8',
@@ -1104,7 +1276,7 @@ export default function CalendarPage() {
               }}
               title="Filter events by location or online-only"
             >
-              ⚲ Filter
+              <span aria-hidden="true">⚲ </span>Filter
             </button>
 
             {/* Calendar sources link — always reachable, including on mobile where the sidebar is hidden */}
@@ -1120,23 +1292,29 @@ export default function CalendarPage() {
               }}
               title="See every calendar this page pulls events from"
             >
-              📋 Sources
+              <span aria-hidden="true">📋 </span>Sources
             </button>
 
             <div style={{ flex: 1 }} />
 
-            {/* View tabs */}
+            {/* View tabs — real tabs pattern: roving tabindex + arrow keys, all
+                controlling the single calendar panel below. */}
             <div
               role="tablist"
               aria-label="Calendar view"
               style={{ display: 'flex', gap: 1 }}
             >
-              {(['list','day','3day','week','month'] as CalView[]).map(v => (
+              {VIEW_TABS.map((v, i) => (
                 <button
                   key={v}
                   role="tab"
+                  id={`cal-tab-${v}`}
+                  ref={el => { tabRefs.current[i] = el; }}
                   aria-selected={view === v}
+                  aria-controls="cal-tabpanel"
+                  tabIndex={view === v ? 0 : -1}
                   onClick={() => setView(v)}
+                  onKeyDown={(e) => onTabKeyDown(e, v)}
                   className="cal-view-btn"
                   style={{
                     background: view === v ? '#263590' : '#d4d0c8',
@@ -1147,7 +1325,7 @@ export default function CalendarPage() {
                     borderRadius: 2, transition: 'background 0.1s',
                   }}
                 >
-                  {v === '3day' ? '3 Days' : v === 'list' ? '☰ List' : v.charAt(0).toUpperCase() + v.slice(1)}
+                  {v === '3day' ? '3 Days' : v === 'list' ? <><span aria-hidden="true">☰ </span>List</> : v.charAt(0).toUpperCase() + v.slice(1)}
                 </button>
               ))}
             </div>
@@ -1215,7 +1393,7 @@ export default function CalendarPage() {
                   {filterLabel}
                 </div>
                 <button
-                  onClick={() => { setLocDraft(locQuery); setPhase('filter'); }}
+                  onClick={openFilter}
                   style={{
                     marginTop: 6, background: 'none', border: 'none',
                     padding: 0, fontSize: 9, color: '#263590',
@@ -1273,8 +1451,16 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* ── Main grid ──────────────────────────────────────────────────── */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: '#fafaf6' }}>
+            {/* ── Main grid (the tab panel the view switcher controls) ───────── */}
+            {/* tabIndex=0 so keyboard/AT users can move into the panel after
+                activating a tab, even in views whose content isn't focusable. */}
+            <div
+              id="cal-tabpanel"
+              role="tabpanel"
+              tabIndex={0}
+              aria-labelledby={`cal-tab-${view}`}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: '#fafaf6', outline: 'none' }}
+            >
 
               {/* Screen reader heading */}
               <h2
@@ -1317,7 +1503,7 @@ export default function CalendarPage() {
               ) : view === 'list'
                 ? <ListView events={shownEvents} overlay={overlay} />
                 : view === 'month'
-                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} overlay={overlay} showLocation={showLocation} />
+                ? <MonthGrid monthDate={monthDate} monthGrid={monthGrid} events={shownEvents} overlay={overlay} showLocation={showLocation} onShowDay={(d) => { setDayAnchor(d); setView('day'); }} />
                 : <TimeGrid colDays={colDays} numCols={numCols} events={shownEvents} overlay={overlay} showLocation={showLocation} />}
 
             </div>
@@ -1353,39 +1539,33 @@ export default function CalendarPage() {
 
       {/* ── Calendar sources modal — reachable from the toolbar on every viewport ── */}
       {showSources && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="cal-sources-heading"
-          onKeyDown={(e) => { if (e.key === 'Escape') setShowSources(false); }}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 200,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 16,
-          }}
-          onPointerDown={(e) => { if (e.target === e.currentTarget) setShowSources(false); }}
-        >
-          <div style={{
+        <Modal
+          labelledBy="cal-sources-heading"
+          onClose={() => setShowSources(false)}
+          initialFocusRef={sourcesCloseRef}
+          dialogStyle={{
             background: '#ece8df', width: '100%', maxWidth: 440, maxHeight: '80vh',
             display: 'flex', flexDirection: 'column',
             border: '2px outset #fff', boxShadow: '2px 2px 8px rgba(0,0,0,0.5)',
             fontFamily: '"Tahoma", "MS Sans Serif", Arial, sans-serif',
-          }}>
+          }}
+        >
             <div style={{
               background: 'linear-gradient(to right,#263590,#4a5fc9)', color: '#fff',
               padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               flexShrink: 0,
             }}>
               <span id="cal-sources-heading" style={{ fontSize: 12, fontWeight: 'bold' }}>
-                📋 Calendar Sources
+                <span aria-hidden="true">📋 </span>Calendar Sources
               </span>
               <button
+                ref={sourcesCloseRef}
                 onClick={() => setShowSources(false)}
                 aria-label="Close"
+                className="tap-target-btn"
                 style={{
                   width: 20, height: 18, background: '#d4d0c8', border: '1px outset #fff',
-                  fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2,
+                  fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
                 }}
               >✕</button>
             </div>
@@ -1419,8 +1599,7 @@ export default function CalendarPage() {
                 Know an accessible arts organization with a public calendar we should add? <Link href="/contact" style={{ color: '#263590', textDecoration: 'underline' }}>Let us know</Link>.
               </p>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
