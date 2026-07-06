@@ -461,7 +461,11 @@ export default function MemberHub() {
         </aside>
 
         {/* ════════════════ CENTER COLUMN ════════════════ */}
-        <div role="region" aria-label="Your hub">
+        {/* minWidth: 0 stops the classic CSS grid blowout: without it, a long
+            unbroken line anywhere inside (e.g. a nowrap message preview) forces
+            this 1fr track, and the whole page, to grow to fit it instead of
+            letting the descendant's own overflow/ellipsis rules do their job. */}
+        <div role="region" aria-label="Your hub" style={{ minWidth: 0 }}>
 
           {/* Welcome / how-to intro */}
           {!introDismissed && (
