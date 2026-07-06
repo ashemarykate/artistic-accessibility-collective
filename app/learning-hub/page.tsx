@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import UpcomingEducationalEvents from '@/components/UpcomingEducationalEvents';
 
 // ── Subject toolbar icons ─────────────────────────────────────────────────────
 const SUBJECTS = [
@@ -352,6 +353,9 @@ export default function LearningHubPage() {
                   📺 Watch Now
                 </a>
               </div>
+
+              {/* Educational events pulled from the community calendar */}
+              <UpcomingEducationalEvents />
 
             </div>
           </div>
