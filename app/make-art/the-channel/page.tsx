@@ -7,6 +7,7 @@ interface YTPlayerEvent {
   target: {
     setShuffle: (shuffle: boolean) => void;
     playVideoAt: (index: number) => void;
+    cuePlaylist: (playlist: string, index: number) => void;
   };
 }
 
@@ -14,6 +15,7 @@ interface YTPlayer {
   destroy?: () => void;
   setShuffle: (shuffle: boolean) => void;
   playVideoAt: (index: number) => void;
+  cuePlaylist: (playlist: string, index: number) => void;
 }
 
 interface YTNamespace {
@@ -46,6 +48,7 @@ export default function TheChannelMakeArtPage() {
   const [bootText, setBootText] = useState('Tuning in to AAC The Channel');
   const [ready, setReady]       = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [shuffleMsg, setShuffleMsg] = useState('');
   const headingRef    = useRef<HTMLHeadingElement>(null);
   const playerRef     = useRef<YTPlayer | null>(null);
   const playerDivRef  = useRef<HTMLDivElement>(null);
@@ -81,7 +84,9 @@ export default function TheChannelMakeArtPage() {
           onReady: (e: YTPlayerEvent) => {
             if (dead) return;
             e.target.setShuffle(true);
-            e.target.playVideoAt(Math.floor(Math.random() * 15));
+            // Cue rather than play: audio should never start without the
+            // visitor choosing to (WCAG 1.4.2). Pressing play or Shuffle starts it.
+            e.target.cuePlaylist(PLAYLIST_ID, Math.floor(Math.random() * 15));
             setReady(true);
           },
         },
@@ -116,6 +121,8 @@ export default function TheChannelMakeArtPage() {
     if (!playerRef.current || !ready) return;
     playerRef.current.setShuffle(true);
     playerRef.current.playVideoAt(Math.floor(Math.random() * 15));
+    setShuffleMsg('');
+    setTimeout(() => setShuffleMsg('Shuffled to a new video.'), 50);
   };
 
   return (
@@ -209,14 +216,16 @@ export default function TheChannelMakeArtPage() {
 
               {/* Video player */}
               <div
+                role="region"
                 style={{ border: '5px solid #333', borderStyle: 'outset', boxShadow: '0 0 20px rgba(180,100,0,0.25), inset 0 0 8px rgba(0,0,0,0.6)', background: '#000', flexShrink: 0 }}
-                aria-label="Video player"
+                aria-label="Video player: The Channel playlist"
               >
                 <div
                   ref={playerDivRef}
                   style={{ width: '100%', aspectRatio: '16/9', display: 'block', background: '#000' }}
                 />
               </div>
+              <p role="status" className="sr-only">{shuffleMsg}</p>
 
               {loadFailed && !ready && (
                 <p role="alert" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#ffcc66', margin: 0 }}>

@@ -84,6 +84,13 @@ export default function FeedbackPage() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    document.title = 'Tester Feedback · Artistic Accessibility Collective';
+    return () => {
+      document.title = 'Artistic Accessibility Collective';
+    };
+  }, []);
+
   const checkAuth = async () => {
     const user = await getSessionUser();
     if (!user) { router.push('/login'); return; }

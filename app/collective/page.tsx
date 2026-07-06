@@ -15,6 +15,13 @@ export default function Collective() {
     });
   }, []);
 
+  useEffect(() => {
+    document.title = 'The Collective · Artistic Accessibility Collective';
+    return () => {
+      document.title = 'Artistic Accessibility Collective';
+    };
+  }, []);
+
   return (
     <BrowserChrome variant="netscape" title="Artistic Accessibility Collective · Welcome" url="http://www.artisticaccessibility.com/collective">
     <main aria-label="Artistic Accessibility Collective, Welcome">

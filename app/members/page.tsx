@@ -186,8 +186,8 @@ export default function MemberDirectory() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
-                  border: '2px inset #b4b0a8', padding: '1px 6px',
+                  height: 44, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
+                  border: '2px inset #b4b0a8', padding: '8px 6px',
                   width: 240, background: '#fff',
                 }}
               />
@@ -199,8 +199,8 @@ export default function MemberDirectory() {
                 value={selectedSpecialty}
                 onChange={(e) => setSelectedSpecialty(e.target.value)}
                 style={{
-                  height: 24, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
-                  border: '2px inset #b4b0a8', padding: '1px 4px', background: '#fff',
+                  height: 44, fontSize: '0.8125rem', fontFamily: 'var(--font-body)',
+                  border: '2px inset #b4b0a8', padding: '8px 4px', background: '#fff',
                 }}
               >
                 <option value="">All specialties</option>
@@ -209,12 +209,12 @@ export default function MemberDirectory() {
                 ))}
               </select>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', cursor: 'pointer', fontFamily: 'var(--font-body)', minHeight: 44 }}>
               <input
                 type="checkbox"
                 checked={volunteerOnly}
                 onChange={(e) => setVolunteerOnly(e.target.checked)}
-                style={{ width: 14, height: 14 }}
+                style={{ width: 20, height: 20, minWidth: 44, minHeight: 44 }}
               />
               🌱 Open to volunteering
             </label>
@@ -336,7 +336,7 @@ export default function MemberDirectory() {
                     {/* View profile link */}
                     <Link
                       href={profileHref(p)}
-                      style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', whiteSpace: 'nowrap', flexShrink: 0, textDecoration: 'none' }}
+                      style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', whiteSpace: 'nowrap', flexShrink: 0, textDecoration: 'none', padding: '12px 8px', minHeight: 44, display: 'flex', alignItems: 'center' }}
                       aria-label={`View ${name}'s profile`}
                     >
                       [View Profile]

@@ -7,6 +7,7 @@ import Logo from '@/components/Logo';
  */
 
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import BrowserChrome from '@/components/BrowserChrome';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -130,7 +131,7 @@ function MsBox({ header, headerEl, action, children }: {
   return (
     <div className="ms-box">
       <div className="ms-box-header">
-        <span>{headerEl ?? header}</span>
+        <h2>{headerEl ?? header}</h2>
         {action && (
           <a href={action.href}>
             [{action.label}]
@@ -146,9 +147,14 @@ function MsBox({ header, headerEl, action, children }: {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DevPreview() {
+  if (process.env.NODE_ENV === 'production') {
+    notFound();
+  }
+
   return (
     <BrowserChrome variant="aol" title="Dev Preview · Artistic Accessibility Collective" url="http://members.artisticaccessibility.com/dev">
     <main style={{ background: SAMPLE.bgColor, minHeight: '100%', paddingBottom: '24px' }}>
+      <h1 className="sr-only">Dev preview: sample member profile layout</h1>
 
       {/* Dev banner */}
       <div role="status" style={{ background: '#fbbf24', color: '#1c1917', fontSize: '0.75rem', fontWeight: 700, textAlign: 'center', padding: '4px' }}>

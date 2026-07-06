@@ -73,6 +73,7 @@ function TagInput({ id, label, tags, onChange, suggestions = [], placeholder = '
                 {t}
                 <button
                   type="button"
+                  className="tap-target-btn"
                   onClick={() => remove(t)}
                   aria-label={`Remove ${t}`}
                   style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: '0 0 0 2px', fontSize: '0.875rem', lineHeight: 1 }}
@@ -296,7 +297,7 @@ export default function EditProfilePage() {
 
     // Validate format
     if (!/^[a-z0-9][a-z0-9_-]{2,29}$/.test(slug)) {
-      setUsernameError('3–30 characters: lowercase letters, numbers, hyphens, underscores only.');
+      setUsernameError('3 to 30 characters: lowercase letters, numbers, hyphens, underscores only.');
       return;
     }
 
@@ -449,7 +450,7 @@ export default function EditProfilePage() {
               Edit Your Profile
             </h1>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-              Changes save immediately and appear on your public profile.
+              Your changes appear on your public profile once you press Save Changes below.
             </p>
           </div>
           <Link href={previewHref} className="btn btn-ghost btn-sm" aria-label="Preview your public profile (opens in same tab)">
@@ -540,7 +541,7 @@ export default function EditProfilePage() {
                   aria-invalid={!!usernameError}
                 />
                 <p id="username-hint" style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
-                  3–30 characters. Lowercase letters, numbers, hyphens, underscores.
+                  3 to 30 characters. Lowercase letters, numbers, hyphens, underscores.
                   {checkingSlug && <> · <em>Checking…</em></>}
                 </p>
                 {usernameError && (

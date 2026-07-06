@@ -314,9 +314,9 @@ export default function HelpPage() {
               aria-label="Secondary"
               style={{ marginTop: '1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}
             >
-              <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Home</Link>
-              <Link href="/work-with-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Work With Us</Link>
-              <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline' }}>Contact Us</Link>
+              <Link href="/" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline', padding: '10px 8px', minHeight: 44, display: 'flex', alignItems: 'center' }}>Home</Link>
+              <Link href="/work-with-us" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline', padding: '10px 8px', minHeight: 44, display: 'flex', alignItems: 'center' }}>Work With Us</Link>
+              <Link href="/contact" style={{ color: MUTED, fontSize: '0.8125rem', textDecoration: 'underline', padding: '10px 8px', minHeight: 44, display: 'flex', alignItems: 'center' }}>Contact Us</Link>
             </nav>
 
           </div>

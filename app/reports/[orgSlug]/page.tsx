@@ -18,7 +18,7 @@ const STATUS_CONFIG: Record<
   { bg: string; text: string; border: string; icon: string }
 > = {
   good:         { bg: '#e6f4ec', text: '#1a7a4a', border: '#1a7a4a40', icon: '✓' },
-  gaps:         { bg: '#fff8e6', text: '#b06a00', border: '#b06a0040', icon: '⚠' },
+  gaps:         { bg: '#fff8e6', text: '#7a4a00', border: '#7a4a0040', icon: '⚠' },
   'not-found':  { bg: '#fdf0ee', text: '#c0392b', border: '#c0392b40', icon: '✗' },
   'needs-info': { bg: '#eef0fb', text: '#263590', border: '#26359040', icon: '?' },
 };
@@ -28,7 +28,7 @@ const PRIORITY_CONFIG: Record<
   { bg: string; text: string; border: string }
 > = {
   HIGH:   { bg: '#fdf0ee', text: '#c0392b', border: '#c0392b40' },
-  MEDIUM: { bg: '#fff8e6', text: '#b06a00', border: '#b06a0040' },
+  MEDIUM: { bg: '#fff8e6', text: '#7a4a00', border: '#7a4a0040' },
   LOW:    { bg: '#e6f4ec', text: '#1a7a4a', border: '#1a7a4a40' },
 };
 
@@ -144,7 +144,7 @@ function ResourceCard({ resource }: { resource: Resource }) {
           {resource.description}
         </div>
       )}
-      <div style={{ color: '#8899cc', fontSize: 11 }}>{domain}</div>
+      <div style={{ color: '#4a5a8a', fontSize: 11 }}>{domain}</div>
     </a>
   );
 }
@@ -333,7 +333,7 @@ function OrgOverview({ data }: { data: ReportData }) {
                 {ev.name}
               </div>
               <div style={{ fontSize: 12, color: '#4a5478', marginBottom: 2 }}>{ev.when}</div>
-              <div style={{ fontSize: 12, color: '#8899cc' }}>{ev.format}</div>
+              <div style={{ fontSize: 12, color: '#4a5a8a' }}>{ev.format}</div>
             </div>
           ))}
         </div>
@@ -498,7 +498,7 @@ function PriorityPlan({ phases }: { phases: ReportData['priorityPhases'] }) {
         <span style={{ color: '#f5d84a' }}>Action Plan</span>
       </SectionLabel>
       <SectionHeading light>Priority Action Plan</SectionHeading>
-      <p style={{ fontSize: 14, color: '#8899cc', margin: '0 0 40px', maxWidth: '62ch', lineHeight: 1.7 }}>
+      <p style={{ fontSize: 14, color: '#4a5a8a', margin: '0 0 40px', maxWidth: '62ch', lineHeight: 1.7 }}>
         Not everything needs to happen at once. Below is a phased approach prioritized by legal exposure, community impact, and implementation effort.
       </p>
 
@@ -604,7 +604,7 @@ function KeyResources({ categories }: { categories: ReportData['keyResources'] }
                 }}
               >
                 <span style={{ fontWeight: 600 }}>{item.name}</span>
-                <span style={{ fontSize: 11, color: '#8899cc', flexShrink: 0 }}>
+                <span style={{ fontSize: 11, color: '#4a5a8a', flexShrink: 0 }}>
                   {item.url.replace(/^https?:\/\//, '').split('/')[0]}
                 </span>
               </a>
@@ -727,7 +727,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
           >
             artisticaccessibility.com/contact
           </a>
-          <div style={{ fontSize: 12, color: '#8899cc' }}>
+          <div style={{ fontSize: 12, color: '#4a5a8a' }}>
             No pressure. No hard sell. Just access.
           </div>
         </div>

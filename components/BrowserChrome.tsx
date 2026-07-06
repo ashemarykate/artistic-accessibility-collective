@@ -105,7 +105,7 @@ const THEMES = {
 
 // ── Helper sub-components (all aria-hidden / decorative) ──────────────────────
 
-function WinBtn({ label, danger, theme, onClick }: { label: string; danger?: boolean; theme: typeof THEMES[BrowserVariant]; onClick?: () => void }) {
+function WinBtn({ label, danger, theme, onClick, ariaLabel }: { label: string; danger?: boolean; theme: typeof THEMES[BrowserVariant]; onClick?: () => void; ariaLabel?: string }) {
   const style = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     width: 18, height: 14, fontSize: '9px', fontWeight: 'bold',
@@ -116,39 +116,40 @@ function WinBtn({ label, danger, theme, onClick }: { label: string; danger?: boo
     flexShrink: 0,
   };
   if (onClick) {
-    return <button aria-hidden="true" tabIndex={-1} onClick={onClick} style={{ ...style, padding: 0 }}>{label}</button>;
+    // Real navigation: must be reachable by keyboard/screen reader, unlike the
+    // purely decorative minimize/maximize glyphs below. tap-target-btn adds an
+    // invisible 44x44 hit area without changing the retro pixel-button size.
+    return <button className="tap-target-btn" aria-label={ariaLabel ?? label} onClick={onClick} style={{ ...style, padding: 0 }}>{label}</button>;
   }
   return <span aria-hidden="true" style={style}>{label}</span>;
 }
 
 function TBtn({
-  label, onClick, theme,
+  label, onClick, theme, ariaLabel,
 }: {
   label: string;
   onClick?: () => void;
   theme: typeof THEMES[BrowserVariant];
+  ariaLabel?: string;
 }) {
-  return (
-    <button
-      aria-hidden="true"
-      tabIndex={-1}
-      onClick={onClick}
-      style={{
-        background: 'none',
-        border: 'none',
-        padding: '2px 7px',
-        fontSize: '11px',
-        fontFamily: theme.font,
-        color: '#000',
-        cursor: onClick ? 'pointer' : 'default',
-        whiteSpace: 'nowrap',
-        userSelect: 'none',
-        flexShrink: 0,
-      }}
-    >
-      {label}
-    </button>
-  );
+  const style: React.CSSProperties = {
+    background: 'none',
+    border: 'none',
+    padding: '2px 7px',
+    fontSize: '11px',
+    fontFamily: theme.font,
+    color: '#000',
+    cursor: onClick ? 'pointer' : 'default',
+    whiteSpace: 'nowrap',
+    userSelect: 'none',
+    flexShrink: 0,
+  };
+  if (onClick) {
+    // Real action (Back/Fwd/Reload/Home/Print/Email): keep it reachable.
+    return <button className="tap-target-btn" aria-label={ariaLabel ?? label} onClick={onClick} style={style}>{label}</button>;
+  }
+  // Decorative-only menu items (File, Edit, Help, Favorites, etc.) do nothing.
+  return <button aria-hidden="true" tabIndex={-1} style={style}>{label}</button>;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -170,7 +171,8 @@ export default function BrowserChrome({
   const print   = () => typeof window !== 'undefined' && window.print();
   const contact = () => typeof window !== 'undefined' && (window.location.href = '/contact');
 
-  // Map toolbar button labels to actions
+  // Map toolbar button labels to actions and to clean spoken names
+  // (the visible labels lead with a decorative glyph that reads oddly on its own).
   const actions: Record<string, (() => void) | undefined> = {
     '◀ Back': back, '◀': back,
     '▶ Fwd': forward, '▶': forward,
@@ -178,6 +180,14 @@ export default function BrowserChrome({
     '🏠 Home': home,
     '🖨 Print': print,
     '📧 Email': contact,
+  };
+  const toolbarAriaLabels: Record<string, string> = {
+    '◀ Back': 'Back', '◀': 'Back',
+    '▶ Fwd': 'Forward', '▶': 'Forward',
+    '⟳ Reload': 'Reload', '⟳ Refresh': 'Refresh',
+    '🏠 Home': 'Home',
+    '🖨 Print': 'Print',
+    '📧 Email': 'Email us',
   };
 
   return (
@@ -204,8 +214,13 @@ export default function BrowserChrome({
         >
 
           {/* ── Title bar ────────────────────────────────────────────────── */}
+          {/* Not aria-hidden overall: the close button below is a real,
+              working control and a blanket aria-hidden on this container
+              would hide it from screen readers no matter what the button
+              itself declares. The logo glyph and fake title text are
+              decorative/redundant with document.title, so those are
+              hidden individually instead. */}
           <div
-            aria-hidden="true"
             style={{
               background: T.titleBg,
               height: 26, flexShrink: 0,
@@ -214,8 +229,8 @@ export default function BrowserChrome({
               userSelect: 'none',
             }}
           >
-            <span style={{ fontSize: '13px', flexShrink: 0 }}>{T.logo}</span>
-            <span style={{
+            <span aria-hidden="true" style={{ fontSize: '13px', flexShrink: 0 }}>{T.logo}</span>
+            <span aria-hidden="true" style={{
               flex: 1, fontSize: '11px', fontFamily: T.titleFont,
               color: T.titleFg, fontWeight: 'bold',
               overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
@@ -225,7 +240,7 @@ export default function BrowserChrome({
             <div style={{ display: 'flex', gap: '2px' }}>
               <WinBtn label="─" theme={T} />
               <WinBtn label="□" theme={T} />
-              <WinBtn label="✕" danger theme={T} onClick={home} />
+              <WinBtn label="✕" danger theme={T} onClick={home} ariaLabel="Close and go home" />
             </div>
           </div>
 
@@ -246,8 +261,10 @@ export default function BrowserChrome({
           </div>
 
           {/* ── Toolbar ──────────────────────────────────────────────────── */}
+          {/* Not aria-hidden overall: Back/Fwd/Reload/Home/Print/Email below are
+              real, working controls. The address bar segment (pure decoration)
+              is hidden individually instead. */}
           <div
-            aria-hidden="true"
             className="retro-chrome-toolbar"
             style={{
               background: T.chrome, flexShrink: 0,
@@ -258,12 +275,12 @@ export default function BrowserChrome({
             }}
           >
             {T.toolbarBtns.map((btn) => (
-              <TBtn key={btn} label={btn} onClick={actions[btn]} theme={T} />
+              <TBtn key={btn} label={btn} onClick={actions[btn]} ariaLabel={toolbarAriaLabels[btn]} theme={T} />
             ))}
             {/* Address / Location / Keyword segment: pure decoration, hidden on
                 phones so the working buttons keep a single clean row */}
-            <div className="retro-chrome-addr" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
-              <div aria-hidden="true" style={{ width: 1, height: 20, background: T.chromeDark, margin: '0 3px', flexShrink: 0 }} />
+            <div aria-hidden="true" className="retro-chrome-addr" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+              <div style={{ width: 1, height: 20, background: T.chromeDark, margin: '0 3px', flexShrink: 0 }} />
               <span style={{ fontSize: '11px', fontFamily: T.font, color: '#000', flexShrink: 0 }}>
                 {T.addrLabel}
               </span>
@@ -281,7 +298,7 @@ export default function BrowserChrome({
                 </span>
               </div>
               {variant !== 'mosaic' && (
-                <button aria-hidden="true" tabIndex={-1} style={{
+                <button tabIndex={-1} style={{
                   background: T.chrome, border: `1px outset ${T.chromeLight}`,
                   padding: '1px 8px', fontSize: '11px', fontFamily: T.font,
                   cursor: 'default', flexShrink: 0,

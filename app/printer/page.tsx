@@ -11,7 +11,7 @@ import BrowserChrome from '@/components/BrowserChrome';
 const C = {
   paper:  '#f4f1e8',
   ink:    '#2b2b2b',
-  faint:  '#8a8577',
+  faint:  '#5a5550',
   rule:   '#c9c3b2',
   accent: '#263590',
   green:  '#1d6b4f',

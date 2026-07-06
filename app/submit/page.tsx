@@ -11,8 +11,8 @@ type Step = 'invite' | 'type_select' | 'form' | 'success';
 type ProfileType = 'individual' | 'business';
 
 const YEARS_OPTIONS = [
-  'Less than 1 year', '1–2 years', '3–5 years',
-  '6–10 years', '11–20 years', '20+ years',
+  'Less than 1 year', '1 to 2 years', '3 to 5 years',
+  '6 to 10 years', '11 to 20 years', '20 plus years',
 ];
 
 const PROFESSION_SUGGESTIONS = [
@@ -53,6 +53,43 @@ const COMMUNITY_FEATURES = [
   'Event Boards', 'Art Projects', 'Film Projects', 'Theater Projects',
   'Virtual Projects', 'Virtual Film Screenings',
 ];
+
+// Defined at module scope (not inside SubmitProfile) so they keep a stable
+// identity across renders -- as inline consts they were recreated on every
+// keystroke, which remounted every tag/suggestion button and dropped focus.
+const TagChips = ({ tags, onRemove }: { tags: string[]; onRemove: (t: string) => void }) => (
+  <ul role="list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0 0 0.5rem', padding: 0, listStyle: 'none' }}>
+    {tags.map((t) => (
+      <li key={t}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: 'var(--aac-blue-light)', color: 'var(--aac-navy)', borderRadius: 'var(--radius-pill)', padding: '0.2rem 0.625rem 0.2rem 0.75rem', fontSize: '0.875rem', fontWeight: 500 }}>
+          {t}
+          <button type="button" className="tap-target-btn" onClick={() => onRemove(t)} aria-label={`Remove ${t}`}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.125rem', lineHeight: 1, color: 'var(--aac-blue)', fontSize: '1.1rem', display: 'flex', alignItems: 'center' }}>
+            ×
+          </button>
+        </span>
+      </li>
+    ))}
+  </ul>
+);
+
+const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: string[]; current: string[]; onAdd: (s: string) => void }) => {
+  const remaining = suggestions.filter((s) => !current.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
+  if (remaining.length === 0) return null;
+  return (
+    <div style={{ marginTop: '0.5rem' }}>
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>Suggestions:</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+        {remaining.map((s) => (
+          <button key={s} type="button" onClick={() => onAdd(s)}
+            style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-pill)', padding: '0.2rem 0.75rem', fontSize: '0.8125rem', cursor: 'pointer', color: 'var(--color-text)' }}>
+            + {s}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default function SubmitProfile() {
   const router = useRouter();

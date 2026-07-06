@@ -234,7 +234,7 @@ function SavedSection({
 
       {/* List or empty state */}
       {isEmpty ? (
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', margin: 0, padding: '0.75rem 0', fontStyle: 'italic' }}>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8125rem', margin: 0, padding: '0.75rem 0', fontStyle: 'italic' }}>
           {emptyText}
         </p>
       ) : (
@@ -286,7 +286,7 @@ function SavedRow({
           {title}
           {external && <span className="sr-only"> (opens in new tab)</span>}
         </span>
-        <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
+        <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
           {subtitle}{subtitle && year ? ' · ' : ''}{year ?? ''}
           {badge && <span style={{ marginLeft: 6, background: 'rgba(77,255,124,0.2)', color: '#4dff7c', padding: '0 5px', borderRadius: 2, fontSize: '0.6875rem', fontWeight: 700 }}>{badge}</span>}
         </span>

@@ -304,8 +304,9 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   color: var(--aac-blue);
   text-decoration: none;
   font-size: 0.75rem;
-  padding: 2px 0;
+  padding: 12px 0;
   white-space: nowrap;
+  min-height: 44px;
 }
 .ms-action-link:hover { text-decoration: underline; }
 .ms-action-link-icon {
@@ -720,12 +721,12 @@ a.btn:active {
   line-height: 1.4;
   transition: border-color 0.1s, box-shadow 0.1s;
 }
-.form-input:focus {
-  outline: none;
+.form-input:focus-visible {
+  outline: 3px solid var(--aac-yellow);
+  outline-offset: 2px;
   border-color: var(--aac-blue);
-  box-shadow: 0 0 0 2px rgba(38, 53, 144, 0.2);
 }
-.form-input::placeholder { color: #8a9abf; }
+.form-input::placeholder { color: #5a6580; }
 .form-input[aria-invalid="true"] { border-color: var(--color-error); }
 
 .form-textarea { resize: vertical; min-height: 80px; }
@@ -1353,4 +1354,19 @@ a.btn:active {
     padding: 10px 14px;
     font-size: 0.9375rem;
   }
+}
+
+/* Small glyph buttons (tag pill removers, etc.) keep their compact visual
+   size but get an invisible 44x44 hit area so they stay tappable. */
+.tap-target-btn {
+  position: relative;
+}
+.tap-target-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
 }

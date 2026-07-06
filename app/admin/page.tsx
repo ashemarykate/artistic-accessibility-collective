@@ -1037,7 +1037,7 @@ function EventsPanel({
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const inp: React.CSSProperties = {
-    width: '100%', padding: '6px 8px', fontSize: '0.875rem',
+    width: '100%', padding: '10px 8px', fontSize: '0.875rem', minHeight: 44,
     border: '1px solid var(--color-border)', borderRadius: 4,
     fontFamily: 'inherit', boxSizing: 'border-box' as const,
     background: '#fff',
@@ -1153,7 +1153,7 @@ function EventsPanel({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0, maxWidth: 520, lineHeight: 1.5 }}>
           Events added here go live on the public calendar immediately.
-          Members can also submit events from <a href="/submit-event" style={{ color: 'var(--aac-blue)' }}>submit-event</a>.
+          Members can also submit events from the <a href="/submit-event" style={{ color: 'var(--aac-blue)' }}>public submission form</a>.
           Use the ICS sources section below to pull from external calendars on a daily schedule.
         </p>
         <button onClick={() => { setShowForm(s => !s); resetForm(); }} className="btn btn-primary btn-sm">
@@ -1801,14 +1801,14 @@ function ItemForm({
         <div style={{ flex: 1, minWidth: 140 }}>
           <label style={label} htmlFor="cf-type">Type</label>
           <select id="cf-type" style={{ ...inp, background: '#fff' }} value={form.item_type} onChange={(e) => setForm((f) => ({ ...f, item_type: e.target.value }))}>
-            <option value="">-- select --</option>
+            <option value="">Select one</option>
             {typesForSection.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div style={{ flex: 1, minWidth: 140 }}>
           <label style={label} htmlFor="cf-cat">Category</label>
           <select id="cf-cat" style={{ ...inp, background: '#fff' }} value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
-            <option value="">-- select --</option>
+            <option value="">Select one</option>
             {catsForSection.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>

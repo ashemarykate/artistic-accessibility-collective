@@ -11,6 +11,7 @@ import Logo from '@/components/Logo';
 const RAISED = 'inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #fff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf';
 const SUNKEN = 'inset 1px 1px 0 #0a0a0a, inset -1px -1px 0 #fff, inset 2px 2px 0 #808080, inset -2px -2px 0 #dfdfdf';
 const FIELD  = 'inset 1px 1px 0 #808080, inset -1px -1px 0 #fff';
+const PRIMARY_RING = ', 0 0 0 1px #0a0a0a';
 const SILVER = '#c3c3c3';
 const UIFONT = '"Tahoma","MS Sans Serif",Arial,sans-serif';
 
@@ -181,7 +182,7 @@ function Placeholder({ label, wide }: { label: string; wide?: boolean }) {
   return (
     <div style={{ boxShadow: FIELD, background: '#fff', padding: 3 }} aria-hidden="true">
       <div style={{ height: wide ? 130 : 90, background: 'repeating-linear-gradient(45deg,#e9e9e9 0 8px,#f6f6f6 8px 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#8a8a8a', letterSpacing: 1 }}>{label}</span>
+        <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#595959', letterSpacing: 1 }}>{label}</span>
       </div>
     </div>
   );
@@ -195,7 +196,7 @@ function Btn({ children, onClick, primary, pressed }: { children: React.ReactNod
       onPointerDown={() => setP(true)}
       onPointerUp={() => setP(false)}
       onPointerLeave={() => setP(false)}
-      style={{ minWidth: 74, minHeight: 44, background: SILVER, boxShadow: sunken ? SUNKEN : RAISED, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: sunken ? '2px 11px 0 13px' : '0 12px', outline: primary ? '1px solid #0a0a0a' : 'none', outlineOffset: primary ? -3 : 0 }}>
+      style={{ minWidth: 74, minHeight: 44, background: SILVER, boxShadow: (sunken ? SUNKEN : RAISED) + (primary ? PRIMARY_RING : ''), border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: sunken ? '2px 11px 0 13px' : '0 12px' }}>
       {children}
     </button>
   );
@@ -224,7 +225,7 @@ function Row({ icon, label, onClick, indent = 0, external, href }: {
 function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string) => void; onClose?: () => void; wide?: boolean }) {
   const it = ITEMS[k];
   const pad = wide ? 16 : 12;
-  const btnLink: React.CSSProperties = { minWidth: 74, minHeight: 44, background: SILVER, boxShadow: RAISED, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: '0 12px', outline: '1px solid #0a0a0a', outlineOffset: -3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' };
+  const btnLink: React.CSSProperties = { minWidth: 74, minHeight: 44, background: SILVER, boxShadow: RAISED + PRIMARY_RING, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: '0 12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' };
 
   if (k === 'about') {
     return (
@@ -302,6 +303,7 @@ function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string
         <div>
           {it.cat && <div style={{ fontSize: 11, color: '#444', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 3 }}>{it.cat}</div>}
           <p style={{ margin: 0, fontSize: 13.5, color: '#101010', lineHeight: '19px' }}>{it.blurb}</p>
+          {it.soon && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#595959', fontStyle: 'italic' }}>This page is coming soon, not open yet.</p>}
         </div>
       </div>
       <Placeholder label={it.soon ? 'coming soon' : `${k} page`} wide={wide} />
@@ -317,11 +319,11 @@ function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string
         <Btn onClick={() => onOpen('all-folders')}>All Folders</Btn>
         {it.href && !it.soon ? (
           <Link href={it.href}
-            style={{ minWidth: 74, minHeight: 44, background: SILVER, boxShadow: RAISED, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: '0 12px', outline: '1px solid #0a0a0a', outlineOffset: -3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+            style={{ minWidth: 74, minHeight: 44, background: SILVER, boxShadow: RAISED + PRIMARY_RING, border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12.5, color: '#0a0a0a', padding: '0 12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
             OK
           </Link>
         ) : (
-          <Btn primary onClick={() => {/* just stay in window */}}>OK</Btn>
+          <Btn primary onClick={onClose}>OK</Btn>
         )}
       </div>
     </div>
@@ -354,8 +356,8 @@ function FolderBody({ onOpen, wide }: { onOpen: (key: string) => void; wide?: bo
 
 function GroupHdr({ children }: { children: React.ReactNode }) {
   return (
-    <div aria-hidden="true" style={{ background: 'linear-gradient(to bottom,#eae7df,#d8d4cc)', borderTop: '1px solid #c8c4bc', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', fontSize: 10, fontWeight: 700, color: '#1a4fbb', letterSpacing: '.04em' }}>
-      ▶ {children}
+    <div role="heading" aria-level={2} style={{ background: 'linear-gradient(to bottom,#eae7df,#d8d4cc)', borderTop: '1px solid #c8c4bc', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', fontSize: 10, fontWeight: 700, color: '#1a4fbb', letterSpacing: '.04em' }}>
+      <span aria-hidden="true">▶ </span>{children}
     </div>
   );
 }
@@ -367,8 +369,20 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
   onNavigate: (href: string) => void;
   signOutError?: string | null;
 }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const prevAccount = useRef(account);
+  const [justSignedOut, setJustSignedOut] = useState(false);
+
+  useEffect(() => {
+    if (prevAccount.current !== 'out' && account === 'out') {
+      wrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+      setJustSignedOut(true);
+    }
+    prevAccount.current = account;
+  }, [account]);
+
   return (
-    <div style={{ background: '#fff' }}>
+    <div ref={wrapRef} style={{ background: '#fff' }}>
       <GroupHdr>CONNECT</GroupHdr>
       <Row icon={52} label="Get an Access Card"  onClick={() => onOpen('access-card')} />
       <Row icon={50} label="Join the Collective" onClick={() => onOpen('join')} />
@@ -383,6 +397,7 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
         <Row icon={46} label="Log In to The Collective"   onClick={() => onNavigate('/login')} />
         <Row icon={52} label="Log In to Your Access Card" onClick={() => onNavigate('/login')} />
       </>)}
+      {justSignedOut && <div role="status" className="sr-only">You&apos;re signed out.</div>}
       {signOutError && (
         <div role="alert" style={{ padding: '8px 10px', fontSize: 12, color: '#8e1a11', background: '#fdeceb', borderTop: '1px solid #c8c4bc' }}>
           {signOutError}
@@ -515,14 +530,14 @@ function StartMenuFolder({ name, kids, onOpen }: { name: string; kids: string[];
       {/* A real <button>, not a clickable div: iOS Safari doesn't reliably fire
           click events on non-interactive elements, which left the submenu
           stuck in a focus-only state that vanished before item taps landed. */}
-      <button type="button" className="win-row" role="menuitem" aria-haspopup="true" aria-expanded={open}
+      <button type="button" className="win-row" aria-haspopup="true" aria-expanded={open}
         onClick={toggle}
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', background: 'none', border: 'none', textAlign: 'left', cursor: 'default' }}>
         <span aria-hidden="true" style={{ width: 26, height: 26, flexShrink: 0 }}><Ico n={48} size={26} /></span>
         <span style={{ flex: 1 }}>{name}</span>
         <span aria-hidden="true" style={{ fontSize: 10 }}>▶</span>
       </button>
-      <div className="start-sub" role="menu" aria-label={name}
+      <div className="start-sub" aria-label={name}
         style={{ position: 'absolute', left: '100%', top: -3, minWidth: 214, background: SILVER, boxShadow: RAISED, padding: 3, zIndex: 9002 }}>
         {kids.map(c => <StartMenuLeaf key={c} k={c} size={24} onOpen={onOpen} />)}
       </div>
@@ -531,11 +546,22 @@ function StartMenuFolder({ name, kids, onOpen }: { name: string; kids: string[];
 }
 
 function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose: () => void }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    menuRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => {
+      if (document.activeElement === document.body) {
+        document.getElementById('start-btn')?.focus();
+      }
+    };
+  }, []);
+
   return (
     <>
       <button aria-label="Close menu" onClick={onClose}
         style={{ position: 'fixed', inset: 0, zIndex: 9000, background: 'none', border: 'none', cursor: 'default' }} />
-      <div role="menu" aria-label="Start" className="start-menu"
+      <div ref={menuRef} aria-label="Start menu" className="start-menu"
         style={{ position: 'absolute', left: 4, bottom: 38, zIndex: 9001, width: 250, background: SILVER, boxShadow: RAISED, padding: 3, display: 'flex', fontFamily: UIFONT }}>
         <div aria-hidden="true" style={{ width: 30, background: 'linear-gradient(#1c84d8,#000a7a)', position: 'relative', flexShrink: 0 }}>
           <span style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%) rotate(-90deg)', transformOrigin: 'center', whiteSpace: 'nowrap', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 1 }}>
@@ -637,9 +663,10 @@ export default function Home() {
 
   const cascade = useRef(0);
   const TOPBAR_H = isMobile ? 64 : 88;
-  const headerH = TOPBAR_H + (beta ? 38 : 0);
+  const headerH = TOPBAR_H + (beta ? 44 : 0);
   const openers = useRef<Map<string, HTMLElement>>(new Map());
   const deskRef = useRef<HTMLDivElement>(null);
+  const aboutBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     document.title = 'Artistic Accessibility Collective';
@@ -758,7 +785,7 @@ export default function Home() {
   const account: 'out' | 'collective' | 'access_card' = !user ? 'out' : memberType === 'access_card' ? 'access_card' : 'collective';
 
   return (
-    <div
+    <main
       onPointerDown={() => setSel(null)}
       style={{ position: 'fixed', inset: 0, background: '#263590', overflow: 'hidden', fontFamily: UIFONT, userSelect: 'none' }}
     >
@@ -778,6 +805,7 @@ export default function Home() {
         style={{ position: 'absolute', top: 0, left: 0, right: 0, height: TOPBAR_H, zIndex: 5, background: 'linear-gradient(to bottom,#2d3ba0,#1a2568)', borderBottom: '2px solid #10163d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <button
+          ref={aboutBtnRef}
           onClick={() => open('about')}
           aria-label="About, Artistic Accessibility Collective"
           className="top-bar-btn"
@@ -792,18 +820,18 @@ export default function Home() {
         <div
           role="status"
           onPointerDown={(e) => e.stopPropagation()}
-          style={{ position: 'absolute', top: TOPBAR_H, left: 0, right: 0, height: 38, zIndex: 5, background: '#000', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', overflow: 'hidden' }}
+          style={{ position: 'absolute', top: TOPBAR_H, left: 0, right: 0, height: 44, zIndex: 5, background: '#000', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', overflow: 'hidden' }}
         >
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div className="beta-ticker-wrap" tabIndex={0} style={{ flex: 1, overflow: 'hidden' }}>
             <div className="beta-scroll" style={{ display: 'inline-flex', whiteSpace: 'nowrap', willChange: 'transform' }}>
               <span style={{ padding: '0 50px', color: '#39ff14', fontFamily: UIFONT, fontSize: 12.5, fontWeight: 700 }}>{BETA_MSG}</span>
               <span aria-hidden="true" style={{ padding: '0 50px', color: '#39ff14', fontFamily: UIFONT, fontSize: 12.5, fontWeight: 700 }}>{BETA_MSG}</span>
             </div>
           </div>
           <button
-            onClick={() => setBeta(false)}
+            onClick={() => { aboutBtnRef.current?.focus(); setBeta(false); }}
             aria-label="Dismiss beta notice"
-            style={{ flexShrink: 0, height: '100%', minWidth: 30, padding: '0 9px', background: '#000', border: 'none', borderLeft: '1px solid rgba(255,255,255,.2)', color: '#39ff14', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}
+            style={{ flexShrink: 0, height: '100%', minWidth: 44, padding: '0 9px', background: '#000', border: 'none', borderLeft: '1px solid rgba(255,255,255,.2)', color: '#39ff14', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}
           >✕</button>
         </div>
       )}
@@ -856,11 +884,11 @@ export default function Home() {
         style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: isMobile ? 44 : 114, background: SILVER, boxShadow: `inset 0 ${isMobile ? 2 : 3}px 0 #fff`, borderTop: `${isMobile ? 1 : 2}px solid #fff`, display: 'flex', alignItems: 'center', gap: isMobile ? 5 : 10, padding: isMobile ? '0 5px' : '0 10px', zIndex: 8500, fontFamily: UIFONT }}
       >
         <button
+          id="start-btn"
           onClick={() => setStartOpen(s => !s)}
-          aria-haspopup="menu"
           aria-expanded={startOpen}
           className={isMobile ? undefined : 'start-btn'}
-          style={{ height: isMobile ? 36 : 90, background: SILVER, boxShadow: startOpen ? SUNKEN : RAISED, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 10px 0 7px' : '0 22px 0 10px', fontFamily: UIFONT, fontWeight: 700, fontSize: isMobile ? 14 : 24, color: '#0a0a0a' }}
+          style={{ height: isMobile ? 44 : 90, background: SILVER, boxShadow: startOpen ? SUNKEN : RAISED, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 10px 0 7px' : '0 22px 0 10px', fontFamily: UIFONT, fontWeight: 700, fontSize: isMobile ? 14 : 24, color: '#0a0a0a' }}
         >
           <span aria-hidden="true" style={{ width: isMobile ? 20 : 66, height: isMobile ? 20 : 66, flexShrink: 0 }}><Ico n={56} size={isMobile ? 20 : 66} /></span>
           Start
@@ -874,7 +902,7 @@ export default function Home() {
             const top = wins.length > 0 && Math.max(...wins.map(x => x.z)) === w.z;
             return (
               <button key={w.id} onClick={() => focusWin(w.id)}
-                style={{ height: isMobile ? 36 : 76, maxWidth: isMobile ? 150 : 260, boxShadow: top ? SUNKEN : RAISED, background: top ? '#bcbcbc' : SILVER, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 9px' : '0 16px', fontSize: isMobile ? 12.5 : 20, color: '#0a0a0a', fontFamily: UIFONT }}>
+                style={{ height: isMobile ? 44 : 76, maxWidth: isMobile ? 150 : 260, boxShadow: top ? SUNKEN : RAISED, background: top ? '#bcbcbc' : SILVER, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, padding: isMobile ? '0 9px' : '0 16px', fontSize: isMobile ? 12.5 : 20, color: '#0a0a0a', fontFamily: UIFONT }}>
                 <span aria-hidden="true" style={{ width: isMobile ? 16 : 30, height: isMobile ? 16 : 30, flexShrink: 0 }}><Ico n={wIc} size={isMobile ? 16 : 30} /></span>
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{wTitle}</span>
               </button>
@@ -888,6 +916,7 @@ export default function Home() {
 
       <style>{`
         .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        main p{user-select:text}
         .win-close{position:relative;overflow:visible}
         .win-close::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);min-width:44px;min-height:44px;display:block}
         .dsk-label{color:#fff;font-family:${UIFONT};font-size:17px;font-weight:600;text-align:center;line-height:1.25;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5);padding:2px 6px;max-width:160px;border:1px dotted transparent}
@@ -908,7 +937,7 @@ export default function Home() {
         @keyframes win-open{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
         @keyframes launch-zoom{from{transform:translate(var(--lx),var(--ly)) scale(var(--lsx),var(--lsy))}to{transform:none}}
         @keyframes blockon{to{opacity:1}}
-        @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-delay:0s!important}.beta-scroll{animation:none!important;transform:none!important}}
+        @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-delay:0s!important}.beta-scroll{animation:none!important;transform:none!important}.beta-ticker-wrap{overflow-x:auto!important}}
         @media (max-width: 600px){
           .start-menu{width:calc(100vw - 10px)!important}
           .start-list{max-height:calc(100dvh - 96px)!important;overflow-y:auto!important}
@@ -922,6 +951,6 @@ export default function Home() {
           .dsk-label{font-size:13px!important;max-width:none!important}
         }
       `}</style>
-    </div>
+    </main>
   );
 }

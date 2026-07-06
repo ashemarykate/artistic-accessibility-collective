@@ -198,11 +198,11 @@ function EventChip({ ev, showLocation }: { ev: CalEvent; showLocation?: boolean 
       href={ev.event_url ?? '#'}
       target="_blank" rel="noopener noreferrer"
       style={{
-        display: 'block', background: TYPE_META[type].color, color: '#fff',
+        display: 'flex', alignItems: 'center', background: TYPE_META[type].color, color: '#fff',
         fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 4px', marginBottom: 2, borderRadius: 1,
         overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-        textDecoration: 'none', cursor: 'pointer',
+        textDecoration: 'none', cursor: 'pointer', minHeight: 44,
       }}
       title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
     >
@@ -224,13 +224,13 @@ function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) 
       target="_blank" rel="noopener noreferrer"
       title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
       style={{
-        position: 'absolute', zIndex: 1,
+        position: 'absolute', zIndex: 1, display: 'flex', alignItems: 'center',
         ...style,
         background: TYPE_META[type].color, color: '#fff',
         fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 3px', borderRadius: 2, overflow: 'hidden',
         textDecoration: 'none', cursor: 'pointer', lineHeight: 1.15,
-        boxShadow: '0 0 0 1px rgba(255,255,255,0.4)',
+        boxShadow: '0 0 0 1px rgba(255,255,255,0.4)', minHeight: 44,
       }}
     >
       <span style={{ opacity: 0.8 }}>{timeStr}</span> {ev.title}
@@ -292,7 +292,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
         background: '#ece9d8',
         position: 'sticky', top: 0, zIndex: 3,
       }}>
-        <div style={{ borderRight: '1px solid #b4b0a8', fontSize: 8, color: '#999', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 4px 3px' }}>all day</div>
+        <div style={{ borderRight: '1px solid #b4b0a8', fontSize: 8, color: '#333', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 4px 3px' }}>all day</div>
         {colDays.map((d, i) => {
           const allDay = eventsForDate(events, d).filter(e => !isTimed(e));
           return (
@@ -680,9 +680,9 @@ export default function CalendarPage() {
     : view === 'month'
     ? `${MONTH_NAMES[monthDate.getMonth()]} ${monthDate.getFullYear()}`
     : view === 'week'
-      ? `${MONTH_NAMES[weekDays[0].getMonth()]} ${weekDays[0].getDate()} – ${weekDays[6].getDate()}, ${weekDays[6].getFullYear()}`
+      ? `${MONTH_NAMES[weekDays[0].getMonth()]} ${weekDays[0].getDate()} to ${weekDays[6].getDate()}, ${weekDays[6].getFullYear()}`
       : view === '3day'
-        ? `${MONTH_NAMES[threeDays[0].getMonth()]} ${threeDays[0].getDate()} – ${threeDays[2].getDate()}`
+        ? `${MONTH_NAMES[threeDays[0].getMonth()]} ${threeDays[0].getDate()} to ${threeDays[2].getDate()}`
         : `${DAY_NAMES[dayAnchor.getDay()]}, ${MONTH_NAMES[dayAnchor.getMonth()]} ${dayAnchor.getDate()}`;
 
   // ── Render helper: Week/3-day time grid ──────────────────────────────────────
@@ -732,6 +732,7 @@ export default function CalendarPage() {
         .cal-view-btn:hover { background: #316ac5 !important; color: #fff !important; }
         .cal-list-row:hover, .cal-list-row:focus-visible { background: #eef1fb; outline: 2px solid #f5d84a; outline-offset: -2px; }
         .cal-view-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
+        .cal-nav-btn { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
         .cal-nav-btn:hover { background: #c8c4bc !important; }
         .cal-nav-btn:focus-visible { outline: 2px solid #f5d84a; outline-offset: 1px; }
         .cal-filter-opt:focus-within { outline: 2px solid #f5d84a; }

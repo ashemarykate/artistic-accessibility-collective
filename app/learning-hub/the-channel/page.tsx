@@ -6,6 +6,7 @@ interface YTPlayerEvent {
   target: {
     setShuffle: (shuffle: boolean) => void;
     playVideoAt: (index: number) => void;
+    cuePlaylist: (playlist: string, index: number) => void;
   };
 }
 
@@ -13,6 +14,7 @@ interface YTPlayer {
   destroy?: () => void;
   setShuffle: (shuffle: boolean) => void;
   playVideoAt: (index: number) => void;
+  cuePlaylist: (playlist: string, index: number) => void;
 }
 
 interface YTNamespace {
@@ -86,7 +88,9 @@ export default function TheChannelLearningPage() {
           onReady: (e: YTPlayerEvent) => {
             if (dead) return;
             e.target.setShuffle(true);
-            e.target.playVideoAt(Math.floor(Math.random() * 15));
+            // Cue rather than play: audio should never start without the
+            // visitor choosing to (WCAG 1.4.2). Pressing play or Shuffle starts it.
+            e.target.cuePlaylist(PLAYLIST_ID, Math.floor(Math.random() * 15));
             setReady(true);
           },
         },

@@ -15,7 +15,7 @@ const C = {
   white:  '#ffffff',
   cream:  '#f8f8f4',
   black:  '#111111',
-  gray:   '#555555',
+  gray:   '#0d0d0d',   // darkened for 4.5:1 contrast on teal background (was #555555)
   lgray:  '#dddddd',
   red:    '#c01a1a',
   border: '#111111',

@@ -46,7 +46,7 @@ export default function ShareFeedback() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
-    document.title = 'Share Feedback - Artistic Accessibility Collective';
+    document.title = 'Share Feedback · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
