@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, getSessionUser } from '@/lib/supabase';
+import { useUnsavedChanges, confirmDiscardIfDirty } from '@/lib/useUnsavedChanges';
 
 // ── Tags available for event submissions ──────────────────────────────────────
 const TAG_OPTIONS = [
@@ -99,6 +100,8 @@ export default function SubmitEventPage() {
   const [submitted, setSubmitted] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [dirty,     setDirty]     = useState(false); // unsaved-changes guard
+  useUnsavedChanges(!submitted && dirty);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
 
@@ -131,6 +134,14 @@ export default function SubmitEventPage() {
   useEffect(() => {
     if (submitted) setTimeout(() => successRef.current?.focus(), 100);
   }, [submitted]);
+
+  // The <form>'s onChange catches typed fields; this covers the button-driven
+  // tag picker. Skip the initial mount so an empty form isn't "edited".
+  const tagEditedRef = useRef(false);
+  useEffect(() => {
+    if (tagEditedRef.current) setDirty(true);
+    else tagEditedRef.current = true;
+  }, [tags]);
 
   const checkAuth = async () => {
     const user = await getSessionUser();
@@ -225,6 +236,7 @@ export default function SubmitEventPage() {
       setSaveError(error.message);
       setSaving(false);
     } else {
+      setDirty(false); // submitted, leaving is safe
       setSubmitted(true);
     }
   };
@@ -344,7 +356,7 @@ export default function SubmitEventPage() {
           display: 'flex', gap: 4, alignItems: 'center',
         }}>
           <button
-            onClick={() => router.push('/calendar')}
+            onClick={() => { if (confirmDiscardIfDirty(dirty)) { setDirty(false); router.push('/calendar'); } }}
             style={{
               background: '#d4d0c8', border: '2px outset #fff',
               padding: '2px 8px', fontSize: 11,
@@ -375,7 +387,7 @@ export default function SubmitEventPage() {
             Fields marked <span style={{ color: '#900' }}>*</span> are required.
           </p>
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate>
 
             {/* Event name */}
             <div style={WIN_ROW}>
@@ -605,7 +617,7 @@ export default function SubmitEventPage() {
 
             {/* Buttons */}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
-              <WinBtn onClick={() => router.push('/calendar')}>Cancel</WinBtn>
+              <WinBtn onClick={() => { if (confirmDiscardIfDirty(dirty)) { setDirty(false); router.push('/calendar'); } }}>Cancel</WinBtn>
               <WinBtn type="submit" primary disabled={saving}>
                 {saving ? 'Submitting…' : 'Submit Event'}
               </WinBtn>

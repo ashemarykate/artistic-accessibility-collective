@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PhotoUploader from '@/components/PhotoUploader';
 import BrowserChrome from '@/components/BrowserChrome';
+import { useUnsavedChanges, confirmDiscardIfDirty } from '@/lib/useUnsavedChanges';
 
 // ── Tag input ─────────────────────────────────────────────────────────────────
 
@@ -177,6 +178,8 @@ export default function EditProfilePage() {
   const [loading,       setLoading]       = useState(true);
   const [saving,        setSaving]        = useState(false);
   const [saveStatus,    setSaveStatus]    = useState<'idle' | 'saved' | 'error'>('idle');
+  const [dirty,         setDirty]         = useState(false); // unsaved-changes guard
+  useUnsavedChanges(dirty);
   const [errors,        setErrors]        = useState<Record<string, string>>({});
   const [usernameError, setUsernameError] = useState('');
   const [checkingSlug,  setCheckingSlug]  = useState(false);
@@ -288,6 +291,20 @@ export default function EditProfilePage() {
 
   useEffect(() => { queueMicrotask(() => { loadProfile(); }); }, [loadProfile]);
 
+  // Dirty tracking for the unsaved-changes guard. The <form>'s onChange catches
+  // typed inputs, checkboxes, and selects; this covers the button-driven fields
+  // (tag pickers and the background color) that don't fire a form change event.
+  // Guarded so hydrating the form on load doesn't count as an edit.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (loading) return;
+    const t = setTimeout(() => { hydratedRef.current = true; }, 0);
+    return () => clearTimeout(t);
+  }, [loading]);
+  useEffect(() => {
+    if (hydratedRef.current) setDirty(true);
+  }, [specialties, certifications, languages, strengths, communicationStyle, bgColor]);
+
   // ── Username uniqueness check ─────────────────────────────────────────────
 
   const checkUsername = useCallback(async (slug: string) => {
@@ -384,6 +401,7 @@ export default function EditProfilePage() {
       setSaveStatus('error');
     } else {
       setSaveStatus('saved');
+      setDirty(false); // saved, so leaving is safe now
       // Update local profile so profileHref works with new username
       setProfile((prev) => prev ? {
         ...prev,
@@ -428,7 +446,12 @@ export default function EditProfilePage() {
           <Link href="/messages"   className="nav-link">Messages</Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <button
-            onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+            onClick={async () => {
+              if (!confirmDiscardIfDirty(dirty)) return;
+              setDirty(false);
+              await supabase.auth.signOut();
+              router.push('/');
+            }}
             className="btn btn-outline-white btn-sm"
             aria-label="Sign out"
           >
@@ -470,7 +493,7 @@ export default function EditProfilePage() {
           </div>
         )}
 
-        <form onSubmit={handleSave} noValidate>
+        <form onSubmit={handleSave} onChange={() => setDirty(true)} noValidate>
 
           {/* ══ Section: About You ═══════════════════════════════════════ */}
           <div className="ms-box" style={{ marginBottom: '1.25rem' }}>

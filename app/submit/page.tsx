@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import { useUnsavedChanges } from '@/lib/useUnsavedChanges';
 
 type Step = 'invite' | 'type_select' | 'form' | 'success';
 type ProfileType = 'individual' | 'business';
@@ -94,6 +95,8 @@ const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: strin
 export default function SubmitProfile() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('invite');
+  const [dirty, setDirty] = useState(false); // unsaved-changes guard (form step only)
+  useUnsavedChanges(step === 'form' && dirty);
   const [profileType, setProfileType] = useState<ProfileType>('individual');
   const [loading, setLoading] = useState(false);
 
@@ -158,6 +161,15 @@ export default function SubmitProfile() {
     document.title = 'Test the Collective · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
+
+  // The <form>'s onChange catches typed fields; this covers the button-driven
+  // tag pickers, which don't fire a form change event. Skip the initial mount
+  // so an empty form doesn't count as edited.
+  const tagEditedRef = useRef(false);
+  useEffect(() => {
+    if (tagEditedRef.current) setDirty(true);
+    else tagEditedRef.current = true;
+  }, [professions, credentials, businessTypes, accessibilityFeatures, testerFeatureInterests]);
 
   useEffect(() => {
     if (step === 'success' && successHeadingRef.current) {
@@ -404,6 +416,7 @@ export default function SubmitProfile() {
         }).eq('code', code);
       }
 
+      setDirty(false); // submitted, leaving is safe
       setStep('success');
     } catch (err) {
       console.error('Submission error:', err);
@@ -636,7 +649,7 @@ export default function SubmitProfile() {
             <div ref={formErrorRef} tabIndex={-1} className="alert alert-error" role="alert" style={{ marginBottom: '1.5rem', outline: 'none' }}>{formError}</div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate aria-label="Profile submission form" aria-describedby="required-note">
+          <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate aria-label="Profile submission form" aria-describedby="required-note">
             <p id="required-note" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
               Fields marked with * are required.
             </p>
