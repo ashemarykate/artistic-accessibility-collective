@@ -90,6 +90,7 @@ export default function Logo({
   style,
   className,
   variant = 'dark',
+  index,
 }: {
   alt?: string;
   height?: number | string;
@@ -97,10 +98,14 @@ export default function Logo({
   style?: React.CSSProperties;
   className?: string;
   variant?: 'dark' | 'light';
+  /** Pin a specific wordmark variant (by array position) instead of the random
+   *  per-page-load one. Useful where a fixed logo is wanted (e.g. a report cover). */
+  index?: number;
 }) {
   const arr = variant === 'light' ? LOGO_VERSIONS_LIGHT : LOGO_VERSIONS;
-  const index = useLogoIndex();
-  const version = arr[index % arr.length];
+  const randomIndex = useLogoIndex();
+  const effectiveIndex = index ?? randomIndex;
+  const version = arr[effectiveIndex % arr.length];
 
   // alt="" means decorative (caller's parent link handles the label).
   // No alt prop means: use the version's visual description.
