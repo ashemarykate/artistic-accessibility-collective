@@ -3,161 +3,25 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 import { supabase } from '@/lib/supabase';
+import { PRINTER_PALETTE as C, TRAYS, dbRowToPrintable, type Tray, type Printable } from '@/lib/printer-data';
 
 // ── The Printer ────────────────────────────────────────────────────────────────
 // A shared print room: printable checklists, posters, worksheets, and guides.
 // Everything here links to a legal, free, print-friendly source.
-// Draft v1: static list. Member uploads can come later via resource_submissions.
+//
+// Trays are folders (native <details>/<summary> — free keyboard support and
+// screen reader open/closed state). Open one and its documents show as a grid
+// of paper icons; hover or focus a paper for a description, click through for
+// the full document page (app/printer/[slug]/page.tsx).
 
-const C = {
-  paper:  '#f4f1e8',
-  ink:    '#2b2b2b',
-  faint:  '#5a5550',
-  rule:   '#c9c3b2',
-  accent: '#263590',
-  green:  '#1d6b4f',
-  mono:   '"Courier New", Courier, monospace',
-};
-
-type Printable = {
-  slug: string;
-  title: string;
-  source: string;
-  description: string;
-  url: string;
-  format: string;      // e.g. 'PDF', 'Web page (print friendly)'
-  pagesNote?: string;  // e.g. 'One page', 'Poster set'
-};
-
-type Tray = { id: string; label: string; blurb: string; items: Printable[] };
-
-const TRAYS: Tray[] = [
-  {
-    id: 'checklists',
-    label: 'TRAY 1 · CHECKLISTS',
-    blurb: 'Print, walk your venue or website with a pen, and see where you stand.',
-    items: [
-      {
-        slug: 'ada-checklist',
-        title: 'ADA Checklist for Existing Facilities',
-        source: 'New England ADA Center',
-        description: 'The classic printable walk-through checklist for physical access: parking, entrances, restrooms, seating, and signage. The standard first self-assessment for any venue in the United States.',
-        url: 'https://adachecklist.org/doc/fullchecklist/ada-checklist.pdf',
-        format: 'PDF',
-        pagesNote: 'Full checklist',
-      },
-      {
-        slug: 'sins-invalid-access-suggestions',
-        title: 'Access Suggestions for Public Events',
-        source: 'Sins Invalid',
-        description: 'A disability justice checklist for event organizers, going well past compliance: fragrance-free practice, ASL and CART, image description, rest space, and mobility access. Copy-ready.',
-        url: 'https://sinsinvalid.org/resources/',
-        format: 'Web page (print friendly)',
-      },
-      {
-        slug: 'wcag-quickref',
-        title: 'How to Meet WCAG (Quick Reference)',
-        source: 'W3C Web Accessibility Initiative',
-        description: 'The working WCAG checklist most teams actually use. Filter to Level AA, print your filtered view, and use it for audits and sign-off on your website or digital program.',
-        url: 'https://www.w3.org/WAI/WCAG22/quickref/',
-        format: 'Web page (print friendly)',
-      },
-    ],
-  },
-  {
-    id: 'posters',
-    label: 'TRAY 2 · POSTERS & SIGNS',
-    blurb: 'For the studio wall, the box office, and the volunteer break room.',
-    items: [
-      {
-        slug: 'govuk-dos-donts',
-        title: 'Designing for Accessibility: Dos and Don\'ts Posters',
-        source: 'UK Home Office',
-        description: 'The famous one-page posters covering design for people who are autistic, blind, low vision, D/deaf, dyslexic, or have motor impairments. Creative Commons licensed and made to be printed and hung where a whole team will see them.',
-        url: 'https://accessibility.blog.gov.uk/2016/09/02/dos-and-donts-on-designing-for-accessibility/',
-        format: 'Poster set (downloadable)',
-        pagesNote: '6 posters',
-      },
-    ],
-  },
-  {
-    id: 'worksheets',
-    label: 'TRAY 3 · WORKSHEETS & WORKBOOKS',
-    blurb: 'Hands-on materials for workshops, trainings, and your own practice.',
-    items: [
-      {
-        slug: 'alt-text-as-poetry-workbook',
-        title: 'Alt Text as Poetry Workbook',
-        source: 'Bojana Coklyat & Shannon Finnegan',
-        description: 'A free workbook of exercises that treat alt text as a creative practice, not a compliance chore. Perfect for a solo afternoon or a group workshop. Also available as audio and EPUB on the project site.',
-        url: 'https://alt-text-as-poetry.net/assets/Alt-Text-as-Poetry-Workbook-PDF-2020-12-01.pdf',
-        format: 'PDF',
-        pagesNote: 'Full workbook',
-      },
-      {
-        slug: 'dcmp-ad-tip-sheet',
-        title: 'Audio Description Tip Sheet',
-        source: 'Described and Captioned Media Program',
-        description: 'A one-page primer on the core principles of audio description: objective language, present tense, and describing visual identity. The ideal handout for a first AD workshop.',
-        url: 'https://dcmp.org/learn/227-audio-description-tip-sheet',
-        format: 'Web page (print friendly)',
-        pagesNote: 'One page',
-      },
-    ],
-  },
-  {
-    id: 'guides',
-    label: 'TRAY 4 · GUIDES & TOOLKITS',
-    blurb: 'Longer reads worth printing, binding, and keeping on the shelf.',
-    items: [
-      {
-        slug: 'fwd-doc-toolkit',
-        title: 'FWD-Doc Toolkit for Inclusion & Accessibility',
-        source: 'FWD-Doc & Doc Society',
-        description: 'The 62-page toolkit on disability inclusion across development, production, post-production, and exhibition, written by disabled documentary makers. The single best print-and-keep guide for filmmakers.',
-        url: 'https://fwd-doc.org/toolkit',
-        format: 'PDF',
-        pagesNote: '62 pages',
-      },
-      {
-        slug: 'graeae-access-rider',
-        title: 'How to Create an Access Rider',
-        source: 'Graeae Theatre Company',
-        description: 'Graeae\'s free guide for disabled artists on writing an access rider: the document that tells venues and producers what you need to do your best work. Pairs well with Access Docs for Artists in our Resources room.',
-        url: 'https://graeae.org/resource/how-to-create-an-access-rider/',
-        format: 'Web page with downloads',
-      },
-      {
-        slug: 'crpd-full-text',
-        title: 'UN Convention on the Rights of Persons with Disabilities',
-        source: 'United Nations',
-        description: 'The foundational international disability rights treaty. Article 30 guarantees access to cultural life: theater, film, museums, and the arts. Worth having on paper when you need to point at the source.',
-        url: 'https://www.un.org/disabilities/documents/convention/convoptprot-e.pdf',
-        format: 'PDF',
-      },
-    ],
-  },
-];
-
-// ── Map a resources DB row (section='printer') → Printable + its tray ────────
-// Admins manage these at /admin → Website Content → Page Content → The Printer.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function dbRowToPrintable(row: any): Printable & { tray: string } {
-  return {
-    slug:        row.slug ?? row.id,
-    title:       row.title ?? '',
-    source:      row.author ?? '',
-    description: row.description ?? '',
-    url:         row.url ?? '',
-    format:      (row.format_list ?? []).join(', ') || 'PDF',
-    pagesNote:   row.location_note ?? undefined,
-    tray:        row.category ?? 'guides',
-  };
-}
+const FOLDER_ICON = '/images/desktop-icons/icon-folders.png';
+const PAPER_ICON  = '/images/desktop-icons/icon-57.png';
+const PRINTER_ICON = '/images/desktop-icons/icon-printer.png';
 
 export default function PrinterPage() {
   const [queue, setQueue] = useState('');
   const [dbItems, setDbItems] = useState<(Printable & { tray: string })[]>([]);
+  const [tipFor, setTipFor] = useState<string | null>(null);
 
   // Fetch admin-managed printer items and merge with the static trays.
   // A DB item with the same slug as a static one replaces it.
@@ -192,8 +56,6 @@ export default function PrinterPage() {
     return () => clearInterval(id);
   }, []);
 
-  const rule = useMemo<React.CSSProperties>(() => ({ borderTop: `1px dashed ${C.rule}` }), []);
-
   return (
     <BrowserChrome
       variant="mosaic"
@@ -212,57 +74,63 @@ export default function PrinterPage() {
               <span>AAC PRINT ROOM · LPT1</span>
               <span className="prn-clock">LAST JOB: {queue}</span>
             </div>
-            <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: '0.06em', margin: '8px 0 2px' }} className="prn-title">
-              THE PRINTER
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '8px 0 2px' }}>
+              <img src={PRINTER_ICON} alt="" aria-hidden="true" width={56} height={56} style={{ imageRendering: 'pixelated', flexShrink: 0 }} />
+              <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: '0.06em' }} className="prn-title">
+                THE PRINTER
+              </div>
             </div>
             <div style={{ fontSize: 13, color: C.accent, letterSpacing: '0.05em' }}>
               READY · {total} DOCUMENTS LOADED · TONER OK
             </div>
             <p style={{ margin: '12px 0 0', fontSize: 14, lineHeight: 1.7 }}>
-              A shared print room of checklists, posters, worksheets, and guides worth putting on real paper. Everything links to a legal, free source. Pick a tray, hit print, and pass copies around.
+              A shared print room of checklists, posters, worksheets, and guides worth putting on real paper. Everything links to a legal, free source. Open a tray, hover a document for a preview, click through to read, print, or find the source.
             </p>
           </div>
 
-          {/* Trays */}
+          {/* Trays, as folders you open */}
           {trays.map((tray) => (
-            <section key={tray.id} aria-labelledby={`tray-${tray.id}`} style={{ marginBottom: 18 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, padding: '8px 14px', background: C.ink, color: C.paper }}>
-                <h2 id={`tray-${tray.id}`} style={{ margin: 0, fontFamily: C.mono, fontSize: 14, fontWeight: 700, letterSpacing: '0.1em' }}>
-                  {tray.label}
-                </h2>
-                <span style={{ fontSize: 12, opacity: 0.8 }}>{tray.items.length} DOC{tray.items.length !== 1 ? 'S' : ''}</span>
-              </div>
-              <div style={{ border: `2px solid ${C.ink}`, borderTop: 'none', background: '#fff' }}>
-                <p style={{ margin: 0, padding: '10px 14px', fontSize: 13, color: C.faint, ...rule, borderTop: 'none' }}>
-                  {tray.blurb}
-                </p>
+            <details key={tray.id} className="prn-tray">
+              <summary className="prn-tray-summary">
+                <img src={FOLDER_ICON} alt="" aria-hidden="true" width={48} height={48} style={{ imageRendering: 'pixelated', flexShrink: 0 }} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 14, fontWeight: 700, letterSpacing: '0.08em' }}>{tray.label}</span>
+                  <span style={{ display: 'block', fontSize: 12, opacity: 0.85, fontWeight: 400, marginTop: 2 }}>{tray.blurb}</span>
+                </span>
+                <span style={{ fontSize: 12, opacity: 0.8, flexShrink: 0 }}>{tray.items.length} DOC{tray.items.length !== 1 ? 'S' : ''}</span>
+                <span className="chevron" aria-hidden="true" style={{ fontSize: 16, flexShrink: 0 }}>▸</span>
+              </summary>
+
+              <div className="prn-paper-grid">
                 {tray.items.map((item) => (
-                  <article key={item.slug} style={{ padding: '14px 14px 16px', ...rule }}>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="prn-doc-link"
-                        style={{ color: C.accent, fontWeight: 700, fontSize: 15, textDecoration: 'underline', lineHeight: 1.4 }}
-                      >
-                        {item.title}
-                        <span className="sr-only"> (opens in a new tab)</span>
-                      </a>
-                      <span style={{ border: `1px solid ${C.green}`, color: C.green, fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.1em' }}>FREE</span>
-                    </div>
-                    <div style={{ marginTop: 3, fontSize: 12, color: C.faint, letterSpacing: '0.04em' }}>
-                      {item.source} · {item.format}{item.pagesNote ? ` · ${item.pagesNote}` : ''}
-                    </div>
-                    <p style={{ margin: '8px 0 0', fontSize: 14, lineHeight: 1.7 }}>{item.description}</p>
-                  </article>
+                  <div key={item.slug} style={{ position: 'relative' }}>
+                    <Link
+                      href={`/printer/${item.slug}`}
+                      className="prn-paper-tile"
+                      onMouseEnter={() => setTipFor(item.slug)}
+                      onMouseLeave={() => setTipFor((cur) => (cur === item.slug ? null : cur))}
+                      onFocus={() => setTipFor(item.slug)}
+                      onBlur={() => setTipFor((cur) => (cur === item.slug ? null : cur))}
+                      onKeyDown={(e) => { if (e.key === 'Escape') setTipFor(null); }}
+                      aria-describedby={tipFor === item.slug ? `tip-${item.slug}` : undefined}
+                    >
+                      <img src={PAPER_ICON} alt="" aria-hidden="true" width={44} height={44} style={{ imageRendering: 'pixelated' }} />
+                      <span className="prn-paper-title">{item.title}</span>
+                      <span className="prn-paper-free">FREE</span>
+                    </Link>
+                    {tipFor === item.slug && (
+                      <div id={`tip-${item.slug}`} role="tooltip" className="prn-tooltip">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
-            </section>
+            </details>
           ))}
 
           {/* Paper-out note: how to add to the print room */}
-          <div style={{ border: `2px dashed ${C.ink}`, background: '#fff', padding: '16px 20px', marginBottom: 18 }}>
+          <div style={{ border: `2px dashed ${C.ink}`, background: '#fff', padding: '16px 20px', marginBottom: 18, marginTop: 18 }}>
             <h2 style={{ margin: '0 0 8px', fontFamily: C.mono, fontSize: 14, letterSpacing: '0.1em' }}>ADD PAPER TO THE TRAY</h2>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7 }}>
               Made a worksheet, visual story, or checklist others could use? We want it in here. Send it through the suggestion form in <Link href="/library" style={{ color: C.accent }}>The Library</Link> or the <Link href="/contact" style={{ color: C.accent }}>contact page</Link> and note that it is for The Printer. Member PDF uploads are coming in a future round.
@@ -280,13 +148,92 @@ export default function PrinterPage() {
         </div>
 
         <style>{`
-          .prn-doc-link:focus-visible { outline: 3px solid var(--aac-yellow); outline-offset: 2px; }
+          .prn-tray {
+            border: 2px solid ${C.ink};
+            background: #fff;
+            margin-bottom: 14px;
+          }
+          .prn-tray-summary {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: ${C.ink};
+            color: ${C.paper};
+            cursor: pointer;
+            list-style: none;
+            min-height: 44px;
+          }
+          .prn-tray-summary::-webkit-details-marker { display: none; }
+          .prn-tray-summary:hover { background: #3a3a3a; }
+          .prn-tray-summary:focus-visible { outline: 3px solid var(--aac-yellow); outline-offset: -3px; }
+          .prn-tray-summary .chevron { transition: transform 0.15s; }
+          .prn-tray[open] > .prn-tray-summary .chevron { transform: rotate(90deg); }
+          @media (prefers-reduced-motion: reduce) {
+            .prn-tray-summary .chevron { transition: none; }
+          }
+          .prn-paper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            padding: 16px;
+            border-top: 1px dashed ${C.rule};
+          }
+          .prn-paper-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
+            padding: 10px 8px;
+            text-decoration: none;
+            color: ${C.ink};
+            border: 1px solid transparent;
+            border-radius: 2px;
+            min-height: 44px;
+          }
+          .prn-paper-tile:hover, .prn-paper-tile:focus-visible {
+            background: #fff8dc;
+            border-color: ${C.rule};
+          }
+          .prn-paper-tile:focus-visible { outline: 3px solid var(--aac-yellow); outline-offset: 1px; }
+          .prn-paper-title {
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 700;
+          }
+          .prn-paper-free {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: ${C.green};
+            border: 1px solid ${C.green};
+            padding: 1px 6px;
+          }
+          .prn-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 4px;
+            z-index: 20;
+            width: 220px;
+            background: #ffffe1;
+            border: 1px solid ${C.ink};
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.25);
+            padding: 8px 10px;
+            font-size: 12px;
+            line-height: 1.55;
+            color: ${C.ink};
+            pointer-events: none;
+          }
           .prn-fkey:hover, .prn-fkey:focus-visible { background: ${C.ink}; color: ${C.paper}; outline: 3px solid var(--aac-yellow); outline-offset: -3px; }
           .prn-fkey:last-child { border-right: none; }
           @media (max-width: 600px) {
             .prn-title { font-size: 26px !important; }
             .prn-clock { display: none; }
             .prn-nav { grid-template-columns: repeat(2, 1fr) !important; }
+            .prn-tooltip { width: 180px; }
           }
         `}</style>
       </main>
