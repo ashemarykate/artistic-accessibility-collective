@@ -17,12 +17,12 @@ export const ogdenDowntownAlliance: ReportData = {
   events: [
     {
       name: 'Farmers Market Ogden',
-      when: 'Saturdays May–Sept 2026, Downtown / Historic 25th',
+      when: 'Saturdays May to Sept 2026, Downtown / Historic 25th',
       format: 'Outdoor. Weekly. 100+ vendors. Long duration.',
     },
     {
       name: 'Ogden Arts Festival',
-      when: 'July 18–19, 2026, Ogden Union Station',
+      when: 'July 18 to 19, 2026, Ogden Union Station',
       format: '100+ artists. Live music. Literary/dance performers.',
     },
     {

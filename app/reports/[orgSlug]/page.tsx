@@ -42,7 +42,7 @@ function StatusBadge({ status, label }: { status: AssessmentStatus; label: strin
       padding: '3px 10px', fontSize: 12, fontWeight: 700,
       whiteSpace: 'nowrap',
     }}>
-      {c.icon} {label}
+      <span aria-hidden="true">{c.icon}</span> {label}
     </span>
   );
 }
@@ -115,7 +115,7 @@ function BulletList({
           display: 'flex', gap: 10, marginBottom: 9,
           fontSize: 13.5, lineHeight: 1.65, color: '#1a1a2e',
         }}>
-          <span style={{ color, flexShrink: 0, marginTop: 1, fontWeight: 600 }}>{dot}</span>
+          <span aria-hidden="true" style={{ color, flexShrink: 0, marginTop: 1, fontWeight: 600 }}>{dot}</span>
           <span>{item}</span>
         </li>
       ))}
@@ -171,12 +171,27 @@ function PrintStyles() {
           max-width: 900px;
           margin: 0 auto;
           box-shadow: 0 8px 48px rgba(13,30,74,0.22);
+          /* Responsive tokens, referenced inline by every section, so one
+             breakpoint reflows the whole document instead of overflowing. */
+          --sec-pad: 56px 80px;
+          --cover-pad: 72px 80px 56px;
+          --cols-2: 1fr 1fr;
+          --cols-3: repeat(3, 1fr);
         }
         .print-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
           z-index: 200;
+        }
+      }
+      @media screen and (max-width: 720px) {
+        .report-bg { padding: 0; }
+        .report-doc {
+          --sec-pad: 30px 22px;
+          --cover-pad: 46px 24px 34px;
+          --cols-2: 1fr;
+          --cols-3: 1fr;
         }
       }
     `}</style>
@@ -213,7 +228,7 @@ function Cover({ org }: { org: ReportData['org'] }) {
       {/* Content */}
       <div style={{
         position: 'relative',
-        padding: '72px 80px 56px',
+        padding: 'var(--cover-pad)',
         color: 'white',
         display: 'flex',
         flexDirection: 'column',
@@ -259,6 +274,7 @@ function Cover({ org }: { org: ReportData['org'] }) {
           borderTop: '1px solid rgba(255,255,255,0.08)',
           paddingTop: 20, marginTop: 48,
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          flexWrap: 'wrap', gap: 8,
           fontSize: 11, color: '#7788bb',
         }}>
           <span>Based on public review, {org.assessmentDate}</span>
@@ -271,11 +287,11 @@ function Cover({ org }: { org: ReportData['org'] }) {
 
 function AboutSection() {
   return (
-    <div style={{ padding: '56px 80px', background: '#f6f7fa' }}>
+    <div style={{ padding: 'var(--sec-pad)', background: '#f6f7fa' }}>
       <SectionLabel>About This Document</SectionLabel>
       <SectionHeading>How This Assessment Works</SectionHeading>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 32 }}>
         <div>
           <p style={{ fontSize: 14, lineHeight: 1.8, color: '#1a1a2e', margin: '0 0 16px' }}>
             The Artistic Accessibility Collective (AAC) operates as a free, community-driven resource hub for practitioners at the intersection of accessibility and arts. Our library contains 126 verified free resources across law/policy, captioning, audio description, live events, digital access, Deaf culture/ASL, and disability justice.
@@ -309,7 +325,7 @@ function AboutSection() {
 
 function OrgOverview({ data }: { data: ReportData }) {
   return (
-    <div style={{ padding: '56px 80px', background: 'white' }}>
+    <div style={{ padding: 'var(--sec-pad)', background: 'white' }}>
       <SectionLabel>Organization Overview</SectionLabel>
       <SectionHeading>{data.org.name}</SectionHeading>
 
@@ -317,7 +333,7 @@ function OrgOverview({ data }: { data: ReportData }) {
         {data.org.overview}
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 40 }}>
         <div>
           <div style={{
             fontSize: 10, fontWeight: 800, letterSpacing: '0.12em',
@@ -363,26 +379,27 @@ function OrgOverview({ data }: { data: ReportData }) {
 
 function AssessmentSummary({ areas }: { areas: ReportData['assessmentAreas'] }) {
   return (
-    <div style={{ padding: '56px 80px', background: '#f6f7fa' }}>
+    <div style={{ padding: 'var(--sec-pad)', background: '#f6f7fa' }}>
       <SectionLabel>Assessment Snapshot</SectionLabel>
       <SectionHeading>Current Accessibility Snapshot</SectionHeading>
       <p style={{ fontSize: 13, color: '#4a5478', margin: '0 0 28px' }}>
         Based on public review of website and event pages, May 2026
       </p>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 460 }}>
         <thead>
           <tr style={{ background: '#263590' }}>
-            <th style={{ padding: '12px 16px', textAlign: 'left', color: 'white', fontWeight: 700, width: '38%' }}>
+            <th scope="col" style={{ padding: '12px 16px', textAlign: 'left', color: 'white', fontWeight: 700, width: '38%' }}>
               Access Area
             </th>
-            <th style={{ padding: '12px 16px', textAlign: 'left', color: 'white', fontWeight: 700, width: '34%' }}>
+            <th scope="col" style={{ padding: '12px 16px', textAlign: 'left', color: 'white', fontWeight: 700, width: '34%' }}>
               Key Finding
             </th>
-            <th style={{ padding: '12px 16px', textAlign: 'center', color: 'white', fontWeight: 700, width: '15%' }}>
+            <th scope="col" style={{ padding: '12px 16px', textAlign: 'center', color: 'white', fontWeight: 700, width: '15%' }}>
               Status
             </th>
-            <th style={{ padding: '12px 16px', textAlign: 'center', color: 'white', fontWeight: 700, width: '13%' }}>
+            <th scope="col" style={{ padding: '12px 16px', textAlign: 'center', color: 'white', fontWeight: 700, width: '13%' }}>
               Priority
             </th>
           </tr>
@@ -406,13 +423,14 @@ function AssessmentSummary({ areas }: { areas: ReportData['assessmentAreas'] }) 
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
 
 function AreaSection({ area, bg }: { area: AssessmentArea; bg: string }) {
   return (
-    <div className="page-break" style={{ padding: '56px 80px', background: bg }}>
+    <div className="page-break" style={{ padding: 'var(--sec-pad)', background: bg }}>
       {/* Header */}
       <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 28 }}>
         <div style={{
@@ -451,7 +469,7 @@ function AreaSection({ area, bg }: { area: AssessmentArea; bg: string }) {
       </div>
 
       {/* Two-column: Found + Questions */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 28, marginBottom: 28 }}>
         <div>
           <BlockHeading>What We Found</BlockHeading>
           <BulletList items={area.whatWeFound} color="#4a5478" dot="•" />
@@ -493,16 +511,16 @@ function PriorityPlan({ phases }: { phases: ReportData['priorityPhases'] }) {
   const phaseColors = ['#c0392b', '#b06a00', '#1a7a4a'];
 
   return (
-    <div className="page-break" style={{ padding: '56px 80px', background: '#263590' }}>
+    <div className="page-break" style={{ padding: 'var(--sec-pad)', background: '#263590' }}>
       <SectionLabel>
         <span style={{ color: '#f5d84a' }}>Action Plan</span>
       </SectionLabel>
       <SectionHeading light>Priority Action Plan</SectionHeading>
-      <p style={{ fontSize: 14, color: '#4a5a8a', margin: '0 0 40px', maxWidth: '62ch', lineHeight: 1.7 }}>
+      <p style={{ fontSize: 14, color: '#c3cbe8', margin: '0 0 40px', maxWidth: '62ch', lineHeight: 1.7 }}>
         Not everything needs to happen at once. Below is a phased approach prioritized by legal exposure, community impact, and implementation effort.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-3)', gap: 20 }}>
         {phases.map((phase, i) => (
           <div key={i} style={{ background: 'white', padding: '24px 22px' }}>
             <div style={{
@@ -535,11 +553,11 @@ function PriorityPlan({ phases }: { phases: ReportData['priorityPhases'] }) {
 
 function LegalNotes({ notes }: { notes: ReportData['legalNotes'] }) {
   return (
-    <div className="page-break" style={{ padding: '56px 80px', background: 'white' }}>
+    <div className="page-break" style={{ padding: 'var(--sec-pad)', background: 'white' }}>
       <SectionLabel>Funder & Legal Notes</SectionLabel>
       <SectionHeading>Legal Framework & Compliance</SectionHeading>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 20 }}>
         {notes.map((note, i) => (
           <div key={i} style={{
             padding: '22px 24px',
@@ -569,7 +587,7 @@ function LegalNotes({ notes }: { notes: ReportData['legalNotes'] }) {
 
 function KeyResources({ categories }: { categories: ReportData['keyResources'] }) {
   return (
-    <div className="page-break" style={{ padding: '56px 80px', background: '#f6f7fa' }}>
+    <div className="page-break" style={{ padding: 'var(--sec-pad)', background: '#f6f7fa' }}>
       <SectionLabel>Key Resources</SectionLabel>
       <SectionHeading>Key Resources at a Glance</SectionHeading>
       <p style={{ fontSize: 13, color: '#4a5478', margin: '0 0 36px', lineHeight: 1.7 }}>
@@ -579,7 +597,7 @@ function KeyResources({ categories }: { categories: ReportData['keyResources'] }
         </a>
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 32 }}>
         {categories.map((cat, i) => (
           <div key={i}>
             <div style={{
@@ -632,13 +650,13 @@ function KeyResources({ categories }: { categories: ReportData['keyResources'] }
 function ServicesSection({ services }: { services: ReportData['services'] }) {
   const tiers = [
     { key: 'community' as const,   label: 'Community',      range: 'Under $75K'    },
-    { key: 'small' as const,       label: 'Small Nonprofit', range: '$75K–$250K'   },
-    { key: 'established' as const, label: 'Established',    range: '$250K–$1M'     },
+    { key: 'small' as const,       label: 'Small Nonprofit', range: '$75K to $250K' },
+    { key: 'established' as const, label: 'Established',    range: '$250K to $1M'   },
     { key: 'large' as const,       label: 'Large Org',      range: '$1M+'          },
   ];
 
   return (
-    <div className="page-break" style={{ padding: '56px 80px', background: '#0d1e4a' }}>
+    <div className="page-break" style={{ padding: 'var(--sec-pad)', background: '#0d1e4a' }}>
       <SectionLabel>
         <span style={{ color: '#f5d84a' }}>How We Can Help</span>
       </SectionLabel>
@@ -659,19 +677,19 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
-              <th style={{
+              <th scope="col" style={{
                 padding: '12px 16px', textAlign: 'left',
                 background: '#1a2568', color: 'white', fontWeight: 700, width: '30%',
               }}>
                 Service
               </th>
               {tiers.map(t => (
-                <th key={t.key} style={{
+                <th key={t.key} scope="col" style={{
                   padding: '12px 12px', textAlign: 'center',
                   background: '#1a2568', color: 'white', fontWeight: 700,
                 }}>
                   <div>{t.label}</div>
-                  <div style={{ fontSize: 10, color: '#7788bb', fontWeight: 400 }}>{t.range}</div>
+                  <div style={{ fontSize: 10, color: '#aeb9e2', fontWeight: 400 }}>{t.range}</div>
                 </th>
               ))}
             </tr>
@@ -698,7 +716,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
         </table>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'var(--cols-2)', gap: 20, marginTop: 28 }}>
         <div style={{
           padding: '18px 20px',
           background: 'rgba(245,216,74,0.08)',
@@ -708,7 +726,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
             PRICING NOTE
           </div>
           <p style={{ fontSize: 13, color: '#d8dcf5', margin: 0, lineHeight: 1.7 }}>
-            {"Pricing is based on your organization's total annual operating budget."} Please self-select your tier honestly. Bundled services are discounted 15–20%.
+            {"Pricing is based on your organization's total annual operating budget."} Please self-select your tier honestly. Bundled services are discounted 15 to 20%.
           </p>
         </div>
         <div style={{
@@ -727,7 +745,7 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
           >
             artisticaccessibility.com/contact
           </a>
-          <div style={{ fontSize: 12, color: '#4a5a8a' }}>
+          <div style={{ fontSize: 12, color: '#c3cbe8' }}>
             No pressure. No hard sell. Just access.
           </div>
         </div>
@@ -737,8 +755,9 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
         borderTop: '1px solid rgba(255,255,255,0.07)',
         paddingTop: 20, marginTop: 36,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 12,
       }}>
-        <Logo height={44} />
+        <Logo alt="" height={44} />
         <div style={{ fontSize: 12, color: '#7788bb' }}>
           artisticaccessibility.com &middot;{' '}
           <span style={{ fontFamily: "'AAC Display', Impact, 'Arial Black', sans-serif", fontSize: 13 }}>
@@ -761,7 +780,7 @@ export async function generateMetadata({
   const data = getReportData(orgSlug);
   if (!data) return {};
   return {
-    title: `${data.org.name}: Accessibility Assessment | Artistic Accessibility Collective`,
+    title: `${data.org.name}: Accessibility Assessment · Artistic Accessibility Collective`,
   };
 }
 
