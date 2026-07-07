@@ -9,7 +9,7 @@ import type {
   ReportData,
   Resource,
 } from '@/lib/reports/types';
-import PrintButton from './PrintButton';
+import PrintButton from '@/components/PrintButton';
 
 // PLACEHOLDER display font for report titles while a real display face is chosen.
 // A bold monospace: distinct from the system-ui body, cohesive with the retro
