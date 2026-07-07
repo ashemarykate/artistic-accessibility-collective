@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getStaffingSheet } from '@/lib/staffing/data';
 import type { StaffingSheetData } from '@/lib/staffing/types';
 import PrintButton from '@/components/PrintButton';
+import EditableDocument from '@/components/EditableDocument';
 
 // ─── Shared type + palette ────────────────────────────────────────────────────
 // The purple companion to the assessment report: same design language (wallpaper
@@ -476,13 +477,15 @@ export default async function StaffingSheetPage({
 
       <div className="sheet-bg">
         <div className="sheet-doc">
-          <Cover event={data.event} />
-          <IntroSection event={data.event} />
-          <RatesSection roles={data.roles} validityNote={data.validityNote} />
-          <WhyUsSection whyUs={data.whyUs} />
-          <WhyThisEventSection event={data.event} whyThisEvent={data.whyThisEvent} />
-          <StepsSection steps={data.steps} />
-          <CtaSection />
+          <EditableDocument>
+            <Cover event={data.event} />
+            <IntroSection event={data.event} />
+            <RatesSection roles={data.roles} validityNote={data.validityNote} />
+            <WhyUsSection whyUs={data.whyUs} />
+            <WhyThisEventSection event={data.event} whyThisEvent={data.whyThisEvent} />
+            <StepsSection steps={data.steps} />
+            <CtaSection />
+          </EditableDocument>
         </div>
       </div>
     </>

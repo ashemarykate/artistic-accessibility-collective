@@ -10,6 +10,7 @@ import type {
   Resource,
 } from '@/lib/reports/types';
 import PrintButton from '@/components/PrintButton';
+import EditableDocument from '@/components/EditableDocument';
 
 // PLACEHOLDER display font for report titles while a real display face is chosen.
 // A bold monospace: distinct from the system-ui body, cohesive with the retro
@@ -952,17 +953,19 @@ export default async function ReportPage({
 
       <div className="report-bg">
         <div className="report-doc">
-          <Cover org={data.org} />
-          <AboutSection />
-          <OrgOverview data={data} />
-          <AssessmentSummary areas={data.assessmentAreas} assessmentDate={data.org.assessmentDate} />
-          {data.assessmentAreas.map((area, i) => (
-            <AreaSection key={area.id} area={area} bg={AREA_BG[i % 2]} />
-          ))}
-          <PriorityPlan phases={data.priorityPhases} />
-          <LegalNotes notes={data.legalNotes} />
-          <KeyResources categories={data.keyResources} />
-          <ServicesSection services={data.services} />
+          <EditableDocument>
+            <Cover org={data.org} />
+            <AboutSection />
+            <OrgOverview data={data} />
+            <AssessmentSummary areas={data.assessmentAreas} assessmentDate={data.org.assessmentDate} />
+            {data.assessmentAreas.map((area, i) => (
+              <AreaSection key={area.id} area={area} bg={AREA_BG[i % 2]} />
+            ))}
+            <PriorityPlan phases={data.priorityPhases} />
+            <LegalNotes notes={data.legalNotes} />
+            <KeyResources categories={data.keyResources} />
+            <ServicesSection services={data.services} />
+          </EditableDocument>
         </div>
       </div>
     </>
