@@ -24,9 +24,11 @@ type AdminRow = { user_id: string; email: string | null; role: string; full_name
 type ResourceSubmission = {
   id: string;
   resource_name: string;
-  resource_url: string;
+  resource_url: string | null;
   description: string | null;
   category: string | null;
+  section: string | null;
+  submitter_notes: string | null;
   special_tags: string[];
   submitter_name: string | null;
   submitter_email: string | null;
@@ -857,6 +859,19 @@ const CATEGORY_LABELS: Record<string, string> = {
   'representation':    '📽️ Disability Representation in Media',
   'legal':             '⚖️ Legal & Policy',
   'other':             'Other / Not sure',
+  // The Printer's trays (section='printer' submissions use these as category)
+  'checklists':        '📋 Checklists',
+  'posters':           '🖼️ Posters & Signs',
+  'worksheets':        '📝 Worksheets & Workbooks',
+  'guides':            '📚 Guides & Toolkits',
+};
+
+const SECTION_LABELS: Record<string, string> = {
+  library:       '📚 Library',
+  cinema:        '🎬 Cinema',
+  accessibility: '♿ Resources',
+  printer:       '🖨️ The Printer',
+  general:       'General',
 };
 
 function ResourceSubmissionsPanel({
@@ -887,15 +902,22 @@ function ResourceSubmissionsPanel({
                   <p style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '0.9375rem', marginBottom: '0.125rem' }}>
                     {s.resource_name}
                   </p>
-                  <a
-                    href={s.resource_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: 'var(--aac-blue)', fontSize: '0.8125rem', wordBreak: 'break-all' }}
-                  >
-                    {s.resource_url}
-                  </a>
+                  {s.resource_url && (
+                    <a
+                      href={s.resource_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--aac-blue)', fontSize: '0.8125rem', wordBreak: 'break-all' }}
+                    >
+                      {s.resource_url}
+                    </a>
+                  )}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.375rem' }}>
+                    {s.section && (
+                      <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>
+                        {SECTION_LABELS[s.section] ?? s.section}
+                      </span>
+                    )}
                     {s.category && (
                       <span className="tag tag-blue" style={{ fontSize: '0.75rem' }}>
                         {CATEGORY_LABELS[s.category] ?? s.category}
@@ -910,6 +932,12 @@ function ResourceSubmissionsPanel({
                   {new Date(s.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
+
+              {s.submitter_notes && (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                  <strong>By:</strong> {s.submitter_notes}
+                </p>
+              )}
 
               {s.description && (
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-text)', marginBottom: '0.5rem', lineHeight: 1.5 }}>

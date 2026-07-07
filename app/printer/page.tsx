@@ -18,10 +18,37 @@ const FOLDER_ICON = '/images/desktop-icons/icon-folders.png';
 const PAPER_ICON  = '/images/desktop-icons/icon-57.png';
 const PRINTER_ICON = '/images/desktop-icons/icon-printer.png';
 
+type FormStatus = 'idle' | 'loading' | 'success' | 'error';
+const BLANK_SUGGESTION = { title: '', url: '', tray: '', why: '', name: '', email: '' };
+
 export default function PrinterPage() {
   const [queue, setQueue] = useState('');
   const [dbItems, setDbItems] = useState<(Printable & { tray: string })[]>([]);
   const [tipFor, setTipFor] = useState<string | null>(null);
+  const [suggest, setSuggest] = useState({ ...BLANK_SUGGESTION });
+  const [suggestStatus, setSuggestStatus] = useState<FormStatus>('idle');
+
+  async function handleSuggest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!suggest.title.trim()) return;
+    setSuggestStatus('loading');
+    const { error } = await supabase.from('resource_submissions').insert({
+      resource_name:   suggest.title.trim(),
+      resource_url:    suggest.url.trim() || null,
+      description:     suggest.why.trim() || null,
+      category:        suggest.tray || null,
+      submitter_name:  suggest.name.trim()  || null,
+      submitter_email: suggest.email.trim() || null,
+      section:         'printer',
+      special_tags:    [],
+    });
+    if (error) {
+      setSuggestStatus('error');
+    } else {
+      setSuggestStatus('success');
+      setSuggest({ ...BLANK_SUGGESTION });
+    }
+  }
 
   // Fetch admin-managed printer items and merge with the static trays.
   // A DB item with the same slug as a static one replaces it.
@@ -55,6 +82,27 @@ export default function PrinterPage() {
     const id = setInterval(tick, 30000);
     return () => clearInterval(id);
   }, []);
+
+  const formLabel: React.CSSProperties = {
+    display: 'block',
+    color: C.ink,
+    fontFamily: C.mono,
+    fontWeight: 700,
+    fontSize: 12,
+    letterSpacing: '0.05em',
+    marginBottom: 4,
+  };
+  const formInput: React.CSSProperties = {
+    background: '#fff',
+    border: `1px solid ${C.rule}`,
+    color: C.ink,
+    fontFamily: C.mono,
+    fontSize: 14,
+    padding: '9px 10px',
+    minHeight: 44,
+    width: '100%',
+    boxSizing: 'border-box',
+  };
 
   return (
     <BrowserChrome
@@ -129,12 +177,64 @@ export default function PrinterPage() {
             </details>
           ))}
 
-          {/* Paper-out note: how to add to the print room */}
-          <div style={{ border: `2px dashed ${C.ink}`, background: '#fff', padding: '16px 20px', marginBottom: 18, marginTop: 18 }}>
+          {/* Add paper to the tray: submission form */}
+          <div id="prn-suggest-form" style={{ border: `2px dashed ${C.ink}`, background: '#fff', padding: '18px 20px', marginBottom: 18, marginTop: 18 }}>
             <h2 style={{ margin: '0 0 8px', fontFamily: C.mono, fontSize: 14, letterSpacing: '0.1em' }}>ADD PAPER TO THE TRAY</h2>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7 }}>
-              Made a worksheet, visual story, or checklist others could use? We want it in here. Send it through the suggestion form in <Link href="/library" style={{ color: C.accent }}>The Library</Link> or the <Link href="/contact" style={{ color: C.accent }}>contact page</Link> and note that it is for The Printer. Member PDF uploads are coming in a future round.
+            <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.7 }}>
+              Made a worksheet, visual story, or checklist others could use, or found something free and print-friendly that belongs here? Send it in. Suggestions are reviewed by the AAC team before they&apos;re added to a tray. Member PDF uploads are coming in a future round.
             </p>
+
+            {suggestStatus === 'success' ? (
+              <div role="status" aria-live="polite" style={{ color: C.green, fontSize: 14, padding: '4px 0', fontWeight: 700 }}>
+                ▶ SUBMISSION RECEIVED. Thank you, we&apos;ll take a look and add it to a tray.
+              </div>
+            ) : (
+              <form onSubmit={handleSuggest} noValidate style={{ display: 'grid', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="prn-form-grid-2">
+                  <div>
+                    <label htmlFor="ps-title" style={formLabel}>DOCUMENT TITLE <span aria-hidden="true">*</span><span className="sr-only">(required)</span></label>
+                    <input id="ps-title" type="text" value={suggest.title} onChange={(e) => setSuggest((s) => ({ ...s, title: e.target.value }))} placeholder="What's it called?" required disabled={suggestStatus === 'loading'} style={formInput} className="prn-form-input" />
+                  </div>
+                  <div>
+                    <label htmlFor="ps-url" style={formLabel}>LINK TO IT <span style={{ opacity: 0.65, fontWeight: 400 }}>(optional)</span></label>
+                    <input id="ps-url" type="url" value={suggest.url} onChange={(e) => setSuggest((s) => ({ ...s, url: e.target.value }))} placeholder="https://" disabled={suggestStatus === 'loading'} style={formInput} className="prn-form-input" />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="ps-tray" style={formLabel}>WHICH TRAY? <span style={{ opacity: 0.65, fontWeight: 400 }}>(optional, we&apos;ll double check)</span></label>
+                  <select id="ps-tray" value={suggest.tray} onChange={(e) => setSuggest((s) => ({ ...s, tray: e.target.value }))} disabled={suggestStatus === 'loading'} style={{ ...formInput, background: '#fff' }} className="prn-form-input">
+                    <option value="">Not sure</option>
+                    {TRAYS.map((t) => (
+                      <option key={t.id} value={t.id}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="ps-why" style={formLabel}>WHY DOES THIS BELONG HERE? <span style={{ opacity: 0.65, fontWeight: 400 }}>(optional)</span></label>
+                  <textarea id="ps-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Who would print this, and what would they use it for?" rows={3} disabled={suggestStatus === 'loading'} style={{ ...formInput, resize: 'vertical', lineHeight: 1.6 }} className="prn-form-input" />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="prn-form-grid-2">
+                  <div>
+                    <label htmlFor="ps-name" style={formLabel}>YOUR NAME <span style={{ opacity: 0.65, fontWeight: 400 }}>(optional)</span></label>
+                    <input id="ps-name" type="text" value={suggest.name} onChange={(e) => setSuggest((s) => ({ ...s, name: e.target.value }))} placeholder="Optional" disabled={suggestStatus === 'loading'} style={formInput} className="prn-form-input" />
+                  </div>
+                  <div>
+                    <label htmlFor="ps-email" style={formLabel}>YOUR EMAIL <span style={{ opacity: 0.65, fontWeight: 400 }}>(optional)</span></label>
+                    <input id="ps-email" type="email" value={suggest.email} onChange={(e) => setSuggest((s) => ({ ...s, email: e.target.value }))} placeholder="Optional" disabled={suggestStatus === 'loading'} style={formInput} className="prn-form-input" />
+                  </div>
+                </div>
+
+                <div style={{ paddingTop: 2 }}>
+                  <button type="submit" disabled={suggestStatus === 'loading' || !suggest.title.trim()} className="prn-submit-btn">
+                    {suggestStatus === 'loading' ? 'SENDING…' : '🖨️ Send to the Print Room'}
+                  </button>
+                </div>
+                {suggestStatus === 'error' && <p role="alert" style={{ color: '#c0392b', fontSize: 13, margin: 0 }}>▶ ERROR: Something went wrong. Please try again.</p>}
+              </form>
+            )}
           </div>
 
           {/* Nav bar */}
@@ -229,11 +329,28 @@ export default function PrinterPage() {
           }
           .prn-fkey:hover, .prn-fkey:focus-visible { background: ${C.ink}; color: ${C.paper}; outline: 3px solid var(--aac-yellow); outline-offset: -3px; }
           .prn-fkey:last-child { border-right: none; }
+          .prn-form-input:focus-visible { outline: 3px solid var(--aac-yellow); outline-offset: 1px; }
+          .prn-submit-btn {
+            font-family: ${C.mono};
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: ${C.paper};
+            background: ${C.accent};
+            border: 2px solid ${C.ink};
+            padding: 10px 18px;
+            min-height: 44px;
+            cursor: pointer;
+          }
+          .prn-submit-btn:hover:not(:disabled) { background: #1a2568; }
+          .prn-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+          .prn-submit-btn:focus-visible { outline: 3px solid var(--aac-yellow); outline-offset: 2px; }
           @media (max-width: 600px) {
             .prn-title { font-size: 26px !important; }
             .prn-clock { display: none; }
             .prn-nav { grid-template-columns: repeat(2, 1fr) !important; }
             .prn-tooltip { width: 180px; }
+            .prn-form-grid-2 { grid-template-columns: 1fr !important; }
           }
         `}</style>
       </main>
