@@ -7,7 +7,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins' | 'back-of-house';
+
+type BohNote = {
+  id: string;
+  author_user_id: string | null;
+  author_name: string | null;
+  body: string;
+  color: string;
+  stickers: string[];
+  created_at: string;
+};
 
 type AdminRow = { user_id: string; email: string | null; role: string; full_name: string | null };
 
@@ -324,18 +334,33 @@ export default function AdminDashboard() {
     (p) => (p.profile_version ?? 1) < REQUIRED_PROFILE_VERSION
   );
 
-  const tabs: { id: Tab; label: string; count?: number }[] = [
-    { id: 'pending', label: 'Pending', count: pendingProfiles.length },
-    { id: 'approved', label: 'Approved', count: approvedProfiles.length },
-    { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
-    { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
-    { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
-    { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
-    { id: 'content', label: 'Content' },
-    { id: 'events', label: 'Events', count: events.filter(e => e.is_visible).length },
-    { id: 'resource-contacts', label: 'Resource Contacts' },
-    ...(isSuperAdmin ? [{ id: 'admins' as Tab, label: 'Admins', count: admins.length }] : []),
+  const tabGroups: { label: string; tabs: { id: Tab; label: string; count?: number }[] }[] = [
+    {
+      label: 'The Collective',
+      tabs: [
+        { id: 'pending', label: 'Pending', count: pendingProfiles.length },
+        { id: 'approved', label: 'Approved', count: approvedProfiles.length },
+        { id: 'rejected', label: 'Rejected', count: rejectedProfiles.length },
+        { id: 'invite-codes', label: 'Invite Codes', count: inviteCodes.filter((c) => !c.used).length },
+        { id: 'feedback', label: 'Feedback', count: feedbackEntries.length },
+        ...(isSuperAdmin ? [{ id: 'admins' as Tab, label: 'Admins', count: admins.length }] : []),
+      ],
+    },
+    {
+      label: 'Website Content',
+      tabs: [
+        { id: 'content', label: 'Page Content' },
+        { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
+        { id: 'events', label: 'Events', count: events.filter(e => e.is_visible).length },
+        { id: 'resource-contacts', label: 'Resource Contacts' },
+      ],
+    },
+    {
+      label: 'Back of House',
+      tabs: [{ id: 'back-of-house', label: 'The Corkboard' }],
+    },
   ];
+  const tabs = tabGroups.flatMap((g) => g.tabs);
 
   if (accessError) {
     return (
@@ -395,50 +420,80 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tab nav */}
-        <div
-          role="tablist"
-          aria-label="Admin sections"
-          style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}
-        >
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.id}
-              id={`tab-${tab.id}`}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`panel-${tab.id}`}
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              ref={(el) => { tabRefs.current[index] = el; }}
-              onClick={() => setActiveTab(tab.id)}
-              onKeyDown={(e) => handleTabKeyDown(e, index)}
-              className="btn btn-sm"
-              style={{
-                background: activeTab === tab.id ? 'var(--aac-blue)' : 'var(--aac-white)',
-                color: activeTab === tab.id ? 'var(--aac-white)' : 'var(--aac-blue)',
-                border: '1px solid var(--ms-border)',
-                fontWeight: activeTab === tab.id ? 700 : 500,
-              }}
-            >
-              {tab.label}
-              {tab.count != null && (
-                <span
-                  style={{
-                    marginLeft: '0.375rem',
-                    background: activeTab === tab.id ? 'rgba(255,255,255,0.25)' : 'var(--aac-blue)',
-                    color: 'var(--aac-white)',
-                    borderRadius: '999px',
-                    padding: '0 6px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                  }}
-                  aria-label={`${tab.count} ${tab.label.toLowerCase()}`}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
+        {/* Grouped tab nav: a little retro control panel */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'stretch' }}>
+          {tabGroups.map((group) => {
+            const isBoh = group.label === 'Back of House';
+            return (
+              <section
+                key={group.label}
+                aria-label={group.label}
+                style={{
+                  border: `1px solid ${isBoh ? '#c9a227' : 'var(--ms-border)'}`,
+                  background: isBoh ? '#fff9dd' : 'var(--aac-white)',
+                  boxShadow: '2px 2px 0 rgba(13,30,74,0.15)',
+                  padding: '0.5rem 0.625rem 0.625rem',
+                  flex: '1 1 auto',
+                }}
+              >
+                <p style={{
+                  margin: '0 0 0.375rem',
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: isBoh ? '#8a6d1a' : 'var(--color-text-muted)',
+                }}>
+                  {isBoh ? '📌 ' : ''}{group.label}
+                </p>
+                <div role="tablist" aria-label={`${group.label} sections`} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {group.tabs.map((tab, groupIndex) => {
+                    const index = tabs.findIndex((t) => t.id === tab.id);
+                    const groupHasActive = group.tabs.some((t) => t.id === activeTab);
+                    const focusable = activeTab === tab.id || (!groupHasActive && groupIndex === 0);
+                    return (
+                      <button
+                        key={tab.id}
+                        id={`tab-${tab.id}`}
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls={`panel-${tab.id}`}
+                        tabIndex={focusable ? 0 : -1}
+                        ref={(el) => { tabRefs.current[index] = el; }}
+                        onClick={() => setActiveTab(tab.id)}
+                        onKeyDown={(e) => handleTabKeyDown(e, index)}
+                        className="btn btn-sm"
+                        style={{
+                          background: activeTab === tab.id ? 'var(--aac-blue)' : isBoh ? '#fdf1b8' : 'var(--aac-white)',
+                          color: activeTab === tab.id ? 'var(--aac-white)' : 'var(--aac-blue)',
+                          border: `1px solid ${isBoh ? '#c9a227' : 'var(--ms-border)'}`,
+                          fontWeight: activeTab === tab.id ? 700 : 500,
+                        }}
+                      >
+                        {tab.label}
+                        {tab.count != null && (
+                          <span
+                            style={{
+                              marginLeft: '0.375rem',
+                              background: activeTab === tab.id ? 'rgba(255,255,255,0.25)' : 'var(--aac-blue)',
+                              color: 'var(--aac-white)',
+                              borderRadius: '999px',
+                              padding: '0 6px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                            }}
+                            aria-label={`${tab.count} ${tab.label.toLowerCase()}`}
+                          >
+                            {tab.count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
 
         {/* Panels */}
@@ -720,6 +775,12 @@ export default function AdminDashboard() {
                 </ul>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'back-of-house' && (
+          <div id="panel-back-of-house" role="tabpanel" aria-labelledby="tab-back-of-house">
+            <BackOfHousePanel />
           </div>
         )}
 
@@ -1669,7 +1730,7 @@ function ProfileList({
 // Manage Library, Cinema, and Accessibility Resources items in the DB.
 // DB items appear on the public pages alongside (and can override) static items.
 
-type ContentSection = 'library' | 'cinema' | 'accessibility';
+type ContentSection = 'library' | 'cinema' | 'accessibility' | 'printer';
 
 type ContentItem = {
   id: string;
@@ -1711,10 +1772,13 @@ const BLANK_ITEM = {
 const LIBRARY_TYPES  = ['book','essay','article','journal','zine','workbook','anthology','standard','blog','toolkit'];
 const CINEMA_TYPES   = ['documentary','film','short-film','podcast','series','talk','video-essay','performance-recording'];
 const ACCESS_TYPES   = ['standard','tool','guide','org','media','course'];
+const PRINTER_TYPES  = ['checklist','poster','worksheet','guide'];
 
 const LIBRARY_CATS   = ['foundations-classics','disability-justice','deaf-culture-asl','captioning-ad','producing-arts-access','policy-legal','creative-disability','memoirs-firstperson','academic-theory','toolkits-working'];
 const CINEMA_CATS    = ['documentaries','performance','short-film','podcasts','series-tv','narrative-film','talks-lectures','festival-recent'];
 const ACCESS_CATS    = ['law-policy','captioning','audio-description','asl-interpretation','theater-live-events','film-media-production','digital-web','disability-justice-arts','funding-organizations','training-education'];
+// Printer categories are the trays on /printer
+const PRINTER_CATS   = ['checklists','posters','worksheets','guides'];
 
 type ItemFormValues = typeof BLANK_ITEM;
 
@@ -1761,7 +1825,7 @@ function ItemForm({
   return (
     <form onSubmit={handleSave} style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 6, padding: '1.25rem', marginBottom: '1.5rem' }} noValidate>
       <h3 style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '1rem' }}>
-        {editingId ? 'Edit Item' : `Add New ${section === 'library' ? 'Library' : section === 'cinema' ? 'Cinema' : 'Accessibility'} Item`}
+        {editingId ? 'Edit Item' : `Add New ${section === 'library' ? 'Library' : section === 'cinema' ? 'Cinema' : section === 'printer' ? 'Printer' : 'Accessibility'} Item`}
       </h3>
 
       {/* Title + Slug */}
@@ -1777,10 +1841,10 @@ function ItemForm({
       </div>
 
       {/* Author (Library) / Director + Creator (Cinema) */}
-      {section === 'library' && (
+      {(section === 'library' || section === 'printer') && (
         <div style={row}>
-          <label style={label} htmlFor="cf-author">Author <span style={{ color: 'red' }}>*</span></label>
-          <input id="cf-author" style={inp} value={form.author} onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))} />
+          <label style={label} htmlFor="cf-author">{section === 'printer' ? 'Source organization' : 'Author'} <span style={{ color: 'red' }}>*</span></label>
+          <input id="cf-author" style={inp} value={form.author} onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))} placeholder={section === 'printer' ? 'e.g. Sins Invalid' : undefined} />
         </div>
       )}
       {section === 'cinema' && (
@@ -1856,10 +1920,10 @@ function ItemForm({
         <input id="cf-tags" style={inp} value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))} placeholder="Disabled Voice, Deaf-Centered, Free" />
       </div>
 
-      {/* Library: Format */}
-      {section === 'library' && (
+      {/* Library / Printer: Format */}
+      {(section === 'library' || section === 'printer') && (
         <div style={row}>
-          <label style={label} htmlFor="cf-fmt">Format <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(comma-separated, e.g. PDF, Web, Audiobook)</span></label>
+          <label style={label} htmlFor="cf-fmt">Format <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>{section === 'printer' ? '(e.g. PDF, or Web page (print friendly))' : '(comma-separated, e.g. PDF, Web, Audiobook)'}</span></label>
           <input id="cf-fmt" style={inp} value={form.format_list} onChange={(e) => setForm((f) => ({ ...f, format_list: e.target.value }))} />
         </div>
       )}
@@ -1891,9 +1955,9 @@ function ItemForm({
       )}
 
       {/* Accessibility Resources: Location */}
-      {section === 'accessibility' && (
+      {(section === 'accessibility' || section === 'printer') && (
         <div style={row}>
-          <label style={label} htmlFor="cf-loc">Location / jurisdiction <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional, e.g. United States)</span></label>
+          <label style={label} htmlFor="cf-loc">{section === 'printer' ? 'Pages note' : 'Location / jurisdiction'} <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>{section === 'printer' ? '(optional, e.g. One page, 6 posters)' : '(optional, e.g. United States)'}</span></label>
           <input id="cf-loc" style={inp} value={form.location_note} onChange={(e) => setForm((f) => ({ ...f, location_note: e.target.value }))} />
         </div>
       )}
@@ -2066,22 +2130,22 @@ function ContentManagementPanel() {
     fetchItems(section);
   };
 
-  const typesForSection = section === 'library' ? LIBRARY_TYPES : section === 'cinema' ? CINEMA_TYPES : ACCESS_TYPES;
-  const catsForSection  = section === 'library' ? LIBRARY_CATS  : section === 'cinema' ? CINEMA_CATS  : ACCESS_CATS;
+  const typesForSection = section === 'library' ? LIBRARY_TYPES : section === 'cinema' ? CINEMA_TYPES : section === 'printer' ? PRINTER_TYPES : ACCESS_TYPES;
+  const catsForSection  = section === 'library' ? LIBRARY_CATS  : section === 'cinema' ? CINEMA_CATS  : section === 'printer' ? PRINTER_CATS  : ACCESS_CATS;
 
   return (
     <div>
       {/* Section tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {(['library', 'cinema', 'accessibility'] as ContentSection[]).map((s) => (
+          {(['library', 'cinema', 'accessibility', 'printer'] as ContentSection[]).map((s) => (
             <button
               key={s}
               onClick={() => switchSection(s)}
               className={`btn btn-sm ${section === s ? 'btn-primary' : 'btn-ghost'}`}
               style={{ textTransform: 'capitalize' }}
             >
-              {s === 'library' ? '📚 Library' : s === 'cinema' ? '🎬 Cinema' : '♿ Accessibility Resources'}
+              {s === 'library' ? '📚 Library' : s === 'cinema' ? '🎬 Cinema' : s === 'printer' ? '🖨️ The Printer' : '♿ Accessibility Resources'}
             </button>
           ))}
         </div>
@@ -2180,6 +2244,291 @@ function ContentManagementPanel() {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+// ── Back of House: the admin corkboard ───────────────────────────────────────
+// A private board where admins leave each other sticky notes and stickers.
+// Nothing here is ever visible to members or the public (RLS, migration v32).
+
+const NOTE_COLORS: Record<string, { bg: string; edge: string; label: string }> = {
+  yellow: { bg: '#fff9b1', edge: '#e8d96a', label: 'Sunny yellow' },
+  pink:   { bg: '#ffd6e7', edge: '#f0a8c4', label: 'Bubblegum pink' },
+  blue:   { bg: '#cfe8ff', edge: '#93c4ec', label: 'Sky blue' },
+  green:  { bg: '#d9f5c8', edge: '#a4d488', label: 'Mint green' },
+};
+
+const STICKER_CHOICES = ['⭐', '❤️', '🌈', '✨', '🎨', '☕', '🌸', '👏', '🏆', '🫶', '🦋', '🍩'];
+
+// Deterministic little tilt per note so the board looks hand-pinned
+// but never shifts between renders.
+function noteTilt(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997;
+  return ((h % 5) - 2) * 0.8; // -1.6deg to 1.6deg
+}
+
+function BackOfHousePanel() {
+  const [notes, setNotes]           = useState<BohNote[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [body, setBody]             = useState('');
+  const [color, setColor]           = useState('yellow');
+  const [posting, setPosting]       = useState(false);
+  const [statusMsg, setStatusMsg]   = useState('');
+  const [errMsg, setErrMsg]         = useState('');
+  const [me, setMe]                 = useState<{ id: string; name: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [stickerPickerFor, setStickerPickerFor] = useState<string | null>(null);
+
+  const fetchNotes = async () => {
+    const { data, error } = await supabase
+      .from('back_of_house_notes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      setErrMsg('Could not load the corkboard. Has migration v32 been run?');
+    } else {
+      setNotes((data ?? []) as BohNote[]);
+      setErrMsg('');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    queueMicrotask(async () => {
+      const user = await getSessionUser();
+      if (user) {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('display_name, full_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setMe({ id: user.id, name: prof?.display_name || prof?.full_name || user.email || 'An admin' });
+      }
+      fetchNotes();
+    });
+  }, []);
+
+  const handlePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!body.trim() || !me) return;
+    setPosting(true);
+    setErrMsg('');
+    const { error } = await supabase.from('back_of_house_notes').insert({
+      author_user_id: me.id,
+      author_name: me.name,
+      body: body.trim(),
+      color,
+      stickers: [],
+    });
+    setPosting(false);
+    if (error) {
+      setErrMsg('Could not pin your note. Please try again.');
+    } else {
+      setBody('');
+      setStatusMsg('Note pinned to the board.');
+      fetchNotes();
+    }
+  };
+
+  const handleAddSticker = async (note: BohNote, sticker: string) => {
+    setStickerPickerFor(null);
+    const next = [...(note.stickers ?? []), sticker];
+    // Optimistic so the sticker lands instantly
+    setNotes((prev) => prev.map((n) => (n.id === note.id ? { ...n, stickers: next } : n)));
+    const { error } = await supabase.from('back_of_house_notes').update({ stickers: next }).eq('id', note.id);
+    if (error) fetchNotes();
+    else setStatusMsg(`Sticker added to ${note.author_name || 'the'} note.`);
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeleteConfirm(null);
+    const { error } = await supabase.from('back_of_house_notes').delete().eq('id', id);
+    if (!error) {
+      setStatusMsg('Note taken down.');
+      fetchNotes();
+    }
+  };
+
+  const fmtWhen = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+    ' · ' +
+    new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
+  return (
+    <div>
+      {/* The corkboard frame */}
+      <div style={{
+        background: 'repeating-linear-gradient(45deg, #b98a5a, #b98a5a 6px, #b38352 6px, #b38352 12px)',
+        border: '6px solid #7a5230',
+        boxShadow: 'inset 0 0 24px rgba(60,35,10,0.45), 2px 2px 0 rgba(13,30,74,0.2)',
+        padding: '1.25rem',
+      }}>
+        {/* Board header plaque */}
+        <div style={{
+          background: '#f4e9d2', border: '2px solid #7a5230', display: 'inline-block',
+          padding: '0.375rem 1rem', marginBottom: '1rem', boxShadow: '1px 2px 3px rgba(60,35,10,0.4)',
+        }}>
+          <h2 className="font-display" style={{ margin: 0, fontSize: '1.25rem', color: '#5a3a1a', letterSpacing: '0.04em' }}>
+            Back of House
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: '#7a5230' }}>
+            Admins only. Leave a note, stick a sticker, say hi.
+          </p>
+        </div>
+
+        {/* Composer: a fresh sticky note */}
+        <form onSubmit={handlePost} style={{
+          background: NOTE_COLORS[color].bg,
+          borderBottom: `4px solid ${NOTE_COLORS[color].edge}`,
+          boxShadow: '2px 3px 5px rgba(60,35,10,0.35)',
+          padding: '0.875rem',
+          maxWidth: 420,
+          marginBottom: '1.25rem',
+        }} noValidate>
+          <label htmlFor="boh-body" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: '#4a3a10', marginBottom: '0.375rem' }}>
+            Leave a note for the team
+          </label>
+          <textarea
+            id="boh-body"
+            rows={3}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            maxLength={500}
+            placeholder="Coffee is on me this week. Also: 3 new profiles waiting!"
+            style={{
+              width: '100%', boxSizing: 'border-box', border: '1px dashed rgba(0,0,0,0.25)',
+              background: 'transparent', fontFamily: 'inherit', fontSize: '0.9375rem',
+              padding: '0.5rem', resize: 'vertical',
+            }}
+          />
+          <fieldset style={{ border: 'none', margin: '0.5rem 0 0.75rem', padding: 0 }}>
+            <legend style={{ fontSize: '0.75rem', fontWeight: 700, color: '#4a3a10', padding: 0, marginBottom: '0.25rem' }}>
+              Note color
+            </legend>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {Object.entries(NOTE_COLORS).map(([key, c]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setColor(key)}
+                  aria-label={c.label}
+                  aria-pressed={color === key}
+                  style={{
+                    width: 44, height: 44, background: c.bg, cursor: 'pointer',
+                    border: color === key ? '3px solid var(--aac-blue)' : `1px solid ${c.edge}`,
+                  }}
+                />
+              ))}
+            </div>
+          </fieldset>
+          <button type="submit" className="btn btn-primary btn-sm" disabled={posting || !body.trim() || !me}>
+            {posting ? 'Pinning…' : '📌 Pin it'}
+          </button>
+        </form>
+
+        {errMsg && <p role="alert" style={{ background: '#fce4e4', border: '1px solid #f5c6c6', color: '#8c2020', padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}>{errMsg}</p>}
+        <p role="status" aria-live="polite" className="sr-only">{statusMsg}</p>
+
+        {/* The notes */}
+        {loading ? (
+          <p style={{ color: '#f4e9d2', fontSize: '0.875rem' }}>Loading the board…</p>
+        ) : notes.length === 0 && !errMsg ? (
+          <p style={{ color: '#f4e9d2', fontSize: '0.9375rem', textShadow: '1px 1px 2px rgba(60,35,10,0.6)' }}>
+            The board is empty. Pin the first note!
+          </p>
+        ) : (
+          <ul style={{
+            listStyle: 'none', padding: 0, margin: 0,
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '1.25rem',
+          }}>
+            {notes.map((note) => {
+              const c = NOTE_COLORS[note.color] ?? NOTE_COLORS.yellow;
+              return (
+                <li key={note.id} style={{
+                  background: c.bg,
+                  borderBottom: `4px solid ${c.edge}`,
+                  boxShadow: '2px 3px 5px rgba(60,35,10,0.35)',
+                  padding: '1.375rem 0.875rem 0.75rem',
+                  transform: `rotate(${noteTilt(note.id)}deg)`,
+                  position: 'relative',
+                  display: 'flex', flexDirection: 'column',
+                }}>
+                  {/* Pushpin */}
+                  <span aria-hidden="true" style={{
+                    position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)',
+                    width: 14, height: 14, borderRadius: '50%',
+                    background: 'radial-gradient(circle at 35% 30%, #ff8a8a, #c0392b 70%)',
+                    boxShadow: '1px 2px 2px rgba(60,35,10,0.5)',
+                  }} />
+                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.9375rem', lineHeight: 1.5, color: '#2b2415', whiteSpace: 'pre-wrap', flex: 1 }}>
+                    {note.body}
+                  </p>
+                  {(note.stickers?.length ?? 0) > 0 && (
+                    <p style={{ margin: '0 0 0.375rem', fontSize: '1.125rem', letterSpacing: '0.1em' }} aria-label={`Stickers: ${note.stickers.join(' ')}`}>
+                      {note.stickers.join(' ')}
+                    </p>
+                  )}
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b5a2a', fontStyle: 'italic' }}>
+                    {note.author_name || 'An admin'} · {fmtWhen(note.created_at)}
+                  </p>
+
+                  {/* Note actions */}
+                  {deleteConfirm === note.id ? (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8c2020' }}>Take this note down?</span>
+                      <button onClick={() => handleDelete(note.id)} className="btn btn-sm" style={{ background: '#c0392b', color: '#fff', border: 'none' }}>Yes</button>
+                      <button onClick={() => setDeleteConfirm(null)} className="btn btn-ghost btn-sm">No</button>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => setStickerPickerFor(stickerPickerFor === note.id ? null : note.id)}
+                        className="btn btn-ghost btn-sm"
+                        aria-expanded={stickerPickerFor === note.id}
+                        aria-label={`Add a sticker to note from ${note.author_name || 'an admin'}`}
+                        style={{ background: 'rgba(255,255,255,0.55)' }}
+                      >
+                        + Sticker
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(note.id)}
+                        className="btn btn-ghost btn-sm"
+                        aria-label={`Take down note from ${note.author_name || 'an admin'}`}
+                        style={{ background: 'rgba(255,255,255,0.55)', color: '#8c2020' }}
+                      >
+                        Take down
+                      </button>
+                    </div>
+                  )}
+                  {stickerPickerFor === note.id && (
+                    <div role="group" aria-label="Pick a sticker" style={{
+                      marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem',
+                      background: 'rgba(255,255,255,0.75)', border: '1px dashed rgba(0,0,0,0.25)', padding: '0.375rem',
+                    }}>
+                      {STICKER_CHOICES.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => handleAddSticker(note, s)}
+                          aria-label={`Add ${s} sticker`}
+                          style={{ fontSize: '1.25rem', background: 'none', border: 'none', cursor: 'pointer', width: 44, height: 44 }}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.75rem' }}>
+        This board is only visible to admins. Notes stay up until someone takes them down.
+      </p>
     </div>
   );
 }

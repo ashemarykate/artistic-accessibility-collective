@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import { supabase } from '@/lib/supabase';
 
 // ── The Printer ────────────────────────────────────────────────────────────────
 // A shared print room: printable checklists, posters, worksheets, and guides.
@@ -138,10 +139,46 @@ const TRAYS: Tray[] = [
   },
 ];
 
-const TOTAL = TRAYS.reduce((n, t) => n + t.items.length, 0);
+// ── Map a resources DB row (section='printer') → Printable + its tray ────────
+// Admins manage these at /admin → Website Content → Page Content → The Printer.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function dbRowToPrintable(row: any): Printable & { tray: string } {
+  return {
+    slug:        row.slug ?? row.id,
+    title:       row.title ?? '',
+    source:      row.author ?? '',
+    description: row.description ?? '',
+    url:         row.url ?? '',
+    format:      (row.format_list ?? []).join(', ') || 'PDF',
+    pagesNote:   row.location_note ?? undefined,
+    tray:        row.category ?? 'guides',
+  };
+}
 
 export default function PrinterPage() {
   const [queue, setQueue] = useState('');
+  const [dbItems, setDbItems] = useState<(Printable & { tray: string })[]>([]);
+
+  // Fetch admin-managed printer items and merge with the static trays.
+  // A DB item with the same slug as a static one replaces it.
+  useEffect(() => {
+    supabase
+      .from('resources')
+      .select('*')
+      .eq('section', 'printer')
+      .eq('status', 'approved')
+      .then(({ data }) => {
+        if (data?.length) setDbItems(data.map(dbRowToPrintable));
+      });
+  }, []);
+
+  const trays = useMemo<Tray[]>(() => TRAYS.map((tray) => {
+    const fromDb = dbItems.filter((i) => i.tray === tray.id);
+    const dbSlugs = new Set(fromDb.map((i) => i.slug));
+    return { ...tray, items: [...tray.items.filter((i) => !dbSlugs.has(i.slug)), ...fromDb] };
+  }), [dbItems]);
+
+  const total = trays.reduce((n, t) => n + t.items.length, 0);
 
   useEffect(() => {
     document.title = 'The Printer · Artistic Accessibility Collective';
@@ -179,7 +216,7 @@ export default function PrinterPage() {
               THE PRINTER
             </div>
             <div style={{ fontSize: 13, color: C.accent, letterSpacing: '0.05em' }}>
-              READY · {TOTAL} DOCUMENTS LOADED · TONER OK
+              READY · {total} DOCUMENTS LOADED · TONER OK
             </div>
             <p style={{ margin: '12px 0 0', fontSize: 14, lineHeight: 1.7 }}>
               A shared print room of checklists, posters, worksheets, and guides worth putting on real paper. Everything links to a legal, free source. Pick a tray, hit print, and pass copies around.
@@ -187,7 +224,7 @@ export default function PrinterPage() {
           </div>
 
           {/* Trays */}
-          {TRAYS.map((tray) => (
+          {trays.map((tray) => (
             <section key={tray.id} aria-labelledby={`tray-${tray.id}`} style={{ marginBottom: 18 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10, padding: '8px 14px', background: C.ink, color: C.paper }}>
                 <h2 id={`tray-${tray.id}`} style={{ margin: 0, fontFamily: C.mono, fontSize: 14, fontWeight: 700, letterSpacing: '0.1em' }}>
