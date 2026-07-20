@@ -546,13 +546,13 @@ export default function ResourcesPage() {
             <h1 className="sr-only">Free Resource Directory · Artistic Accessibility Collective</h1>
 
             {/* Marquee */}
-            <MarqueeStrip text="✦ ALL RESOURCES ARE FREE ✦ NO SUBSCRIPTIONS ✦ NO PAYWALLS ✦ BY THE COMMUNITY, FOR THE COMMUNITY ✦ VERIFIED MAY 2026 ✦" />
+            <MarqueeStrip text="✦ ALL RESOURCES ARE FREE ✦ NO SUBSCRIPTIONS ✦ NO PAYWALLS ✦ BY THE COMMUNITY, FOR THE COMMUNITY ✦ VERIFIED JULY 2026 ✦" />
 
             {/* Page header */}
             <div style={{ borderBottom: `2px solid ${NP.gold}`, padding: '1.25rem 1rem 1rem', maxWidth: '860px', margin: '0 auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '4px' }}>
                 <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
-                  Free Resource Directory · May 2026 ·
+                  Free Resource Directory · July 2026 ·
                 </p>
                 <Odometer n={totalCount} />
                 <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
