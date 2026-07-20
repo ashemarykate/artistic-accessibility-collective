@@ -13,7 +13,6 @@
  */
 
 import React from 'react';
-import MobileDock from './MobileDock';
 
 export type BrowserVariant = 'mosaic' | 'netscape' | 'ie3' | 'aol';
 
@@ -193,9 +192,11 @@ export default function BrowserChrome({
   return (
     <>
       {/* ── Desktop / outer frame ──────────────────────────────────────────── */}
+      {/* Bottom stops short by --startbar-h so the persistent site taskbar
+          (components/StartBar) never covers the browser window. */}
       <div
         style={{
-          position: 'fixed', inset: 0,
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 'var(--startbar-h, 0px)',
           background: desktopBg ?? T.desktop,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '10px',
@@ -353,14 +354,7 @@ export default function BrowserChrome({
         </div>
       </div>
 
-      {/* Member pages (AOL chrome) get the phone-only bottom taskbar */}
-      {variant === 'aol' && <MobileDock />}
-
       <style>{`
-        ${variant === 'aol' ? `@media (max-width: 640px) {
-          /* keep scrolled content clear of the fixed bottom dock */
-          #browser-content { padding-bottom: 70px; }
-        }` : ''}
         /* Small screens: drop the decorative menu bar and address bar so the
            working Back / Fwd / Home buttons sit on one clean row */
         @media (max-width: 560px) {

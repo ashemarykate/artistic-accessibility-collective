@@ -5,6 +5,7 @@ export const viewport: Viewport = {
 };
 import "./globals.css";
 import { DevAutoLogin } from "@/components/DevAutoLogin";
+import StartBar from "@/components/StartBar";
 
 export const metadata: Metadata = {
   title: "Artistic Accessibility Collective",
@@ -37,6 +38,7 @@ export default function RootLayout({
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
+        <StartBar />
       </body>
     </html>
   );

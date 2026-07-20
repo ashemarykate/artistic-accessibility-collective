@@ -59,7 +59,7 @@ export default function LearningHubPage() {
       className="hub-outer"
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0, left: 0, right: 0, bottom: 'var(--startbar-h, 0px)',
         background: '#0a0a1a',
         overflow: 'hidden',
         fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
@@ -72,6 +72,7 @@ export default function LearningHubPage() {
             position: static !important;
             min-height: 100dvh !important;
             overflow: auto !important;
+            padding-bottom: var(--startbar-h, 0px) !important;
           }
         }
         @keyframes hub-boot-fade {

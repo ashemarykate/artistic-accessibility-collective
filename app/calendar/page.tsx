@@ -852,7 +852,7 @@ export default function CalendarPage() {
     <div
       className="cal-outer"
       style={{
-        position: 'fixed', inset: 0,
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 'var(--startbar-h, 0px)',
         background: '#0a0a1a',
         overflow: 'hidden',
         fontFamily: '"Tahoma", "MS Sans Serif", Arial, sans-serif',

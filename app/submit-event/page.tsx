@@ -327,7 +327,7 @@ export default function SubmitEventPage() {
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: '#008080',
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 'var(--startbar-h, 0px)', background: '#008080',
       display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
       padding: '24px 16px', overflowY: 'auto',
     }}>

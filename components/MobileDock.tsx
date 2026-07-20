@@ -38,12 +38,12 @@ export default function MobileDock() {
         .mobile-dock {
           display: none;
           position: fixed;
-          left: 0; right: 0; bottom: 0;
+          left: 0; right: 0; bottom: var(--startbar-h, 0px);
           z-index: 9000;
           background: #c3c3c3;
           border-top: 1px solid #fff;
           box-shadow: inset 0 2px 0 #fff, 0 -4px 14px rgba(0,0,0,.3);
-          padding: 5px 5px calc(5px + env(safe-area-inset-bottom));
+          padding: 5px 5px 5px;
           gap: 5px;
         }
         .mobile-dock-btn {

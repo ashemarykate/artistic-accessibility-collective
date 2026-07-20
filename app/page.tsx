@@ -703,7 +703,7 @@ export default function Home() {
     });
   }, []);
 
-  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema'];
+  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema', 'calendar', 'printer', 'faq', 'hire'];
 
   const [fx, setFx] = useState<Array<{ id: number; from: FxRect; to: FxRect }>>([]);
   const fxId = useRef(0);
@@ -944,11 +944,11 @@ export default function Home() {
           .start-sub{position:static!important;left:auto!important;top:auto!important;min-width:0!important;box-shadow:none!important;background:#d4d4d4!important;border-left:3px solid #9a9a9a!important;margin:0 8px 4px 30px!important;padding:2px 0!important}
           .start-folder:hover>.start-sub{display:none}
           .start-folder.open>.start-sub{display:block}
-          .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:12px!important;padding:14px!important;align-content:start!important;pointer-events:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+          .dsk-container{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:4px 8px!important;padding:12px!important;align-content:start!important;pointer-events:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
           .dsk-item{position:static!important;pointer-events:all!important}
-          .dsk-icon{width:100%!important;padding:14px 10px 12px!important;justify-content:center!important;--jx:0px!important;--jy:0px!important}
-          .dsk-icon-img-wrap img{width:80px!important;height:80px!important}
-          .dsk-label{font-size:13px!important;max-width:none!important}
+          .dsk-icon{width:100%!important;padding:8px 10px 6px!important;gap:4px!important;justify-content:center!important;--jx:0px!important;--jy:0px!important}
+          .dsk-icon-img-wrap img{width:108px!important;height:108px!important}
+          .dsk-label{font-size:14px!important;max-width:none!important}
         }
       `}</style>
     </main>
