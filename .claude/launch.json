@@ -16,6 +16,13 @@
       "autoPort": true
     },
     {
+      "name": "marketing-static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8899", "-d", "marketing"],
+      "port": 8899,
+      "autoPort": true
+    },
+    {
       "name": "aac-prod",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start"],
