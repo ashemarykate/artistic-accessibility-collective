@@ -46,7 +46,7 @@ export default function WorkWithUsPage() {
   }, []);
 
   return (
-    <BrowserChrome variant="aol" desktopBg="#0d1e4a" title="Work With Us · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/work-with-us">
+    <BrowserChrome variant="aol" desktopBg="#263590" starfield floating title="Work With Us · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/work-with-us">
       <>
         <header style={{ background: 'var(--aac-blue)', padding: '0.875rem 1.5rem', flexShrink: 0 }}>
           <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ transform: 'rotate(-1.2deg)', display: 'inline-block' }}>

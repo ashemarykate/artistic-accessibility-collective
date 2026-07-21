@@ -26,8 +26,23 @@ interface BrowserChromeProps {
   contentBg?: string;
   /** Overrides the theme's outer desktop background color */
   desktopBg?: string;
+  /** Render the homepage starfield + CRT scanlines behind the window, so the
+      page reads as a window opened on top of the desktop rather than a page. */
+  starfield?: boolean;
+  /** Shrink the window and let the desktop show around it, instead of filling
+      the screen. Pairs naturally with `starfield`. */
+  floating?: boolean;
   children: React.ReactNode;
 }
+
+// Same deterministic starfield the homepage desktop uses, so a floating window
+// sits on the exact sky the visitor just came from.
+const STARS = Array.from({ length: 70 }, (_, i) => ({
+  x: (i * 137.508) % 100,
+  y: (i * 71.234) % 100,
+  r: i % 4 === 0 ? 2.5 : i % 3 === 0 ? 2 : 1.4,
+  o: 0.25 + (i % 6) * 0.1,
+}));
 
 // ── Per-variant visual tokens ─────────────────────────────────────────────────
 
@@ -159,6 +174,8 @@ export default function BrowserChrome({
   url,
   contentBg,
   desktopBg,
+  starfield,
+  floating,
   children,
 }: BrowserChromeProps) {
   const T = THEMES[variant];
@@ -199,18 +216,30 @@ export default function BrowserChrome({
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 'var(--startbar-h, 0px)',
           background: desktopBg ?? T.desktop,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '10px',
+          padding: floating ? 'clamp(12px, 4vw, 40px)' : '10px',
           fontFamily: T.font,
+          overflow: 'hidden',
         }}
       >
+        {/* ── Desktop backdrop: starfield + CRT scanlines ─────────────────── */}
+        {starfield && (
+          <>
+            <svg aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+              {STARS.map((s, i) => <circle key={i} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="#fff" opacity={s.o} />)}
+            </svg>
+            <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 3px)' }} />
+          </>
+        )}
+
         {/* ── Browser window ──────────────────────────────────────────────── */}
         <div
           style={{
-            width: '100%', height: '100%',
+            width: '100%', height: floating ? 'min(100%, 760px)' : '100%',
+            position: 'relative', zIndex: 1,
             display: 'flex', flexDirection: 'column',
             border: T.borderStyle + ' ' + T.chromeLight,
-            boxShadow: '3px 3px 0 rgba(0,0,0,0.6)',
-            maxWidth: 1200,
+            boxShadow: floating ? '6px 8px 0 rgba(0,0,0,0.5)' : '3px 3px 0 rgba(0,0,0,0.6)',
+            maxWidth: floating ? 940 : 1200,
           }}
         >
 
