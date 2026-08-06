@@ -3,7 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { supabase, getSessionUser, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref, PROFILE_TYPES_OPTIONS } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -823,7 +823,8 @@ export default function ProfilePage() {
           {/* ── Links table (members only) ── */}
           {currentUser && (
             profile.email || profile.website || profile.linkedin_url || profile.instagram_url ||
-            profile.twitter_url || profile.phone
+            profile.twitter_url || profile.phone ||
+            (profile.profile_type === 'business' && profile.company_event_link)
           ) && (
             <MsBox header={`${firstName}'s Links`}>
               <div style={{ padding: '4px' }}>
@@ -848,6 +849,16 @@ export default function ProfilePage() {
                         <td>
                           <a href={profile.website} target="_blank" rel="noopener noreferrer" aria-label={`${displayName}'s website`}>
                             {profile.website.replace(/^https?:\/\/(www\.)?/, '')}
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                    {profile.profile_type === 'business' && profile.company_event_link && (
+                      <tr>
+                        <td>Event Site</td>
+                        <td>
+                          <a href={profile.company_event_link} target="_blank" rel="noopener noreferrer" aria-label={`${displayName}'s event or company website`}>
+                            {profile.company_event_link.replace(/^https?:\/\/(www\.)?/, '')}
                           </a>
                         </td>
                       </tr>
@@ -1060,6 +1071,31 @@ export default function ProfilePage() {
             </MsBox>
           )}
 
+          {/* ── Additional role tags ── */}
+          {profile.profile_types && profile.profile_types.length > 0 && (
+            <MsBox
+              header={`🏷️ ${firstName}'s Additional Roles`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '8px' }}>
+                <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', listStyle: 'none', padding: 0, margin: 0 }}>
+                  {profile.profile_types.map((t) => (
+                    <li
+                      key={t}
+                      style={{
+                        background: 'var(--aac-blue-light)', color: 'var(--aac-blue-dark)',
+                        borderRadius: '999px', padding: '3px 10px',
+                        fontSize: '0.8125rem', fontWeight: 600,
+                      }}
+                    >
+                      {PROFILE_TYPES_OPTIONS.find((o) => o.value === t)?.label ?? t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </MsBox>
+          )}
+
           {/* ── Strengths ── */}
           {profile.strengths && profile.strengths.length > 0 && (
             <MsBox
@@ -1109,13 +1145,33 @@ export default function ProfilePage() {
           )}
 
           {/* ── Education ── */}
-          {profile.education && (
+          {(profile.education || (profile.colleges && profile.colleges.length > 0)) && (
             <MsBox
               header={`🎓 ${firstName}'s Education`}
               action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
             >
               <div className="ms-box-body">
-                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: 0 }}>{profile.education}</p>
+                {profile.education && (
+                  <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: profile.colleges && profile.colleges.length > 0 ? '0 0 12px' : 0 }}>
+                    {profile.education}
+                  </p>
+                )}
+                {profile.colleges && profile.colleges.length > 0 && (
+                  <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', listStyle: 'none', padding: 0, margin: 0 }}>
+                    {profile.colleges.map((c) => (
+                      <li
+                        key={c}
+                        style={{
+                          background: 'var(--aac-blue-light)', color: 'var(--aac-blue-dark)',
+                          borderRadius: '999px', padding: '3px 10px',
+                          fontSize: '0.8125rem', fontWeight: 600,
+                        }}
+                      >
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </MsBox>
           )}
@@ -1215,6 +1271,36 @@ export default function ProfilePage() {
             </div>
           </MsBox>
 
+          {/* ── Gallery ── */}
+          {profile.gallery_photos && profile.gallery_photos.length > 0 && (
+            <MsBox
+              header={`📸 ${firstName}'s Gallery`}
+              action={isOwnProfile ? { label: 'edit', href: `${profileHref(profile)}/edit` } : undefined}
+            >
+              <div style={{ padding: '8px' }}>
+                <ul
+                  style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                    gap: '8px', listStyle: 'none', padding: 0, margin: 0,
+                  }}
+                >
+                  {profile.gallery_photos.map((url, i) => (
+                    <li key={url}>
+                      <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`View gallery photo ${i + 1} for ${displayName} full size`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Gallery photo ${i + 1} for ${displayName}`}
+                          style={{ width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', borderRadius: '4px', border: '2px solid var(--aac-blue-light)' }}
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </MsBox>
+          )}
+
           {/* ── Videos ── */}
           {profile.video_links && profile.video_links.length > 0 && (
             <MsBox
@@ -1273,14 +1359,34 @@ export default function ProfilePage() {
           )}
 
           {/* ── Trainings & Certifications ── */}
-          {profile.certifications && profile.certifications.length > 0 && (
+          {((profile.certifications && profile.certifications.length > 0) ||
+            profile.professional_certifications ||
+            (profile.trainings_completed && profile.trainings_completed.length > 0)) && (
             <MsBox header={`📚 ${firstName}'s Trainings & Certifications`}>
               <div className="ms-box-body">
-                <ul style={{ margin: 0, padding: '0 0 0 18px', lineHeight: 1.9 }}>
-                  {profile.certifications.map((c, i) => (
-                    <li key={i} style={{ color: 'var(--aac-blue)' }}>{c}</li>
-                  ))}
-                </ul>
+                {profile.certifications && profile.certifications.length > 0 && (
+                  <ul style={{ margin: '0 0 12px', padding: '0 0 0 18px', lineHeight: 1.9 }}>
+                    {profile.certifications.map((c, i) => (
+                      <li key={i} style={{ color: 'var(--aac-blue)' }}>{c}</li>
+                    ))}
+                  </ul>
+                )}
+                {profile.professional_certifications && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Other professional certifications:</p>
+                    <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.9, margin: '0 0 12px' }}>{profile.professional_certifications}</p>
+                  </>
+                )}
+                {profile.trainings_completed && profile.trainings_completed.length > 0 && (
+                  <>
+                    <p style={{ fontWeight: 'bold', margin: '0 0 3px' }}>Trainings completed:</p>
+                    <ul style={{ margin: 0, padding: '0 0 0 18px', lineHeight: 1.9 }}>
+                      {profile.trainings_completed.map((t, i) => (
+                        <li key={i} style={{ color: 'var(--aac-blue)' }}>{t}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             </MsBox>
           )}

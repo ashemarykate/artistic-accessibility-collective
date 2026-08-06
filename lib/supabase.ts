@@ -110,6 +110,18 @@ export type Profile = {
   not_great_at?: string;
   learning_now?: string;
   want_to_learn?: string;
+  // v34 referral system
+  recommendations_available?: number;
+  last_recommendation_refresh?: string;
+  recommendation_code_used?: string;
+  // v34 credential / role fields
+  colleges?: string[];
+  professional_certifications?: string;
+  trainings_completed?: string[];
+  profile_types?: string[];
+  company_event_link?: string;
+  // v34 photo gallery
+  gallery_photos?: string[];
 };
 
 export type SavedResource = {
@@ -199,6 +211,22 @@ export type InviteCode = {
   created_at: string;
 };
 
+export type Recommendation = {
+  id: string;
+  profile_id?: string;
+  recommender_id: string;
+  recommended_name?: string;
+  recommended_email: string;
+  invitation_code: string;
+  personal_message?: string;
+  status: 'pending' | 'accepted' | 'expired';
+  sent_at?: string;
+  accepted_at?: string;
+  expires_at?: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TesterFeedback = {
   id: string;
   profile_id: string;
@@ -281,6 +309,13 @@ export const SPECIALTY_OPTIONS = [
   'Event Accessibility Coordinator',
   'Content Creator',
   'Other',
+];
+
+/** Fixed set of values for profiles.profile_types (a member's role tags, distinct from profile_type). */
+export const PROFILE_TYPES_OPTIONS: { value: string; label: string }[] = [
+  { value: 'service_provider', label: 'Service Provider' },
+  { value: 'artist',           label: 'Artist' },
+  { value: 'event_company',    label: 'Event Company' },
 ];
 
 export const CERTIFICATION_OPTIONS = [

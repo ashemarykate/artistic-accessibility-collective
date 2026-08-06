@@ -60,6 +60,16 @@ export default function MemberHub() {
   const [browseOpen,     setBrowseOpen]     = useState(false);  // "Save what you love" dropdown
   const [cpResourcesOpen, setCpResourcesOpen] = useState(false); // Control Panel "Resources" submenu
 
+  // Refer a Colleague (Collective members only)
+  const [recsAvailable, setRecsAvailable] = useState<number | null>(null);
+  const [recName,    setRecName]    = useState('');
+  const [recEmail,   setRecEmail]   = useState('');
+  const [recMessage, setRecMessage] = useState('');
+  const [recSending, setRecSending] = useState(false);
+  const [recError,   setRecError]   = useState('');
+  const [lastRecCode, setLastRecCode] = useState<string | null>(null);
+  const [lastRecEmail, setLastRecEmail] = useState('');
+
   useEffect(() => {
     document.title = 'My Collective · Artistic Accessibility Collective';
     if (typeof window !== 'undefined' && localStorage.getItem('mc-intro-dismissed') === '1') {
@@ -104,6 +114,16 @@ export default function MemberHub() {
     setLinkFailed(false);
     setProfile(profileData);
     const resolvedProfile = profileData;
+
+    // Referral quota (wrapped in try/catch — safe before migration runs)
+    if (resolvedProfile.member_type === 'collective') {
+      try {
+        const { data: avail } = await supabase.rpc('get_available_recommendations', { user_profile_id: resolvedProfile.id });
+        setRecsAvailable(typeof avail === 'number' ? avail : 0);
+      } catch {
+        // Referral system not yet migrated
+      }
+    }
 
     // Admin check
     const { data: adminData } = await supabase
@@ -223,6 +243,36 @@ export default function MemberHub() {
   }, [router]);
 
   useEffect(() => { loadHub(); }, [loadHub]);
+
+  const handleSendRecommendation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+    setRecError('');
+    if (!recName.trim() || !recEmail.trim()) {
+      setRecError('Name and email are required.');
+      return;
+    }
+    setRecSending(true);
+    try {
+      const { data, error } = await supabase.rpc('send_recommendation', {
+        user_profile_id: profile.id,
+        p_recommended_name: recName.trim(),
+        p_recommended_email: recEmail.trim(),
+        p_personal_message: recMessage.trim() || null,
+      });
+      if (error) throw error;
+      setLastRecCode(data as string);
+      setLastRecEmail(recEmail.trim());
+      setRecName('');
+      setRecEmail('');
+      setRecMessage('');
+      setRecsAvailable((n) => (n != null ? Math.max(0, n - 1) : n));
+    } catch {
+      setRecError('Something went wrong sending that referral. Please try again.');
+    } finally {
+      setRecSending(false);
+    }
+  };
 
   // ── Loading ───────────────────────────────────────────────────────────────
 
@@ -610,6 +660,55 @@ export default function MemberHub() {
               )}
             </div>
           </div>
+
+          {/* Refer a Colleague — Collective members only */}
+          {profile.member_type === 'collective' && (
+            <div className="ms-box" style={{ marginBottom: '8px' }}>
+              <div className="ms-box-header">
+                <h2><span role="img" aria-label="handshake emoji">🤝</span> Refer a Colleague</h2>
+                {recsAvailable != null && (
+                  <span style={{ fontSize: '0.6875rem', color: 'inherit' }}>{recsAvailable} of 3 left this month</span>
+                )}
+              </div>
+              <div style={{ padding: '10px' }}>
+                {recsAvailable === 0 ? (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                    You&apos;ve used all 3 referrals for this month. They&apos;ll refresh next month.
+                  </p>
+                ) : (
+                  <form onSubmit={handleSendRecommendation}>
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                      Know someone who&apos;d be a great fit? Send them a personal invite to join the Collective.
+                    </p>
+                    <div className="form-group" style={{ marginBottom: '8px' }}>
+                      <label htmlFor="rec-name" className="form-label" style={{ fontSize: '0.75rem' }}>Their name</label>
+                      <input id="rec-name" type="text" className="form-input" value={recName} onChange={(e) => setRecName(e.target.value)} autoComplete="off" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '8px' }}>
+                      <label htmlFor="rec-email" className="form-label" style={{ fontSize: '0.75rem' }}>Their email</label>
+                      <input id="rec-email" type="email" className="form-input" value={recEmail} onChange={(e) => setRecEmail(e.target.value)} autoComplete="off" />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '8px' }}>
+                      <label htmlFor="rec-message" className="form-label" style={{ fontSize: '0.75rem' }}>Personal message (optional)</label>
+                      <textarea id="rec-message" className="form-input" rows={2} value={recMessage} onChange={(e) => setRecMessage(e.target.value)} />
+                    </div>
+                    {recError && <p className="form-error" role="alert" style={{ marginBottom: '8px' }}>{recError}</p>}
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={recSending} aria-busy={recSending}>
+                      {recSending ? 'Sending…' : 'Send Invite'}
+                    </button>
+                  </form>
+                )}
+                {lastRecCode && (
+                  <div className="alert alert-info" role="status" style={{ marginTop: '10px', fontSize: '0.8125rem' }}>
+                    Invite sent! Their code is <code style={{ fontWeight: 700, letterSpacing: '0.05em' }}>{lastRecCode}</code>.{' '}
+                    <a href={`mailto:${lastRecEmail}?subject=${encodeURIComponent('Join me on the Artistic Accessibility Collective')}&body=${encodeURIComponent(`Use invite code ${lastRecCode} at artisticaccessibility.com/submit to join.`)}`} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                      Email it to them
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Discussion board — coming soon */}
           <div className="ms-box" style={{ marginBottom: '8px' }}>

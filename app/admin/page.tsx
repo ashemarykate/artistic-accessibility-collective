@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins' | 'back-of-house';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins' | 'back-of-house';
 
 type BohNote = {
   id: string;
@@ -45,6 +45,7 @@ export default function AdminDashboard() {
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
   const [approvedProfiles, setApprovedProfiles] = useState<Profile[]>([]);
   const [rejectedProfiles, setRejectedProfiles] = useState<Profile[]>([]);
+  const [accessCardProfiles, setAccessCardProfiles] = useState<Profile[]>([]);
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('pending');
@@ -115,10 +116,11 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [pending, approved, rejected, codes, feedback, submissions, eventsRes, icsRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-        supabase.from('profiles').select('*').eq('status', 'approved').order('approved_at', { ascending: false }),
-        supabase.from('profiles').select('*').eq('status', 'rejected').order('updated_at', { ascending: false }),
+      const [pending, approved, rejected, accessCard, codes, feedback, submissions, eventsRes, icsRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('status', 'pending').eq('member_type', 'collective').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('status', 'approved').eq('member_type', 'collective').order('approved_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('status', 'rejected').eq('member_type', 'collective').order('updated_at', { ascending: false }),
+        supabase.from('profiles').select('*').eq('member_type', 'access_card').order('created_at', { ascending: false }),
         supabase.from('invite_codes').select('*').order('created_at', { ascending: false }),
         supabase.from('tester_feedback').select('*, profile:profiles(full_name, email, profile_type)').order('created_at', { ascending: false }),
         supabase.from('resource_submissions').select('*').order('created_at', { ascending: false }),
@@ -128,6 +130,7 @@ export default function AdminDashboard() {
       setPendingProfiles(pending.data || []);
       setApprovedProfiles(approved.data || []);
       setRejectedProfiles(rejected.data || []);
+      setAccessCardProfiles(accessCard.data || []);
       setInviteCodes(codes.data || []);
       setFeedbackEntries((feedback.data || []) as FeedbackWithProfile[]);
       setResourceSubmissions((submissions.data || []) as ResourceSubmission[]);
@@ -349,6 +352,12 @@ export default function AdminDashboard() {
       ],
     },
     {
+      label: 'Access Card',
+      tabs: [
+        { id: 'access-card', label: 'Members', count: accessCardProfiles.length },
+      ],
+    },
+    {
       label: 'Website Content',
       tabs: [
         { id: 'content', label: 'Page Content' },
@@ -522,6 +531,39 @@ export default function AdminDashboard() {
               emailErrorDetail={emailErrorDetail}
               profileActionPending={profileActionPending}
             />
+          </div>
+        )}
+
+        {activeTab === 'access-card' && (
+          <div id="panel-access-card" role="tabpanel" aria-labelledby="tab-access-card">
+            {adminActionMsg && (
+              <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginBottom: '1rem' }}>
+                {adminActionMsg.text}
+              </div>
+            )}
+            <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
+                Access Card is the free, lighter tier: sign up saves, likes, and comments but no directory listing. These accounts are approved automatically at signup, so there is nothing to review here, just the list.
+              </p>
+            </div>
+            {accessCardProfiles.length === 0 ? (
+              <div className="content-card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+                No Access Card members yet.
+              </div>
+            ) : (
+              <ProfileList
+                profiles={accessCardProfiles}
+                status="approved"
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onTogglePublic={handleTogglePublic}
+                onSendLoginEmail={handleSendLoginEmail}
+                sendingEmail={sendingEmail}
+                emailStatus={emailStatus}
+                emailErrorDetail={emailErrorDetail}
+                profileActionPending={profileActionPending}
+              />
+            )}
           </div>
         )}
 
@@ -1662,6 +1704,7 @@ function ProfileList({
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
                   Submitted {new Date(p.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                   {p.invite_code_used && ` · Code: ${p.invite_code_used}`}
+                  {p.recommendation_code_used && ` · Referred (code: ${p.recommendation_code_used})`}
                 </p>
               </div>
 

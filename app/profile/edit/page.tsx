@@ -2,10 +2,11 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, getSessionUser, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_OPTIONS } from '@/lib/supabase';
+import { supabase, getSessionUser, type Profile, profileHref, SPECIALTY_OPTIONS, CERTIFICATION_OPTIONS, PROFILE_TYPES_OPTIONS } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import PhotoUploader from '@/components/PhotoUploader';
+import GalleryUploader from '@/components/GalleryUploader';
 import BrowserChrome from '@/components/BrowserChrome';
 import { useUnsavedChanges, confirmDiscardIfDirty } from '@/lib/useUnsavedChanges';
 
@@ -154,6 +155,8 @@ type EditableProfile = Omit<Pick<Profile,
   | 'availability_status' | 'communication_style' | 'preferred_contact'
   | 'experience_level' | 'rate_info' | 'education'
   | 'not_great_at' | 'learning_now' | 'want_to_learn'
+  | 'colleges' | 'professional_certifications' | 'trainings_completed'
+  | 'profile_types' | 'company_event_link' | 'gallery_photos'
 >, 'volunteer_notes'> & { volunteer_notes?: string | null };
 
 // Background colors a member can pick for their profile page. All are deep
@@ -222,6 +225,14 @@ export default function EditProfilePage() {
   const [learningNow,        setLearningNow]        = useState('');
   const [wantToLearn,        setWantToLearn]        = useState('');
 
+  // v34 credential / role fields + photo gallery
+  const [colleges,                   setColleges]                  = useState<string[]>([]);
+  const [professionalCertifications, setProfessionalCertifications] = useState('');
+  const [trainingsCompleted,         setTrainingsCompleted]        = useState<string[]>([]);
+  const [profileTypes,               setProfileTypes]              = useState<string[]>([]);
+  const [companyEventLink,           setCompanyEventLink]          = useState('');
+  const [galleryPhotos,              setGalleryPhotos]             = useState<string[]>([]);
+
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -285,6 +296,13 @@ export default function EditProfilePage() {
     setLearningNow(data.learning_now               ?? '');
     setWantToLearn(data.want_to_learn              ?? '');
 
+    setColleges(data.colleges                                 ?? []);
+    setProfessionalCertifications(data.professional_certifications ?? '');
+    setTrainingsCompleted(data.trainings_completed             ?? []);
+    setProfileTypes(data.profile_types                         ?? []);
+    setCompanyEventLink(data.company_event_link                ?? '');
+    setGalleryPhotos(data.gallery_photos                       ?? []);
+
     setLoading(false);
     headingRef.current?.focus();
   }, [router]);
@@ -303,7 +321,7 @@ export default function EditProfilePage() {
   }, [loading]);
   useEffect(() => {
     if (hydratedRef.current) setDirty(true);
-  }, [specialties, certifications, languages, strengths, communicationStyle, bgColor]);
+  }, [specialties, certifications, languages, strengths, communicationStyle, bgColor, colleges, trainingsCompleted, profileTypes, galleryPhotos]);
 
   // ── Username uniqueness check ─────────────────────────────────────────────
 
@@ -388,6 +406,12 @@ export default function EditProfilePage() {
       not_great_at:       notGreatAt.trim()         || undefined,
       learning_now:       learningNow.trim()        || undefined,
       want_to_learn:      wantToLearn.trim()        || undefined,
+      colleges,
+      professional_certifications: professionalCertifications.trim() || undefined,
+      trainings_completed: trainingsCompleted,
+      profile_types:      profileTypes,
+      company_event_link: companyEventLink.trim()   || undefined,
+      gallery_photos:     galleryPhotos,
     };
 
     const { error } = await supabase
@@ -595,6 +619,24 @@ export default function EditProfilePage() {
             </div>
           </div>
 
+          {/* ══ Section: Photo Gallery ═══════════════════════════════════ */}
+          {profile.user_id && (
+            <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+              <div className="ms-box-header">Photo Gallery</div>
+              <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+                  A few extra photos for your profile, beyond your profile picture.
+                </p>
+                <GalleryUploader
+                  userId={profile.user_id}
+                  galleryPaths={galleryPhotos}
+                  displayName={displayName || profile.full_name || ''}
+                  onSaved={(newPaths) => setGalleryPhotos(newPaths)}
+                />
+              </div>
+            </div>
+          )}
+
           {/* ══ Section: Make It Yours (profile background color) ═════════ */}
           <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
             <div className="ms-box-header">Make It Yours</div>
@@ -740,6 +782,52 @@ export default function EditProfilePage() {
                 placeholder="e.g. NIC, BEI, NCRA…"
                 hint="Professional certifications. Leave blank if none."
               />
+
+              <div className="form-group">
+                <label htmlFor="professionalCertifications" className="form-label">Other Professional Certifications</label>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                  Certifications outside accessibility/interpreting, e.g. a teaching license, PMP, JD.
+                </p>
+                <textarea
+                  id="professionalCertifications"
+                  className="form-input form-textarea"
+                  rows={2}
+                  value={professionalCertifications}
+                  onChange={(e) => setProfessionalCertifications(e.target.value)}
+                  placeholder="e.g. State Teaching License, PMP…"
+                />
+              </div>
+
+              <TagInput
+                id="trainingsCompleted"
+                label="Trainings Completed"
+                tags={trainingsCompleted}
+                onChange={setTrainingsCompleted}
+                placeholder="e.g. Mental Health First Aid…"
+                hint="Trainings or workshops you've completed."
+              />
+
+              <div className="form-group">
+                <p className="form-label" style={{ marginBottom: '0.5rem' }}>Additional Roles / Tags</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.625rem' }}>
+                  Optional extra tags for how you work. Not your Individual/Business account type, which is fixed at signup.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  {PROFILE_TYPES_OPTIONS.map((opt) => (
+                    <label key={opt.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={profileTypes.includes(opt.value)}
+                        onChange={(e) => setProfileTypes((prev) =>
+                          e.target.checked ? [...prev, opt.value] : prev.filter((v) => v !== opt.value)
+                        )}
+                        style={{ width: 16, height: 16 }}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.25rem' }}>
                 <div className="form-group" style={{ marginBottom: 0 }}>
@@ -947,7 +1035,7 @@ export default function EditProfilePage() {
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group">
                 <label htmlFor="education" className="form-label">Education Background</label>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
                   Degrees, training programs, workshops, whatever feels relevant. e.g. &quot;BFA in Theater, Interpreter Training Program at XYZ.&quot;
@@ -961,6 +1049,14 @@ export default function EditProfilePage() {
                   placeholder="Degrees, training, workshops…"
                 />
               </div>
+
+              <TagInput
+                id="colleges"
+                label="Colleges / Schools Attended"
+                tags={colleges}
+                onChange={setColleges}
+                placeholder="e.g. Gallaudet University…"
+              />
 
             </div>
           </div>
@@ -1125,6 +1221,26 @@ export default function EditProfilePage() {
 
             </div>
           </div>
+
+          {/* ══ Section: Company / Event Info (business profiles only) ═══ */}
+          {profile?.profile_type === 'business' && (
+            <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+              <div className="ms-box-header">Company / Event Info</div>
+              <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label htmlFor="companyEventLink" className="form-label">Event / Company Website</label>
+                  <input
+                    id="companyEventLink"
+                    type="url"
+                    className="form-input"
+                    value={companyEventLink}
+                    onChange={(e) => setCompanyEventLink(e.target.value)}
+                    placeholder="https://yourevent.com"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ══ Section: Privacy ══════════════════════════════════════════ */}
           <div className="ms-box" style={{ marginBottom: '1.75rem' }}>
