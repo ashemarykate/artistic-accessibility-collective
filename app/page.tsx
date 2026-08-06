@@ -76,11 +76,12 @@ const ITEMS: Record<string, ItemDef> = {
   'instagram':        { label: 'Instagram',              icon: 51,        kind: 'ext',      href: 'https://instagram.com/artisticaccessibility' },
   'collective':       { label: 'The Collective',         icon: 63,        kind: 'app',      cat: 'Members',       href: '/collective',      blurb: 'Member homepages, shared studios and the collective gallery.' },
   'contact':          { label: 'Contact Us',             icon: 64,        kind: 'app',      cat: 'Connect',       href: '/contact',         blurb: 'Drop us a line, we would love to hear from you.', links: [{ key: 'instagram', label: 'Instagram', icon: 51, ext: true }] },
-  'access-resources': { label: 'Accessibility Resources', icon: 71,       kind: 'app',      cat: 'Resources',     href: '/accessibility',   blurb: 'Tools, guides and links to help make art accessible for every body and mind.', soon: true },
+  'access-resources': { label: 'Accessibility Resources', icon: 71,       kind: 'app',      cat: 'Resources',     href: '/resources',       blurb: 'Tools, guides and links to help make art accessible for every body and mind.' },
   'library':          { label: 'The Library',            icon: 82,        kind: 'app',      cat: 'Resources',     href: '/library',         blurb: 'Browse our growing collection of accessible reading and reference material.' },
   'cinema':           { label: 'The Cinema',             icon: 56,        kind: 'app',      cat: 'Resources',     href: '/cinema',          blurb: 'Watch films, recorded talks and described screenings on demand.' },
   'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room: checklists, posters, worksheets and guides, ready to print and pass around.' },
   'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'A free account to save, like and comment on resources and listings.' },
+  'my-access-card':   { label: 'My Access Card',         icon: 52,        kind: 'app',      cat: 'Members',       href: '/access-card',     blurb: 'Your Access Card: saved resources, likes and comments.' },
 };
 
 const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
@@ -92,7 +93,7 @@ const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string
   { type: 'folder', name: 'MORE TO COME',  children: ['learning'] },
   { type: 'folder', name: 'RESOURCES',     children: ['access-resources', 'library', 'cinema', 'printer', 'calendar'] },
   { type: 'folder', name: 'CONNECT',       children: ['access-card', 'hire', 'contact', 'instagram'] },
-  { type: 'folder', name: 'MEMBERS',       children: ['collective'] },
+  { type: 'folder', name: 'MEMBERS',       children: ['collective', 'my-access-card'] },
 ];
 
 // ── sub-components ────────────────────────────────────────────────────────────
@@ -264,17 +265,34 @@ function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string
     );
   }
 
+  if (k === 'my-access-card') {
+    return (
+      <div style={{ padding: pad }}>
+        <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
+          Sign in to see your Access Card: your saved resources, likes and comments all live there.
+        </p>
+        <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
+          {"Don't have one yet? It's free, and no invite code is needed."}
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
+          <Link href="/access-card/signup" style={btnLink}>Get an Access Card</Link>
+          <Link href="/login" style={btnLink}>Sign In</Link>
+        </div>
+      </div>
+    );
+  }
+
   if (k === 'join') {
     return (
       <div style={{ padding: pad }}>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          The Collective is currently in beta testing. A testing code is required to join at this stage.
+          Have an invite code for the Collective? Click below and we&apos;ll get you set up!
         </p>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: '#101010', lineHeight: '18px' }}>
-          {"Click below if you have a code and we'll get you set up!"}
+          {"No code? An Access Card is a free account for saving, liking, and commenting, no invite needed."}
         </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <Btn onClick={onClose}>Close</Btn>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
+          <Link href="/access-card/signup" style={btnLink}>Get an Access Card</Link>
           <Link href="/submit" style={btnLink}>I Have a Code</Link>
         </div>
       </div>
@@ -423,9 +441,10 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
         <Row icon={48} label="Resources"   href="/resources" />
         <Row icon={82} label="The Library" href="/library" />
         <Row icon={56} label="The Cinema"  href="/cinema" />
+        <Row icon={'printer'} label="The Printer" href="/printer" />
       </div>
       <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', fontFamily: UIFONT }}>
-        3 items
+        4 items
       </div>
     </div>
   );
@@ -703,7 +722,7 @@ export default function Home() {
     });
   }, []);
 
-  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema', 'calendar', 'printer', 'faq', 'hire'];
+  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema', 'calendar', 'printer', 'faq', 'hire', 'access-resources'];
 
   const [fx, setFx] = useState<Array<{ id: number; from: FxRect; to: FxRect }>>([]);
   const fxId = useRef(0);
@@ -734,6 +753,9 @@ export default function Home() {
     if (!it) return;
     if (it.kind === 'ext') { window.open(it.href, '_blank', 'noopener'); return; }
     if (k === 'collective' && user) { launch(k, '/dashboard', opener); return; }
+    // My Access Card: straight to the card for signed-in Access Card holders;
+    // everyone else gets a window prompting them to sign in or sign up.
+    if (k === 'my-access-card' && user && memberType === 'access_card') { launch(k, '/access-card', opener); return; }
     if (DIRECT_NAV.includes(k) && it.href) { launch(k, it.href, opener); return; }
     if (opener) openers.current.set(k, opener);
     const existing = wins.find(w => w.id === k);
@@ -750,7 +772,7 @@ export default function Home() {
     if (!isMobile && opener && !prefersReduced()) {
       addFx(toFxRect(opener.getBoundingClientRect()), { x, y: pos.y, w: width, h: Math.min(340, width * 0.85) });
     }
-  }, [wins, zTop, headerH, user, isMobile, launching, launch, addFx]);
+  }, [wins, zTop, headerH, user, memberType, isMobile, launching, launch, addFx]);
 
   const closeWin = (id: string, rect?: DOMRect) => {
     setWins(ws => ws.filter(w => w.id !== id));

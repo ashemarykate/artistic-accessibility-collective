@@ -699,9 +699,26 @@ export default function CalendarPage() {
     };
   }, []);
 
-  // Check login state (to show "Submit Event" button)
+  // Check login state (to show "Submit Event" button). For signed-in members
+  // with a city on their profile, start the calendar filtered to their own
+  // area; the Filter dialog clears it like any other location search.
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setIsLoggedIn(!!user));
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+      if (!user) return;
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('location_city')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const city = prof?.location_city?.trim();
+      if (city) {
+        // Functional update so we never clobber a filter the member already
+        // typed while the profile lookup was in flight.
+        setLocQuery(prev => prev || city);
+        setLocDraft(prev => prev || city);
+      }
+    });
   }, []);
 
   // Load external calendars that have synced successfully (left rail).

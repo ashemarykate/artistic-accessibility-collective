@@ -103,6 +103,8 @@ export default function SubmitProfile() {
   // Invite code
   const [inviteCode, setInviteCode] = useState('');
   const [inviteError, setInviteError] = useState('');
+  // Which table the entered code matched, so final submission redeems the right one.
+  const [codeSource, setCodeSource] = useState<'invite' | 'recommendation' | null>(null);
 
   // Shared form data (used by both individual and business)
   const [formData, setFormData] = useState({
@@ -158,7 +160,7 @@ export default function SubmitProfile() {
   const typeSelectHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Test the Collective · Artistic Accessibility Collective';
+    document.title = 'Join the Collective · Artistic Accessibility Collective';
     return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
@@ -246,27 +248,50 @@ export default function SubmitProfile() {
 
     // TEST BYPASS — remove once database is set up
     if (code === 'AAAC-TEST') {
+      setCodeSource('invite');
       setStep('type_select');
       setLoading(false);
       return;
     }
 
     try {
-      const { data, error } = await supabase
+      const { data: inviteData } = await supabase
         .from('invite_codes')
         .select('id, used')
         .eq('code', code)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
-        setInviteError("That code doesn't look right. Double-check it and try again.");
+      if (inviteData) {
+        if (inviteData.used) {
+          setInviteError('That invite code has already been used.');
+          return;
+        }
+        setCodeSource('invite');
+        setStep('type_select');
         return;
       }
-      if (data.used) {
-        setInviteError('That invite code has already been used.');
+
+      const { data: recData } = await supabase
+        .from('recommendations')
+        .select('id, status, expires_at')
+        .eq('invitation_code', code)
+        .maybeSingle();
+
+      if (recData) {
+        if (recData.status !== 'pending') {
+          setInviteError('That invite has already been used.');
+          return;
+        }
+        if (recData.expires_at && new Date(recData.expires_at) < new Date()) {
+          setInviteError('That invite has expired.');
+          return;
+        }
+        setCodeSource('recommendation');
+        setStep('type_select');
         return;
       }
-      setStep('type_select');
+
+      setInviteError("That code doesn't look right. Double-check it and try again.");
     } catch {
       setInviteError('Something went wrong. Please try again.');
     } finally {
@@ -359,7 +384,7 @@ export default function SubmitProfile() {
         linkedin_url: formData.linkedin_url.trim() || null,
         instagram_url: formData.instagram_url.trim() || null,
         submission_notes: formData.submission_notes.trim() || null,
-        invite_code_used: code,
+        ...(codeSource === 'recommendation' ? { recommendation_code_used: code } : { invite_code_used: code }),
         status: 'pending',
         public_visible: false,
         profile_version: 1,
@@ -409,11 +434,19 @@ export default function SubmitProfile() {
       }
 
       if (code !== 'AAAC-TEST') {
-        await supabase.from('invite_codes').update({
-          used: true,
-          used_at: new Date().toISOString(),
-          used_by_profile_id: profileId,
-        }).eq('code', code);
+        if (codeSource === 'recommendation') {
+          await supabase.from('recommendations').update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+            profile_id: profileId,
+          }).eq('invitation_code', code);
+        } else {
+          await supabase.from('invite_codes').update({
+            used: true,
+            used_at: new Date().toISOString(),
+            used_by_profile_id: profileId,
+          }).eq('code', code);
+        }
       }
 
       setDirty(false); // submitted, leaving is safe
@@ -441,10 +474,10 @@ export default function SubmitProfile() {
 
         <div className="content-card" style={{ maxWidth: '460px', width: '100%', textAlign: 'center' }}>
           <h1 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1.75rem', marginBottom: '0.5rem' }}>
-            Test the Collective
+            Join the Collective
           </h1>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '1.05rem' }}>
-            You&apos;ll need an invite code to get started.
+            Have an invite code? Enter it below to get started.
           </p>
 
           <form onSubmit={handleInviteSubmit} noValidate>
@@ -1056,7 +1089,7 @@ export default function SubmitProfile() {
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <button type="submit" className="btn btn-primary btn-lg" style={{ flex: '1 1 auto' }}
                 disabled={loading} aria-busy={loading}>
-                {loading ? <><span className="spinner" aria-hidden="true" style={{ width: 18, height: 18, borderWidth: 2 }} /> Submitting…</> : 'Submit Test'}
+                {loading ? <><span className="spinner" aria-hidden="true" style={{ width: 18, height: 18, borderWidth: 2 }} /> Submitting…</> : profileType === 'business' ? 'Submit Listing' : 'Submit Application'}
               </button>
               <Link href="/" className="btn btn-ghost">Cancel</Link>
             </div>
