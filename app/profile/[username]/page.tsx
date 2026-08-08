@@ -298,7 +298,11 @@ export default function ProfilePage() {
     setUploading(true);
     try {
       const ext  = pendingFile.name.split('.').pop();
-      const path = `${profile.id}/avatar.${ext}`;
+      // Folder must be the auth user id (not the profile id): the storage
+      // policies only let members write inside their own auth-id folder.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not signed in');
+      const path = `${user.id}/avatar.${ext}`;
       const { error: uploadErr } = await supabase.storage
         .from('profile-photos').upload(path, pendingFile, { upsert: true });
       if (uploadErr) throw uploadErr;
