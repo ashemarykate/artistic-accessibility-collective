@@ -30,19 +30,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Profile must be approved before sending login email' }, { status: 400 });
     }
 
-    // Built from the incoming request's own origin (not hardcoded) so this
-    // always matches whatever domain is actually serving the app -- prod,
-    // a Vercel preview, or otherwise -- the same way the client-side magic
-    // link flows already do with window.location.origin.
-    const redirectTo = `${req.nextUrl.origin}/auth/callback`;
-
     // Generate a magic link via Supabase Admin API
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: profile.email,
-      options: {
-        redirectTo,
-      },
     });
 
     if (linkError || !linkData) {
@@ -50,7 +41,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Could not generate login link' }, { status: 500 });
     }
 
-    const loginUrl = linkData.properties?.action_link;
+    // Do NOT email the action_link: it points at Supabase's one-time /verify
+    // endpoint, which email security scanners consume by pre-clicking links,
+    // leaving members with "expired link" errors on their real click. Instead
+    // link to our /auth/confirm page with the token hash; the token is only
+    // exchanged when a real person presses the button there.
+    // Origin comes from the incoming request (not hardcoded) so it matches
+    // whatever domain is serving the app: prod, a Vercel preview, or local.
+    const tokenHash = linkData.properties?.hashed_token;
+    if (!tokenHash) {
+      console.error('Magic link response had no hashed_token');
+      return NextResponse.json({ error: 'Could not generate login link' }, { status: 500 });
+    }
+    const loginUrl = `${req.nextUrl.origin}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink`;
 
     // Send the email
     const { error: emailError } = await resend.emails.send({
@@ -87,7 +90,7 @@ export async function POST(req: NextRequest) {
           </a>
         </div>
         <p style="font-size:13px;color:#9ba8c4;text-align:center;margin:24px 0 0;line-height:1.5;">
-          This link expires in 24 hours. If you didn't expect this email, you can safely ignore it.<br>
+          This link works once and expires after about an hour, so click it soon. If you didn't expect this email, you can safely ignore it.<br>
           Questions? Reply to this email or reach us at <a href="mailto:contact@artisticaccessibility.com" style="color:#2952C8;">contact@artisticaccessibility.com</a>
         </p>
       </td>
