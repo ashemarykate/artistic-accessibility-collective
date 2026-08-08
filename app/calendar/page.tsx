@@ -215,6 +215,16 @@ function EventLeaf({ ev, visibleText, srContext, title, style, className, childr
 }) {
   if (ev.event_url) {
     const name = srContext ? `${visibleText}, ${srContext}` : visibleText;
+    // Our own productions mirror onto the calendar with a relative event_url
+    // (/projects/<slug>). Those stay in the tab and route through Next, rather
+    // than opening a new window the way an off-site listing does.
+    if (ev.event_url.startsWith('/')) {
+      return (
+        <Link href={ev.event_url} aria-label={name} title={title} style={style} className={className}>
+          {children}
+        </Link>
+      );
+    }
     return (
       <a href={ev.event_url} target="_blank" rel="noopener noreferrer"
          aria-label={name} title={title} style={style} className={className}>

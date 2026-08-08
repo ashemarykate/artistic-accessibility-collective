@@ -6,8 +6,9 @@ import { supabase, getSessionUser, type Profile, type InviteCode, type TesterFee
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import ProductionsPanel from '@/components/ProductionsPanel';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'admins' | 'back-of-house';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'productions' | 'admins' | 'back-of-house';
 
 type BohNote = {
   id: string;
@@ -355,6 +356,15 @@ export default function AdminDashboard() {
       label: 'Access Card',
       tabs: [
         { id: 'access-card', label: 'Members', count: accessCardProfiles.length },
+      ],
+    },
+    {
+      // Our own shows and workshops, kept apart from the community calendar in
+      // the Website Content group below: that Events tab lists other people's
+      // events, this one is what we produce.
+      label: 'Artistic Accessibility Productions',
+      tabs: [
+        { id: 'productions', label: 'Projects & Events' },
       ],
     },
     {
@@ -738,6 +748,12 @@ export default function AdminDashboard() {
         {activeTab === 'content' && (
           <div id="panel-content" role="tabpanel" aria-labelledby="tab-content">
             <ContentManagementPanel />
+          </div>
+        )}
+
+        {activeTab === 'productions' && (
+          <div id="panel-productions" role="tabpanel" aria-labelledby="tab-productions">
+            <ProductionsPanel />
           </div>
         )}
 

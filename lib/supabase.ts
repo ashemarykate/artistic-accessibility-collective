@@ -282,6 +282,10 @@ export type CalEvent = {
   submitted_by_profile_id: string | null;
   is_visible: boolean;
   created_at: string;
+  // v38: set when this row mirrors an Artistic Accessibility production onto
+  // the community calendar. source is 'production' on those rows.
+  production_id?: string | null;
+  production_date_id?: string | null;
 };
 
 export type IcsSource = {
@@ -293,6 +297,144 @@ export type IcsSource = {
   last_error: string | null;
   created_at: string;
 };
+
+// ── Artistic Accessibility Productions (v38) ─────────────────────────────────
+// House-produced shows, workshops and projects shown at /projects and written
+// in Admin -> Productions. Every optional field is optional on purpose: the
+// patron pages hide anything blank rather than showing an empty label.
+
+/** One person credited on a production. */
+export type ProductionPresenter = {
+  name: string;
+  role?: string;
+  bio?: string;
+  photo_url?: string;
+  photo_alt?: string;
+  /** Links the credit to a Collective profile when they're a member. */
+  profile_id?: string;
+  link_label?: string;
+  link_url?: string;
+};
+
+/** A way to pay. `url` is an external payment link, never on-site checkout. */
+export type ProductionTicketTier = {
+  label: string;
+  /** Free text so sliding scale and pay-what-you-can read naturally. */
+  price_text?: string;
+  note?: string;
+  url?: string;
+  sold_out?: boolean;
+};
+
+export type ProductionPhoto = {
+  url: string;
+  /** Required in the admin form: this is our own site, we describe our images. */
+  alt: string;
+  caption?: string;
+};
+
+export type ProductionLink = { label: string; url: string };
+
+export type ProductionKind = 'workshop' | 'show' | 'screening' | 'project' | 'series' | 'other';
+export type ProductionStatus = 'draft' | 'published' | 'archived';
+
+export type Production = {
+  id: string;
+  slug: string;
+  title: string;
+  tagline: string | null;
+  kind: ProductionKind;
+  status: ProductionStatus;
+  sort_order: number;
+  summary: string | null;
+  /** Sanitized HTML. Render only through sanitizeHtml() in lib/sanitize-html.ts. */
+  body_html: string | null;
+  presenters: ProductionPresenter[];
+  ticket_tiers: ProductionTicketTier[];
+  gallery: ProductionPhoto[];
+  links: ProductionLink[];
+  hero_photo_url: string | null;
+  hero_photo_alt: string | null;
+  price_note: string | null;
+  access_features: string[];
+  access_note: string | null;
+  schedule_note: string | null;
+  contact_email: string | null;
+  rsvp_enabled: boolean;
+  rsvp_capacity: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+/** One occurrence. A show running online in September and in person in
+ *  November is one Production and several ProductionDates. */
+export type ProductionDate = {
+  id: string;
+  production_id: string;
+  start_at: string;
+  end_at: string | null;
+  is_all_day: boolean;
+  location_type: 'in-person' | 'online' | 'hybrid';
+  venue_name: string | null;
+  venue_address: string | null;
+  venue_note: string | null;
+  online_url: string | null;
+  online_note: string | null;
+  label: string | null;
+  ticket_url: string | null;
+  is_sold_out: boolean;
+  note: string | null;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductionRsvp = {
+  id: string;
+  user_id: string;
+  production_id: string;
+  production_date_id: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+/** A production with its dates attached, which is how the pages use it. */
+export type ProductionWithDates = Production & { dates: ProductionDate[] };
+
+export const PRODUCTION_KIND_LABELS: Record<ProductionKind, string> = {
+  workshop:  'Workshop',
+  show:      'Show',
+  screening: 'Screening',
+  project:   'Project',
+  series:    'Series',
+  other:     'Event',
+};
+
+/** Suggested access chips in the admin form. Free text is allowed too, and
+ *  note the house rule: never the wheelchair symbol as an icon anywhere. */
+export const PRODUCTION_ACCESS_OPTIONS = [
+  'ASL Interpreted',
+  'Certified Deaf Interpreter',
+  'Open Captions',
+  'Live Captioning (CART)',
+  'Audio Description',
+  'Touch Tour',
+  'Relaxed Performance',
+  'Sensory Friendly',
+  'Wheelchair Accessible Venue',
+  'Accessible Restrooms',
+  'Quiet Room Available',
+  'Service Animals Welcome',
+  'Large Print Materials',
+  'Braille Materials',
+  'Scent Free',
+  'Masks Required',
+  'Mask Friendly',
+  'Livestream Available',
+  'Recording Available Afterward',
+  'Sliding Scale Pricing',
+  'Free for Deaf and Disabled Patrons',
+];
 
 export const SPECIALTY_OPTIONS = [
   'ASL Interpreter',

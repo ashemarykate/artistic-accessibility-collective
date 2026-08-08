@@ -34,6 +34,7 @@ const PREVIEW_PROFILE: AccessCardProfile = {
   member_type: 'access_card',
 };
 import BrowserChrome from '@/components/BrowserChrome';
+import AttendingReminders from '@/components/AttendingReminders';
 
 // ── Fake barcode decoration ───────────────────────────────────────────────────
 function Barcode() {
@@ -662,6 +663,14 @@ function AccessCardContent() {
               )}
             </div>
           </div>
+
+          {/* Productions this cardholder said they're attending. Renders
+              nothing when there's nothing coming up. */}
+          {userId && userId !== 'preview' && (
+            <div style={{ width: '100%' }}>
+              <AttendingReminders userId={userId} variant="card" />
+            </div>
+          )}
 
           {/* Saved resources */}
           <section

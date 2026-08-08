@@ -8,6 +8,7 @@ import { EnvelopeIcon, PersonBubbleIcon, PersonStarIcon, PeopleIcon, FavoritesSt
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import AttendingReminders from '@/components/AttendingReminders';
 
 // ── Time helper ───────────────────────────────────────────────────────────────
 
@@ -516,6 +517,11 @@ export default function MemberHub() {
             this 1fr track, and the whole page, to grow to fit it instead of
             letting the descendant's own overflow/ellipsis rules do their job. */}
         <div role="region" aria-label="Your hub" style={{ minWidth: 0 }}>
+
+          {/* Productions this member said they're attending. Sits above the
+              welcome intro because it's time sensitive, and renders nothing at
+              all when there's nothing coming up. */}
+          <AttendingReminders userId={profile?.user_id} variant="msbox" />
 
           {/* Welcome / how-to intro */}
           {!introDismissed && (

@@ -66,7 +66,8 @@ const ITEMS: Record<string, ItemDef> = {
   'about':            { label: 'About Us',               icon: 'about-blue', kind: 'app',      cat: 'Artistic Accessibility', href: '/about',           blurb: 'Meet the people behind Artistic Accessibility, artists and advocates making creativity open to everyone.' },
   'all-folders':      { label: 'All Folders',            icon: 'folders', kind: 'folder' },
   'make-art':         { label: 'Make Art',               icon: 70,        kind: 'app',      cat: 'Play',          href: '/make-art',        blurb: 'Step into the studio. Paint, draw and experiment with our accessible online art tools.' },
-  'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'Resources',     href: '/calendar',        blurb: 'Workshops, classes and community events, all in one place. Save your spot.' },
+  'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'Resources',     href: '/calendar',        blurb: 'Every accessible arts event we know about, pulled in from partners around the world.' },
+  'projects':         { label: 'Current Projects & Events', icon: 57,      kind: 'app',      cat: 'Productions',   href: '/projects',        blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
   'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
@@ -84,11 +85,12 @@ const ITEMS: Record<string, ItemDef> = {
   'my-access-card':   { label: 'My Access Card',         icon: 52,        kind: 'app',      cat: 'Members',       href: '/access-card',     blurb: 'Your Access Card: saved resources, likes and comments.' },
 };
 
-const DESKTOP = ['about', 'all-folders', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
+const DESKTOP = ['about', 'all-folders', 'projects', 'make-art', 'calendar', 'resources', 'learning', 'contact', 'collective'];
 
 
 const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string; children: string[] }> = [
   { type: 'leaf',   key: 'about' },
+  { type: 'folder', name: 'PRODUCTIONS',   children: ['projects'] },
   { type: 'folder', name: 'PLAY',          children: ['make-art'] },
   { type: 'folder', name: 'MORE TO COME',  children: ['learning'] },
   { type: 'folder', name: 'RESOURCES',     children: ['access-resources', 'library', 'cinema', 'printer', 'calendar'] },
