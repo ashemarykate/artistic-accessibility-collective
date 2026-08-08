@@ -17,6 +17,19 @@
 -- all avatar uploads target that folder.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- Members can read files in their own folder. The v36 security pass dropped
+-- all SELECT policies on this bucket to stop public listing, but the
+-- overwrite and delete flows check the existing file first, so members need
+-- read access to their own folder. Public listing stays locked down; public
+-- display works by direct URL against the public bucket, no policy needed.
+DROP POLICY IF EXISTS "Members read own profile photos" ON storage.objects;
+CREATE POLICY "Members read own profile photos"
+  ON storage.objects FOR SELECT TO authenticated
+  USING (
+    bucket_id = 'profile-photos'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
+
 DROP POLICY IF EXISTS "Members update own profile photos" ON storage.objects;
 CREATE POLICY "Members update own profile photos"
   ON storage.objects FOR UPDATE TO authenticated
