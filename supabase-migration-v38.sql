@@ -20,8 +20,9 @@
 -- production stays fully editable as a draft without leaking onto /calendar.
 --
 -- Storage: photo uploads go to a PUBLIC bucket named `production-photos`,
--- which has to be created in the Supabase dashboard first
--- (Storage -> New bucket -> name `production-photos` -> Public -> Save).
+-- created in the SUPABASE dashboard (not Vercel Blob, which is a separate
+-- product this code never touches). See section 9 at the bottom for the exact
+-- click path and a query to confirm it worked.
 -- Section 6 at the bottom sets up its access policies and is safe to re-run.
 -- ─────────────────────────────────────────────────────────────────────────────
 
@@ -333,8 +334,15 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON production_rsvps TO authenticated;
 -- ============================================
 -- 9. STORAGE POLICIES for the production-photos bucket
 -- ============================================
--- Create the bucket first in the dashboard:
---   Storage -> New bucket -> name: production-photos -> Public bucket: ON
+-- Create the bucket first, in the SUPABASE dashboard (supabase.com), not
+-- Vercel. Vercel has its own storage product called Blob, and a Blob store of
+-- the same name is a different thing that this code never talks to: uploads go
+-- through supabase.storage, the same way the existing profile-photos bucket
+-- works. Path in Supabase:
+--   your project -> Storage (left sidebar) -> New bucket
+--   -> name: production-photos -> Public bucket: ON -> Create bucket
+--
+-- To confirm it exists:  select name, public from storage.buckets;
 -- Then this section wires up who can write to it. Safe to re-run.
 --
 -- If the bucket does not exist yet, these policies are still created and simply

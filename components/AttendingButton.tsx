@@ -214,13 +214,32 @@ export default function AttendingButton({
         {anyGoing ? 'You are attending' : rows.length > 1 ? 'Which one are you coming to?' : 'Planning to come?'}
       </p>
 
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.5rem' }}>
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem' }}>
         {rows.map((r) => {
           const going = rsvpFor(r.dateId);
           const isBusy = busy === keyOf(r.dateId);
+          const multi = rows.length > 1;
           return (
-            <li key={keyOf(r.dateId)}>
-              <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <li
+              key={keyOf(r.dateId)}
+              style={multi ? {
+                // Each date gets its own boxed row. In a 260px sidebar a button
+                // and its label sitting side by side wrap onto separate lines,
+                // which put every button ABOVE the date it belonged to and made
+                // the whole list unreadable. Label first, button under it, one
+                // visible group per date.
+                padding: '0.5rem 0.625rem',
+                background: '#faf7fd',
+                border: '1px solid rgba(0,0,0,0.12)',
+                borderRadius: 4,
+              } : undefined}
+            >
+              {multi && (
+                <p style={{ margin: '0 0 0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: '#333', lineHeight: 1.4 }}>
+                  {r.label}
+                </p>
+              )}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -234,26 +253,20 @@ export default function AttendingButton({
                   disabled={isBusy}
                   aria-busy={isBusy}
                   aria-pressed={!!going}
+                  // The visible label repeats on every row, so the accessible
+                  // name has to carry which date this button is for.
+                  aria-label={multi
+                    ? (going ? `Attending ${r.label}. Press to remove.` : `I'm attending ${r.label}`)
+                    : undefined}
                   style={going ? offBtn : primaryBtn}
                 >
                   {isBusy ? 'Saving…' : going ? '✓ Attending' : "I'm attending"}
                 </button>
-                {rows.length > 1 && (
-                  <span style={{ fontSize: '0.875rem', color: '#333' }}>{r.label}</span>
-                )}
+                {/* No separate "remove" control: the button above is a toggle,
+                    and a second control doing the same thing on every one of
+                    four date rows was just clutter in a narrow sidebar. */}
                 {going && (
-                  <button
-                    type="button"
-                    onClick={() => void leave(going)}
-                    disabled={isBusy}
-                    style={{
-                      minHeight: 44, padding: '0 10px', background: 'none', border: 'none',
-                      color: accent, textDecoration: 'underline', cursor: 'pointer',
-                      fontSize: '0.8125rem', fontFamily: 'inherit',
-                    }}
-                  >
-                    Never mind
-                  </button>
+                  <span style={{ fontSize: '0.75rem', color: '#555' }}>Press again to undo</span>
                 )}
               </div>
 
