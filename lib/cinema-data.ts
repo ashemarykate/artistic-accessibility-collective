@@ -2508,6 +2508,36 @@ export const CINEMA_ITEMS: CinemaItem[] = [
     howToAccess: 'Available on BBC iPlayer (UK); check current US availability.',
     hasCaptions: true,
   },
+
+  // ── Short Films & Video Art (disability film canon additions) ────────────────
+  {
+    slug: 'bunny-2019',
+    title: 'Bunny',
+    director: 'Hunter Ray Barker & Tucker Tripp',
+    year: 2019,
+    description: 'An intimate, improvised documentary-short portrait of Sandie "Goddess Bunny" Crisp, a transgender performer and Los Angeles cult icon who had polio as a child and used a wheelchair, made by her friends and fans. A community-made tribute to a trans, disabled underground legend who died of COVID-19 in 2021. Free to watch on Short of the Week.',
+    url: 'https://www.shortoftheweek.com/2020/01/23/bunny/',
+    type: 'short-film',
+    category: 'short-film',
+    tags: ['Disabled Voice', 'Disability Representation', 'LGBTQ+', 'Free'],
+    isFree: true,
+    platform: ['Web'],
+    runtimeMinutes: 13,
+  },
+  {
+    slug: 'this-body-is-a-shell',
+    title: 'This Body Is a Shell',
+    director: 'Ashley Eakin',
+    year: 2024,
+    description: 'An experimental short in which disabled women move through a stark inner landscape, wrestling with body image and self-worth beyond the surface. Shaped by director Ashley Eakin\'s own disability, Ollier disease with Maffucci syndrome. Premiered at Slamdance 2024 and won Best Experimental Film at the Santa Monica Film Festival.',
+    type: 'short-film',
+    category: 'short-film',
+    tags: ['Disabled Voice', 'Disability Representation'],
+    isFree: false,
+    platform: ['YouTube', 'Festival Circuit'],
+    howToAccess: 'Free to watch on YouTube (search "This Body Is a Shell Ashley Eakin"); also on the festival circuit.',
+    runtimeMinutes: 7,
+  },
 ];
 
 // ── Lookup helpers ──────────────────────────────────────────────────────────────
