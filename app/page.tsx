@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, type ProductionWithDates } from '@/lib/supabase';
+import { fetchPublishedProductions, formatDateShort, isPast, nextDate, sortByNextDate } from '@/lib/productions';
+import { PROJECTS_FOLDER_ICON, resolveProjectIcon } from '@/lib/project-icons';
 import Logo from '@/components/Logo';
 
 // ── constants ─────────────────────────────────────────────────────────────────
@@ -28,7 +30,10 @@ const BETA_MSG = `✶  This site is currently in BETA. We’d love your feedback
 
 // ── types ─────────────────────────────────────────────────────────────────────
 
-type WinKind = 'app' | 'aim' | 'explorer' | 'folder';
+// 'projects' is the pink Current Projects & Events folder. Unlike the others it
+// has no fixed contents: it reads the published productions at open time, so a
+// project published in Admin appears here with no code change.
+type WinKind = 'app' | 'aim' | 'explorer' | 'folder' | 'projects';
 
 interface ItemDef {
   label: string;
@@ -52,8 +57,8 @@ interface WinState {
 // Phone-sized windows on mobile stay as designed; desktop gets real window widths.
 // The Buddy List stays narrow on both: real AIM buddy lists were skinny.
 const winWidth = (kind: WinKind, mobile: boolean) => mobile
-  ? (kind === 'aim' ? 268 : kind === 'explorer' ? 286 : kind === 'folder' ? 300 : 308)
-  : (kind === 'aim' ? 280 : kind === 'explorer' ? 430 : kind === 'folder' ? 400 : 440);
+  ? (kind === 'aim' ? 268 : kind === 'explorer' || kind === 'projects' ? 286 : kind === 'folder' ? 300 : 308)
+  : (kind === 'aim' ? 280 : kind === 'explorer' ? 430 : kind === 'projects' ? 460 : kind === 'folder' ? 400 : 440);
 
 const prefersReduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -67,7 +72,10 @@ const ITEMS: Record<string, ItemDef> = {
   'all-folders':      { label: 'All Folders',            icon: 'folders', kind: 'folder' },
   'make-art':         { label: 'Make Art',               icon: 70,        kind: 'app',      cat: 'Play',          href: '/make-art',        blurb: 'Step into the studio. Paint, draw and experiment with our accessible online art tools.' },
   'calendar':         { label: 'Calendar',               icon: 'cal',     kind: 'app',      cat: 'Resources',     href: '/calendar',        blurb: 'Every accessible arts event we know about, pulled in from partners around the world.' },
-  'projects':         { label: 'Current Projects & Events', icon: 57,      kind: 'app',      cat: 'Productions',   href: '/projects',        blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
+  // No href on purpose: this one opens a folder, it does not navigate. The
+  // overview page is the first row inside ProjectsBody. Adding an href back
+  // here, or adding 'projects' to DIRECT_NAV, would skip the folder entirely.
+  'projects':         { label: 'Current Projects & Events', icon: PROJECTS_FOLDER_ICON, kind: 'projects', cat: 'Productions', blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
   'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
@@ -205,19 +213,29 @@ function Btn({ children, onClick, primary, pressed }: { children: React.ReactNod
   );
 }
 
-function Row({ icon, label, onClick, indent = 0, external, href }: {
+function Row({ icon, label, onClick, indent = 0, external, href, sub }: {
   icon: string | number;
   label: string;
   onClick?: () => void;
   indent?: number;
   external?: boolean;
   href?: string;
+  /** Quieter second line under the label, for a date or a note. Part of the
+   *  same link, so it is read as one thing rather than a stray fragment. */
+  sub?: string;
 }) {
   const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 9, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: '6px 10px', paddingLeft: 10 + indent * 18, fontFamily: UIFONT, fontSize: 13, color: '#101010', borderBottom: '1px solid #f0ede8', boxSizing: 'border-box' };
   const inner = (
     <>
       <span aria-hidden="true" style={{ width: 22, height: 22, flexShrink: 0 }}><Ico n={icon} size={22} /></span>
-      <span>{label}</span>
+      {sub ? (
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+          <span>{label}</span>
+          <span style={{ fontSize: 11, color: '#5a5a5a' }}>{sub}</span>
+        </span>
+      ) : (
+        <span>{label}</span>
+      )}
       {external && <span className="sr-only"> (opens in new tab)</span>}
     </>
   );
@@ -452,6 +470,114 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
   );
 }
 
+/**
+ * The inside of the pink Current Projects & Events folder.
+ *
+ * Two ways in, on purpose, and this is the whole reason the folder exists: the
+ * first row is the overview page for browsing everything at once, and below it
+ * one row per project for going straight to the one you came for without
+ * scrolling past the others.
+ *
+ * The list is read from the published productions each time the folder opens,
+ * so publishing in Admin is all it takes to appear here. Drafts never show,
+ * because fetchPublishedProductions only asks for published rows and RLS would
+ * refuse the rest anyway.
+ *
+ * A failed fetch is treated the same as an empty one: the overview row is still
+ * there, so the folder is never a dead end.
+ */
+function ProjectsBody() {
+  const [productions, setProductions] = useState<ProductionWithDates[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchPublishedProductions().then((list) => {
+      if (!cancelled) setProductions(list);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const loading = productions === null;
+  const all     = productions ?? [];
+  const current = sortByNextDate(all.filter((p) => !isPast(p)));
+  const past    = all.filter(isPast);
+  const count   = 1 + current.length + past.length;
+
+  const projectRow = (p: ProductionWithDates) => {
+    const next = nextDate(p);
+    return (
+      <Row
+        key={p.id}
+        icon={resolveProjectIcon(p.desktop_icon, p.kind)}
+        label={p.title}
+        sub={next ? formatDateShort(next) : p.schedule_note ?? undefined}
+        href={`/projects/${p.slug}`}
+      />
+    );
+  };
+
+  const groupHeading = (id: string, text: string) => (
+    <p id={id} style={{
+      margin: 0, padding: '5px 10px', background: '#f4f2ec',
+      borderBottom: '1px solid #e2ded6', borderTop: '1px solid #e2ded6',
+      fontFamily: UIFONT, fontSize: 10.5, fontWeight: 700,
+      letterSpacing: '.06em', textTransform: 'uppercase', color: '#5a5a5a',
+    }}>
+      {text}
+    </p>
+  );
+
+  return (
+    <div>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontFamily: UIFONT }}>
+        <span style={{ color: '#555' }}>Address</span>
+        <div style={{ flex: 1, background: '#fff', border: '1px solid #7a7a7a', padding: '2px 5px', fontSize: 11, color: '#000' }}>
+          {'C:\\Artistic Accessibility\\Projects & Events\\'}
+        </div>
+      </div>
+
+      <div style={{ background: '#fff' }}>
+        <Row
+          icon={PROJECTS_FOLDER_ICON}
+          label="See everything at once"
+          sub="The overview of all our projects and events"
+          href="/projects"
+        />
+
+        {loading && (
+          <p role="status" aria-live="polite" style={{ margin: 0, padding: '10px', fontFamily: UIFONT, fontSize: 12, color: '#5a5a5a' }}>
+            Looking up what we have on…
+          </p>
+        )}
+
+        {!loading && current.length > 0 && (
+          <section aria-labelledby="proj-current">
+            {groupHeading('proj-current', 'Coming up')}
+            {current.map(projectRow)}
+          </section>
+        )}
+
+        {!loading && past.length > 0 && (
+          <section aria-labelledby="proj-past">
+            {groupHeading('proj-past', 'Already happened')}
+            {past.map(projectRow)}
+          </section>
+        )}
+
+        {!loading && all.length === 0 && (
+          <p style={{ margin: 0, padding: '10px', fontFamily: UIFONT, fontSize: 12, color: '#5a5a5a', lineHeight: 1.5 }}>
+            Nothing published yet. The overview above explains what is coming.
+          </p>
+        )}
+      </div>
+
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', fontFamily: UIFONT }}>
+        {loading ? 'Reading…' : `${count} item${count === 1 ? '' : 's'}`}
+      </div>
+    </div>
+  );
+}
+
 function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate, signOutError, isMobile }: {
   win: WinState;
   z: number;
@@ -528,6 +654,7 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate,
         {kind === 'folder'   && <FolderBody onOpen={onOpen} wide={!isMobile} />}
         {kind === 'aim'      && <AimBody onOpen={onOpen} account={account} onSignOut={onSignOut} onNavigate={onNavigate} signOutError={signOutError} />}
         {kind === 'explorer' && <ExplorerBody onOpen={onOpen} />}
+        {kind === 'projects' && <ProjectsBody />}
       </div>
     </div>
   );

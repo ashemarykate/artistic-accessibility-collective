@@ -49,6 +49,7 @@ import {
   uniqueSlug,
   slugify,
 } from '@/lib/productions';
+import ProjectIconPicker from '@/components/ProjectIconPicker';
 import RichTextEditor from '@/components/RichTextEditor';
 import ProductionPhotoUploader from '@/components/ProductionPhotoUploader';
 
@@ -125,6 +126,8 @@ type FormState = {
   contact_email: string;
   rsvp_enabled: boolean;
   rsvp_capacity: string;
+  /** '' means "choose one for me from the kind". */
+  desktop_icon: string;
   dates: DateRow[];
 };
 
@@ -149,6 +152,7 @@ const blankForm = (): FormState => ({
   hero: [], gallery: [], presenters: [], ticket_tiers: [], links: [],
   price_note: '', access_features: [], access_note: '', schedule_note: '',
   contact_email: '', rsvp_enabled: true, rsvp_capacity: '',
+  desktop_icon: '',
   dates: [],
 });
 
@@ -189,6 +193,7 @@ function toForm(p: ProductionWithDates): FormState {
     contact_email: p.contact_email ?? '',
     rsvp_enabled: p.rsvp_enabled,
     rsvp_capacity: p.rsvp_capacity == null ? '' : String(p.rsvp_capacity),
+    desktop_icon: p.desktop_icon ?? '',
     dates: p.dates.map((d) => {
       const s = splitTs(d.start_at);
       const e = splitTs(d.end_at);
@@ -327,17 +332,41 @@ export default function ProductionsPanel() {
         contact_email: form.contact_email.trim() || null,
         rsvp_enabled: form.rsvp_enabled,
         rsvp_capacity: form.rsvp_capacity.trim() ? Number(form.rsvp_capacity) : null,
+        desktop_icon: form.desktop_icon || null,
       };
 
-      let productionId = form.id;
-      if (productionId) {
-        const { error } = await supabase.from('productions').update(payload).eq('id', productionId);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase.from('productions').insert(payload).select('id').single();
-        if (error) throw error;
-        productionId = (data as { id: string }).id;
+      // Save, and survive the one ordering mistake that is easy to make: this
+      // code knows about desktop_icon (migration v44) but the database might not
+      // yet. Postgres answers 42703 "column does not exist", which on its own
+      // reads like a crash to anyone who did not write it. So the save drops
+      // just that field and goes again, then says plainly what happened. Once
+      // v44 has run this branch never fires again.
+      let missingIconColumn = false;
+
+      const writeProduction = async (body: Record<string, unknown>) => {
+        if (form.id) {
+          const { error } = await supabase.from('productions').update(body).eq('id', form.id);
+          return { id: form.id, error };
+        }
+        const { data, error } = await supabase.from('productions').insert(body).select('id').single();
+        return { id: (data as { id: string } | null)?.id, error };
+      };
+
+      const isMissingIconColumn = (e: { code?: string; message?: string } | null) =>
+        !!e && (e.code === '42703' || /column .*desktop_icon.* does not exist/i.test(e.message ?? ''))
+        && /desktop_icon/i.test(e.message ?? '');
+
+      let { id: productionId, error: writeErr } = await writeProduction(payload);
+
+      if (isMissingIconColumn(writeErr)) {
+        missingIconColumn = true;
+        const withoutIcon: Record<string, unknown> = { ...payload };
+        delete withoutIcon.desktop_icon;
+        ({ id: productionId, error: writeErr } = await writeProduction(withoutIcon));
       }
+
+      if (writeErr) throw writeErr;
+      if (!productionId) throw new Error('The production saved but did not come back with an id.');
 
       // ── Dates: delete the ones removed in the form, then write the rest ────
       const keptIds = form.dates.map((d) => d.id).filter(Boolean) as string[];
@@ -411,8 +440,13 @@ export default function ProductionsPanel() {
         }
       }
 
+      const iconNote = missingIconColumn
+        ? ' One thing did not save: the folder icon. Run supabase-migration-v44.sql in the Supabase SQL Editor, then pick it again and save. Everything else went through.'
+        : '';
+
       setSaveMsg(
-        (targetStatus === 'published' ? 'Published.' : 'Saved as a draft. Only admins can see it.') + mirrorNote,
+        (targetStatus === 'published' ? 'Published.' : 'Saved as a draft. Only admins can see it.')
+        + mirrorNote + iconNote,
       );
       await load();
       setMode('list');
@@ -581,6 +615,13 @@ export default function ProductionsPanel() {
               Filled in from the title. {form.id ? 'Changing it changes the link, so any link you already shared will stop working.' : 'You can change it before publishing.'}
             </p>
           </div>
+
+          <ProjectIconPicker
+            value={form.desktop_icon}
+            onChange={(key) => set('desktop_icon', key)}
+            kind={form.kind}
+            kindLabel={PRODUCTION_KIND_LABELS[form.kind]}
+          />
 
           <div style={row}>
             <label style={lbl} htmlFor="prod-summary">Short summary</label>
