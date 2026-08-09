@@ -71,14 +71,43 @@ function normalize(row: Production): Production {
 
 async function attachDates(productions: Production[]): Promise<ProductionWithDates[]> {
   if (productions.length === 0) return [];
+  const ids = productions.map((p) => p.id);
+
   const { data } = await supabase
     .from('production_dates')
     .select('*')
-    .in('production_id', productions.map((p) => p.id))
+    .in('production_id', ids)
     .order('start_at');
   const dates = (data ?? []) as ProductionDate[];
+
+  /**
+   * The microsite address lives in two columns, for a boring reason: this side
+   * added productions.microsite_url in v45, and the Backstage side added
+   * production_microsite.public_url in v46, each unaware of the other. Rather
+   * than make every caller know that, it is settled once, here.
+   *
+   * public_url wins, because Backstage is where a producer actually manages
+   * their microsite, so it is the value that will be kept current.
+   * microsite_url stays as the fallback: it still works for a production that
+   * has no microsite row at all, and it is the field in the Collective admin.
+   *
+   * The whole thing is best effort. production_microsite is readable by anon by
+   * design, but if the table or column is missing (a database that has not run
+   * v46), the query simply fails and every production keeps its own value.
+   */
+  const { data: micro } = await supabase
+    .from('production_microsite')
+    .select('production_id, public_url')
+    .in('production_id', ids);
+  const publicUrlById = new Map(
+    ((micro ?? []) as Array<{ production_id: string; public_url: string | null }>)
+      .filter((m) => m.public_url?.trim())
+      .map((m) => [m.production_id, m.public_url as string]),
+  );
+
   return productions.map((p) => ({
     ...normalize(p),
+    microsite_url: publicUrlById.get(p.id) ?? p.microsite_url ?? null,
     dates: dates.filter((d) => d.production_id === p.id),
   }));
 }
