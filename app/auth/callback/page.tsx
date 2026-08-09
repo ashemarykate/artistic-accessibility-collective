@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { routeAfterAuth } from '@/lib/after-login';
 import BrowserChrome from '@/components/BrowserChrome';
 
 /**
@@ -81,21 +82,13 @@ export default function AuthCallback() {
       await supabase.rpc('link_profile_to_auth_user');
 
       // ── 3. Route to the right place ────────────────────────────────────────
-      // Check admin first, then member_type to distinguish Collective vs Access Card.
-      const [{ data: adminData }, { data: profileData }] = await Promise.all([
-        supabase.from('admin_users').select('user_id').eq('user_id', userId).maybeSingle(),
-        supabase.from('profiles').select('member_type').eq('user_id', userId).maybeSingle(),
-      ]);
-
-      if (cancelled) return;
-
-      if (adminData) {
-        router.replace('/admin');
-      } else if (profileData?.member_type === 'access_card') {
-        router.replace('/');   // Access Card members land on home; nav shows their card link
-      } else {
-        router.replace('/dashboard');
-      }
+      // Somewhere they were already headed wins over the role default. A
+      // producer following a link to Backstage was landing on the Collective
+      // admin instead, because being an admin outranked what they asked for.
+      const nextParam = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('next')
+        : null;
+      await routeAfterAuth(router, userId, nextParam);
     };
 
     finishSignIn();

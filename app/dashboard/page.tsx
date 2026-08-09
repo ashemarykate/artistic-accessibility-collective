@@ -349,6 +349,11 @@ export default function MemberHub() {
           </Link>
           <Link href="/members" className="nav-link">Directory</Link>
           <Link href="/resources"  className="nav-link">Resources</Link>
+          {/* Backstage is not admin: it is for anyone on a production, which
+              includes people who are not Collective admins at all. Shown to
+              everyone because the page itself explains it when you are not on
+              a show, rather than us hiding a door people are looking for. */}
+          <Link href="/backstage" className="nav-link">Backstage</Link>
           {isAdmin && <Link href="/admin" className="nav-link">Admin</Link>}
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}

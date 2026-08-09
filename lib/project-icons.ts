@@ -27,6 +27,7 @@ export type ProjectIcon = {
 };
 
 export const PROJECT_ICONS: ProjectIcon[] = [
+  { key: '2006cd',  label: 'Pixel CD, blue and pink with sparkles' },
   { key: 'cal',     label: 'Calendar' },
   { key: '57',      label: 'Notepad' },
   { key: '50',      label: 'Camera' },

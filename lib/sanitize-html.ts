@@ -29,7 +29,71 @@ const ALLOWED: Record<string, string[]> = {
   blockquote: [], figure: [], figcaption: [],
   a: ['href'],
   img: ['src', 'alt'],
+  // span carries the only inline styling a post may have. See safeStyle:
+  // the value is never echoed back, it is re-emitted from our own table, so
+  // there is nothing for an attacker to smuggle through.
+  span: ['style'],
 };
+
+/** The only faces a post can pick. Keyed, so the stored value is a short token
+ *  and the real CSS comes from here rather than from the post. */
+export const POST_FONTS: Record<string, string> = {
+  // Deliberately quote-free. escapeAttr turns an apostrophe into &#39;, so a
+  // stack containing quotes never matches itself on a second sanitize pass and
+  // the font is silently lost the next time a post is saved. CSS allows
+  // multi-word family names unquoted as long as each word is a valid
+  // identifier, which is true for all of these.
+  comic:   'Comic Sans MS, Comic Sans, cursive',
+  times:   'Times New Roman, Times, serif',
+  courier: 'Courier New, Courier, monospace',
+  impact:  'Impact, Haettenschweiler, sans-serif',
+  system:  'Tahoma, Verdana, sans-serif',
+};
+
+/** Lookups go through a Map, never `POST_FONTS[value]`. A plain object literal
+ *  inherits from Object.prototype, so a bracket lookup on attacker text finds
+ *  `constructor` and `__proto__` and returns something that is not a font at
+ *  all. A Map has no prototype chain to walk. */
+const FONT_BY_TOKEN = new Map(Object.entries(POST_FONTS));
+const FONT_BY_STACK = new Map(
+  Object.entries(POST_FONTS).map(([, css]) => [css.toLowerCase(), css]),
+);
+
+/**
+ * The one place inline CSS is allowed, and it is not a passthrough.
+ *
+ * Every declaration is matched against a fixed vocabulary and then REBUILT
+ * from our own strings. A colour has to be a plain hex literal; a font has to
+ * be a key in POST_FONTS. Anything else is dropped on the floor. Because the
+ * output is assembled from values this function owns, there is no quoting or
+ * escaping question: `url(...)`, `expression(...)`, a stray quote, a second
+ * declaration smuggled after a semicolon, none of them can survive being
+ * looked up in a table they are not in.
+ */
+function safeStyle(raw: string): string | null {
+  let color: string | null = null;
+  let font: string | null = null;
+
+  for (const decl of raw.split(';')) {
+    const at = decl.indexOf(':');
+    if (at === -1) continue;
+    const key = decl.slice(0, at).trim().toLowerCase();
+    const val = decl.slice(at + 1).trim().toLowerCase();
+
+    if (key === 'color') {
+      if (/^#[0-9a-f]{3}$/.test(val) || /^#[0-9a-f]{6}$/.test(val)) color = val;
+    } else if (key === 'font-family') {
+      // Accept the token we write, and also the expanded stack, so a post
+      // stays valid when it is re-sanitized after rendering.
+      font = FONT_BY_TOKEN.get(val) ?? FONT_BY_STACK.get(val) ?? font;
+    }
+  }
+
+  const out: string[] = [];
+  if (color) out.push(`color:${color}`);
+  if (font) out.push(`font-family:${font}`);
+  return out.length ? out.join(';') : null;
+}
 
 // Void elements: they never get a closing tag and must not open a stack frame.
 const VOID = new Set(['br', 'hr', 'img']);
@@ -43,24 +107,59 @@ const DROP_CONTENT = new Set([
   'button', 'select', 'textarea', 'option', 'link', 'meta', 'base',
 ]);
 
+/**
+ * Turns &#106; &#x6a; and the handful of named refs a browser understands into
+ * the characters they represent, so a scheme check sees what the browser will
+ * see. Runs repeatedly because `&am&#112;;` decodes to `&amp;` on a second
+ * pass; the cap stops a crafted input from looping.
+ */
+function decodeCharRefs(input: string): string {
+  const NAMED: Record<string, string> = {
+    amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", tab: '\t', newline: '\n',
+  };
+  let out = input;
+  for (let i = 0; i < 5; i++) {
+    const next = out.replace(
+      /&(?:#(\d+)|#x([0-9a-f]+)|([a-z]+));?/gi,
+      (whole, dec: string, hex: string, name: string) => {
+        if (dec) return String.fromCodePoint(Number(dec));
+        if (hex) return String.fromCodePoint(parseInt(hex, 16));
+        const key = String(name).toLowerCase();
+        return Object.prototype.hasOwnProperty.call(NAMED, key) ? NAMED[key] : whole;
+      },
+    );
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
 /** Only these URL shapes are allowed through, on both href and src. Anything
  *  else (javascript:, data:, vbscript:, a stray protocol-relative //host) is
  *  dropped, which drops the attribute and usually the whole tag with it. */
 function safeUrl(raw: string, { allowMailto }: { allowMailto: boolean }): string | null {
+  // Decode character references BEFORE looking for a scheme. The browser
+  // decodes attribute values when it parses the page, so `&#106;avascript:` is
+  // `javascript:` by the time anything can click it. Checking the raw string
+  // means the scheme regex sees a leading '&', finds no scheme, and waves the
+  // value through as a "bare path". That was a live bypass of the block this
+  // function exists to enforce, for javascript: and data: alike.
+  const decoded = decodeCharRefs(raw);
+
   // Strip characters a browser ignores but a naive check does not: control
   // characters and whitespace inside a scheme, as in "java\nscript:alert(1)".
-  const url = raw.replace(/[\u0000-\u0020\u007f-\u009f]+/g, '').trim();
+  const url = decoded.replace(/[\u0000-\u0020\u007f-\u009f]+/g, '').trim();
   if (!url) return null;
 
   // Relative and same-origin links: /projects/x, ./x, #anchor. Never //host,
   // which is protocol-relative and therefore off-site.
   if (url.startsWith('//')) return null;
-  if (url.startsWith('/') || url.startsWith('#') || url.startsWith('./')) return raw.trim();
+  if (url.startsWith('/') || url.startsWith('#') || url.startsWith('./')) return decoded.trim();
 
   const scheme = url.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
-  if (!scheme) return raw.trim();                       // bare path like images/a.png
-  if (scheme === 'http' || scheme === 'https') return raw.trim();
-  if (allowMailto && (scheme === 'mailto' || scheme === 'tel')) return raw.trim();
+  if (!scheme) return decoded.trim();                   // bare path like images/a.png
+  if (scheme === 'http' || scheme === 'https') return decoded.trim();
+  if (allowMailto && (scheme === 'mailto' || scheme === 'tel')) return decoded.trim();
   return null;
 }
 
@@ -185,12 +284,14 @@ export function sanitizeHtml(input: string | null | undefined): string {
     let href: string | null = null;
     let src: string | null = null;
     let alt = '';
+    let style: string | null = null;
 
     for (const [key, value] of attrs) {
       if (!allowedAttrs.includes(key)) continue;
       if (key === 'href') href = safeUrl(value, { allowMailto: true });
       else if (key === 'src') src = safeUrl(value, { allowMailto: false });
       else if (key === 'alt') alt = value;
+      else if (key === 'style') style = safeStyle(value);
     }
 
     if (name === 'a') {
@@ -206,6 +307,11 @@ export function sanitizeHtml(input: string | null | undefined): string {
       // alt is always emitted. Empty means decorative, which is a real answer;
       // a missing alt attribute is not.
       rendered = `<img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" loading="lazy" />`;
+    } else if (name === 'span') {
+      // A span with nothing valid left to say is not worth a tag. Unwrapping
+      // keeps the words and drops the empty element.
+      if (!style) continue;
+      rendered = `<span style="${escapeAttr(style)}">`;
     } else {
       rendered = VOID.has(name) ? `<${name} />` : `<${name}>`;
     }

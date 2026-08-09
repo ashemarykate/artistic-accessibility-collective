@@ -1,5 +1,6 @@
 'use client';
 import Logo from '@/components/Logo';
+import { readLoginTrace, clearLoginTrace, type LoginTrace } from '@/lib/after-login';
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase, getSessionUser, type Profile, type InviteCode, type TesterFeedback, type CalEvent, type IcsSource, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
@@ -69,6 +70,7 @@ export default function AdminDashboard() {
   const [admins, setAdmins] = useState<AdminRow[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'super_admin'>('admin');
+  const [loginTrace, setLoginTrace] = useState<LoginTrace | null>(null);
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [adminActionMsg, setAdminActionMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [profileActionPending, setProfileActionPending] = useState<{ id: string; action: 'approve' | 'reject' | 'toggle-public' } | null>(null);
@@ -81,6 +83,7 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => { checkAdmin(); }, []);
+  useEffect(() => { setLoginTrace(readLoginTrace()); }, []);
 
   const checkAdmin = async () => {
     const user = await getSessionUser();
@@ -432,6 +435,34 @@ export default function AdminDashboard() {
         <h1 style={{ color: 'var(--aac-blue-dark)', fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
           Admin Dashboard
         </h1>
+
+        {/* Temporary: explains why a sign in landed here instead of Backstage.
+            Remove this block, and the trace helpers in lib/after-login.ts,
+            once the redirect is settled. */}
+        {loginTrace && (
+          <div style={{
+            background: '#fffbe6', border: '1px solid #e0cf7a', borderRadius: '4px',
+            padding: '0.85rem 1rem', marginBottom: '1rem', fontSize: '0.9rem',
+          }}>
+            <strong style={{ color: 'var(--aac-blue-dark)' }}>Why you landed here</strong>
+            <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.15rem 0.75rem', margin: '0.5rem 0 0' }}>
+              <dt><strong>Signed in at</strong></dt><dd>{loginTrace.at}</dd>
+              <dt><strong>Destination asked for</strong></dt>
+              <dd>{loginTrace.intended ?? 'none was requested'}</dd>
+              <dt><strong>Sent you to</strong></dt><dd>{loginTrace.routedTo}</dd>
+            </dl>
+            <p style={{ margin: '0.6rem 0 0' }}>
+              {loginTrace.intended
+                ? 'That destination was honoured.'
+                : 'Nothing asked for Backstage, so you got the admin default. Requesting a login link from the Send Login Email tool below always does this, because it has no way to know where you were going. Start from Backstage instead.'}
+            </p>
+            <p style={{ margin: '0.6rem 0 0', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <Link href="/backstage" className="btn btn-sm">Go to Backstage</Link>
+              <button className="btn btn-outline btn-sm"
+                onClick={() => { clearLoginTrace(); setLoginTrace(null); }}>Dismiss</button>
+            </p>
+          </div>
+        )}
 
         {/* Profile version alert */}
         {profilesNeedingUpdate.length > 0 && (

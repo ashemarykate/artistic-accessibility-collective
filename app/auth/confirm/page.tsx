@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import { routeAfterAuth } from '@/lib/after-login';
 
 /**
  * Scanner-proof sign-in landing page.
@@ -33,6 +34,7 @@ function ConfirmSignIn() {
   // 'magiclink' for links from the admin Send Login Email flow and the
   // Supabase magic-link template; 'email' is the newer template default.
   const type = (searchParams.get('type') || 'magiclink') as 'magiclink' | 'email';
+  const next = searchParams.get('next');
 
   useEffect(() => {
     document.title = 'Finish signing in · Artistic Accessibility Collective';
@@ -60,19 +62,9 @@ function ConfirmSignIn() {
     // First-time sign-in: connect this login to the member's profile row.
     await supabase.rpc('link_profile_to_auth_user');
 
-    const userId = data.session.user.id;
-    const [{ data: adminData }, { data: profileData }] = await Promise.all([
-      supabase.from('admin_users').select('user_id').eq('user_id', userId).maybeSingle(),
-      supabase.from('profiles').select('member_type').eq('user_id', userId).maybeSingle(),
-    ]);
-
-    if (adminData) {
-      router.replace('/admin');
-    } else if (profileData?.member_type === 'access_card') {
-      router.replace('/');
-    } else {
-      router.replace('/dashboard');
-    }
+    // Shared with /auth/callback and /login. An intended destination beats the
+    // role default, which is what makes a link straight to Backstage work.
+    await routeAfterAuth(router, data.session.user.id, next);
   };
 
   if (!tokenHash) {

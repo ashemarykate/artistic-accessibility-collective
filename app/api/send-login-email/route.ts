@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
   try {
-    const { profileId } = await req.json();
+    const { profileId, next } = await req.json();
 
     if (!profileId) {
       return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
@@ -53,7 +53,16 @@ export async function POST(req: NextRequest) {
       console.error('Magic link response had no hashed_token');
       return NextResponse.json({ error: 'Could not generate login link' }, { status: 500 });
     }
-    const loginUrl = `${req.nextUrl.origin}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink`;
+    // Where this person should land after signing in. Travels in the link
+    // rather than in their browser storage, so it still works when the email
+    // is opened on a different device from the one that requested it.
+    // Same origin paths only: this value ends up in an email we send.
+    const requestedNext = typeof next === 'string' ? next : '';
+    const safeNext = requestedNext.startsWith('/') && !requestedNext.startsWith('//')
+      && !requestedNext.includes('\\') ? requestedNext : '';
+
+    const loginUrl = `${req.nextUrl.origin}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink`
+      + (safeNext ? `&next=${encodeURIComponent(safeNext)}` : '');
 
     // Send the email
     const { error: emailError } = await resend.emails.send({

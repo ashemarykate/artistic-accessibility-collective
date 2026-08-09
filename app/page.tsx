@@ -534,7 +534,11 @@ function ProjectsBody() {
   const all     = productions ?? [];
   const current = sortByNextDate(all.filter((p) => !isPast(p)));
   const past    = all.filter(isPast);
-  const count   = 1 + current.length + past.length;
+  // The two rows that are always there whatever the database says: the overview
+  // and Backstage. Counting them was missed when Backstage was added, so the
+  // footer read "2 items" under a list of three.
+  const FIXED_ROWS = 2;
+  const count   = FIXED_ROWS + current.length + past.length;
 
   // Where a project's icon leads. The interactive microsite when it has one,
   // because that is the front door this folder exists to offer: the plain,
@@ -582,6 +586,19 @@ function ProjectsBody() {
           label="See everything at once"
           sub="The overview of all our projects and events"
           href="/projects"
+        />
+
+        {/* The company's own door. Signed out it asks you to sign in, and if
+            you are not on a show it says so plainly, so it is safe to show to
+            everybody rather than hiding it behind a role check the homepage
+            has no other reason to do. */}
+        <Row
+          // A key, not a path: Ico builds the filename itself via IMG(), so a
+          // full path here becomes icon-/images/.../icon-51.png.png and 404s.
+          icon={51}
+          label="Backstage"
+          sub="For the people making these. Sign in required."
+          href="/backstage"
         />
 
         {loading && (

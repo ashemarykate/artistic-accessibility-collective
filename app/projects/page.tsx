@@ -74,6 +74,30 @@ export default function ProjectsPage() {
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <Banner />
 
+          {/* The company's own door, in the gold the rest of this page keeps
+              for emphasis so it reads as a different kind of thing from the
+              projects listed below it. Everyone sees it: Backstage explains
+              itself if you are not on a show. */}
+          <p style={{ margin: '0 0 1rem', textAlign: 'right' }}>
+            <Link
+              href="/backstage"
+              className="xanga-link"
+              style={{
+                display: 'inline-block',
+                background: X.gold,
+                color: X.ink,
+                border: `2px solid ${X.plum}`,
+                borderRadius: 4,
+                padding: '0.35rem 0.9rem',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                textDecoration: 'none',
+              }}
+            >
+              Backstage
+            </Link>
+          </p>
+
           <XangaLayout
             main={
               <>

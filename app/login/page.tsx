@@ -3,6 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
+import { routeAfterAuth, takeAfterLogin, rememberAfterLogin } from '@/lib/after-login';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -27,6 +28,13 @@ function LoginForm() {
     }
   }, [searchParams]);
 
+  // Arrived here from somewhere that wants us back. Hold onto it so the magic
+  // link form and the password form both honour it.
+  useEffect(() => {
+    const next = searchParams.get('next');
+    if (next) rememberAfterLogin(next);
+  }, [searchParams]);
+
   useEffect(() => {
     document.title = 'Login · Artistic Accessibility Collective';
     return () => {
@@ -34,26 +42,19 @@ function LoginForm() {
     };
   }, []);
 
+  /** Arrived from a Backstage link. Worth saying so: otherwise a cast member
+   *  who has never used the Collective lands on a Collective login page with
+   *  no idea whether they are in the right place. */
+  const headedBackstage = (searchParams.get('next') ?? '').startsWith('/backstage');
+
   const showMsg = (text: string, type: 'info' | 'error' = 'info') => {
     setMessage(text);
     setMessageType(type);
   };
 
-  // Routes a logged-in user based on role and member type.
-  const routeAfterLogin = async (userId: string) => {
-    const [{ data: adminData }, { data: profileData }] = await Promise.all([
-      supabase.from('admin_users').select('user_id').eq('user_id', userId).maybeSingle(),
-      supabase.from('profiles').select('member_type').eq('user_id', userId).maybeSingle(),
-    ]);
-
-    if (adminData) {
-      router.push('/admin');
-    } else if (profileData?.member_type === 'access_card') {
-      router.push('/');
-    } else {
-      router.push('/dashboard');
-    }
-  };
+  // Shared with /auth/confirm and /auth/callback so all three sign in paths
+  // agree, and so an intended destination cannot be honoured by only one.
+  const routeAfterLogin = (userId: string) => routeAfterAuth(router, userId);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +74,10 @@ function LoginForm() {
 
         await routeAfterLogin(user.id);
       } else {
-        router.push('/dashboard');
+        // Defensive: supabase-js returns a user whenever error is null, so this
+        // should not fire. Honour a requested destination anyway rather than
+        // reintroducing a fourth place that ignores it.
+        router.push(takeAfterLogin() ?? '/dashboard');
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -98,12 +102,15 @@ function LoginForm() {
       // can't query profiles directly when public_visible = false.
       const normalizedEmail = email.trim().toLowerCase();
 
-      const { data: approved } = await supabase
-        .rpc('is_approved_email', { lookup_email: normalizedEmail });
+      // Approved Collective members AND anyone on a production team. Being on
+      // a show does not require Collective membership, so checking only
+      // profiles turned half of a company away at their own door.
+      const { data: allowed } = await supabase
+        .rpc('can_request_login_link', { lookup_email: normalizedEmail });
 
-      if (!approved) {
+      if (!allowed) {
         showMsg(
-          "We don't have an approved account for that email address. If you applied recently, your profile may still be under review. Questions? Email contact@artisticaccessibility.com.",
+          "We don't have an account for that email address. If you applied to the Collective recently your profile may still be under review, and if somebody added you to a show, check with them which address they used. Questions? Email contact@artisticaccessibility.com.",
           'error',
         );
         setLoading(false);
@@ -114,7 +121,10 @@ function LoginForm() {
       // the callback page reads the session and routes them to /admin or /dashboard.
       const { error } = await supabase.auth.signInWithOtp({
         email: normalizedEmail,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+            + (searchParams.get('next') ? `?next=${encodeURIComponent(searchParams.get('next')!)}` : ''),
+        },
       });
       if (error) throw error;
       showMsg("We've sent a login link to your email. Check your inbox (and spam just in case).");
@@ -137,6 +147,16 @@ function LoginForm() {
         <h1 style={{ color: 'var(--aac-blue)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem', textAlign: 'center' }}>
           Log in to The Collective
         </h1>
+        {headedBackstage && (
+          <p style={{
+            margin: '0.5rem 0 0', padding: '0.6rem 0.8rem', borderRadius: 4,
+            background: 'var(--aac-blue-light)', color: 'var(--aac-blue-dark)',
+            fontSize: '0.9rem',
+          }}>
+            Signing in to <strong>Backstage</strong>. Use the address whoever added
+            you to the show used. You do not need a Collective profile.
+          </p>
+        )}
         <p style={{ color: 'var(--color-text-muted)', fontStyle: 'italic', textAlign: 'center', marginBottom: '1.75rem' }}>
           together, together
         </p>
