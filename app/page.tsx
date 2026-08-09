@@ -43,6 +43,9 @@ interface ItemDef {
   href?: string;
   blurb?: string;
   soon?: boolean;
+  /** Adds a tinted aura on the desktop, on top of the white halo every icon
+   *  already gets. For the one or two items worth drawing the eye to. */
+  glow?: boolean;
   links?: Array<{ key: string; label: string; icon: string | number; ext?: boolean }>;
 }
 
@@ -78,7 +81,7 @@ const ITEMS: Record<string, ItemDef> = {
   // Short label on purpose: it is a folder, and a folder gets a folder-sized
   // name. The section keeps its full "Current Projects & Events" title on the
   // /projects page banner, where there is room for it.
-  'projects':         { label: 'Projects',               icon: PROJECTS_FOLDER_ICON, kind: 'projects', cat: 'Productions', blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
+  'projects':         { label: 'Projects',               icon: 'projects', kind: 'projects', cat: 'Productions', glow: true, blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
   'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
@@ -168,9 +171,19 @@ function DeskIcon({ k, onOpen, selected, onSelect, isMobile }: {
         style={{
           // --tilt drives the resting angle; hover/focus straightens it (see stylesheet).
           ['--tilt' as string]: `${tilt}deg`,
-          filter: isMobile
-            ? `drop-shadow(0 0 3px rgba(255,255,255,.7)) drop-shadow(3px 4px 0 rgba(0,0,0,.5))`
-            : `drop-shadow(0 0 4px rgba(255,255,255,.85)) drop-shadow(${shadowOff}px ${shadowOff + 2}px 0 rgba(0,0,0,.55))`,
+          // Layer order matters: the aura goes on first so the white halo and
+          // the hard sticker shadow still sit crisply on top of it, rather than
+          // the glow washing them out. Cyan to pick up the disc's sheen.
+          filter: [
+            it.glow
+              ? (isMobile
+                  ? 'drop-shadow(0 0 5px rgba(150,255,255,.9)) drop-shadow(0 0 11px rgba(60,210,255,.55))'
+                  : 'drop-shadow(0 0 7px rgba(150,255,255,.95)) drop-shadow(0 0 17px rgba(60,210,255,.6))')
+              : null,
+            isMobile
+              ? 'drop-shadow(0 0 3px rgba(255,255,255,.7)) drop-shadow(3px 4px 0 rgba(0,0,0,.5))'
+              : `drop-shadow(0 0 4px rgba(255,255,255,.85)) drop-shadow(${shadowOff}px ${shadowOff + 2}px 0 rgba(0,0,0,.55))`,
+          ].filter(Boolean).join(' '),
           display: 'inline-block',
         }}
       >
