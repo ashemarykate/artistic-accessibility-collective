@@ -235,6 +235,14 @@ export function kindLabel(p: Production): string {
   return PRODUCTION_KIND_LABELS[p.kind] ?? 'Event';
 }
 
+// ── The interactive version ───────────────────────────────────────────────────
+// Lives in its own module because it is pure and security relevant (it decides
+// what may go in an href), which makes it testable without a database. Re-
+// exported here so callers still import everything production-related from one
+// place.
+
+export { micrositeHref, isExternalHref } from './microsite-url';
+
 // ── Calendar mirror ───────────────────────────────────────────────────────────
 
 /**

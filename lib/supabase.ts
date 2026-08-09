@@ -366,6 +366,11 @@ export type Production = {
    *  A key from PROJECT_ICONS in lib/project-icons.ts, never a URL. NULL means
    *  "choose one from the kind", which is the normal case. */
   desktop_icon?: string | null;
+  /** v45: this production's interactive microsite, like '/2006'. The Projects
+   *  folder opens this when set, and the plain pages link across to it. NULL
+   *  means there isn't one. Always read it through micrositeHref() in
+   *  lib/productions.ts, which refuses anything that isn't a safe address. */
+  microsite_url?: string | null;
   created_at: string;
   updated_at: string;
 };

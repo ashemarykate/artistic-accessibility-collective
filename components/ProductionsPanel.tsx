@@ -128,6 +128,8 @@ type FormState = {
   rsvp_capacity: string;
   /** '' means "choose one for me from the kind". */
   desktop_icon: string;
+  /** Where the interactive version of this project lives, like '/2006'. */
+  microsite_url: string;
   dates: DateRow[];
 };
 
@@ -153,6 +155,7 @@ const blankForm = (): FormState => ({
   price_note: '', access_features: [], access_note: '', schedule_note: '',
   contact_email: '', rsvp_enabled: true, rsvp_capacity: '',
   desktop_icon: '',
+  microsite_url: '',
   dates: [],
 });
 
@@ -194,6 +197,7 @@ function toForm(p: ProductionWithDates): FormState {
     rsvp_enabled: p.rsvp_enabled,
     rsvp_capacity: p.rsvp_capacity == null ? '' : String(p.rsvp_capacity),
     desktop_icon: p.desktop_icon ?? '',
+    microsite_url: p.microsite_url ?? '',
     dates: p.dates.map((d) => {
       const s = splitTs(d.start_at);
       const e = splitTs(d.end_at);
@@ -333,15 +337,24 @@ export default function ProductionsPanel() {
         rsvp_enabled: form.rsvp_enabled,
         rsvp_capacity: form.rsvp_capacity.trim() ? Number(form.rsvp_capacity) : null,
         desktop_icon: form.desktop_icon || null,
+        microsite_url: form.microsite_url.trim() || null,
       };
 
-      // Save, and survive the one ordering mistake that is easy to make: this
-      // code knows about desktop_icon (migration v44) but the database might not
-      // yet. Postgres answers 42703 "column does not exist", which on its own
-      // reads like a crash to anyone who did not write it. So the save drops
-      // just that field and goes again, then says plainly what happened. Once
-      // v44 has run this branch never fires again.
-      let missingIconColumn = false;
+      // Save, and survive the ordering mistake that is easy to make: this code
+      // knows about columns their migration may not have created yet
+      // (desktop_icon from v44, microsite_url from v45). Postgres answers 42703
+      // "column productions.x does not exist", which reads like a crash to
+      // anyone who did not write it.
+      //
+      // So on 42703 the save reads the column name out of the message, drops
+      // that one field, and goes again, keeping a list of what it had to leave
+      // behind so it can say so plainly afterwards. Everything else still
+      // saves. Once the migrations have run, none of this fires.
+      //
+      // Only fields this form owns can be dropped: a 42703 naming anything else
+      // is a real bug and is rethrown rather than swallowed.
+      const DROPPABLE = new Set(['desktop_icon', 'microsite_url']);
+      const dropped: string[] = [];
 
       const writeProduction = async (body: Record<string, unknown>) => {
         if (form.id) {
@@ -352,17 +365,25 @@ export default function ProductionsPanel() {
         return { id: (data as { id: string } | null)?.id, error };
       };
 
-      const isMissingIconColumn = (e: { code?: string; message?: string } | null) =>
-        !!e && (e.code === '42703' || /column .*desktop_icon.* does not exist/i.test(e.message ?? ''))
-        && /desktop_icon/i.test(e.message ?? '');
+      /** The column a 42703 is complaining about, if it is one we can do without. */
+      const missingColumn = (e: { code?: string; message?: string } | null): string | null => {
+        if (!e || e.code !== '42703') return null;
+        const name = e.message?.match(/column\s+\S*?\.?"?([a-z_]+)"?\s+does not exist/i)?.[1];
+        return name && DROPPABLE.has(name) ? name : null;
+      };
 
-      let { id: productionId, error: writeErr } = await writeProduction(payload);
+      let body: Record<string, unknown> = { ...payload };
+      let { id: productionId, error: writeErr } = await writeProduction(body);
 
-      if (isMissingIconColumn(writeErr)) {
-        missingIconColumn = true;
-        const withoutIcon: Record<string, unknown> = { ...payload };
-        delete withoutIcon.desktop_icon;
-        ({ id: productionId, error: writeErr } = await writeProduction(withoutIcon));
+      // Bounded: at most one retry per droppable column, so a persistent error
+      // can never spin here.
+      for (let i = 0; i < DROPPABLE.size; i++) {
+        const col = missingColumn(writeErr);
+        if (!col) break;
+        dropped.push(col);
+        body = { ...body };
+        delete body[col];
+        ({ id: productionId, error: writeErr } = await writeProduction(body));
       }
 
       if (writeErr) throw writeErr;
@@ -440,13 +461,22 @@ export default function ProductionsPanel() {
         }
       }
 
-      const iconNote = missingIconColumn
-        ? ' One thing did not save: the folder icon. Run supabase-migration-v44.sql in the Supabase SQL Editor, then pick it again and save. Everything else went through.'
-        : '';
+      // Names the person would recognise, and the file that fixes each.
+      const DROPPED_COPY: Record<string, { what: string; file: string }> = {
+        desktop_icon:  { what: 'the folder icon',              file: 'supabase-migration-v44.sql' },
+        microsite_url: { what: 'the interactive version link', file: 'supabase-migration-v45.sql' },
+      };
+
+      const droppedNote = dropped.length === 0 ? '' : (() => {
+        const items = dropped.map((c) => DROPPED_COPY[c]).filter(Boolean);
+        const what = items.map((i) => i.what).join(' and ');
+        const files = Array.from(new Set(items.map((i) => i.file))).join(' and ');
+        return ` Everything saved except ${what}. Run ${files} in the Supabase SQL Editor, then set ${items.length === 1 ? 'it' : 'them'} again and save.`;
+      })();
 
       setSaveMsg(
         (targetStatus === 'published' ? 'Published.' : 'Saved as a draft. Only admins can see it.')
-        + mirrorNote + iconNote,
+        + mirrorNote + droppedNote,
       );
       await load();
       setMode('list');
@@ -613,6 +643,25 @@ export default function ProductionsPanel() {
             </div>
             <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
               Filled in from the title. {form.id ? 'Changing it changes the link, so any link you already shared will stop working.' : 'You can change it before publishing.'}
+            </p>
+          </div>
+
+          <div style={row}>
+            <label style={lbl} htmlFor="prod-microsite">
+              Link to the interactive version (optional)
+            </label>
+            <input
+              id="prod-microsite" type="text" style={inp} value={form.microsite_url}
+              onChange={(e) => set('microsite_url', e.target.value)}
+              placeholder="/2006"
+              aria-describedby="prod-microsite-help"
+            />
+            <p id="prod-microsite-help" style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+              If this project has its own playable site, put its address here, starting with a slash
+              (for example <code>/2006</code>) or with https://. The icon in the pink Projects folder
+              then opens that instead of the plain page, and the plain pages get a link across to it.
+              Leave it blank and the folder icon opens the plain page, which is a perfectly good
+              destination on its own.
             </p>
           </div>
 

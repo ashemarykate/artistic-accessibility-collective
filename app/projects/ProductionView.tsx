@@ -17,7 +17,7 @@
 import Link from 'next/link';
 import AttendingButton from '@/components/AttendingButton';
 import { PRODUCTION_KIND_LABELS, profileHref, type ProductionWithDates } from '@/lib/supabase';
-import { formatDate, isPast, kindLabel, upcomingDates } from '@/lib/productions';
+import { formatDate, isExternalHref, isPast, kindLabel, micrositeHref, upcomingDates } from '@/lib/productions';
 import { isBlankHtml, sanitizeHtml } from '@/lib/sanitize-html';
 import {
   AccessChips, Banner, ElsewhereModule, Module, PostBodyStyles, PostFrame, X, XangaLayout, navLink,
@@ -31,6 +31,7 @@ export default function ProductionView({ production }: { production: ProductionW
   const finished = isPast(p);
   const liveTiers = p.ticket_tiers.filter((t) => t.label.trim());
   const hasBody = !isBlankHtml(p.body_html);
+  const micro = micrositeHref(p);
 
   return (
     <>
@@ -92,6 +93,34 @@ export default function ProductionView({ production }: { production: ProductionW
               <p style={{ margin: '0 0 1rem', fontSize: '1.0625rem', fontWeight: 600, lineHeight: 1.55 }}>
                 {p.summary}
               </p>
+            )}
+
+            {/* The other front door. This page is the plain one: everything laid
+                out to be read quickly or screenshotted. If the project also has
+                an interactive site, say so here rather than making people hunt
+                for it, and say what it is so nobody has to click to find out.
+                A plain <a>, not next/link: a microsite is static files behind a
+                rewrite, not a React route. */}
+            {micro && (
+              <div style={{
+                margin: '0 0 1.25rem', padding: '0.75rem 0.875rem',
+                background: X.haze, border: `2px solid ${X.grape}`, borderRadius: 4,
+              }}>
+                <p style={{ margin: 0, fontSize: '0.9375rem', lineHeight: 1.55 }}>
+                  There is a playable version of this one.{' '}
+                  <a
+                    className="xanga-link"
+                    href={micro}
+                    {...(isExternalHref(micro) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    style={{ ...navLink, minHeight: 32 }}
+                  >
+                    Go and poke at it{isExternalHref(micro) ? ' (opens in a new tab)' : ''} »
+                  </a>
+                </p>
+                <p style={{ margin: '0.125rem 0 0', fontSize: '0.8125rem', color: X.muted }}>
+                  Same information, more fun. Everything you need is on this page too.
+                </p>
+              </div>
             )}
 
             {hasBody && (

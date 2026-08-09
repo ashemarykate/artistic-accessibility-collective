@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase, type ProductionWithDates } from '@/lib/supabase';
-import { fetchPublishedProductions, formatDateShort, isPast, nextDate, sortByNextDate } from '@/lib/productions';
+import { fetchPublishedProductions, formatDateShort, isExternalHref, isPast, micrositeHref, nextDate, sortByNextDate } from '@/lib/productions';
 import { PROJECTS_FOLDER_ICON, resolveProjectIcon } from '@/lib/project-icons';
 import Logo from '@/components/Logo';
 
@@ -216,7 +216,7 @@ function Btn({ children, onClick, primary, pressed }: { children: React.ReactNod
   );
 }
 
-function Row({ icon, label, onClick, indent = 0, external, href, sub }: {
+function Row({ icon, label, onClick, indent = 0, external, href, sub, hardLink }: {
   icon: string | number;
   label: string;
   onClick?: () => void;
@@ -226,6 +226,11 @@ function Row({ icon, label, onClick, indent = 0, external, href, sub }: {
   /** Quieter second line under the label, for a date or a note. Part of the
    *  same link, so it is read as one thing rather than a stray fragment. */
   sub?: string;
+  /** Use a plain <a> instead of next/link. Needed for a production microsite:
+   *  /2006 is static files served through a rewrite, not a React route, so
+   *  next/link would try for an RSC payload and fall back to a hard navigation
+   *  in front of the visitor. See isExternalHref in lib/productions.ts. */
+  hardLink?: boolean;
 }) {
   const rowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 9, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: '6px 10px', paddingLeft: 10 + indent * 18, fontFamily: UIFONT, fontSize: 13, color: '#101010', borderBottom: '1px solid #f0ede8', boxSizing: 'border-box' };
   const inner = (
@@ -242,6 +247,18 @@ function Row({ icon, label, onClick, indent = 0, external, href, sub }: {
       {external && <span className="sr-only"> (opens in new tab)</span>}
     </>
   );
+  if (href && hardLink) {
+    return (
+      <a
+        href={href}
+        className="win-row"
+        style={{ ...rowStyle, textDecoration: 'none' }}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      >
+        {inner}
+      </a>
+    );
+  }
   if (href) return <Link href={href} className="win-row" style={{ ...rowStyle, textDecoration: 'none' }}>{inner}</Link>;
   return <button onClick={onClick} className="win-row" style={rowStyle}>{inner}</button>;
 }
@@ -506,15 +523,22 @@ function ProjectsBody() {
   const past    = all.filter(isPast);
   const count   = 1 + current.length + past.length;
 
+  // Where a project's icon leads. The interactive microsite when it has one,
+  // because that is the front door this folder exists to offer: the plain,
+  // readable version is already one row up as "See everything at once". A
+  // project with no microsite falls back to its plain page, so it still works.
   const projectRow = (p: ProductionWithDates) => {
     const next = nextDate(p);
+    const micro = micrositeHref(p);
     return (
       <Row
         key={p.id}
         icon={resolveProjectIcon(p.desktop_icon, p.kind)}
         label={p.title}
         sub={next ? formatDateShort(next) : p.schedule_note ?? undefined}
-        href={`/projects/${p.slug}`}
+        href={micro ?? `/projects/${p.slug}`}
+        hardLink={!!micro}
+        external={!!micro && isExternalHref(micro)}
       />
     );
   };

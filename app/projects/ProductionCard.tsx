@@ -10,7 +10,7 @@
 
 import Link from 'next/link';
 import { PRODUCTION_KIND_LABELS, type ProductionWithDates } from '@/lib/supabase';
-import { formatDate, formatWhere, upcomingDates } from '@/lib/productions';
+import { formatDate, formatWhere, isExternalHref, micrositeHref, upcomingDates } from '@/lib/productions';
 import { htmlToText } from '@/lib/sanitize-html';
 import { AccessChips, PostFrame, X, navLink } from './xanga-ui';
 
@@ -37,6 +37,7 @@ export function ProductionCard({ production: p, past = false }: { production: Pr
   // Falls back to the opening of the post when there's no summary, so a card
   // written in a hurry still says something.
   const blurb = p.summary?.trim() || truncate(htmlToText(p.body_html), 220);
+  const micro = micrositeHref(p);
 
   return (
     <PostFrame
@@ -109,10 +110,23 @@ export function ProductionCard({ production: p, past = false }: { production: Pr
 
           <AccessChips features={p.access_features} />
 
-          <p style={{ margin: '0.5rem 0 0' }}>
+          {/* Both doors, side by side, so whichever kind of visitor you are the
+              next step is right here. A plain <a> for the microsite: static
+              files behind a rewrite, not a React route. */}
+          <p style={{ margin: '0.5rem 0 0', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link href={`/projects/${p.slug}`} className="xanga-link" style={navLink}>
               {past ? 'Read about it »' : 'Read the whole thing »'}
             </Link>
+            {micro && (
+              <a
+                className="xanga-link"
+                href={micro}
+                {...(isExternalHref(micro) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                style={navLink}
+              >
+                Play with it{isExternalHref(micro) ? ' (opens in a new tab)' : ''} »
+              </a>
+            )}
           </p>
         </div>
       </div>
