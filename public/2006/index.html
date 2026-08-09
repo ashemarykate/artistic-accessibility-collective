@@ -146,6 +146,9 @@
     border-left:1px solid #808080;font-size:8px;color:#333;
     display:flex;align-items:center;justify-content:center;cursor:pointer;
   }
+  .so-hint{
+    font-size:10px;color:#5a5a52;margin:6px 2px 7px;line-height:1.35;text-align:center;
+  }
   .so-anon{
     width:100%;font-family:inherit;font-size:12px;padding:6px 8px;cursor:pointer;
     background:linear-gradient(180deg,#fff,var(--chrome));
@@ -718,6 +721,9 @@ function viewSignOn(){
           <span class="drop">▼</span>
         </span>
       </div>
+      <p class="so-hint">
+        make up a screen name and press Sign On, or skip it and we'll hand you one
+      </p>
       <button class="so-anon" id="anonbtn">Continue as Anon</button>
       <div class="so-checks">
         <span><i></i> Save password</span><span><i></i> Auto-login</span>
