@@ -75,7 +75,10 @@ const ITEMS: Record<string, ItemDef> = {
   // No href on purpose: this one opens a folder, it does not navigate. The
   // overview page is the first row inside ProjectsBody. Adding an href back
   // here, or adding 'projects' to DIRECT_NAV, would skip the folder entirely.
-  'projects':         { label: 'Current Projects & Events', icon: PROJECTS_FOLDER_ICON, kind: 'projects', cat: 'Productions', blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
+  // Short label on purpose: it is a folder, and a folder gets a folder-sized
+  // name. The section keeps its full "Current Projects & Events" title on the
+  // /projects page banner, where there is room for it.
+  'projects':         { label: 'Projects',               icon: PROJECTS_FOLDER_ICON, kind: 'projects', cat: 'Productions', blurb: 'Shows, workshops and projects we are making ourselves, with access built in from the start.' },
   'connect':          { label: 'Log In',                 icon: 'aim',     kind: 'aim' },
   'resources':        { label: 'Resources',              icon: 48,        kind: 'explorer', href: '/resources' },
   'learning':         { label: 'Learning Hub',           icon: 80,        kind: 'app',      cat: 'More to Come',  href: '/learning-hub',    blurb: 'Guided lessons and tutorials at your own pace.' },
