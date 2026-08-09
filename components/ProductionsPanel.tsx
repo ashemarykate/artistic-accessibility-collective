@@ -79,6 +79,35 @@ const btn = (kind: 'primary' | 'outline' | 'danger' | 'ghost'): React.CSSPropert
   ...(kind === 'ghost' ? { border: '1px solid var(--color-border, #c8c4bc)', color: '#333' } : {}),
 });
 
+/**
+ * Turns whatever was thrown into something a person can act on.
+ *
+ * Supabase does not throw Error objects, it returns plain
+ * `{ message, details, hint, code }`. So `String(err)` on one produces the
+ * literal text "[object Object]", which is what this panel showed the first
+ * time a save failed for real. Anything that reaches the screen goes through
+ * here now.
+ */
+function describeError(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (err && typeof err === 'object') {
+    const e = err as { message?: string; details?: string; hint?: string; code?: string };
+    const parts = [e.message, e.details, e.hint].filter((p): p is string => !!p && p.trim().length > 0);
+    if (parts.length > 0) {
+      // The code is worth keeping: it is the one part that is searchable.
+      return e.code ? `${parts.join('. ')} (${e.code})` : parts.join('. ');
+    }
+    try {
+      const json = JSON.stringify(err);
+      if (json && json !== '{}') return json;
+    } catch {
+      // Circular or otherwise unserialisable: fall through to the generic line.
+    }
+  }
+  const s = String(err);
+  return s === '[object Object]' ? 'The database refused the change but did not say why.' : s;
+}
+
 const STATUS_META: Record<ProductionStatus, { label: string; bg: string; fg: string }> = {
   draft:     { label: 'Draft',     bg: '#fdf1b8', fg: '#6b5300' },
   published: { label: 'Published', bg: '#d6f0dc', fg: '#125c2a' },
@@ -365,10 +394,28 @@ export default function ProductionsPanel() {
         return { id: (data as { id: string } | null)?.id, error };
       };
 
-      /** The column a 42703 is complaining about, if it is one we can do without. */
+      /**
+       * The column the database is complaining about, if it is one we can do
+       * without. Two very different errors mean the same thing here:
+       *
+       *   PGRST204  PostgREST checked the request body against its schema cache
+       *             and did not recognise a key. This is what an insert or an
+       *             update actually returns, and its message reads
+       *             "Could not find the 'microsite_url' column of 'productions'
+       *             in the schema cache".
+       *   42703     Postgres itself, e.g. when a column is named in a filter or
+       *             a select: "column productions.microsite_url does not exist".
+       *
+       * The first version of this only handled 42703, so publishing failed with
+       * an unreadable error until v45 was run. Both shapes are matched now.
+       */
       const missingColumn = (e: { code?: string; message?: string } | null): string | null => {
-        if (!e || e.code !== '42703') return null;
-        const name = e.message?.match(/column\s+\S*?\.?"?([a-z_]+)"?\s+does not exist/i)?.[1];
+        if (!e) return null;
+        if (e.code !== 'PGRST204' && e.code !== '42703') return null;
+        const msg = e.message ?? '';
+        const name =
+          msg.match(/Could not find the '([a-z_]+)' column/i)?.[1]
+          ?? msg.match(/column\s+\S*?\.?"?([a-z_]+)"?\s+does not exist/i)?.[1];
         return name && DROPPABLE.has(name) ? name : null;
       };
 
@@ -481,8 +528,7 @@ export default function ProductionsPanel() {
       await load();
       setMode('list');
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setSaveErr(`Could not save: ${message}`);
+      setSaveErr(`Could not save: ${describeError(err)}`);
     } finally {
       setSaving(false);
     }
@@ -491,7 +537,7 @@ export default function ProductionsPanel() {
   const togglePublish = async (p: ProductionWithDates) => {
     const status: ProductionStatus = p.status === 'published' ? 'draft' : 'published';
     const { error } = await supabase.from('productions').update({ status }).eq('id', p.id);
-    if (error) { setSaveErr(error.message); return; }
+    if (error) { setSaveErr(`Could not change that: ${describeError(error)}`); return; }
     await syncProductionToCalendar({ ...p, status }, p.dates);
     setSaveMsg(status === 'published'
       ? `"${p.title}" is now live at /projects/${p.slug}.`
@@ -503,7 +549,7 @@ export default function ProductionsPanel() {
     // Dates, RSVPs and mirrored calendar rows all cascade from this.
     const { error } = await supabase.from('productions').delete().eq('id', p.id);
     setDeleteConfirm(null);
-    if (error) { setSaveErr(error.message); return; }
+    if (error) { setSaveErr(`Could not delete that: ${describeError(error)}`); return; }
     setSaveMsg(`Deleted "${p.title}".`);
     await load();
   };
