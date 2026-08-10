@@ -438,6 +438,22 @@ export default function ResourcesPage() {
             {catResources.length} item{catResources.length !== 1 ? 's' : ''}
           </span>
         </div>
+
+        {/* Every category carries a description explaining what belongs in it.
+            It shows once you filter to that category, so browsing the whole
+            directory is not ten paragraphs of preamble. A category that sets
+            alwaysShowDescription opts out of that: its note is a disclaimer and
+            has to stay with the items it applies to. */}
+        {(activeCategoryId === cat.id || cat.alwaysShowDescription) && cat.description && (
+          <p style={{
+            margin: '0 0 0.75rem', padding: '0.625rem 0.75rem',
+            background: NP.goldLight, border: `1px solid ${NP.border}`,
+            fontFamily: NP.fontBody, fontSize: '0.8125rem', lineHeight: 1.6, color: NP.ink,
+          }}>
+            {cat.description}
+          </p>
+        )}
+
         {catResources.map((r, i) => renderResource(r, i, catResources.length))}
       </section>
     );

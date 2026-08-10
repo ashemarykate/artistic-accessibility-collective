@@ -22,6 +22,13 @@ export type Category = {
   title: string;
   emoji: string;
   description: string;
+  /**
+   * Normally a category's description appears once you filter to it. Set this to
+   * keep it on screen whenever the section renders, for a category whose
+   * description is a disclaimer rather than a nicety: the note has to sit next
+   * to the items it applies to, whether or not anyone clicked in.
+   */
+  alwaysShowDescription?: boolean;
   resources: Resource[];
 };
 
@@ -550,6 +557,37 @@ export const CATEGORIES: Category[] = [
       { name: 'Perkins School for the Blind: Resource Center', url: 'https://www.perkins.org/resource-center/', description: 'Thousands of free expert resources on blindness, low vision, cortical visual impairment, assistive technology, and transition, for learners, families, and educators. One of the deepest free knowledge bases in the field.', type: 'org', tags: ['FREE'], location: 'United States' },
       { name: 'National Federation of the Blind (NFB)', url: 'https://nfb.org/programs-services', description: 'The largest blind-member-led organization in the US, whose free programs include the NFB-NEWSLINE news service and free white cane and slate-and-stylus programs. A major disabled-led resource and advocacy voice.', type: 'org', tags: ['FREE', 'Disabled Voice'], location: 'United States' },
       { name: 'Standard Ebooks', url: 'https://standardebooks.org/', description: 'A volunteer, open-source project producing free public-domain ebooks with clean semantic markup, careful typography, and accessible EPUBs. A model of accessible publishing done right, and a free library in its own right.', type: 'media', tags: ['FREE', 'Open Access'] },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 10. SUBMISSIONS
+  // "Someone sent this to us and it does not belong in any of the nine above."
+  //
+  // Deliberately last, and deliberately labelled. The other nine categories are
+  // curated: we went looking for those. This one is where things people send us
+  // land when they are worth passing along but are not arts accessibility, or
+  // are not community made, or come from someone with something to sell.
+  //
+  // The description is a disclaimer, so it carries alwaysShowDescription: a
+  // reader seeing one of these items needs the context whether or not they
+  // filtered to this category first.
+  //
+  // Rule of thumb for adding here: it has to be accurate and it has to be
+  // respectful about disabled people. If it fails either, it does not go on the
+  // site at all. Passing those two tests is not the same as a recommendation,
+  // which is what this category exists to make clear.
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'submissions',
+    title: 'Submissions',
+    emoji: '📬',
+    description: 'This is a community submission that did not fit into one of our categories. Someone sent it to us, we read it and checked it over, and we are passing it along. A listing here is not a recommendation, and it is not us vouching for whoever made it. Each note below says who published the thing and what they want from you, so you can decide for yourself.',
+    alwaysShowDescription: true,
+    resources: [
+
+      { name: 'Driving With Hearing Loss (Harding Mazzotti)', url: 'https://www.1800law1010.com/driving-with-hearing-loss/', description: 'A plain language guide to driving as a Deaf or hard of hearing person: what the law actually says, how licensing works, what to do at a traffic stop, and which technology helps. It cites the ADA, the FMCSA hearing requirement review, AAA Foundation research and NIDCD data, and it pushes back on the myth that Deaf people are unsafe drivers. Published by Harding Mazzotti, a personal injury law firm, who sent it to us themselves. It ends by asking you to call them for a free consultation, so read it as a law firm\'s guide rather than a neutral one. Free to read.', type: 'guide', tags: ['FREE'], location: 'United States' },
+
     ],
   },
 ];
