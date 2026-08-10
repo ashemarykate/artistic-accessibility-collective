@@ -157,7 +157,11 @@ type EditableProfile = Omit<Pick<Profile,
   | 'not_great_at' | 'learning_now' | 'want_to_learn'
   | 'colleges' | 'professional_certifications' | 'trainings_completed'
   | 'profile_types' | 'company_event_link' | 'gallery_photos'
->, 'volunteer_notes'> & { volunteer_notes?: string | null };
+  // Two fields are widened to allow null, because for these "clear it" is a
+  // real answer a member can give and has to be storable. Sending undefined
+  // would drop the key from the update and silently leave the old value behind.
+>, 'volunteer_notes' | 'experience_level'>
+  & { volunteer_notes?: string | null; experience_level?: string | null };
 
 // Background colors a member can pick for their profile page. All are deep
 // enough that the white text and cream content cards stay readable (WCAG AA).
@@ -218,7 +222,8 @@ export default function EditProfilePage() {
   const [availabilityStatus, setAvailabilityStatus] = useState('By Inquiry');
   const [communicationStyle, setCommunicationStyle] = useState<string[]>([]);
   const [preferredContact,   setPreferredContact]   = useState('Email');
-  const [experienceLevel,    setExperienceLevel]    = useState('entry');
+  // '' means the member has not answered. Never assume a level for them.
+  const [experienceLevel,    setExperienceLevel]    = useState('');
   const [rateInfo,           setRateInfo]           = useState('');
   const [education,          setEducation]          = useState('');
   const [notGreatAt,         setNotGreatAt]         = useState('');
@@ -289,7 +294,7 @@ export default function EditProfilePage() {
     setAvailabilityStatus(data.availability_status ?? 'By Inquiry');
     setCommunicationStyle(data.communication_style ?? []);
     setPreferredContact(data.preferred_contact     ?? 'Email');
-    setExperienceLevel(data.experience_level       ?? 'entry');
+    setExperienceLevel(data.experience_level       ?? '');
     setRateInfo(data.rate_info                     ?? '');
     setEducation(data.education                    ?? '');
     setNotGreatAt(data.not_great_at                ?? '');
@@ -400,7 +405,7 @@ export default function EditProfilePage() {
       availability_status: availabilityStatus,
       communication_style: communicationStyle,
       preferred_contact:  preferredContact,
-      experience_level:   experienceLevel,
+      experience_level:   experienceLevel || null,
       rate_info:          rateInfo.trim()           || undefined,
       education:          education.trim()          || undefined,
       not_great_at:       notGreatAt.trim()         || undefined,
@@ -431,7 +436,10 @@ export default function EditProfilePage() {
         ...prev,
         ...updates,
         username: username.trim() || undefined,
+        // null is a valid thing to SEND (it clears the column) but never a
+        // client-side value, so both nullable fields land back as undefined.
         volunteer_notes: updates.volunteer_notes ?? undefined,
+        experience_level: updates.experience_level ?? undefined,
       } : prev);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -971,13 +979,14 @@ export default function EditProfilePage() {
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label htmlFor="experienceLevel" className="form-label">Entry Level or Seasoned?</label>
+                  <label htmlFor="experienceLevel" className="form-label">How far along are you?</label>
                   <select
                     id="experienceLevel"
                     className="form-input"
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
                   >
+                    <option value="">Prefer not to say</option>
                     <option value="student">Student</option>
                     <option value="entry">Entry Level</option>
                     <option value="mid">Mid Level</option>

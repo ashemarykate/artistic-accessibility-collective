@@ -7,6 +7,10 @@ import { supabase, getSessionUser, type Profile, type Endorsement, REQUIRED_PROF
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
+import {
+  fetchMemberCredits, productionHref, creditLine, CREDIT_GROUPS,
+  type GroupedCredits,
+} from '@/lib/member-credits';
 
 type EndorsementWithEndorser = Endorsement & { endorser: Profile };
 
@@ -96,6 +100,9 @@ export default function ProfilePage() {
   const [loadFailed,         setLoadFailed]          = useState(false);
   const [endorsements,       setEndorsements]        = useState<EndorsementWithEndorser[]>([]);
   const [goTos,              setGoTos]               = useState<Profile[]>([]);
+  // Artistic Accessibility productions this person is credited on. The view
+  // behind this respects RLS, so a draft production never leaks through it.
+  const [credits,            setCredits]             = useState<GroupedCredits | null>(null);
   const [currentUser,        setCurrentUser]         = useState<User | null>(null);
   const [currentUserProfile, setCurrentUserProfile]  = useState<Profile | null>(null);
   const [isProfileAdmin,     setIsProfileAdmin]      = useState(false);
@@ -156,6 +163,13 @@ export default function ProfilePage() {
       }
       if (!profileData) return;
       setProfile(profileData);
+
+      // Production credits hang off the auth user, not the profile row, because
+      // a production team member does not have to be a Collective member. Someone
+      // with no account simply has no credits, which is correct.
+      if (profileData.user_id) {
+        setCredits(await fetchMemberCredits(profileData.user_id));
+      }
 
       // Check whether this profile belongs to an admin
       if (profileData.user_id) {
@@ -374,7 +388,12 @@ export default function ProfilePage() {
   const goTosPreview       = goTos.slice(0, 6);
   const endorsementsWithNotes = endorsements.filter(e => e.note);
   const availStatus        = profile.availability_status || 'By Inquiry';
-  const expLevel           = profile.experience_level || 'entry';
+  // No fallback here on purpose. This used to read `|| 'entry'`, which meant a
+  // member who had never answered the question was labelled "Entry Level" on
+  // their own public profile. On a directory of working professionals that is
+  // not a harmless default, it is a claim about someone's career that they did
+  // not make. Unset now means the badge simply does not render.
+  const expLevel           = profile.experience_level?.trim() || null;
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -477,11 +496,13 @@ export default function ProfilePage() {
                     </span>
                   </div>
 
-                  <div style={{ marginBottom: '6px' }}>
-                    <span className="ms-level-badge" aria-label={`Experience level: ${levelLabel(expLevel)}`}>
-                      {levelLabel(expLevel)}
-                    </span>
-                  </div>
+                  {expLevel && (
+                    <div style={{ marginBottom: '6px' }}>
+                      <span className="ms-level-badge" aria-label={`Experience level: ${levelLabel(expLevel)}`}>
+                        {levelLabel(expLevel)}
+                      </span>
+                    </div>
+                  )}
 
                   {profile.pronouns && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0' }}>{profile.pronouns}</p>
@@ -980,6 +1001,82 @@ export default function ProfilePage() {
                     )}
                   </>
                 )}
+              </div>
+            </MsBox>
+          )}
+
+          {/* ── Artistic Accessibility productions they are credited on ── */}
+          {/* Only renders when there is real work to show, so it never appears
+              as an empty box on the many profiles that have no credits yet.
+              Every title links to its public project page. */}
+          {credits && credits.total > 0 && (
+            <MsBox header={`🎪 ${firstName} on Artistic Accessibility Productions`}>
+              <div className="ms-box-body">
+                {CREDIT_GROUPS.map((group) => {
+                  const rows = credits[group.key];
+                  if (rows.length === 0) return null;
+                  return (
+                    <section key={group.key} style={{ marginBottom: '14px' }}>
+                      <h3 style={{
+                        margin: '0 0 2px', fontSize: '0.75rem', fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.06em',
+                        color: 'var(--aac-blue)',
+                      }}>
+                        {group.label}
+                      </h3>
+                      <p style={{ margin: '0 0 6px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                        {group.blurb}
+                      </p>
+                      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '8px' }}>
+                        {rows.map((c) => {
+                          const line = creditLine(c);
+                          return (
+                            <li key={c.production_id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                              {c.hero_photo_url && (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                  src={c.hero_photo_url}
+                                  alt=""
+                                  style={{
+                                    width: 48, height: 48, objectFit: 'cover', borderRadius: 4,
+                                    border: '1px solid var(--aac-blue-light)', flexShrink: 0,
+                                  }}
+                                />
+                              )}
+                              <div style={{ minWidth: 0 }}>
+                                <Link
+                                  href={productionHref(c.slug)}
+                                  style={{ fontWeight: 700, color: 'var(--aac-blue)', textDecoration: 'underline' }}
+                                >
+                                  {c.title}
+                                </Link>
+                                {c.status === 'archived' && (
+                                  <span style={{
+                                    marginLeft: 6, fontSize: '0.6875rem', fontWeight: 700,
+                                    padding: '1px 5px', borderRadius: 3,
+                                    background: '#e6e4de', color: '#4a4a4a',
+                                  }}>
+                                    Archived
+                                  </span>
+                                )}
+                                {line && (
+                                  <p style={{ margin: '1px 0 0', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+                                    {line}
+                                  </p>
+                                )}
+                                {c.tagline && (
+                                  <p style={{ margin: '1px 0 0', fontSize: '0.8125rem', color: '#333' }}>
+                                    {c.tagline}
+                                  </p>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  );
+                })}
               </div>
             </MsBox>
           )}
