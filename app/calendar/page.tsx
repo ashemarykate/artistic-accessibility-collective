@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase, type CalEvent } from '@/lib/supabase';
 import Modal from '@/components/Modal';
+import WindowControls from '@/components/WindowControls';
 
 // ── Stars (same field as Make Art / Learning Hub) ─────────────────────────────
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -1170,16 +1171,7 @@ export default function CalendarPage() {
               <span aria-hidden="true" style={{ fontSize: 15 }}>💿</span>
               Community Events Calendar
             </div>
-            <div aria-hidden="true" style={{ display: 'flex', gap: 2 }}>
-              {['_','□','✕'].map(c => (
-                <div key={c} style={{
-                  width: 16, height: 14, background: '#3a52c8',
-                  border: '1px solid #6a82f0', borderRadius: 2,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default',
-                }}>{c}</div>
-              ))}
-            </div>
+            <WindowControls bg="#3a52c8" border="#6a82f0" gap={2} />
           </div>
 
           {/* ── View toolbar ─────────────────────────────────────────────────── */}

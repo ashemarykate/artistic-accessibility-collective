@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import UpcomingEducationalEvents from '@/components/UpcomingEducationalEvents';
+import WindowControls from '@/components/WindowControls';
 
 // ── Subject toolbar icons ─────────────────────────────────────────────────────
 const SUBJECTS = [
@@ -161,15 +162,7 @@ export default function LearningHubPage() {
             <span aria-hidden="true" style={{ fontSize: 16 }}>📚</span>
             AAC Encyclopedia · Learning Hub
           </div>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['_','□','✕'].map((c) => (
-              <div key={c} aria-hidden="true" style={{
-                width: 16, height: 14, background: '#197744', border: '1px solid #66cc88',
-                borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default',
-              }}>{c}</div>
-            ))}
-          </div>
+          <WindowControls bg="#197744" border="#66cc88" />
         </div>
 
         {/* ── Menu bar ──────────────────────────────────────────────────────── */}

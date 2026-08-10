@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import KidArtToolbar from '@/components/KidArtToolbar';
+import WindowControls from '@/components/WindowControls';
 
 const STARS = Array.from({ length: 70 }, (_, i) => ({
   id: i,
@@ -190,11 +191,7 @@ export default function MakeArtPage() {
             <span aria-hidden="true" style={{ fontSize: 17 }}>🎨</span>
             AAC Pix Deluxe! · Make Art Together
           </div>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['_', '□', '✕'].map((c) => (
-              <div key={c} aria-hidden="true" style={{ width: 16, height: 14, background: '#d44', border: '1px solid #faa', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default' }}>{c}</div>
-            ))}
-          </div>
+          <WindowControls bg="#d44" border="#faa" />
         </div>
 
         {/* Rainbow strip, because every good art program has one */}

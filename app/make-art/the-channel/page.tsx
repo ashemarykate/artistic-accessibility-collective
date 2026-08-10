@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import KidArtToolbar from '@/components/KidArtToolbar';
+import WindowControls from '@/components/WindowControls';
 
 interface YTPlayerEvent {
   target: {
@@ -177,11 +178,7 @@ export default function TheChannelMakeArtPage() {
             <span aria-hidden="true" style={{ fontSize: 16 }}>📺</span>
             AAC The Channel · Make Art
           </div>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['_','□','✕'].map((c) => (
-              <div key={c} aria-hidden="true" style={{ width: 16, height: 14, background: '#7a4500', border: '1px solid #cc8844', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default' }}>{c}</div>
-            ))}
-          </div>
+          <WindowControls bg="#7a4500" border="#cc8844" />
         </div>
 
         {/* Menu bar */}

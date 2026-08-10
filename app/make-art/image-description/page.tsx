@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import KidArtToolbar from '@/components/KidArtToolbar';
 import { supabase } from '@/lib/supabase';
+import WindowControls from '@/components/WindowControls';
 
 type Piece = { id: string; title: string; medium: string; src: string | null; alt: string };
 
@@ -182,11 +183,7 @@ export default function ImageDescriptionPage() {
             <span aria-hidden="true" style={{ fontSize: 16 }}>👁️</span>
             AAC Pix Deluxe · Image Description as Art
           </div>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['_','□','✕'].map((c) => (
-              <div key={c} aria-hidden="true" style={{ width: 16, height: 14, background: '#d44', border: '1px solid #faa', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default' }}>{c}</div>
-            ))}
-          </div>
+          <WindowControls bg="#d44" border="#faa" />
         </div>
 
         {/* Menu bar */}

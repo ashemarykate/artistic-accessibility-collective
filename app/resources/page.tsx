@@ -82,13 +82,24 @@ function WinControl({ label, danger }: { label: string; danger?: boolean }) {
 }
 
 /** IE toolbar button */
+/**
+ * IE toolbar button.
+ *
+ * These were aria-hidden and tabIndex=-1 while still carrying a working
+ * onClick, so Back, Forward, Refresh and Home worked with a mouse and were
+ * invisible to screen readers and unreachable by keyboard. A control that does
+ * something has to be reachable by everyone; only genuinely decorative chrome
+ * gets hidden. Matches the TBtn treatment in components/BrowserChrome.tsx.
+ */
 function ToolbarBtn({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
+  const decorative = !onClick;
   return (
     <button
       onClick={onClick}
-      aria-label={label}
-      tabIndex={-1}
-      aria-hidden="true"
+      aria-label={decorative ? undefined : label}
+      tabIndex={decorative ? -1 : undefined}
+      aria-hidden={decorative ? 'true' : undefined}
+      className={decorative ? undefined : 'tap-target-btn'}
       style={{
         background: 'none', border: 'none',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -467,9 +478,24 @@ export default function ResourcesPage() {
               Accessibility Resources · Artistic Accessibility Collective
             </span>
             <div style={{ display: 'flex', gap: '2px' }}>
+              {/* ─ and □ stay decorative; ✕ is a real control, the same
+                  "Close and go home" every other page in the site offers. */}
               <WinControl label="─" />
               <WinControl label="□" />
-              <WinControl label="✕" danger />
+              <button
+                type="button"
+                className="tap-target-btn"
+                aria-label="Close and go home"
+                onClick={() => { window.location.href = '/'; }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 20, height: 16, fontSize: '9px', fontWeight: 'bold',
+                  background: '#cc0000', border: '1px outset #e0ddd8', color: '#fff',
+                  fontFamily: IE.font, cursor: 'pointer', flexShrink: 0, padding: 0,
+                }}
+              >
+                <span aria-hidden="true">✕</span>
+              </button>
             </div>
           </div>
 

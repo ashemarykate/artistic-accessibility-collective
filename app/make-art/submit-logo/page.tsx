@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import KidArtToolbar from '@/components/KidArtToolbar';
+import WindowControls from '@/components/WindowControls';
 
 const STARS = Array.from({ length: 70 }, (_, i) => ({
   id: i, x: (i * 137.508) % 100, y: (i * 97.234) % 100,
@@ -79,11 +80,7 @@ export default function SubmitLogoPage() {
             <span aria-hidden="true" style={{ fontSize: 16 }}>🪧</span>
             AAC Pix Deluxe · Submissions
           </div>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['_','□','✕'].map((c) => (
-              <div key={c} aria-hidden="true" style={{ width: 16, height: 14, background: '#d44', border: '1px solid #faa', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 9, fontWeight: 'bold', cursor: 'default' }}>{c}</div>
-            ))}
-          </div>
+          <WindowControls bg="#d44" border="#faa" />
         </div>
 
         {/* Menu bar */}
