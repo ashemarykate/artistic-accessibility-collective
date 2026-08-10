@@ -212,12 +212,28 @@ export async function fetchProductionForMe(slug: string): Promise<ProductionSumm
 
 /** Wallpaper and switches. Readable signed out, so this never needs a user. */
 export async function fetchMicrosite(productionId: string): Promise<MicrositeState | null> {
+  // Only the columns anon and authenticated are granted (v53). drive_url and
+  // submissions_url are deliberately not selectable: asking for them here
+  // would fail the whole query.
   const { data } = await supabase
     .from('production_microsite')
-    .select('*')
+    .select('production_id, show_mode, voting_open, submissions_open, marquee,'
+          + ' background_url, background_color, public_url')
     .eq('production_id', productionId)
     .maybeSingle();
-  return (data as MicrositeState) ?? null;
+  if (!data) return null;
+
+  const site = { ...(data as unknown as MicrositeState), drive_url: null, submissions_url: null } as MicrositeState;
+
+  // The private ones come back through a function that checks you are on the
+  // show. No rows simply means you are not, which is not an error.
+  const { data: links } = await supabase.rpc('get_production_links', { p_id: productionId });
+  const row = Array.isArray(links) ? links[0] : links;
+  if (row) {
+    site.drive_url = row.drive_url ?? null;
+    site.submissions_url = row.submissions_url ?? null;
+  }
+  return site;
 }
 
 /** This person's own team row, with persona defaults filled in. */
