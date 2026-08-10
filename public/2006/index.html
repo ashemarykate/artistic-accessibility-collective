@@ -446,7 +446,12 @@ const CONFIG = {
   SUBMISSIONS_OPEN: true,
   SHOW_TITLE: "2006",
   TAGLINE: "a play in the form of TRL",
-  API_BASE: null,        // ← Supabase-backed API root. null = demo mode.
+  API_BASE: null,        // ← legacy REST shim, unused now
+  // Filled in by build.py for the hosted copy only. The standalone file keeps
+  // the built in cast, because a file:// page cannot reach Supabase.
+  SB_URL: "https://hxksajwpcjlbycrnvdmi.supabase.co",
+  SB_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4a3NhandwY2psYnljcm52ZG1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjQzNTcsImV4cCI6MjA4NTQwMDM1N30.w4ewPzRx0tA80C3NoNnHBMvxPqobL9bGQWOHGCY9-YA",
+  SLUG: "2006",
 };
 
 /* ② LINKS */
@@ -1206,21 +1211,86 @@ function closePop(){ overlay.classList.remove("open"); }
 overlay.addEventListener("click", e=>{ if(e.target===overlay) closePop(); });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closePop(); });
 
+
+/* ══════════════════ LIVE DATA ══════════════════
+   The company edits their profile in Backstage; this is where that shows up.
+   Reads the same rows an anonymous visitor is allowed to read: the visible
+   team of a published production. invited_email and user_id are not granted to
+   anon, so they are not asked for.
+
+   Everything here is best effort. If the request fails, or the show is not
+   published yet, the built in cast stays on screen rather than the page
+   emptying out. A buddy list with nobody on it is worse than a slightly stale
+   one. */
+
+const FONT_KEYS = { comic: FONTS.comic, sys: FONTS.sys, square: FONTS.square };
+
+function personaToBuddy(row){
+  const p = row.persona || {};
+  return {
+    sn:       p.screen_name || row.display_name || "?",
+    status:   p.status || "offline",
+    idleMin:  Number(p.idle_min) || 0,
+    role:     row.credit || "",
+    awayMsg:  p.away_msg || "",
+    profile:  p.profile || "",
+    about:    p.about || "",
+    bg:       p.bg || "#000000",
+    fg:       p.fg || "#ffffff",
+    font:     FONT_KEYS[p.font] || FONTS.comic,
+    size:     Number(p.size) || 13,
+    isBot:    !!p.is_bot,
+  };
+}
+
+async function sbGet(path){
+  const url = `${CONFIG.SB_URL}/rest/v1/${path}`;
+  const r = await fetch(url, {
+    headers: { apikey: CONFIG.SB_KEY, Authorization: `Bearer ${CONFIG.SB_KEY}` },
+  });
+  if(!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+async function loadLive(){
+  if(!CONFIG.SB_URL || !CONFIG.SB_KEY) return false;
+
+  const team = await sbGet(
+    "production_team?select=display_name,credit,sort_order,persona,productions!inner(slug)"
+    + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}&order=sort_order`
+  );
+  if(!Array.isArray(team) || team.length === 0) return false;
+
+  const mapped = team.map(personaToBuddy).filter(b => b.sn && b.sn !== "?");
+  if(mapped.length === 0) return false;
+  buddies.length = 0;
+  mapped.forEach(b => buddies.push(b));
+
+  // Show switches. A failure here must not take the cast down with it.
+  try {
+    const site = await sbGet(
+      "production_microsite?select=show_mode,voting_open,submissions_open,productions!inner(slug)"
+      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+    );
+    if(site && site[0]){
+      CONFIG.SHOW_MODE        = !!site[0].show_mode;
+      CONFIG.VOTING_OPEN      = !!site[0].voting_open;
+      CONFIG.SUBMISSIONS_OPEN = !!site[0].submissions_open;
+    }
+  } catch(e){ /* keep the built in switches */ }
+
+  return true;
+}
+
 /* ══════════════════ BOOT ══════════════════ */
 (async function boot(){
   render();
-  try{
-    const st = await API.status();
-    if(st){
-      if(typeof st.SHOW_MODE==="boolean") CONFIG.SHOW_MODE = st.SHOW_MODE;
-      if(typeof st.VOTING_OPEN==="boolean") CONFIG.VOTING_OPEN = st.VOTING_OPEN;
-      if(Array.isArray(st.buddies)) st.buddies.forEach(u=>{
-        const b = buddies.find(x=>x.sn===u.sn); if(b) Object.assign(b,u);
-      });
-    }
-    const vs = await API.getVideos();
-    if(vs) videos = vs;
-    render();
-  }catch(e){ /* demo mode */ }
+  try {
+    const gotLive = await loadLive();
+    if(gotLive) render();
+  } catch(e){
+    // Stale beats empty. The built in cast is already on screen.
+    console.warn("2006: could not load the live cast, showing the built in one.", e);
+  }
 })();
 </script>
