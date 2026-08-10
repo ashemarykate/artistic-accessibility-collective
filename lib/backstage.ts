@@ -245,6 +245,30 @@ export async function fetchMyRow(productionId: string): Promise<TeamRow | null> 
  * because the database would refuse anyway: guard_production_team_fields()
  * in v40 raises if a non producer tries. The UI simply never asks.
  */
+
+/**
+ * Row level security does not error when it refuses you. An UPDATE whose
+ * policy matches no rows reports success and changes nothing, so a save can
+ * come back "ok" having done absolutely nothing. That is how Alec's edits
+ * vanished: he pressed Save, the app said Saved, and his row was never his.
+ *
+ * Every write below asks for the affected ids back and treats an empty result
+ * as a failure, because from the person's point of view it is one.
+ */
+function wrote(data: unknown[] | null, error: { message: string } | null): { ok: boolean; error?: string } {
+  if (error) return { ok: false, error: error.message };
+  if (!data || data.length === 0) {
+    return {
+      ok: false,
+      error: 'The database would not let that through. Usually it means your '
+           + 'account is not linked to this show yet, or the row belongs to '
+           + 'somebody else. Try signing out and back in, and tell a producer '
+           + 'if it keeps happening.',
+    };
+  }
+  return { ok: true };
+}
+
 export async function saveMyPersona(rowId: string, persona: Persona): Promise<{ ok: boolean; error?: string }> {
   const clean: Persona = { ...persona };
 
@@ -254,13 +278,13 @@ export async function saveMyPersona(rowId: string, persona: Persona): Promise<{ 
     if (typeof clean[k] === 'string') clean[k] = clean[k]!.trim() as never;
   });
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_team')
     .update({ persona: clean })
-    .eq('id', rowId);
+    .eq('id', rowId)
+    .select('id');
 
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  return wrote(data, error);
 }
 
 /** Everyone on the show, for the company page and the buddy list preview. */
@@ -332,19 +356,20 @@ export async function createPlaylist(
 }
 
 export async function savePlaylist(p: Playlist): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_playlists')
     .update({
       title: p.title, byline: p.byline, description: p.description,
       tracks: p.tracks, is_visible: p.is_visible, sort_order: p.sort_order,
     })
-    .eq('id', p.id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+    .eq('id', p.id)
+    .select('id');
+  return wrote(data, error);
 }
 
 export async function deletePlaylist(id: string): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase.from('production_playlists').delete().eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  const { data, error } = await supabase.from('production_playlists').delete().eq('id', id).select('id');
+  return wrote(data, error);
 }
 
 
@@ -375,19 +400,20 @@ export async function createPost(
 }
 
 export async function savePost(p: Post): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_posts')
     .update({
       title: p.title, byline: p.byline, body: p.body,
       is_published: p.is_published, pinned: p.pinned,
     })
-    .eq('id', p.id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+    .eq('id', p.id)
+    .select('id');
+  return wrote(data, error);
 }
 
 export async function deletePost(id: string): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase.from('production_posts').delete().eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  const { data, error } = await supabase.from('production_posts').delete().eq('id', id).select('id');
+  return wrote(data, error);
 }
 
 
@@ -396,11 +422,12 @@ export async function saveMicrositeLinks(
   productionId: string,
   links: Pick<MicrositeState, 'public_url' | 'drive_url' | 'submissions_url'>,
 ): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_microsite')
     .update(links)
-    .eq('production_id', productionId);
-  return error ? { ok: false, error: error.message } : { ok: true };
+    .eq('production_id', productionId)
+    .select('production_id');
+  return wrote(data, error);
 }
 
 
@@ -457,19 +484,20 @@ export async function createGrave(productionId: string): Promise<{ ok: boolean; 
 }
 
 export async function saveGrave(g: Grave): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_graves')
     .update({
       name: g.name, dates: g.dates, epitaph: g.epitaph,
       approved: g.approved, pinned: g.pinned, sort_order: g.sort_order,
     })
-    .eq('id', g.id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+    .eq('id', g.id)
+    .select('id');
+  return wrote(data, error);
 }
 
 export async function deleteGrave(id: string): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase.from('production_graves').delete().eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  const { data, error } = await supabase.from('production_graves').delete().eq('id', id).select('id');
+  return wrote(data, error);
 }
 
 /** Only one grave sits at the top. Clearing the others first keeps that true
@@ -481,8 +509,8 @@ export async function pinGrave(productionId: string, id: string): Promise<{ ok: 
     .eq('production_id', productionId)
     .eq('pinned', true);
   if (clear.error) return { ok: false, error: clear.error.message };
-  const { error } = await supabase.from('production_graves').update({ pinned: true }).eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  const { data, error } = await supabase.from('production_graves').update({ pinned: true }).eq('id', id).select('id');
+  return wrote(data, error);
 }
 
 
@@ -535,17 +563,18 @@ export async function createVideoLink(
 }
 
 export async function saveVideoLink(v: VideoLink): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('production_video_links')
     .update({
       category: v.category, title: v.title, youtube_id: v.youtube_id,
       sort_order: v.sort_order, is_visible: v.is_visible,
     })
-    .eq('id', v.id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+    .eq('id', v.id)
+    .select('id');
+  return wrote(data, error);
 }
 
 export async function deleteVideoLink(id: string): Promise<{ ok: boolean; error?: string }> {
-  const { error } = await supabase.from('production_video_links').delete().eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  const { data, error } = await supabase.from('production_video_links').delete().eq('id', id).select('id');
+  return wrote(data, error);
 }
