@@ -11,22 +11,53 @@
   html,body{margin:0;padding:0}
   body{
     font-family:"W95FA",Tahoma,Verdana,sans-serif;
-    background:var(--desktop);
+    /* No background here. The wallpaper lives on <html> and a solid colour on
+       body would paint straight over it: the root background only reaches the
+       canvas when body does not have one of its own. The fallback colour is
+       set on html instead. */
+    background:transparent;
     min-height:100vh;padding:18px 8px 26px;
     display:flex;
   }
-  /* the 2006 desktop — collage wallpaper, fixed so it never scrolls away */
-  body::before{
-    content:"";position:fixed;inset:0;z-index:-2;
-    background:var(--desktop) url(/2006/bg.jpg) center center / cover no-repeat;
+  /* The desktop. Both layers live on <html> with background-attachment:fixed
+     rather than on a position:fixed pseudo element. A fixed pseudo element has
+     to be sized against the viewport, and some renderers get that wrong after
+     a resize, leaving the wallpaper stranded in a corner. A background on the
+     root has no box to get wrong.
+
+     Order matters: the vignette is listed first so it paints on top of the
+     collage, and the flat colour last so it shows while the image loads. */
+  html{
+    background-image:
+      radial-gradient(ellipse 70% 55% at 50% 42%,
+        rgba(8,18,38,.10) 0%, rgba(8,18,38,.34) 55%, rgba(6,14,30,.62) 100%),
+      url(/2006/bg.jpg);
+    background-repeat:no-repeat, no-repeat;
+    background-position:center center, center center;
+    background-size:cover, cover;
+    background-attachment:fixed, fixed;
+    background-color:var(--desktop);
   }
-  /* vignette: keeps the windows readable on top of a very busy wall */
-  body::after{
-    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:radial-gradient(ellipse 70% 55% at 50% 42%,
-      rgba(8,18,38,.10) 0%, rgba(8,18,38,.34) 55%, rgba(6,14,30,.62) 100%);
-  }
-  .frame{width:100%;max-width:300px;margin:auto}
+
+  /* The window is drawn at a phone's width on purpose: every size inside it is
+     tuned for 300px. Rather than reflow it for a laptop, which would stop it
+     being a buddy list, the whole thing is zoomed. Proportions stay exactly as
+     designed and the pixel type grows with everything else.
+
+     zoom, not transform: scale, because zoom takes part in layout, so centring
+     and page height still work. A browser without zoom gets the 300px version,
+     which is simply the phone layout. */
+  :root{ --pod-zoom:1 }
+  @media (min-width: 640px)  { :root{ --pod-zoom:1.6 } body{ padding:12px 8px 18px } }
+  @media (min-width: 900px)  { :root{ --pod-zoom:2.1 } }
+  @media (min-width: 1180px) { :root{ --pod-zoom:2.6 } }
+  @media (min-width: 1500px) { :root{ --pod-zoom:3   } }
+
+  .frame{width:100%;max-width:300px;margin:auto;zoom:var(--pod-zoom)}
+
+  /* The IM and profile windows live outside .frame, so they need the same
+     zoom or a popup opens tiny in the middle of a big page. */
+  .popwin{zoom:var(--pod-zoom)}
   img.i{image-rendering:pixelated;vertical-align:middle}
 
   /* ══════════ iPod (home) ══════════ */
