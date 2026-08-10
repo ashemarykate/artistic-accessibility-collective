@@ -1389,8 +1389,15 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
     id: string; user_id: string; production_date_id: string | null; note: string | null; created_at: string;
   }>>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  // People with no account who asked to be told when registration opens (v54).
+  // Separate from RSVPs on purpose: these are strangers, not members.
+  const [waiting, setWaiting] = useState<Array<{
+    id: string; email: string; name: string | null; notified_at: string | null; created_at: string;
+  }>>([]);
+  const [waitingUnavailable, setWaitingUnavailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState('');
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => { headingRef.current?.focus(); }, []);
@@ -1398,6 +1405,18 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Best effort: if v54 has not been run the table is missing, which is a
+      // footnote rather than a failure, so the RSVP list still renders.
+      const { data: waitRows, error: waitErr } = await supabase
+        .from('production_notify_requests')
+        .select('id, email, name, notified_at, created_at')
+        .eq('production_id', production.id)
+        .order('created_at');
+      if (!cancelled) {
+        if (waitErr) setWaitingUnavailable(true);
+        else setWaiting((waitRows ?? []) as typeof waiting);
+      }
+
       const { data, error: rsvpErr } = await supabase
         .from('production_rsvps')
         .select('id, user_id, production_date_id, note, created_at')
@@ -1437,6 +1456,43 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
     if (undated.length > 0) groups.push({ date: null, rsvps: undated });
     return groups;
   }, [production.dates, rows]);
+
+  /** Just the addresses, comma separated, ready to paste into a Bcc field. */
+  const copyWaiting = async (shape: 'emails' | 'table') => {
+    const text = shape === 'emails'
+      ? waiting.map((w) => w.email).join(', ')
+      : ['Email\tName\tAsked on\tTold yet']
+          .concat(waiting.map((w) => [
+            w.email,
+            w.name ?? '',
+            new Date(w.created_at).toLocaleDateString('en-US'),
+            w.notified_at ? 'told' : 'waiting',
+          ].join('\t')))
+          .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(shape === 'emails'
+        ? `${waiting.length} address${waiting.length === 1 ? '' : 'es'} copied. Paste into Bcc.`
+        : 'Copied. Paste into a spreadsheet.');
+    } catch {
+      setCopied('Could not copy. The list is readable above.');
+    }
+  };
+
+  /** Stamps everyone as told, so a second announcement can skip them. Does not
+   *  send anything: sending is still you, in your own mail client. */
+  const markAllTold = async () => {
+    const pending = waiting.filter((w) => !w.notified_at).map((w) => w.id);
+    if (pending.length === 0) return;
+    const stamp = new Date().toISOString();
+    const { error: err } = await supabase
+      .from('production_notify_requests')
+      .update({ notified_at: stamp })
+      .in('id', pending);
+    if (err) { setCopied('Could not save that. Please try again.'); return; }
+    setWaiting((prev) => prev.map((w) => (w.notified_at ? w : { ...w, notified_at: stamp })));
+    setCopied(`${pending.length} marked as told.`);
+  };
 
   /** Tab separated, so it pastes straight into a spreadsheet. */
   const copyList = async () => {
@@ -1478,6 +1534,72 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
         {production.rsvp_capacity != null && ` Cap is ${production.rsvp_capacity}.`}
         {' '}This is not a ticket list: people who bought tickets elsewhere may not appear here.
       </p>
+
+      {/* ── Waiting to hear it opened ────────────────────────────────────── */}
+      {!loading && waiting.length > 0 && (
+        <div style={{ ...card, borderColor: '#d9a300', background: '#fffdf5' }}>
+          <h4 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--aac-blue)' }}>
+            Waiting to hear it opened ({waiting.length})
+          </h4>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+            People who left their email while registration was closed. They have not registered,
+            they asked to be told. Email them the moment you open, then mark them told so a second
+            send skips them.
+            {waiting.some((w) => !w.notified_at) && (
+              <> <strong>{waiting.filter((w) => !w.notified_at).length} still need telling.</strong></>
+            )}
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => void copyWaiting('emails')}
+              style={btn('primary')}
+            >
+              Copy the email addresses
+            </button>
+            <button
+              type="button"
+              onClick={() => void copyWaiting('table')}
+              style={btn('outline')}
+            >
+              Copy as a spreadsheet
+            </button>
+            {waiting.some((w) => !w.notified_at) && (
+              <button type="button" onClick={() => void markAllTold()} style={btn('ghost')}>
+                Mark all as told
+              </button>
+            )}
+          </div>
+
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.375rem' }}>
+            {waiting.map((w) => (
+              <li key={w.id} style={{
+                padding: '0.5rem 0.625rem', background: '#fff', borderRadius: 4,
+                border: '1px solid var(--color-border, #c8c4bc)', fontSize: '0.875rem',
+              }}>
+                <strong>{w.email}</strong>
+                {w.name && <span style={{ color: 'var(--color-text-muted, #5a5a5a)' }}> · {w.name}</span>}
+                {w.notified_at
+                  ? <span style={{ marginLeft: 6, fontSize: '0.6875rem', padding: '2px 6px', borderRadius: 3, background: '#d6f0dc', color: '#125c2a' }}>told</span>
+                  : <span style={{ marginLeft: 6, fontSize: '0.6875rem', padding: '2px 6px', borderRadius: 3, background: '#fdf1b8', color: '#6b5300' }}>waiting</span>}
+              </li>
+            ))}
+          </ul>
+
+          <p role="status" aria-live="polite" style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', minHeight: 14 }}>
+            {copied}
+          </p>
+        </div>
+      )}
+
+      {!loading && waitingUnavailable && (
+        <p style={{ ...card, fontSize: '0.8125rem', background: '#fffaf0', borderColor: '#d9a300' }}>
+          The waiting list could not be read. If you have not run
+          {' '}<code>supabase-migration-v54.sql</code> yet, that is why, and everything else on this
+          page still works.
+        </p>
+      )}
 
       {loading && <p role="status" aria-live="polite">Loading the list…</p>}
       {error && <p role="alert" style={{ color: '#8e1a11', fontSize: '0.875rem' }}>{error}</p>}

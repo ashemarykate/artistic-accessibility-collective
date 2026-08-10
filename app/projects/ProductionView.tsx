@@ -16,6 +16,7 @@
 
 import Link from 'next/link';
 import AttendingButton from '@/components/AttendingButton';
+import NotifyMeBox from '@/components/NotifyMeBox';
 import { PRODUCTION_KIND_LABELS, profileHref, type ProductionWithDates } from '@/lib/supabase';
 import { formatDate, isExternalHref, isPast, kindLabel, micrositeHref, upcomingDates } from '@/lib/productions';
 import { isBlankHtml, sanitizeHtml } from '@/lib/sanitize-html';
@@ -30,6 +31,15 @@ export default function ProductionView({ production }: { production: ProductionW
   const datesToShow = upcoming.length > 0 ? upcoming : visibleDates;
   const finished = isPast(p);
   const liveTiers = p.ticket_tiers.filter((t) => t.label.trim());
+
+  // Is there anywhere at all to actually book? Either a ticket tier with a link
+  // or a per-date link counts. Deriving it rather than asking an admin to keep a
+  // switch in sync means the email box vanishes the moment registration opens,
+  // which is exactly when it stops being useful and starts being confusing.
+  const hasSomewhereToBook =
+    liveTiers.some((t) => t.url?.trim() && !t.sold_out)
+    || p.dates.some((d) => d.is_visible && d.ticket_url?.trim() && !d.is_sold_out);
+  const showNotifyBox = !finished && p.notify_enabled !== false && !hasSomewhereToBook;
   const hasBody = !isBlankHtml(p.body_html);
   const micro = micrositeHref(p);
 
@@ -387,6 +397,20 @@ export default function ProductionView({ production }: { production: ProductionW
                 productionTitle={p.title}
                 dates={p.dates}
                 rsvpCapacity={p.rsvp_capacity}
+                accent={X.plum}
+              />
+            </Module>
+          )}
+
+          {/* Nowhere to book yet, so collect the people who want in. Sits above
+              Tickets, because until there is a ticket link this IS the action.
+              It disappears on its own the moment a real link exists anywhere on
+              the production, so nobody has to remember to switch it off. */}
+          {showNotifyBox && (
+            <Module title="Want a seat?" id="notify">
+              <NotifyMeBox
+                productionId={p.id}
+                productionTitle={p.title}
                 accent={X.plum}
               />
             </Module>

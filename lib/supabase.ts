@@ -362,6 +362,10 @@ export type Production = {
   contact_email: string | null;
   rsvp_enabled: boolean;
   rsvp_capacity: number | null;
+  /** v54: offer the "tell me when this opens" email box. Only ever shown when
+   *  there is no ticket link anywhere on the production, so this is a way to
+   *  suppress the box, not to summon it. */
+  notify_enabled?: boolean;
   /** v44: which icon this project wears in the home page Projects folder.
    *  A key from PROJECT_ICONS in lib/project-icons.ts, never a URL. NULL means
    *  "choose one from the kind", which is the normal case. */
