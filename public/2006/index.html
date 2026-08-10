@@ -48,10 +48,17 @@
      and page height still work. A browser without zoom gets the 300px version,
      which is simply the phone layout. */
   :root{ --pod-zoom:1 }
-  @media (min-width: 640px)  { :root{ --pod-zoom:1.6 } body{ padding:12px 8px 18px } }
-  @media (min-width: 900px)  { :root{ --pod-zoom:2.1 } }
-  @media (min-width: 1180px) { :root{ --pod-zoom:2.6 } }
-  @media (min-width: 1500px) { :root{ --pod-zoom:3   } }
+
+  /* Height is the real constraint, not width. The sign on window is 469px tall
+     at 1x, so a zoom picked from width alone makes a laptop scroll for two
+     screens to reach the buttons, which is why the phone felt better: there
+     the window simply fits. Every step below asks for the height to be there
+     too, so the window grows only when there is room to see it whole. */
+  @media (min-width:  640px) and (min-height: 620px) { :root{ --pod-zoom:1.3 } }
+  @media (min-width:  860px) and (min-height: 760px) { :root{ --pod-zoom:1.6 } }
+  @media (min-width: 1150px) and (min-height: 900px) { :root{ --pod-zoom:1.9 } }
+  @media (min-width: 1500px) and (min-height:1040px) { :root{ --pod-zoom:2.2 } }
+  @media (min-width:  640px) { body{ padding:12px 8px 18px } }
 
   .frame{width:100%;max-width:300px;margin:auto;zoom:var(--pod-zoom)}
 
