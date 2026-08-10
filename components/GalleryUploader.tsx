@@ -20,7 +20,7 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 8;
 
 interface GalleryUploaderProps {
   /** Supabase auth user ID — used as the storage folder */
