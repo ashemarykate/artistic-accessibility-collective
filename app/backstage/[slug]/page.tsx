@@ -39,6 +39,7 @@ export default function BackstagePortal() {
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [claimError, setClaimError] = useState<string>('');
   const [saved, setSaved] = useState<string>('');
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -75,7 +76,8 @@ export default function BackstagePortal() {
       }
       setUserId(user.id);
       hasMemberProfile(user.id).then(setHasProfile);
-      await claimInvites();
+      const claim = await claimInvites();
+      setClaimError(claim.error ?? '');
 
       const mine = await fetchProductionForMe(slug);
       if (!mine) { setState('notmine'); return; }
@@ -113,10 +115,24 @@ export default function BackstagePortal() {
           <div style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginTop: '1.5rem', color: '#222' }}>
             <h1 style={{ marginTop: 0, fontSize: '1.4rem' }}>You are not on this show</h1>
             <p>
-              Backstage only opens for people who are on a production. If you were
-              expecting to be on this one, it may be attached to a different email
-              than the one you signed in with.
+              Backstage only opens for people who are on a production.
+              {claimError
+                ? ' You may well be on this one. We could not check, so do not'
+                  + ' take this page at its word.'
+                : ' If you were expecting to be on this one, it may be attached to'
+                  + ' a different email than the one you signed in with.'}
             </p>
+
+            {claimError && (
+              <p role="alert" style={{
+                background: '#fdeaea', borderLeft: '5px solid #b42318',
+                padding: '0.75rem 1rem', borderRadius: '4px',
+              }}>
+                Something went wrong looking up your invitation. Send this line to
+                Mary Kate and she can sort it out:{' '}
+                <code style={{ wordBreak: 'break-word' }}>{claimError}</code>
+              </p>
+            )}
             <p style={{ marginBottom: 0 }}><Link href="/backstage">See the shows you are on</Link></p>
           </div>
         </div>

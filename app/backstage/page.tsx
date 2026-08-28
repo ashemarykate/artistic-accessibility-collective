@@ -15,6 +15,7 @@ export default function BackstageIndex() {
   const [shows, setShows] = useState<ProductionSummary[] | null>(null);
   const [email, setEmail] = useState<string>('');
   const [trace, setTrace] = useState<LoginTrace | null>(null);
+  const [claimError, setClaimError] = useState<string>('');
 
   useEffect(() => {
     document.title = 'Backstage · Artistic Accessibility Collective';
@@ -36,7 +37,8 @@ export default function BackstageIndex() {
       // wait while somebody runs SQL.
       setEmail(user.email ?? '');
       setTrace(readLoginTrace());
-      await claimInvites();
+      const claim = await claimInvites();
+      setClaimError(claim.error ?? '');
 
       const mine = await fetchMyProductions();
 
@@ -96,10 +98,26 @@ export default function BackstageIndex() {
             </p>
             <p>
               You are signed in as <strong>{email || 'an unknown account'}</strong>.
-              If you were expecting a show here, it is probably attached to a
-              different address. Ask whoever added you which one they used, then
-              sign in with that.
+              {claimError
+                ? ' There may well be a show waiting for you. We could not check,'
+                  + ' so do not take this page at its word.'
+                : ' If you were expecting a show here, it is probably attached to a'
+                  + ' different address. Ask whoever added you which one they used,'
+                  + ' then sign in with that.'}
             </p>
+
+            {/* A refused claim used to be invisible, which is how somebody sat
+                outside her own show for a week believing the page. */}
+            {claimError && (
+              <p role="alert" style={{
+                background: '#fdeaea', borderLeft: '5px solid #b42318',
+                padding: '0.75rem 1rem', borderRadius: '4px',
+              }}>
+                Something went wrong looking up your invitation. Send this line to
+                Mary Kate and she can sort it out:{' '}
+                <code style={{ wordBreak: 'break-word' }}>{claimError}</code>
+              </p>
+            )}
             <p style={{ marginBottom: 0 }}>
               <button className="btn" onClick={async () => {
                 // Remember AFTER signing out: signOut clears storage it owns,

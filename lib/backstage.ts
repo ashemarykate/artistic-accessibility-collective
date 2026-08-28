@@ -316,11 +316,31 @@ export async function fetchCompany(productionId: string): Promise<TeamRow[]> {
   }));
 }
 
-/** Called once after sign in. Attaches any invite waiting on this email. */
-export async function claimInvites(): Promise<number> {
+export interface ClaimResult {
+  /** How many team rows were attached to this account just now. */
+  linked: number;
+  /** Set only when the database refused. Nothing was attached. */
+  error?: string;
+}
+
+/**
+ * Called once after sign in. Attaches any invite waiting on this email.
+ *
+ * The error is returned rather than swallowed, and this is the whole reason
+ * Emma sat outside her own show for a week: the claim was raising every single
+ * time (the v40 guard refused a non producer writing user_id, fixed in v55),
+ * the old version threw the message away and returned 0, and the page went on
+ * to say "you are not on a show yet" as though that were simply true. A failed
+ * claim and an empty invite list are not the same thing and must not look the
+ * same.
+ */
+export async function claimInvites(): Promise<ClaimResult> {
   const { data, error } = await supabase.rpc('claim_production_invites');
-  if (error) return 0;
-  return (data as number) ?? 0;
+  if (error) {
+    console.warn('claim_production_invites failed:', error.message);
+    return { linked: 0, error: error.message };
+  }
+  return { linked: (data as number) ?? 0 };
 }
 
 /** The three fonts the microsite knows how to render. */
