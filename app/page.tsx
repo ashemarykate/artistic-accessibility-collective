@@ -252,7 +252,7 @@ function Row({ icon, label, onClick, indent = 0, external, href, sub, hardLink }
       {sub ? (
         <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
           <span>{label}</span>
-          <span style={{ fontSize: 11, color: '#5a5a5a' }}>{sub}</span>
+          <span className="win-row-sub" style={{ fontSize: 11, color: '#5a5a5a' }}>{sub}</span>
         </span>
       ) : (
         <span>{label}</span>
@@ -661,16 +661,23 @@ function Win({ win, z, onClose, onFocus, onOpen, account, onSignOut, onNavigate,
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     onFocus(win.id);
     const ox = pos.x, oy = pos.y, sx = e.clientX, sy = e.clientY;
-    const move = (ev: PointerEvent) => setPos({ x: Math.max(-40, ox + ev.clientX - sx), y: Math.max(0, oy + ev.clientY - sy) });
+    // Keep a grabbable strip of the title bar on screen. The desktop does not
+    // scroll and the taskbar button only raises z-index, so a window dragged
+    // off the edge could not be recovered at all.
+    const taskbarH = isMobile ? 44 : 114;
+    const move = (ev: PointerEvent) => setPos({
+      x: Math.min(window.innerWidth - 120, Math.max(120 - width, ox + ev.clientX - sx)),
+      y: Math.min(window.innerHeight - taskbarH - 34, Math.max(0, oy + ev.clientY - sy)),
+    });
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
   };
 
-  useEffect(() => {
-    const el = ref.current?.querySelector<HTMLElement>('a,button,input');
-    (el ?? ref.current)?.focus();
-  }, []);  
+  // Focus the window itself, not its first control. querySelector picked up the
+  // title bar's close button, so opening anything landed you on "Close" and
+  // the window's name was never announced.
+  useEffect(() => { ref.current?.focus(); }, []);
 
   const titleBarStyle: React.CSSProperties = kind === 'aim'
     ? { background: 'linear-gradient(to bottom,#ffe566 0%,#e8a800 55%,#c88000 100%)', color: '#3a2000', borderBottom: '1px solid #a06800' }
@@ -769,7 +776,7 @@ function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose
       <div ref={menuRef} aria-label="Start menu" className="start-menu"
         style={{ position: 'absolute', left: 4, bottom: 38, zIndex: 9001, width: 250, background: SILVER, boxShadow: RAISED, padding: 3, display: 'flex', fontFamily: UIFONT }}>
         <div aria-hidden="true" style={{ width: 30, background: 'linear-gradient(#1c84d8,#000a7a)', position: 'relative', flexShrink: 0 }}>
-          <span style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%) rotate(-90deg)', transformOrigin: 'center', whiteSpace: 'nowrap', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 1 }}>
+          <span style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%) rotate(180deg)', writingMode: 'vertical-rl', whiteSpace: 'nowrap', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 1 }}>
             Artistic <span style={{ fontWeight: 400 }}>Accessibility</span>
           </span>
         </div>
@@ -873,15 +880,18 @@ export default function Home() {
   const deskRef = useRef<HTMLDivElement>(null);
   const aboutBtnRef = useRef<HTMLButtonElement>(null);
 
+  // No document.title here. The root layout's metadata already supplies it, and
+  // the old unmount cleanup reset the title AFTER the page you were navigating
+  // to had set its own, so every trip out of the desktop landed on a page whose
+  // browser tab, history entry and bookmark all read "Artistic Accessibility
+  // Collective" instead of that page's real name.
   useEffect(() => {
-    document.title = 'Artistic Accessibility Collective';
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
       setUser(data.user);
       const { data: prof } = await supabase.from('profiles').select('member_type').eq('user_id', data.user.id).maybeSingle();
       setMemberType((prof?.member_type as 'collective' | 'access_card') ?? 'collective');
     });
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   useEffect(() => {
@@ -1134,11 +1144,12 @@ export default function Home() {
         .start-btn{transform:rotate(-2deg)}
         .dsk-icon-img-wrap{transform:rotate(var(--tilt,0deg));transition:transform .12s ease-out}
         .dsk-icon:hover .dsk-icon-img-wrap,.dsk-icon:focus-visible .dsk-icon-img-wrap{transform:rotate(0deg) scale(1.05)}
-        .win-row:hover,.win-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
+        .win-row:hover,.win-row:focus-visible{background:#0a246a!important;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px}
+        .win-row:hover .win-row-sub,.win-row:focus-visible .win-row-sub{color:#d8dcf5!important}
         .top-bar-btn:hover,.top-bar-btn:focus-visible{background:linear-gradient(to bottom,#3a49b8,#22306e);outline:2px solid #ffd21a;outline-offset:-2px}
         .start-sub{display:none}
         .start-folder:hover>.start-sub,.start-folder.open>.start-sub{display:block}
-        .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a;color:#fff}
+        .start-folder:hover>.win-row,.start-folder:focus-within>.win-row,.start-folder.open>.win-row{background:#0a246a!important;color:#fff!important}
         .beta-scroll{animation:beta-marq 30s linear infinite}
         @keyframes beta-marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @keyframes zoom-step{0%{opacity:0}25%{opacity:1}100%{opacity:0}}

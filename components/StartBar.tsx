@@ -132,7 +132,7 @@ function Menu({ onClose }: { onClose: () => void }) {
       <div ref={menuRef} aria-label="Start menu" className="sb-menu"
         style={{ position: 'absolute', left: 4, bottom: 'calc(var(--startbar-h) + 2px)', zIndex: 9901, width: 252, background: SILVER, boxShadow: RAISED, padding: 3, display: 'flex', fontFamily: UIFONT }}>
         <div aria-hidden="true" style={{ width: 30, background: 'linear-gradient(#1c84d8,#000a7a)', position: 'relative', flexShrink: 0 }}>
-          <span style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%) rotate(-90deg)', transformOrigin: 'center', whiteSpace: 'nowrap', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 1 }}>
+          <span style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%) rotate(180deg)', writingMode: 'vertical-rl', whiteSpace: 'nowrap', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: 1 }}>
             Artistic <span style={{ fontWeight: 400 }}>Accessibility</span>
           </span>
         </div>
@@ -203,10 +203,10 @@ export default function StartBar() {
       <style>{`
         :root { --startbar-h: 44px; }
         .sb-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-        .sb-row:hover,.sb-row:focus-visible{background:#0a246a;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px;text-decoration:none}
+        .sb-row:hover,.sb-row:focus-visible{background:#0a246a!important;color:#fff!important;outline:2px solid #ffd21a;outline-offset:-2px;text-decoration:none}
         .sb-sub{display:none}
         .sb-folder:hover>.sb-sub,.sb-folder.open>.sb-sub{display:block}
-        .sb-folder:hover>.sb-row,.sb-folder:focus-within>.sb-row,.sb-folder.open>.sb-row{background:#0a246a;color:#fff}
+        .sb-folder:hover>.sb-row,.sb-folder:focus-within>.sb-row,.sb-folder.open>.sb-row{background:#0a246a!important;color:#fff!important}
         @media (max-width: 600px){
           :root { --startbar-h: 42px; }
           .sb-menu{width:calc(100vw - 10px)!important}
