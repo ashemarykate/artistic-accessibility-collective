@@ -17,10 +17,6 @@ export default function BackstageIndex() {
   const [trace, setTrace] = useState<LoginTrace | null>(null);
   const [claimError, setClaimError] = useState<string>('');
 
-  useEffect(() => {
-    document.title = 'Backstage · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     (async () => {

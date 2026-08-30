@@ -30,10 +30,6 @@ export default function ContactPage() {
     message: '',
   });
 
-  useEffect(() => {
-    document.title = 'Contact Us · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     if (sent && successHeadingRef.current) {

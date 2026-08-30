@@ -12,9 +12,7 @@ export default function AboutPage() {
   const h1Ref = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'About Us · Artistic Accessibility Collective';
     h1Ref.current?.focus();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   return (

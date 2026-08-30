@@ -60,10 +60,6 @@ export default function LibraryPage() {
   const [libFavCounts,  setLibFavCounts ] = useState<Record<string, number>>({});
   const [libFavPending, setLibFavPending] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    document.title = 'The Library · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   // Fetch any DB-managed library items and merge with static data
   useEffect(() => {

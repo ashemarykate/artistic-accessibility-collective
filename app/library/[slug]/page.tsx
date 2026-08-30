@@ -47,8 +47,6 @@ export default function LibraryItemPage() {
   }, []);
 
   useEffect(() => {
-    if (item) document.title = `${item.title} · The Library · AAC`;
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [item]);
 
   if (!item) {

@@ -16,9 +16,7 @@ export default function Collective() {
   }, []);
 
   useEffect(() => {
-    document.title = 'The Collective · Artistic Accessibility Collective';
     return () => {
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

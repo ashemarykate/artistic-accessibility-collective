@@ -49,10 +49,6 @@ function MessagesInner() {
   const [searching,      setSearching]      = useState(false);
   const composeInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    document.title = 'Messages · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   // ── Handle ?to= param — navigate directly to a new/existing conversation ──
   useEffect(() => {

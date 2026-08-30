@@ -47,11 +47,9 @@ export default function ProductionPage() {
   }, [slug]);
 
   useEffect(() => {
-    const previous = document.title;
     document.title = production
       ? `${production.title} · Current Projects & Events · Artistic Accessibility Collective`
       : 'Current Projects & Events · Artistic Accessibility Collective';
-    return () => { document.title = previous; };
   }, [production]);
 
   const shell = (children: React.ReactNode, title: string) => (

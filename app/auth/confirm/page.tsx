@@ -36,10 +36,6 @@ function ConfirmSignIn() {
   const type = (searchParams.get('type') || 'magiclink') as 'magiclink' | 'email';
   const next = searchParams.get('next');
 
-  useEffect(() => {
-    document.title = 'Finish signing in · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     headingRef.current?.focus();

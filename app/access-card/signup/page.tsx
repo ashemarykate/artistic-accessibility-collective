@@ -16,10 +16,6 @@ export default function AccessCardSignup() {
   const successRef            = useRef<HTMLHeadingElement>(null);
   const formRef               = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    document.title = 'Get an Access Card · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     if (done) successRef.current?.focus();

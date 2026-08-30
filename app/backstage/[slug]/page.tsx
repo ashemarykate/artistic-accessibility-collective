@@ -45,7 +45,6 @@ export default function BackstagePortal() {
 
   useEffect(() => {
     document.title = `Backstage · ${slug} · Artistic Accessibility Collective`;
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [slug]);
 
   useEffect(() => {

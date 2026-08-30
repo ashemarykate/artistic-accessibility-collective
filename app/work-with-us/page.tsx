@@ -40,9 +40,7 @@ export default function WorkWithUsPage() {
   const h1Ref = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Work With Us · Artistic Accessibility Collective';
     h1Ref.current?.focus();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   return (

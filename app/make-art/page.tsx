@@ -78,7 +78,6 @@ export default function MakeArtPage() {
   }, []);
 
   useEffect(() => {
-    document.title = 'Make Art · Artistic Accessibility Collective';
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setPhase('done');
       setTimeout(() => headingRef.current?.focus(), 100);
@@ -93,7 +92,6 @@ export default function MakeArtPage() {
     const t = timers.current;
     return () => {
       t.forEach(clearTimeout);
-      document.title = 'Artistic Accessibility Collective';
     };
   }, [finish]);
 

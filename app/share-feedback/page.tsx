@@ -1,7 +1,7 @@
 'use client';
 import Logo from '@/components/Logo';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 
@@ -45,10 +45,6 @@ export default function ShareFeedback() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  useEffect(() => {
-    document.title = 'Share Feedback · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   const hasAnyAnswer = Object.values(answers).some((v) => v.trim());
 

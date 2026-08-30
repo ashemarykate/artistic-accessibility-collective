@@ -72,11 +72,9 @@ export default function MemberHub() {
   const [lastRecEmail, setLastRecEmail] = useState('');
 
   useEffect(() => {
-    document.title = 'My Collective · Artistic Accessibility Collective';
     if (typeof window !== 'undefined' && localStorage.getItem('mc-intro-dismissed') === '1') {
       setIntroDismissed(true);
     }
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   const dismissIntro = () => {

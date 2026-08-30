@@ -40,8 +40,6 @@ export default function PrinterDocPage() {
   const stillLoading = !staticDoc && dbDoc === undefined;
 
   useEffect(() => {
-    if (doc) document.title = `${doc.title} · The Printer · Artistic Accessibility Collective`;
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [doc]);
 
   const handlePrint = () => { if (typeof window !== 'undefined') window.print(); };

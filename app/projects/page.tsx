@@ -29,11 +29,6 @@ const PAGE_TITLE = 'Current Projects & Events · Artistic Accessibility Collecti
 export default function ProjectsPage() {
   const [productions, setProductions] = useState<ProductionWithDates[] | null>(null);
 
-  useEffect(() => {
-    const previous = document.title;
-    document.title = PAGE_TITLE;
-    return () => { document.title = previous; };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

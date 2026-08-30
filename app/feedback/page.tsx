@@ -85,9 +85,7 @@ export default function FeedbackPage() {
   }, []);
 
   useEffect(() => {
-    document.title = 'Tester Feedback · Artistic Accessibility Collective';
     return () => {
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

@@ -27,10 +27,8 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    const prev = document.title;
     document.title = 'Error · Artistic Accessibility Collective';
     headingRef.current?.focus();
-    return () => { document.title = prev; };
   }, []);
 
   return (

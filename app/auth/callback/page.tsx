@@ -27,9 +27,7 @@ export default function AuthCallback() {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    document.title = 'Signing in · Artistic Accessibility Collective';
     return () => {
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

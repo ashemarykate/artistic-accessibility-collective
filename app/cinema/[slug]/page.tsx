@@ -40,8 +40,6 @@ export default function CinemaItemPage() {
   const item: CinemaItem | undefined = CINEMA_ITEM_BY_SLUG[slug];
 
   useEffect(() => {
-    if (item) document.title = `${item.title} · AAC Presents: The Cinema`;
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [item]);
 
   if (!item) {

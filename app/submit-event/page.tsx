@@ -122,9 +122,7 @@ export default function SubmitEventPage() {
   const [errors,      setErrors]      = useState<Record<string, string>>({});
 
   useEffect(() => {
-    document.title = 'Submit an Event · Artistic Accessibility Collective';
     checkAuth();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   useEffect(() => {

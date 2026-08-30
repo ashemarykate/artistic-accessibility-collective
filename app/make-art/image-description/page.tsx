@@ -80,7 +80,6 @@ export default function ImageDescriptionPage() {
   const piece = PIECES[0];
 
   useEffect(() => {
-    document.title = 'Image Description as Art · Artistic Accessibility Collective';
     headingRef.current?.focus();
 
     supabase.auth.getUser().then(async ({ data }) => {
@@ -108,7 +107,6 @@ export default function ImageDescriptionPage() {
         setDescriptions((data ?? []).map((row) => ({ id: row.id, text: row.body, author: row.display_name || 'Community Member' })));
       });
 
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, [piece.id]);
 
   useEffect(() => {

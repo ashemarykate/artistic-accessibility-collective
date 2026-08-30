@@ -240,10 +240,6 @@ export default function EditProfilePage() {
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    document.title = 'Edit Profile · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   const loadProfile = useCallback(async () => {
     const user = await getSessionUser();

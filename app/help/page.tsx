@@ -115,9 +115,7 @@ export default function HelpPage() {
   const [open, setOpen] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    document.title = 'Help · Artistic Accessibility Collective';
     h1Ref.current?.focus();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   function toggle(key: string) {

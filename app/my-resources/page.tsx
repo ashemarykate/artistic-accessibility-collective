@@ -19,10 +19,6 @@ export default function MyResourcesPage() {
   const [libItems,     setLibItems    ] = useState<LibraryItem[]>([]);
   const [cinemaItems,  setCinemaItems ] = useState<CinemaItem[]>([]);
 
-  useEffect(() => {
-    document.title = 'My Resources · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     async function load() {

@@ -71,10 +71,6 @@ export default function PrinterPage() {
 
   const total = trays.reduce((n, t) => n + t.items.length, 0);
 
-  useEffect(() => {
-    document.title = 'The Printer · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     const tick = () => setQueue(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));

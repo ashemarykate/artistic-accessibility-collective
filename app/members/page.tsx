@@ -62,10 +62,6 @@ export default function MemberDirectory() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [volunteerOnly, setVolunteerOnly] = useState(false);
 
-  useEffect(() => {
-    document.title = 'Member Directory · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     checkAuthAndFetch();

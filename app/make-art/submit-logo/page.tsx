@@ -34,9 +34,7 @@ export default function SubmitLogoPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Submissions · Artistic Accessibility Collective';
     headingRef.current?.focus();
-    return () => { document.title = 'Artistic Accessibility Collective'; };
   }, []);
 
   const mailto = 'mailto:hello@artisticaccessibility.com'

@@ -37,7 +37,6 @@ export default function LearningHubPage() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = 'Learning Hub · Artistic Accessibility Collective';
     let dots = 0;
     const dotInterval = setInterval(() => {
       dots = (dots + 1) % 4;
@@ -51,7 +50,6 @@ export default function LearningHubPage() {
     return () => {
       clearInterval(dotInterval);
       clearTimeout(bootTimer);
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

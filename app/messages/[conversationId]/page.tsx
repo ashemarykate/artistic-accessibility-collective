@@ -46,10 +46,6 @@ export default function ConversationPage() {
   const bottomRef   = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    document.title = 'Messages · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   // ── Auto-scroll to bottom when messages change ────────────────────────────
   useEffect(() => {

@@ -77,10 +77,6 @@ export default function AdminDashboard() {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const assignNameRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    document.title = 'Admin Dashboard · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => { checkAdmin(); }, []);
   useEffect(() => { setLoginTrace(readLoginTrace()); }, []);

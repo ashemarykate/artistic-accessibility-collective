@@ -59,7 +59,6 @@ export default function TheChannelLearningPage() {
   const playerDivRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.title = 'The Channel · Artistic Accessibility Collective';
 
     let dots = 0;
     const dotInterval = setInterval(() => {
@@ -74,7 +73,6 @@ export default function TheChannelLearningPage() {
     return () => {
       clearInterval(dotInterval);
       clearTimeout(bootTimer);
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

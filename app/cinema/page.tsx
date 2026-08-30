@@ -67,10 +67,6 @@ export default function CinemaPage() {
   const [cinFavCounts,  setCinFavCounts ] = useState<Record<string, number>>({});
   const [cinFavPending, setCinFavPending] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    document.title = 'AAC Presents: The Cinema · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   // Fetch DB-managed cinema items
   useEffect(() => {

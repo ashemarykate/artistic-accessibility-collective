@@ -36,9 +36,7 @@ function LoginForm() {
   }, [searchParams]);
 
   useEffect(() => {
-    document.title = 'Login · Artistic Accessibility Collective';
     return () => {
-      document.title = 'Artistic Accessibility Collective';
     };
   }, []);
 

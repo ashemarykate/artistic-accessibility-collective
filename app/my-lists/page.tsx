@@ -27,10 +27,6 @@ export default function MyListsPage() {
   const [saving,    setSaving]    = useState(false);
   const [error,     setError]     = useState('');
 
-  useEffect(() => {
-    document.title = 'My Lists · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => {
     getSessionUser().then((user) => {

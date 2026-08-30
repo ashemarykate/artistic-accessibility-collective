@@ -131,10 +131,6 @@ export default function ProfilePage() {
   const [uploadError,    setUploadError]    = useState('');
   const photoAltRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    document.title = 'Profile · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   useEffect(() => { fetchData(); }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 

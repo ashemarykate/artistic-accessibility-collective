@@ -159,10 +159,6 @@ export default function SubmitProfile() {
   const formHeadingRef = useRef<HTMLHeadingElement>(null);
   const typeSelectHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    document.title = 'Join the Collective · Artistic Accessibility Collective';
-    return () => { document.title = 'Artistic Accessibility Collective'; };
-  }, []);
 
   // The <form>'s onChange catches typed fields; this covers the button-driven
   // tag pickers, which don't fire a form change event. Skip the initial mount
