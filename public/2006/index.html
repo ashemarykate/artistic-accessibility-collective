@@ -280,11 +280,11 @@
     font-family:"Times New Roman",Times,serif;color:#d6d6d6;
   }
   .blog hr{border:0;border-top:1px solid #2a2a2a;margin:11px 0}
-  .blog-h{
+  .blog .blog-h{
     font-family:"Times New Roman",serif;font-size:21px;margin:0;
     letter-spacing:-.5px;color:#fff;
   }
-  .blog-p{font-size:12.5px;line-height:1.45;margin:5px 0 0;color:#9a9a9a}
+  .blog .blog-p{font-size:12.5px;line-height:1.45;margin:5px 0 0;color:#9a9a9a}
   .blog-cat{
     font-family:"W95FA",Tahoma,sans-serif;font-size:11px;font-weight:bold;
     letter-spacing:1.5px;text-transform:uppercase;
@@ -302,10 +302,32 @@
   .blog-link:visited{filter:saturate(.55) brightness(.85)}
   .blog-link:hover{background:var(--neon);color:#000;text-shadow:none}
   .blog-todo{color:#5e5e5e;font-style:italic;font-size:12.5px}
-  .blog-sig{
-    font-family:"W95FA",Tahoma,sans-serif;font-size:9px;color:#666;
+  .blog .blog-sig{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:9px;color:#8a8a8a;
     text-align:center;margin:9px 0 0;
   }
+
+  /* ══════════ PLAY — the arcade ══════════
+     Same dark skin as Videos, because they are siblings: a hand collected list
+     of links out. Each row is one big target carrying the year, who made it
+     and a line about what it is, so you know what you are opening. */
+  .gm-list{list-style:none;margin:0;padding:0}
+  .gm-list li{margin:0 0 8px}
+  .gm-a{
+    display:block;padding:7px 8px;text-decoration:none;
+    background:#0a0a0a;border:1px solid #262626;
+  }
+  .gm-a:hover,.gm-a:focus-visible{background:#141414;border-color:var(--neon)}
+  .gm-t{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:12.5px;
+    color:var(--neon);text-decoration:underline;
+    text-shadow:0 0 5px color-mix(in srgb, var(--neon) 55%, transparent);
+  }
+  .gm-meta{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:9px;color:#7d7d7d;
+    display:block;margin-top:3px;letter-spacing:.3px;
+  }
+  .gm-n{display:block;font-size:12.5px;line-height:1.4;color:#9a9a9a;margin-top:4px}
 
   /* The collective, sitting on the wallpaper rather than on a bar of its own,
      so it reads as part of the desk instead of a footer bolted to the window.
@@ -683,6 +705,32 @@ const graves = [
   {n:"TRL",           d:"1998 – 2008",   e:"total. request. live."},
 ];
 
+/* ⑧ THE ARCADE — games that still run in a browser today, no download.
+      Everything here lives on somebody else's site, so every link opens in a
+      new tab and we say who made the thing and what year it is from.
+      y: the year it came out.  by: who made it.  n: the line under the title. */
+const GAMES = [
+  {cat:"stuff that still boots", games:[
+    {t:"Kid Pix Studio", y:"1995", by:"Broderbund",
+     url:"https://archive.org/details/kid-pix-studio_202110",
+     n:"the wacky brush, the rubber stamps, the stick of dynamite that blew up your whole drawing. emulated right in the page, no disc to find."},
+    {t:"Neopets Classic", y:"1999", by:"a fan rebuild",
+     url:"https://neopetsclassic.com/",
+     n:"the old layout, put back together by people who missed it. neggsweeper, cheat, the faerie quests. go feed something."},
+  ]},
+  {cat:"flash games somebody saved", games:[
+    {t:"Hiccupping Dil", y:"1998", by:"Nickelodeon",
+     url:"https://www.webdesignmuseum.org/flash-games/hiccupping-dil-in-1998",
+     n:"rugrats. the baby has the hiccups. that was the entire game and it was plenty."},
+    {t:"Mini Golf", y:"2006", by:"Electrotank",
+     url:"https://www.webdesignmuseum.org/flash-games/mini-golf-in-2006",
+     n:"computer lab contraband, straight out of 2006. hit Play Game on the page and it loads."},
+    {t:"SpongeBob: Bikini Bottom Carnival", y:"2006", by:"Nickelodeon",
+     url:"https://www.webdesignmuseum.org/flash-games/spongebob-bikini-bottom-carnival-in-2006",
+     n:"nick.com after school, the real one, running on a flash emulator now."},
+  ]},
+];
+
 /* ⑦ ANON SCREEN NAMES — what "Continue as Anon" hands out.
       Replace this whole list with the ones the creative team wrote. Anything
       here is a placeholder. A name is picked at random, then a number is added
@@ -751,6 +799,7 @@ const MENU = [
   {id:"buddies",   label:"2006ers"},
   {id:"videos",    label:"Videos"},
   {id:"playlists", label:"Playlists"},
+  {id:"play",      label:"Play"},
   {id:"graveyard", label:"Graveyard"},
 ];
 let screen = ME.sn ? "home" : "signon";
@@ -793,12 +842,13 @@ function toolbarHTML(){
   const t = (id,ico,label)=>`<button class="tool ${screen===id?"on":""}" data-go="${id}"><span class="t-ico">${ico}</span>${label}</button>`;
   return `<nav class="toolbar" aria-label="Sections">
     ${t("home","🎧","iPod")}${t("buddies","👥","2006ers")}${t("videos","🎬","Videos")}
-    ${t("playlists","🎵","Playlists")}${t("show","📺","The Show")}
+    ${t("playlists","🎵","Playlists")}${t("play","🕹️","Play")}${t("show","📺","The Show")}
   </div>`;
 }
 const SCREEN_TITLES = {
   signon:'Sign On', home:'iPod menu', buddies:'Buddy list, the cast of 2006',
-  videos:'Videos', playlists:'Playlists', graveyard:'The Graveyard', show:'About 2006',
+  videos:'Videos', playlists:'Playlists', play:'Play, games that still work',
+  graveyard:'The Graveyard', show:'About 2006',
 };
 function render(){
   const h1 = document.getElementById('screen-title');
@@ -808,6 +858,7 @@ function render(){
   else if(screen==="buddies")   app.innerHTML = viewBuddies();
   else if(screen==="videos")    app.innerHTML = viewVideos();
   else if(screen==="playlists") app.innerHTML = viewPlaylists();
+  else if(screen==="play")      app.innerHTML = viewPlay();
   else if(screen==="graveyard") app.innerHTML = viewGraveyard();
   else                          app.innerHTML = viewShow();
   app.querySelectorAll("[data-go]").forEach(el=>{
@@ -1093,6 +1144,43 @@ function wirePlaylists(){
       render();
     };
   });
+}
+
+/* ══════════════════ PLAY ══════════════════
+   Nothing is embedded. These are other people's sites, an iframe would break
+   the ones that need a real page of their own, and it would hide who is
+   actually hosting the thing. So: one big link per game, new tab, and the row
+   says so out loud rather than surprising anyone with a jumped tab. ══════════ */
+function viewPlay(){
+  const groups = GAMES.map((g, gi) => `
+    <h3 class="blog-cat" style="--neon:${NEON[gi % NEON.length]}">${esc(g.cat)}</h3>
+    <ul class="gm-list">
+      ${g.games.map((gm, i) => {
+        const neon = NEON[(gi + i + 1) % NEON.length];
+        return `<li>
+          <a class="gm-a" style="--neon:${neon}" href="${esc(gm.url)}"
+             target="_blank" rel="noopener noreferrer">
+            <span class="gm-t">${esc(gm.t)}</span>
+            <span class="gm-meta">${esc(gm.y)} &nbsp;·&nbsp; ${esc(gm.by)} &nbsp;·&nbsp; opens in a new tab</span>
+            <span class="gm-n">${esc(gm.n)}</span>
+          </a>
+        </li>`;
+      }).join("")}
+    </ul>`).join("<hr>");
+
+  const body = `
+    <div class="pane blog">
+      <h2 class="blog-h">play</h2>
+      <p class="blog-p">
+        games from back then that somebody kept running. click one and it opens
+        in its own tab, so this window stays exactly where you left it.
+      </p>
+      <hr>
+      ${groups}
+      <hr>
+      <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install &nbsp;·&nbsp; best played instead of homework</p>
+    </div>`;
+  return chrome("Play", body, {status: GAMES.reduce((n,g)=>n+g.games.length,0) + " games"});
 }
 
 /* ══════════════════ GRAVEYARD ══════════════════ */
