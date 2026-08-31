@@ -35,10 +35,6 @@ function LoginForm() {
     if (next) rememberAfterLogin(next);
   }, [searchParams]);
 
-  useEffect(() => {
-    return () => {
-    };
-  }, []);
 
   /** Arrived from a Backstage link. Worth saying so: otherwise a cast member
    *  who has never used the Collective lands on a Collective login page with
@@ -138,7 +134,7 @@ function LoginForm() {
     <BrowserChrome variant="ie3" title="Log In · Artistic Accessibility Collective" url="http://www.artisticaccessibility.com/login">
     <main style={{ background: 'var(--aac-blue)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', minHeight: '100%' }}>
       <Link href="/" aria-label="Artistic Accessibility Collective, home" style={{ marginBottom: '0', display: 'inline-block', transform: 'rotate(-1.2deg)' }}>
-        <Logo height={72} />
+        <Logo alt="" height={72} />
       </Link>
 
       <div className="content-card" style={{ maxWidth: '440px', width: '100%' }}>
@@ -265,8 +261,7 @@ function LoginForm() {
         {message && (
           <div
             className={`alert ${messageType === 'error' ? 'alert-error' : 'alert-info'}`}
-            role="alert"
-            aria-live="polite"
+            role={messageType === 'error' ? 'alert' : 'status'}
             style={{ marginTop: '1rem' }}
           >
             {message}
@@ -297,7 +292,12 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <Suspense>
+    <Suspense fallback={
+      <main className="loading-screen" role="status" aria-live="polite">
+        <span className="spinner" aria-hidden="true" />
+        <p>Loading…</p>
+      </main>
+    }>
       <LoginForm />
     </Suspense>
   );

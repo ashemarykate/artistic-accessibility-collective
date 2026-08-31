@@ -26,10 +26,6 @@ export default function AuthCallback() {
   const router = useRouter();
   const [error, setError] = useState<string>('');
 
-  useEffect(() => {
-    return () => {
-    };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

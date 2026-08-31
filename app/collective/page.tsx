@@ -15,10 +15,6 @@ export default function Collective() {
     });
   }, []);
 
-  useEffect(() => {
-    return () => {
-    };
-  }, []);
 
   return (
     <BrowserChrome variant="netscape" title="Artistic Accessibility Collective · Welcome" url="http://www.artisticaccessibility.com/collective">

@@ -84,10 +84,6 @@ export default function FeedbackPage() {
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    return () => {
-    };
-  }, []);
 
   const checkAuth = async () => {
     const user = await getSessionUser();
