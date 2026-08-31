@@ -3,7 +3,6 @@ import Logo from '@/components/Logo';
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 import { useUnsavedChanges } from '@/lib/useUnsavedChanges';
@@ -74,7 +73,7 @@ const TagChips = ({ tags, onRemove }: { tags: string[]; onRemove: (t: string) =>
   </ul>
 );
 
-const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: string[]; current: string[]; onAdd: (s: string) => void }) => {
+const SuggestionButtons = ({ suggestions, current, onAdd, inputId }: { suggestions: string[]; current: string[]; onAdd: (s: string) => void; inputId: string }) => {
   const remaining = suggestions.filter((s) => !current.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
   if (remaining.length === 0) return null;
   return (
@@ -82,7 +81,14 @@ const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: strin
       <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>Suggestions:</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
         {remaining.map((s) => (
-          <button key={s} type="button" onClick={() => onAdd(s)}
+          <button key={s} type="button"
+            onClick={() => {
+              onAdd(s);
+              // Adding the tag removes this very button from the list, taking
+              // the focused element with it. Hand focus back to the input the
+              // suggestions belong to rather than letting it fall to <body>.
+              document.getElementById(inputId)?.focus();
+            }}
             style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-pill)', padding: '0.2rem 0.75rem', fontSize: '0.8125rem', cursor: 'pointer', color: 'var(--color-text)' }}>
             + {s}
           </button>
@@ -93,7 +99,6 @@ const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: strin
 };
 
 export default function SubmitProfile() {
-  const router = useRouter();
   const [step, setStep] = useState<Step>('invite');
   const [dirty, setDirty] = useState(false); // unsaved-changes guard (form step only)
   useUnsavedChanges(step === 'form' && dirty);
@@ -185,7 +190,8 @@ export default function SubmitProfile() {
   useEffect(() => {
     if (formError && formErrorRef.current) {
       formErrorRef.current.focus();
-      formErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      formErrorRef.current.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
     }
   }, [formError]);
 
@@ -215,6 +221,7 @@ export default function SubmitProfile() {
       addTag(input, list, setList, setInput);
     } else if (e.key === 'Backspace' && !input && list.length > 0) {
       setList(list.slice(0, -1));
+      setTagAnnouncement(`${list[list.length - 1]} removed.`);
     }
   };
 
@@ -307,6 +314,10 @@ export default function SubmitProfile() {
     }
     if (!formData.email.trim()) {
       setFormError('Email is required.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      setFormError('Please enter a valid email address. This is where we will write back, so a typo means you will not hear from us.');
       return;
     }
     if (!formData.location_city.trim()) {
@@ -558,7 +569,7 @@ export default function SubmitProfile() {
 
           <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.25rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', textAlign: 'center', lineHeight: 1.6, marginBottom: '1rem' }}>
-              Are you a business owner? You&apos;re able to set up both an individual profile and a business page - we can link them together. Select one to start, and{' '}
+              Are you a business owner? You&apos;re able to set up both an individual profile and a business page, and we can link them together. Select one to start, and{' '}
               <Link href="/contact" style={{ color: 'var(--aac-blue)', textDecoration: 'underline' }}>get in touch</Link>
               {' '}to set up the other.
             </p>
@@ -602,48 +613,14 @@ export default function SubmitProfile() {
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', fontSize: '0.875rem', background: 'var(--aac-blue-light)', borderRadius: '6px', padding: '0.75rem', textAlign: 'left' }}>
             📷 <strong>Add a profile photo</strong> once you&apos;re approved: just log in and go to Edit Profile. You&apos;ll be able to upload and crop your photo there.
           </p>
-          <button onClick={() => router.push('/')} className="btn btn-primary">Back to Home</button>
+          {/* A link, not a button: it navigates, so it should be openable in a
+              new tab and announced as a link. */}
+          <Link href="/" className="btn btn-primary">Back to Home</Link>
         </div>
       </main>
       </BrowserChrome>
     );
   }
-
-  // ── Reusable sub-components ────────────────────────────────────────────
-
-  const TagChips = ({ tags, onRemove }: { tags: string[]; onRemove: (t: string) => void }) => (
-    <ul role="list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0 0 0.5rem', padding: 0, listStyle: 'none' }}>
-      {tags.map((t) => (
-        <li key={t}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: 'var(--aac-blue-light)', color: 'var(--aac-navy)', borderRadius: 'var(--radius-pill)', padding: '0.2rem 0.625rem 0.2rem 0.75rem', fontSize: '0.875rem', fontWeight: 500 }}>
-            {t}
-            <button type="button" onClick={() => onRemove(t)} aria-label={`Remove ${t}`}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.125rem', lineHeight: 1, color: 'var(--aac-blue)', fontSize: '1.1rem', display: 'flex', alignItems: 'center' }}>
-              ×
-            </button>
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-
-  const SuggestionButtons = ({ suggestions, current, onAdd }: { suggestions: string[]; current: string[]; onAdd: (s: string) => void }) => {
-    const remaining = suggestions.filter((s) => !current.map((x) => x.toLowerCase()).includes(s.toLowerCase()));
-    if (remaining.length === 0) return null;
-    return (
-      <div style={{ marginTop: '0.5rem' }}>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>Suggestions:</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
-          {remaining.map((s) => (
-            <button key={s} type="button" onClick={() => onAdd(s)}
-              style={{ background: 'var(--aac-cream)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-pill)', padding: '0.2rem 0.75rem', fontSize: '0.8125rem', cursor: 'pointer', color: 'var(--color-text)' }}>
-              + {s}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   // ── Main form ──────────────────────────────────────────────────────────
 
@@ -780,7 +757,7 @@ export default function SubmitProfile() {
                   aria-required="true" />
                 <p id="professions-hint" className="form-hint">Press Enter to add. Add as many as you like.</p>
                 <SuggestionButtons suggestions={PROFESSION_SUGGESTIONS} current={professions}
-                  onAdd={(s) => addTag(s, professions, setProfessions, setProfessionInput)} />
+                  onAdd={(s) => addTag(s, professions, setProfessions, setProfessionInput)} inputId="professions-input" />
               </div>
 
               {isContentCreator && (
@@ -805,7 +782,7 @@ export default function SubmitProfile() {
                   placeholder="Type a credential and press Enter…" aria-describedby="credentials-hint" />
                 <p id="credentials-hint" className="form-hint">Press Enter to add. Add as many as you like.</p>
                 <SuggestionButtons suggestions={CREDENTIAL_SUGGESTIONS} current={credentials}
-                  onAdd={(s) => addTag(s, credentials, setCredentials, setCredentialInput)} />
+                  onAdd={(s) => addTag(s, credentials, setCredentials, setCredentialInput)} inputId="credentials-input" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
@@ -897,7 +874,7 @@ export default function SubmitProfile() {
                   aria-required="true" />
                 <p id="biz-type-hint" className="form-hint">Press Enter to add. Add as many as apply.</p>
                 <SuggestionButtons suggestions={BUSINESS_TYPE_SUGGESTIONS} current={businessTypes}
-                  onAdd={(s) => addTag(s, businessTypes, setBusinessTypes, setBusinessTypeInput)} />
+                  onAdd={(s) => addTag(s, businessTypes, setBusinessTypes, setBusinessTypeInput)} inputId="business-type-input" />
               </div>
 
               <div className="form-group" style={{ marginBottom: '1rem' }}>
@@ -1047,7 +1024,7 @@ export default function SubmitProfile() {
               </label>
               <textarea id="tester-self" className="form-input form-textarea" rows={3}
                 required aria-required="true"
-                placeholder="Skills, achievements, context - anything that's missing from the form above…"
+                placeholder="Skills, achievements, context: anything that's missing from the form above…"
                 value={testerSelfDescription} onChange={(e) => setTesterSelfDescription(e.target.value)} />
             </div>
 
