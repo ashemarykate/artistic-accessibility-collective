@@ -13,13 +13,12 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 1. **Hardcoded member password in the client bundle.**
    `components/DevAutoLogin.tsx:39-42` ships the mk-member email and password
    in production JS, regardless of the env flag.
-   How: rotate that account's password in Supabase Auth. Then make the
-   component read from `process.env.NEXT_PUBLIC_DEV_AUTO_LOGIN` only, and get the
-   email/password from env vars that are only set in `.env.local`. Or render it
-   only when `process.env.NODE_ENV !== 'production'` in `app/layout.tsx:37`.
-   Also update CLAUDE.md's test account table once rotated.
+   Code side DONE 2026-09-04 (commit 406b4c6): credentials now come from
+   `DEV_AUTO_LOGIN_EMAIL` / `DEV_AUTO_LOGIN_PASSWORD` in `.env.local` and the
+   component never mounts in production. Still needed: MK rotates the password
+   and updates `.env.local` plus CLAUDE.md's test account table.
 
-2. **Anyone can trigger login emails.** `app/api/send-login-email/route.ts`
+2. DONE 030acfa. **Anyone can trigger login emails.** `app/api/send-login-email/route.ts`
    uses the service role with no auth check and no rate limit. POST any
    `profileId` and a magic link goes out to that member.
    How: read the caller's Supabase session server-side (cookie or bearer
@@ -27,35 +26,36 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
    simple per-profile cooldown (store `last_login_email_at` on profiles or use
    an in-memory map). Return the same generic response for missing vs found.
 
-3. **`AAAC-TEST` invite bypass is live in production.**
+3. DONE 2332261. **`AAAC-TEST` invite bypass is live in production.**
    `app/submit/page.tsx:253` and `:443`. Anyone can join without a code.
    How: wrap both checks in `process.env.NODE_ENV !== 'production'`, or delete
    them and use a dedicated real test code kept in the `invite_codes` table.
    Update CLAUDE.md, PLAN.md, and the beta memory when done.
 
-4. **Calendar sync route fails open.** `app/api/sync-calendars/route.ts:100`
+4. DONE b56cf9b (MK still confirms CRON_SECRET in Vercel). **Calendar sync route fails open.** `app/api/sync-calendars/route.ts:100`
    skips auth if `CRON_SECRET` is unset.
    How: if the secret is missing, return 500 and log. Confirm the secret is set
    in Vercel before deploying.
 
-5. **Contact form is an open relay with HTML injection.**
+5. DONE 20e3354. **Contact form is an open relay with HTML injection.**
    `app/api/contact/route.ts:22-30` interpolates name/email/subject/message raw
    into the email HTML.
    How: HTML-escape all four fields, regex-check the email, cap lengths, add a
    honeypot field on the form, and a light IP rate limit.
 
-6. **`can_request_login_link()` lacks `SET search_path`.**
+6. WRITTEN as v56, MK runs it. **`can_request_login_link()` lacks `SET search_path`.**
    `supabase-migration-v55.sql:222`. Sibling functions have it.
    How: write `supabase-migration-v56.sql` that recreates it with
    `SET search_path = public, auth`. Run in the SQL editor.
 
-7. **Admin page gate is client-only.** Fine only if every admin write has an
-   `is_admin()` policy.
-   How: list every table the admin page writes to (grep `.from(` in
-   `app/admin/page.tsx`), then check each against the live policies with a
-   read-only probe using the anon key. Add policies where missing.
+7. **Admin page gate is client-only.** DONE 2026-09-04: probed live as a
+   signed-in non-admin member. Inserts into admin_users, invite_codes,
+   resources, ics_sources, back_of_house_notes, and productions are all
+   blocked; updates and deletes on other people's profiles and events touch
+   zero rows. Members CAN insert events (go live at once, by design since v20)
+   and resource_submissions (pending only). Nothing to fix.
 
-8. **No unique constraint on one approved profile per user.** A recurrence
+8. WRITTEN as v56, MK runs it. **No unique constraint on one approved profile per user.** A recurrence
    signs the member out on login.
    How: migration with
    `CREATE UNIQUE INDEX ... ON profiles (user_id) WHERE status = 'approved'`.
