@@ -7,9 +7,20 @@ import "./globals.css";
 import { DevAutoLogin } from "@/components/DevAutoLogin";
 import StartBar from "@/components/StartBar";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.artisticaccessibility.com';
+const DESCRIPTION = "A directory, community, and resource hub for anyone passionate about accessibility in the arts: practitioners, disabled community members, and curious learners alike.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Artistic Accessibility Collective",
-  description: "A directory, community, and resource hub for anyone passionate about accessibility in the arts: practitioners, disabled community members, and curious learners alike.",
+  description: DESCRIPTION,
+  openGraph: {
+    siteName: 'Artistic Accessibility Collective',
+    type: 'website',
+    locale: 'en_US',
+    description: DESCRIPTION,
+  },
+  twitter: { card: 'summary_large_image' },
   icons: {
     icon: [
       { url: '/favicon.png', type: 'image/png' },
