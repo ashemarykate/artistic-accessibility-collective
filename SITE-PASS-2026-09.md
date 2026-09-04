@@ -86,7 +86,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 Clean already: all images have alt, no autoplay, no clickable divs, no em
 dashes in copy, Modal component is solid, 51 files use live regions.
 
-12. **Replace native `window.prompt` / `confirm` with the Modal component.**
+12. DONE 2026-09-04 (RTE dialogs verified by types and lint only; they live behind admin). **Replace native `window.prompt` / `confirm` with the Modal component.**
     Worst first:
     - `components/RichTextEditor.tsx:201` collects image alt text via a
       prompt. Build a small dialog that shows the image next to a labeled
