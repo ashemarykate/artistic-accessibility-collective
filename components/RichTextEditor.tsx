@@ -32,6 +32,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { sanitizeHtml } from '@/lib/sanitize-html';
+import Modal from '@/components/Modal';
 
 // `shortcut` is on the shared base rather than only on the inline variant so
 // the toolbar can read it off any command without narrowing first.
@@ -96,6 +97,43 @@ export default function RichTextEditor({
   const [active, setActive]   = useState<Record<string, boolean>>({});
   const [focusIdx, setFocusIdx] = useState(0);
   const [status, setStatus]   = useState('');
+
+  // Link and photo dialogs. They replace window.prompt, which gave screen
+  // reader users an unlabeled box and sighted users no way to see the photo
+  // they were describing. Each opens, resolves a promise, and closes.
+  type LinkAsk  = { kind: 'link'; selection: string };
+  type ImageAsk = { kind: 'image' };
+  const [ask, setAsk] = useState<LinkAsk | ImageAsk | null>(null);
+  const askResolve = useRef<((v: unknown) => void) | null>(null);
+  const [askUrl, setAskUrl] = useState('https://');
+  const [askAlt, setAskAlt] = useState('');
+  const [askDecorative, setAskDecorative] = useState(false);
+  const [askError, setAskError] = useState('');
+  const askFirstRef = useRef<HTMLInputElement>(null);
+  const askTitleId = `${uid}-ask-title`;
+  const askErrId = `${uid}-ask-err`;
+
+  const openAsk = <T,>(a: LinkAsk | ImageAsk) => new Promise<T | null>((resolve) => {
+    askResolve.current = resolve as (v: unknown) => void;
+    setAskUrl('https://'); setAskAlt(''); setAskDecorative(false); setAskError('');
+    setAsk(a);
+  });
+  const closeAsk = (value: unknown) => {
+    askResolve.current?.(value);
+    askResolve.current = null;
+    setAsk(null);
+  };
+  const submitAsk = () => {
+    const url = askUrl.trim();
+    if (!url || url === 'https://') { setAskError('Paste a web address first.'); return; }
+    if (!/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url)) {
+      setAskError('Addresses need to start with https://, mailto:, or a slash.'); return;
+    }
+    if (ask?.kind === 'image' && !askAlt.trim() && !askDecorative) {
+      setAskError('Describe the photo, or tick the box to mark it decorative.'); return;
+    }
+    closeAsk(ask?.kind === 'image' ? { url, alt: askDecorative ? '' : askAlt.trim() } : url);
+  };
 
   // Only write innerHTML when the value came from outside this component.
   useEffect(() => {
@@ -167,17 +205,10 @@ export default function RichTextEditor({
     switch (c.id) {
       case 'link': {
         const sel = window.getSelection()?.toString() ?? '';
-        const url = window.prompt(
-          sel ? `Link "${sel}" to which address?` : 'Paste the web address to link to:',
-          'https://',
-        );
-        if (!url || url === 'https://') return;
-        // Blocked here as well as in the sanitizer, so the person pasting gets
-        // told why instead of silently losing the link on save.
-        if (!/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url.trim())) {
-          setStatus('Links need to start with https://, mailto:, or a slash.');
-          return;
-        }
+        // The address is checked inside the dialog (and again by the
+        // sanitizer), so a bad one is explained instead of silently dropped.
+        const url = await openAsk<string>({ kind: 'link', selection: sel });
+        if (!url) return;
         if (!sel) {
           // No selection: insert the address as its own visible link text.
           exec('insertHTML', `<a href="${url.trim().replace(/"/g, '%22')}">${url.trim().replace(/[<>&]/g, '')}</a>`);
@@ -196,18 +227,9 @@ export default function RichTextEditor({
         if (onRequestImage) {
           img = await onRequestImage();
         } else {
-          const url = window.prompt('Paste the web address of the photo:', 'https://');
-          if (!url || url === 'https://') return;
-          const alt = window.prompt('Describe this photo for someone who cannot see it:', '') ?? '';
-          img = { url: url.trim(), alt };
+          img = await openAsk<{ url: string; alt: string }>({ kind: 'image' });
         }
         if (!img) return;
-        if (!img.alt.trim()) {
-          const ok = window.confirm(
-            'This photo has no description. Screen reader users will not know what it shows.\n\nInsert it as a decorative photo anyway?',
-          );
-          if (!ok) return;
-        }
         exec('insertHTML',
           `<img src="${img.url.replace(/"/g, '%22')}" alt="${img.alt.replace(/[<>&"]/g, '')}" /><p></p>`);
         setStatus('Photo added.');
@@ -286,8 +308,79 @@ export default function RichTextEditor({
 
   let flatIdx = -1;
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', boxSizing: 'border-box', minHeight: 44, padding: '0.5rem 0.65rem',
+    border: '1px solid #8a94b8', borderRadius: 4, fontSize: '1rem', fontFamily: 'inherit',
+  };
+  const askDialog = ask && (
+    <Modal
+      labelledBy={askTitleId}
+      onClose={() => closeAsk(null)}
+      initialFocusRef={askFirstRef}
+      dialogStyle={{
+        background: '#fff', color: '#0d1e4a', border: '2px solid var(--aac-blue, #263590)',
+        borderRadius: 8, padding: '1.25rem 1.5rem', maxWidth: 480, width: '100%',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.35)', fontFamily: 'var(--font-body, system-ui, sans-serif)',
+      }}
+    >
+      <form noValidate onSubmit={(e) => { e.preventDefault(); submitAsk(); }}>
+        <h2 id={askTitleId} style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.75rem' }}>
+          {ask.kind === 'link'
+            ? (ask.selection ? `Link "${ask.selection}" to an address` : 'Add a link')
+            : 'Add a photo'}
+        </h2>
+        <label htmlFor={`${uid}-ask-url`} style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}>
+          {ask.kind === 'link' ? 'Web address' : 'Web address of the photo'}
+        </label>
+        <input
+          ref={askFirstRef}
+          id={`${uid}-ask-url`}
+          type="url"
+          value={askUrl}
+          onChange={(e) => { setAskUrl(e.target.value); setAskError(''); }}
+          aria-invalid={askError ? true : undefined}
+          aria-describedby={askError ? askErrId : undefined}
+          style={inputStyle}
+        />
+        {ask.kind === 'image' && (
+          <>
+            {/^https?:\/\//i.test(askUrl.trim()) && askUrl.trim().length > 12 && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={askUrl.trim()} alt="" style={{ display: 'block', maxWidth: '100%', maxHeight: 180, margin: '0.75rem auto 0', border: '1px solid #ddd' }} />
+            )}
+            <label htmlFor={`${uid}-ask-alt`} style={{ display: 'block', fontWeight: 600, margin: '0.75rem 0 4px' }}>
+              Describe this photo for someone who cannot see it
+            </label>
+            <textarea
+              id={`${uid}-ask-alt`}
+              value={askAlt}
+              onChange={(e) => { setAskAlt(e.target.value); setAskError(''); }}
+              disabled={askDecorative}
+              rows={3}
+              aria-invalid={askError ? true : undefined}
+              aria-describedby={askError ? askErrId : undefined}
+              style={inputStyle}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: '0.5rem', minHeight: 44 }}>
+              <input type="checkbox" checked={askDecorative} onChange={(e) => { setAskDecorative(e.target.checked); setAskError(''); }} />
+              This photo is decorative and adds no information
+            </label>
+          </>
+        )}
+        {askError && (
+          <p id={askErrId} role="alert" style={{ color: '#b3261e', margin: '0.5rem 0 0', fontSize: '0.9rem' }}>{askError}</p>
+        )}
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem', flexWrap: 'wrap' }}>
+          <button type="button" className="btn btn-outline" onClick={() => closeAsk(null)}>Cancel</button>
+          <button type="submit" className="btn btn-primary">{ask.kind === 'link' ? 'Add link' : 'Add photo'}</button>
+        </div>
+      </form>
+    </Modal>
+  );
+
   return (
     <div>
+      {askDialog}
       <div
         ref={toolbarRef}
         role="toolbar"
