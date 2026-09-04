@@ -1,6 +1,9 @@
 'use client';
 import Logo from '@/components/Logo';
 
+// AAAC-TEST skips invite validation for local testing only.
+const TEST_BYPASS_ENABLED = process.env.NODE_ENV !== 'production';
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
@@ -249,8 +252,8 @@ export default function SubmitProfile() {
 
     const code = inviteCode.trim().toUpperCase();
 
-    // TEST BYPASS — remove once database is set up
-    if (code === 'AAAC-TEST') {
+    // Local test bypass. Never honoured on the live site.
+    if (TEST_BYPASS_ENABLED && code === 'AAAC-TEST') {
       setCodeSource('invite');
       setStep('type_select');
       setLoading(false);
@@ -440,7 +443,7 @@ export default function SubmitProfile() {
         if (feedbackError) console.error('Feedback insert error:', feedbackError);
       }
 
-      if (code !== 'AAAC-TEST') {
+      if (!(TEST_BYPASS_ENABLED && code === 'AAAC-TEST')) {
         if (codeSource === 'recommendation') {
           await supabase.from('recommendations').update({
             status: 'accepted',
