@@ -34,7 +34,12 @@ export default function RootLayout({
         <a href="#main-content" className="skip-nav">
           Skip to main content
         </a>
-        <DevAutoLogin />
+        {process.env.NODE_ENV !== 'production' && (
+          <DevAutoLogin
+            email={process.env.DEV_AUTO_LOGIN_EMAIL}
+            password={process.env.DEV_AUTO_LOGIN_PASSWORD}
+          />
+        )}
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>

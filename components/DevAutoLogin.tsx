@@ -6,8 +6,9 @@ import { supabase } from '@/lib/supabase';
 
 /**
  * Dev-only helper: automatically signs in as the test member account
- * when NEXT_PUBLIC_DEV_AUTO_LOGIN=true is set in .env.local.
- * Has no effect in production (the env var won't be set there).
+ * when NEXT_PUBLIC_DEV_AUTO_LOGIN=true is set in .env.local, alongside
+ * DEV_AUTO_LOGIN_EMAIL and DEV_AUTO_LOGIN_PASSWORD. The root layout never
+ * mounts it in production, and the credentials never appear in code.
  *
  * IT MUST NOT RUN ON THE PAGES WHERE WHO YOU ARE IS THE POINT.
  *
@@ -25,25 +26,29 @@ import { supabase } from '@/lib/supabase';
  */
 const NEVER_AUTO_LOGIN = ['/login', '/auth', '/backstage'];
 
-export function DevAutoLogin() {
+/**
+ * The email and password arrive as props from the root layout, which reads
+ * them from server-only env vars (DEV_AUTO_LOGIN_EMAIL / DEV_AUTO_LOGIN_PASSWORD
+ * in .env.local) and only mounts this component outside production. Nothing
+ * secret lives in this file, so nothing secret ends up in the client bundle.
+ */
+export function DevAutoLogin({ email, password }: { email?: string; password?: string }) {
   const pathname = usePathname();
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_DEV_AUTO_LOGIN !== 'true') return;
+    if (!email || !password) return;
     if (NEVER_AUTO_LOGIN.some((p) => pathname === p || pathname?.startsWith(`${p}/`))) return;
 
     const run = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) return; // already logged in, nothing to do
 
-      await supabase.auth.signInWithPassword({
-        email: 'mk-member@artisticaccessibility.com',
-        password: 'justtestit',
-      });
+      await supabase.auth.signInWithPassword({ email, password });
     };
 
     run();
-  }, [pathname]);
+  }, [pathname, email, password]);
 
   return null;
 }
