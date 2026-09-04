@@ -13,6 +13,7 @@
  */
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 export type BrowserVariant = 'mosaic' | 'netscape' | 'ie3' | 'aol';
 
@@ -179,13 +180,16 @@ export default function BrowserChrome({
   children,
 }: BrowserChromeProps) {
   const T = THEMES[variant];
+  const router = useRouter();
 
   const back    = () => typeof window !== 'undefined' && window.history.back();
   const forward = () => typeof window !== 'undefined' && window.history.forward();
+  // Refresh is a real reload on purpose (that is what the button promises).
   const reload  = () => typeof window !== 'undefined' && window.location.reload();
-  const home    = () => typeof window !== 'undefined' && (window.location.href = '/');
+  // Home and Contact navigate in-app so focus and announcements survive.
+  const home    = () => router.push('/');
   const print   = () => typeof window !== 'undefined' && window.print();
-  const contact = () => typeof window !== 'undefined' && (window.location.href = '/contact');
+  const contact = () => router.push('/contact');
 
   // Map toolbar button labels to actions and to clean spoken names
   // (the visible labels lead with a decorative glyph that reads oddly on its own).

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -223,6 +224,7 @@ function FavoriteButton({ slug, count, isFaved, isLoggedIn, onToggle }: {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function ResourcesPage() {
+  const router = useRouter();
   const [search, setSearch]                     = useState('');
   const [activeType, setActiveType]             = useState<ResourceType | 'all'>('all');
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
@@ -502,7 +504,7 @@ export default function ResourcesPage() {
                 type="button"
                 className="tap-target-btn"
                 aria-label="Close and go home"
-                onClick={() => { window.location.href = '/'; }}
+                onClick={() => router.push('/')}
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: 20, height: 16, fontSize: '9px', fontWeight: 'bold',
@@ -540,7 +542,7 @@ export default function ResourcesPage() {
             <ToolbarBtn icon="▶" label="Forward" onClick={() => window.history.forward()} />
             <div aria-hidden="true" style={{ width: 1, height: 24, background: IE.border, margin: '0 2px' }} />
             <ToolbarBtn icon="⟳" label="Refresh" onClick={() => window.location.reload()} />
-            <ToolbarBtn icon="🏠" label="Home" onClick={() => window.location.href = '/'} />
+            <ToolbarBtn icon="🏠" label="Home" onClick={() => router.push('/')} />
             <div aria-hidden="true" style={{ width: 1, height: 24, background: IE.border, margin: '0 4px' }} />
             {/* Address bar */}
             <span style={{ fontSize: '11px', fontFamily: IE.font, color: '#000', flexShrink: 0 }}>Address</span>
