@@ -28,6 +28,7 @@ export default function ContactPage() {
     email: '',
     subject: '',
     message: '',
+    website: '', // honeypot: hidden from people, filled by bots
   });
 
 
@@ -154,6 +155,19 @@ export default function ContactPage() {
         )}
 
         <form onSubmit={handleSubmit} noValidate aria-describedby="required-note">
+          {/* Honeypot. Hidden from sighted users and assistive tech alike; only bots fill it. */}
+          <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
+            <label htmlFor="contact-website">Website</label>
+            <input
+              id="contact-website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            />
+          </div>
           <p id="required-note" style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
             Fields marked with * are required.
           </p>
