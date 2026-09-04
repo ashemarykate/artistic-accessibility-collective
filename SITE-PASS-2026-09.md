@@ -99,18 +99,18 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: write one `useConfirm()` hook returning a promise, built on
     `components/Modal.tsx`, then swap all call sites.
 
-13. **Add `noValidate` and announced errors** to three forms:
+13. DONE 2026-09-04. **Add `noValidate` and announced errors** to three forms:
     `app/dashboard/page.tsx:688` (refer a colleague), `app/admin/page.tsx:810`
     (add admin), `app/admin/page.tsx:2496` (post).
 
-14. **Dynamic page titles for productions and backstage.**
+14. DONE 2026-09-04. **Dynamic page titles for productions and backstage.**
     `app/projects/[slug]/page.tsx:50` and `app/backstage/[slug]/page.tsx:47`
     set `document.title` after load, so the hard-load title is generic.
     How: add `generateMetadata` in a server `layout.tsx` under each `[slug]`
     folder, copying the pattern in `app/cinema/[slug]/layout.tsx`. Fetch the
     name with the anon client (published productions are readable).
 
-15. **Hard navigations in retro chrome.** `components/BrowserChrome.tsx:186,
+15. DONE 2026-09-04. **Hard navigations in retro chrome.** `components/BrowserChrome.tsx:186,
     188` and `app/resources/page.tsx:505, 543` set `window.location.href`.
     How: use `router.push`. Leave the Refresh button as a real reload.
 
@@ -119,7 +119,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: after each mutation, update local state for that row instead of
     refetching all. Move focus to the next row or a status message.
 
-17. **Small title gaps:** `app/reports/layout.tsx` has no title; `app/dev`
+17. DONE 2026-09-04. **Small title gaps:** `app/reports/layout.tsx` has no title; `app/dev`
     has no layout (add one with `robots: { index: false }`).
 
 ## Tier 4: product gaps (things testers will notice)
@@ -131,10 +131,10 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     calendar via `lib/events.ts` today), or hide it until built. Don't ship
     six dead panels on the member home.
 
-19. **Calendar empty state has no CTA.** `app/calendar/page.tsx:870`.
+19. DONE 2026-09-04. **Calendar empty state has no CTA.** `app/calendar/page.tsx:870`.
     How: add a "Submit an event" link to `/submit-event`.
 
-20. **Learning Hub subject buttons only change color.** `app/learning-hub/page.tsx:252`.
+20. DONE 2026-09-04. **Learning Hub subject buttons only change color.** `app/learning-hub/page.tsx:252`.
     They are honestly labeled "(coming soon)" for screen readers, but sighted
     users see a toolbar that looks live.
     How: filter the hub's content by subject, or add a visible "coming soon"
@@ -161,7 +161,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
 
 ## Tier 5: missing infrastructure
 
-24. **No SEO or share previews.** No `sitemap.ts`, `robots.ts`, or Open Graph
+24. DONE 2026-09-04. **No SEO or share previews.** No `sitemap.ts`, `robots.ts`, or Open Graph
     image. `app/layout.tsx` has no `metadataBase` or `openGraph`.
     How: add `metadataBase`, a site-wide `openGraph` block with the stacked
     logo on navy as `app/opengraph-image.tsx`, `app/robots.ts` (disallow
@@ -189,6 +189,15 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     TODO.md is the original MVP list.
     How: rewrite both to match reality, or fold them into this file and
     delete them. Never reference the husband.
+
+## Noticed along the way (not fixed)
+
+- Chrome logs "Blocked attempt to show a beforeunload confirmation panel"
+  when navigating away from Backstage preview and Learning Hub with no user
+  gesture. Something registers the unsaved-changes guard as dirty on load.
+  Harmless for people, but worth a look at `lib/useUnsavedChanges.ts` callers.
+- Item 13 note: the back-of-house note form at `app/admin/page.tsx` already
+  had `noValidate`; only two forms needed the fix.
 
 ## Tier 6: fun ideas that fit the retro voice
 
