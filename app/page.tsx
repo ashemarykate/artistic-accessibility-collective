@@ -441,16 +441,18 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
   signOutError?: string | null;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const prevAccount = useRef(account);
   const [justSignedOut, setJustSignedOut] = useState(false);
+  // Notice the moment the account flips to signed out, during render.
+  const [seenAccount, setSeenAccount] = useState(account);
+  const signedOutNow = seenAccount !== 'out' && account === 'out';
+  if (seenAccount !== account) {
+    setSeenAccount(account);
+    if (signedOutNow) setJustSignedOut(true);
+  }
 
   useEffect(() => {
-    if (prevAccount.current !== 'out' && account === 'out') {
-      wrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
-      setJustSignedOut(true);
-    }
-    prevAccount.current = account;
-  }, [account]);
+    if (justSignedOut) wrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+  }, [justSignedOut]);
 
   return (
     <div ref={wrapRef} style={{ background: '#fff' }}>
@@ -797,7 +799,7 @@ function StartMenu({ onOpen, onClose }: { onOpen: (key: string) => void; onClose
 // the window (or back, on close). Purely decorative, desktop only.
 function ZoomFX({ from, to, onDone }: { from: FxRect; to: FxRect; onDone: () => void }) {
   const done = useRef(onDone);
-  done.current = onDone;
+  useEffect(() => { done.current = onDone; }, [onDone]);
   useEffect(() => {
     const t = setTimeout(() => done.current(), 420);
     return () => clearTimeout(t);

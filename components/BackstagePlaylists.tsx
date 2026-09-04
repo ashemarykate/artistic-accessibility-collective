@@ -36,13 +36,13 @@ export default function BackstagePlaylists({
   myScreenName: string;
   preview?: boolean;
 }) {
-  const [lists, setLists] = useState<Playlist[]>([]);
+  const [lists, setLists] = useState<Playlist[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
   useEffect(() => {
-    if (preview) { setLists(SAMPLE); return; }
+    if (preview) return; // sample data is seeded as the initial state
     fetchPlaylists(productionId).then(setLists);
   }, [productionId, preview]);
 

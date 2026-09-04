@@ -79,8 +79,7 @@ export default function MakeArtPage() {
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPhase('done');
-      setTimeout(() => headingRef.current?.focus(), 100);
+      timers.current = [window.setTimeout(finish, 0)];
     } else {
       bootRef.current?.focus();
       timers.current = [
@@ -309,7 +308,7 @@ export default function MakeArtPage() {
                   className="kp-btn"
                   style={{ fontFamily: KIDFONT, fontSize: 13, fontWeight: 'bold', color: '#fff', background: '#5a2a7a', padding: '8px 16px', textDecoration: 'none', border: '3px solid #111', borderRadius: 6, boxShadow: '4px 4px 0 #111', display: 'inline-block', minHeight: 44, boxSizing: 'border-box' }}
                 >
-                  🪧 See What's Needed
+                  🪧 See What&apos;s Needed
                 </Link>
               </div>
 

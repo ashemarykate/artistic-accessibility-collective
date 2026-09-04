@@ -35,12 +35,12 @@ export default function BackstageGraveyard({
   canCurate: boolean;
   preview?: boolean;
 }) {
-  const [graves, setGraves] = useState<Grave[]>([]);
+  const [graves, setGraves] = useState<Grave[]>(preview ? SAMPLE : []);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
   useEffect(() => {
-    if (preview) { setGraves(SAMPLE); return; }
+    if (preview) return; // sample data is seeded as the initial state
     fetchGraves(productionId).then(setGraves);
   }, [productionId, preview]);
 

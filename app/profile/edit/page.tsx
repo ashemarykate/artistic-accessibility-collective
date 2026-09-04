@@ -314,15 +314,20 @@ export default function EditProfilePage() {
   // typed inputs, checkboxes, and selects; this covers the button-driven fields
   // (tag pickers and the background color) that don't fire a form change event.
   // Guarded so hydrating the form on load doesn't count as an edit.
-  const hydratedRef = useRef(false);
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     if (loading) return;
-    const t = setTimeout(() => { hydratedRef.current = true; }, 0);
+    const t = setTimeout(() => setHydrated(true), 0);
     return () => clearTimeout(t);
   }, [loading]);
-  useEffect(() => {
-    if (hydratedRef.current) setDirty(true);
-  }, [specialties, certifications, languages, strengths, communicationStyle, bgColor, colleges, trainingsCompleted, profileTypes, galleryPhotos]);
+  // Compare a snapshot of the non-input fields during render; when it changes
+  // after hydration, the form is dirty. (Text inputs mark dirty in onChange.)
+  const fieldsKey = JSON.stringify([specialties, certifications, languages, strengths, communicationStyle, bgColor, colleges, trainingsCompleted, profileTypes, galleryPhotos]);
+  const [seenFieldsKey, setSeenFieldsKey] = useState(fieldsKey);
+  if (seenFieldsKey !== fieldsKey) {
+    setSeenFieldsKey(fieldsKey);
+    if (hydrated) setDirty(true);
+  }
 
   // ── Username uniqueness check ─────────────────────────────────────────────
 

@@ -685,9 +685,13 @@ export default function CalendarPage() {
     };
 
     if (prefersReduced) {
-      setBooting(false);
-      setPhase('app');
-      const f = setTimeout(focusAppHeading, 50);
+      // Next tick rather than synchronously, so this stays a plain
+      // "respond to the environment" effect instead of a render-time set.
+      const f = setTimeout(() => {
+        setBooting(false);
+        setPhase('app');
+        setTimeout(focusAppHeading, 50);
+      }, 0);
       return () => clearTimeout(f);
     }
 

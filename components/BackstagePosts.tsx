@@ -44,7 +44,7 @@ export default function BackstagePosts({
   canPin: boolean;
   preview?: boolean;
 }) {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
@@ -66,7 +66,7 @@ export default function BackstagePosts({
   };
 
   useEffect(() => {
-    if (preview) { setPosts(SAMPLE); return; }
+    if (preview) return; // sample data is seeded as the initial state
     fetchPosts(productionId).then(setPosts);
   }, [productionId, preview]);
 

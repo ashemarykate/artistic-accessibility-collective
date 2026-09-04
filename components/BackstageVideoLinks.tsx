@@ -34,13 +34,13 @@ export default function BackstageVideoLinks({
   canCurate: boolean;
   preview?: boolean;
 }) {
-  const [links, setLinks] = useState<VideoLink[]>([]);
+  const [links, setLinks] = useState<VideoLink[]>(preview ? SAMPLE : []);
   const [newCat, setNewCat] = useState('');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
   useEffect(() => {
-    if (preview) { setLinks(SAMPLE); return; }
+    if (preview) return; // sample data is seeded as the initial state
     fetchVideoLinks(productionId).then(setLinks);
   }, [productionId, preview]);
 

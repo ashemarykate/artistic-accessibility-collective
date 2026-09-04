@@ -168,8 +168,14 @@ export default function StartBar() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
-  // Close the menu whenever the route changes (a link was followed).
-  useEffect(() => { setOpen(false); }, [pathname]);
+  // Close the menu whenever the route changes (a link was followed). Done by
+  // comparing against the last seen path during render, which React allows
+  // and which avoids an extra render cycle from an effect.
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
+    setOpen(false);
+  }
 
   // Pages that already own their full-screen chrome, so a second taskbar would
   // just double up: the home desktop, the Make Art studio (its own taskbar),

@@ -49,21 +49,24 @@ export default function BackstagePortal() {
 
   useEffect(() => {
     if (preview) {
-      setShow({ id: 'preview', slug, title: '2006', tagline: 'a play in the form of TRL',
-        status: 'draft', myRole: 'producer' } as ProductionSummary);
-      setSite({ background_url: '/2006/bg.jpg', background_color: '#3a6ea5',
-        public_url: '/2006', drive_url: null, submissions_url: null } as MicrositeState);
-      setRow({ id: 'preview', team_role: 'producer', display_name: 'Mary Kate', credit: 'Writer/Performer/Editor/Tech' } as TeamRow);
-      setHasProfile(true);
-      setPersona({
-        screen_name: 'mkashe9', status: 'away', idle_min: 23,
-        away_msg: 'not here, prolly back later',
-        profile: 'friends. music. swim.\n\norlando bloom <3',
-        about: '',
-        bg: '#3e7391', fg: '#c3adaf', font: 'sys', size: 13,
-      } as Persona);
-      setState('ready');
-      return;
+      // Seed the sample state on the next tick, not synchronously in the effect.
+      const t = setTimeout(() => {
+        setShow({ id: 'preview', slug, title: '2006', tagline: 'a play in the form of TRL',
+          status: 'draft', myRole: 'producer' } as ProductionSummary);
+        setSite({ background_url: '/2006/bg.jpg', background_color: '#3a6ea5',
+          public_url: '/2006', drive_url: null, submissions_url: null } as MicrositeState);
+        setRow({ id: 'preview', team_role: 'producer', display_name: 'Mary Kate', credit: 'Writer/Performer/Editor/Tech' } as TeamRow);
+        setHasProfile(true);
+        setPersona({
+          screen_name: 'mkashe9', status: 'away', idle_min: 23,
+          away_msg: 'not here, prolly back later',
+          profile: 'friends. music. swim.\n\norlando bloom <3',
+          about: '',
+          bg: '#3e7391', fg: '#c3adaf', font: 'sys', size: 13,
+        } as Persona);
+        setState('ready');
+      }, 0);
+      return () => clearTimeout(t);
     }
     (async () => {
       const user = await getSettledUser();
