@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
 import {
   fetchVideoLinks, createVideoLink, saveVideoLink, deleteVideoLink, youtubeId,
@@ -37,6 +38,7 @@ export default function BackstageVideoLinks({
   const [links, setLinks] = useState<VideoLink[]>(preview ? SAMPLE : []);
   const [newCat, setNewCat] = useState('');
   const [busy, setBusy] = useState(false);
+  const { confirm, confirmDialog } = useConfirm();
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function BackstageVideoLinks({
   };
 
   const remove = async (l: VideoLink) => {
-    if (!confirm(`Remove "${l.title || 'this video'}"?`)) return;
+    if (!(await confirm({ title: `Remove "${l.title || 'this video'}"?`, confirmLabel: 'Remove', danger: true }))) return;
     if (preview) { setLinks((ls) => ls.filter((x) => x.id !== l.id)); return; }
     setBusy(true);
     const res = await deleteVideoLink(l.id);
@@ -83,6 +85,7 @@ export default function BackstageVideoLinks({
 
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
+      {confirmDialog}
       <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-50.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />

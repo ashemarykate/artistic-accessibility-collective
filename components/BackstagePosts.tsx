@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
 import { fetchPosts, createPost, savePost, deletePost, type Post } from '@/lib/backstage';
 import { sanitizeHtml, POST_FONTS } from '@/lib/sanitize-html';
@@ -47,6 +48,7 @@ export default function BackstagePosts({
   const [posts, setPosts] = useState<Post[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { confirm, confirmDialog } = useConfirm();
   const [note, setNote] = useState('');
   const bodyRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
 
@@ -102,7 +104,7 @@ export default function BackstagePosts({
   };
 
   const remove = async (p: Post) => {
-    if (!confirm(`Delete "${p.title || 'this post'}"? This cannot be undone.`)) return;
+    if (!(await confirm({ title: `Delete "${p.title || 'this post'}"?`, body: 'This cannot be undone.', confirmLabel: 'Delete', danger: true }))) return;
     if (preview) { setPosts((ps) => ps.filter((x) => x.id !== p.id)); return; }
     setBusy(true);
     const res = await deletePost(p.id);
@@ -115,6 +117,7 @@ export default function BackstagePosts({
 
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
+      {confirmDialog}
       <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-70.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />

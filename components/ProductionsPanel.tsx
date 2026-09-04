@@ -51,6 +51,7 @@ import {
 } from '@/lib/productions';
 import ProjectIconPicker from '@/components/ProjectIconPicker';
 import RichTextEditor from '@/components/RichTextEditor';
+import { useConfirm } from '@/components/useConfirm';
 import ProductionPhotoUploader from '@/components/ProductionPhotoUploader';
 
 // ── Shared styles, matching the other admin panels ───────────────────────────
@@ -254,6 +255,7 @@ export default function ProductionsPanel() {
   const [mode, setMode] = useState<'list' | 'edit' | 'attendees'>('list');
   const [form, setForm] = useState<FormState>(blankForm);
   const [attendeesFor, setAttendeesFor] = useState<ProductionWithDates | null>(null);
+  const { confirm, confirmDialog } = useConfirm();
   const [rsvpCounts, setRsvpCounts] = useState<Record<string, number>>({});
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -327,12 +329,25 @@ export default function ProductionsPanel() {
 
     // Publishing with undescribed photos is allowed, but not silently.
     if (targetStatus === 'published') {
-      const undescribed = [...form.hero, ...form.gallery].filter((p) => !p.alt.trim()).length;
-      if (undescribed > 0) {
-        const ok = window.confirm(
-          `${undescribed} photo${undescribed === 1 ? '' : 's'} ${undescribed === 1 ? 'has' : 'have'} no description yet. ` +
-          'Screen reader users will not know what they show.\n\nPublish anyway?',
-        );
+      const missing = [...form.hero, ...form.gallery].filter((p) => !p.alt.trim());
+      if (missing.length > 0) {
+        const n = missing.length;
+        const ok = await confirm({
+          title: `${n} photo${n === 1 ? '' : 's'} ${n === 1 ? 'has' : 'have'} no description yet`,
+          body: (
+            <>
+              <p style={{ margin: '0 0 0.5rem' }}>Screen reader users will not know what {n === 1 ? 'it shows' : 'they show'}. You can add descriptions in the photo section below, or publish as is.</p>
+              <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                {missing.slice(0, 6).map((p, i) => (
+                  <li key={p.url || i}>{p.url.split('/').pop()?.split('?')[0] || `Photo ${i + 1}`}</li>
+                ))}
+                {n > 6 && <li>and {n - 6} more</li>}
+              </ul>
+            </>
+          ),
+          confirmLabel: 'Publish anyway',
+          cancelLabel: 'Go back and describe them',
+        });
         if (!ok) return;
       }
     }
@@ -608,6 +623,7 @@ export default function ProductionsPanel() {
   if (mode === 'edit') {
     return (
       <div>
+        {confirmDialog}
         <h3
           ref={editorHeadingRef}
           tabIndex={-1}

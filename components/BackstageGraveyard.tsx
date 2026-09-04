@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
 import {
   fetchGraves, createGrave, saveGrave, deleteGrave, pinGrave, type Grave,
@@ -37,6 +38,7 @@ export default function BackstageGraveyard({
 }) {
   const [graves, setGraves] = useState<Grave[]>(preview ? SAMPLE : []);
   const [busy, setBusy] = useState(false);
+  const { confirm, confirmDialog } = useConfirm();
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function BackstageGraveyard({
   };
 
   const remove = async (g: Grave) => {
-    if (!confirm(`Remove "${g.name}"?`)) return;
+    if (!(await confirm({ title: `Remove "${g.name}"?`, confirmLabel: 'Remove', danger: true }))) return;
     if (preview) { setGraves((gs) => gs.filter((x) => x.id !== g.id)); return; }
     setBusy(true);
     const res = await deleteGrave(g.id);
@@ -127,6 +129,7 @@ export default function BackstageGraveyard({
 
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
+      {confirmDialog}
       <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-62.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />

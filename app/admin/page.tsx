@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
 import ProductionsPanel from '@/components/ProductionsPanel';
+import { useConfirm } from '@/components/useConfirm';
 
 type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'productions' | 'admins' | 'back-of-house';
 
@@ -41,6 +42,7 @@ type ResourceSubmission = {
 type FeedbackWithProfile = TesterFeedback & { profile: Pick<Profile, 'full_name' | 'email' | 'profile_type'> | null };
 
 export default function AdminDashboard() {
+  const { confirm, confirmDialog } = useConfirm();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasMemberProfile, setHasMemberProfile] = useState(false);
@@ -170,7 +172,7 @@ export default function AdminDashboard() {
   };
 
   const handleReject = async (profileId: string) => {
-    if (!confirm('Reject this profile?')) return;
+    if (!(await confirm({ title: 'Reject this profile?', body: 'They will not be listed in the directory and will not get a login link.', confirmLabel: 'Reject', danger: true }))) return;
     setAdminActionMsg(null);
     setProfileActionPending({ id: profileId, action: 'reject' });
     try {
@@ -323,7 +325,7 @@ export default function AdminDashboard() {
 
   const handleRemoveAdmin = async (userId: string, email: string | null) => {
     const who = email || 'this admin';
-    if (typeof window !== 'undefined' && !window.confirm(`Remove admin access for ${who}? They will still keep their member account.`)) return;
+    if (!(await confirm({ title: `Remove admin access for ${who}?`, body: 'They will still keep their member account.', confirmLabel: 'Remove access', danger: true }))) return;
     setAdminActionMsg(null);
     const { data, error } = await supabase.rpc('remove_admin', { target_user_id: userId });
     if (error) { setAdminActionMsg({ type: 'err', text: error.message }); return; }
@@ -415,6 +417,7 @@ export default function AdminDashboard() {
   return (
     <BrowserChrome variant="mosaic" title="Admin · Artistic Accessibility Collective" url="http://admin.artisticaccessibility.com/">
     <main className="page-wrapper">
+      {confirmDialog}
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">

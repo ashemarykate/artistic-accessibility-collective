@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE, SECTIONS } from '@/lib/production-admin-copy';
 import {
   fetchPlaylists, createPlaylist, savePlaylist, deletePlaylist, type Playlist,
@@ -39,6 +40,7 @@ export default function BackstagePlaylists({
   const [lists, setLists] = useState<Playlist[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { confirm, confirmDialog } = useConfirm();
   const [note, setNote] = useState('');
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function BackstagePlaylists({
   };
 
   const remove = async (l: Playlist) => {
-    if (!confirm(`Delete "${l.title}"? This cannot be undone.`)) return;
+    if (!(await confirm({ title: `Delete "${l.title}"?`, body: 'This cannot be undone.', confirmLabel: 'Delete', danger: true }))) return;
     if (preview) { setLists((ls) => ls.filter((x) => x.id !== l.id)); return; }
     setBusy(true);
     const res = await deletePlaylist(l.id);
@@ -92,6 +94,7 @@ export default function BackstagePlaylists({
 
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
+      {confirmDialog}
       <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-80.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
