@@ -249,6 +249,12 @@ export default function MemberHub() {
     setRecError('');
     if (!recName.trim() || !recEmail.trim()) {
       setRecError('Name and email are required.');
+      document.getElementById(!recName.trim() ? 'rec-name' : 'rec-email')?.focus();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recEmail.trim())) {
+      setRecError('That email address does not look right. Check it and try again.');
+      document.getElementById('rec-email')?.focus();
       return;
     }
     setRecSending(true);
@@ -685,23 +691,23 @@ export default function MemberHub() {
                     You&apos;ve used all 3 referrals for this month. They&apos;ll refresh next month.
                   </p>
                 ) : (
-                  <form onSubmit={handleSendRecommendation}>
+                  <form onSubmit={handleSendRecommendation} noValidate>
                     <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
                       Know someone who&apos;d be a great fit? Send them a personal invite to join the Collective.
                     </p>
                     <div className="form-group" style={{ marginBottom: '8px' }}>
                       <label htmlFor="rec-name" className="form-label" style={{ fontSize: '0.75rem' }}>Their name</label>
-                      <input id="rec-name" type="text" className="form-input" value={recName} onChange={(e) => setRecName(e.target.value)} autoComplete="off" />
+                      <input id="rec-name" type="text" className="form-input" value={recName} onChange={(e) => setRecName(e.target.value)} autoComplete="off" aria-invalid={recError && !recName.trim() ? true : undefined} aria-describedby={recError ? 'rec-error' : undefined} />
                     </div>
                     <div className="form-group" style={{ marginBottom: '8px' }}>
                       <label htmlFor="rec-email" className="form-label" style={{ fontSize: '0.75rem' }}>Their email</label>
-                      <input id="rec-email" type="email" className="form-input" value={recEmail} onChange={(e) => setRecEmail(e.target.value)} autoComplete="off" />
+                      <input id="rec-email" type="email" className="form-input" value={recEmail} onChange={(e) => setRecEmail(e.target.value)} autoComplete="off" aria-invalid={recError && (!recEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recEmail.trim())) ? true : undefined} aria-describedby={recError ? 'rec-error' : undefined} />
                     </div>
                     <div className="form-group" style={{ marginBottom: '8px' }}>
                       <label htmlFor="rec-message" className="form-label" style={{ fontSize: '0.75rem' }}>Personal message (optional)</label>
                       <textarea id="rec-message" className="form-input" rows={2} value={recMessage} onChange={(e) => setRecMessage(e.target.value)} />
                     </div>
-                    {recError && <p className="form-error" role="alert" style={{ marginBottom: '8px' }}>{recError}</p>}
+                    {recError && <p id="rec-error" className="form-error" role="alert" style={{ marginBottom: '8px' }}>{recError}</p>}
                     <button type="submit" className="btn btn-primary btn-sm" disabled={recSending} aria-busy={recSending}>
                       {recSending ? 'Sending…' : 'Send Invite'}
                     </button>

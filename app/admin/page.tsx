@@ -301,7 +301,11 @@ export default function AdminDashboard() {
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     const email = newAdminEmail.trim();
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAdminActionMsg({ type: 'err', text: email ? 'That email address does not look right. Check it and try again.' : 'Enter an email address first.' });
+      document.getElementById('new-admin-email')?.focus();
+      return;
+    }
     setAddingAdmin(true);
     setAdminActionMsg(null);
     const { data, error } = await supabase.rpc('add_admin_by_email', { target_email: email, target_role: newAdminRole });
@@ -814,7 +818,7 @@ export default function AdminDashboard() {
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
                 Enter the email of someone who has already logged in at least once. They get access to this dashboard so you can share the work. They keep their member account either way.
               </p>
-              <form onSubmit={handleAddAdmin} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <form onSubmit={handleAddAdmin} noValidate style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                 <div className="form-group" style={{ flex: '1 1 240px', marginBottom: 0 }}>
                   <label htmlFor="new-admin-email" className="form-label">Email address</label>
                   <input id="new-admin-email" type="email" className="form-input" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="person@example.com" autoComplete="off" />
