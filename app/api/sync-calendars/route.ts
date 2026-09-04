@@ -95,7 +95,11 @@ export async function GET(request: Request) {
   // Verify cron secret
   const secret = process.env.CRON_SECRET;
   const auth   = request.headers.get('authorization');
-  if (secret && auth !== `Bearer ${secret}`) {
+  if (!secret) {
+    console.error('sync-calendars: CRON_SECRET is not set, refusing to run');
+    return NextResponse.json({ error: 'CRON_SECRET not set' }, { status: 500 });
+  }
+  if (auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
