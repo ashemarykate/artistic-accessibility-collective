@@ -63,7 +63,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ## Tier 2: correctness and lint
 
-9. **12 ESLint errors, `set-state-in-effect`.** Files: StartBar, the four
+9. DONE 2026-09-04. **12 ESLint errors, `set-state-in-effect`.** Files: StartBar, the four
    Backstage components, profile/edit, home page, make-art, calendar,
    backstage/[slug].
    How: most are "sync state from props/route" effects. Replace with derived
@@ -71,7 +71,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
    `StartBar.tsx:172` (close menu on route change), close the menu in the
    link's onClick instead. Verify with `npx eslint app components lib`.
 
-10. **`lib/supabase.ts:4` falls back to `'placeholder-key'`.** A bad deploy
+10. DONE 2026-09-04. **`lib/supabase.ts:4` falls back to `'placeholder-key'`.** A bad deploy
     fails confusingly at runtime.
     How: throw at module load if either env var is missing, with a plain
     message naming the variable.
