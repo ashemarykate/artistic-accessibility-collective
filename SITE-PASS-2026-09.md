@@ -216,3 +216,18 @@ each item.
 Session 2: items 12 and 13 (the confirm/prompt dialog work), then 14 and 15.
 Session 3: item 18 (dashboard panels) and item 24 (SEO), then pick fun ideas
 with MK.
+
+---
+
+## Split of work (2026-09-04)
+
+**Claude does alone, in this order:** items 1 (code side), 2, 3, 4, 5, 6 and 8
+(write the migration), 7 (probe + code), 9, 10, 12, 13, 14, 15, 17, 19, 20, 24.
+
+**MK must do first, or decide:**
+- Rotate the mk-member password in Supabase Auth; put the new one in
+  `.env.local` as `DEV_AUTO_LOGIN_PASSWORD`, never in chat.
+- Run `supabase-migration-v56.sql` once it is pushed.
+- Confirm `CRON_SECRET` is set in Vercel.
+- Decide item 18 (dashboard panels), 21 (share-feedback), 22 (required alt
+  text), 23 (font + Riot Fest rates), 27 (who drafts the policy pages).
