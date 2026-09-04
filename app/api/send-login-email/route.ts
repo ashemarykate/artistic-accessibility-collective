@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
+// One login email per profile per minute. In-memory, so it is per server
+// instance, which is enough to stop a stuck button or a script from flooding
+// a member's inbox.
+const COOLDOWN_MS = 60_000;
+const lastSent = new Map<string, number>();
+
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabaseAdmin = createClient(
@@ -9,10 +15,35 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
   try {
+    // Only a signed-in admin may send these. The admin page passes its
+    // session token; we check it against Supabase and then admin_users.
+    const bearer = req.headers.get('authorization') ?? '';
+    const token = bearer.startsWith('Bearer ') ? bearer.slice(7) : '';
+    if (!token) {
+      return NextResponse.json({ error: 'Sign in as an admin to send login emails' }, { status: 401 });
+    }
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Sign in as an admin to send login emails' }, { status: 401 });
+    }
+    const { data: adminRow } = await supabaseAdmin
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (!adminRow) {
+      return NextResponse.json({ error: 'Only admins can send login emails' }, { status: 403 });
+    }
+
     const { profileId, next } = await req.json();
 
-    if (!profileId) {
+    if (!profileId || typeof profileId !== 'string') {
       return NextResponse.json({ error: 'profileId is required' }, { status: 400 });
+    }
+
+    const last = lastSent.get(profileId) ?? 0;
+    if (Date.now() - last < COOLDOWN_MS) {
+      return NextResponse.json({ error: 'A login email was just sent to this person. Wait a minute and try again.' }, { status: 429 });
     }
 
     // Get the profile
@@ -115,6 +146,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Could not send email' }, { status: 500 });
     }
 
+    lastSent.set(profileId, Date.now());
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('send-login-email error:', err);
