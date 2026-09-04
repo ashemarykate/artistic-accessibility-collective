@@ -267,6 +267,11 @@ export default function LearningHubPage() {
                 </button>
               );
             })}
+            <p style={{
+              fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 9, color: '#333',
+              margin: '6px 0 0', textAlign: 'center', lineHeight: 1.3, writingMode: 'vertical-rl',
+              transform: 'rotate(180deg)', alignSelf: 'center',
+            }}>Subjects coming soon</p>
           </div>
 
           {/* ── Canvas ────────────────────────────────────────────────────── */}
