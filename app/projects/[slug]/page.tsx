@@ -46,11 +46,6 @@ export default function ProductionPage() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  useEffect(() => {
-    document.title = production
-      ? `${production.title} · Current Projects & Events · Artistic Accessibility Collective`
-      : 'Current Projects & Events · Artistic Accessibility Collective';
-  }, [production]);
 
   const shell = (children: React.ReactNode, title: string) => (
     <BrowserChrome variant="ie3" title={title} url="http://projects.artisticaccessibility.com/">

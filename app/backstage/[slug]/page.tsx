@@ -44,10 +44,6 @@ export default function BackstagePortal() {
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    document.title = `Backstage · ${slug} · Artistic Accessibility Collective`;
-  }, [slug]);
-
-  useEffect(() => {
     if (preview) {
       // Seed the sample state on the next tick, not synchronously in the effect.
       const t = setTimeout(() => {
