@@ -312,13 +312,15 @@ function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) 
 }
 
 /** Centered overlay used for the empty / no-match / coming-soon states */
-function GridOverlay({ badge, body }: { badge: string; body: string }) {
+type Overlay = { badge: string; body: string; cta?: { href: string; label: string } };
+
+function GridOverlay({ badge, body, cta }: Overlay) {
   return (
     <div style={{
       position: 'absolute', inset: 0,
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center', gap: 10,
-      background: 'rgba(255,255,255,0.82)', pointerEvents: 'none',
+      background: 'rgba(255,255,255,0.82)', pointerEvents: cta ? 'auto' : 'none',
     }}>
       <span style={{
         background: '#263590', color: 'white',
@@ -332,6 +334,11 @@ function GridOverlay({ badge, body }: { badge: string; body: string }) {
         fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
         maxWidth: 260, lineHeight: 1.5,
       }}>{body}</p>
+      {cta && (
+        <Link href={cta.href} className="btn btn-primary btn-sm" style={{ fontSize: 12 }}>
+          {cta.label}
+        </Link>
+      )}
     </div>
   );
 }
@@ -340,7 +347,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
   colDays: Date[];
   numCols: number;
   events: CalEvent[];
-  overlay: { badge: string; body: string } | null;
+  overlay: Overlay | null;
   showLocation?: boolean;
 }) {
   // Fit the hour range to the timed events actually shown (default 8am–8pm).
@@ -439,7 +446,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
           ))
         )}
 
-        {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
+        {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} cta={overlay.cta} />}
       </div>
     </div>
   );
@@ -453,7 +460,7 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShow
   monthDate: Date;
   monthGrid: (number | null)[][];
   events: CalEvent[];
-  overlay: { badge: string; body: string } | null;
+  overlay: Overlay | null;
   showLocation?: boolean;
   onShowDay: (date: Date) => void;
 }) {
@@ -549,7 +556,7 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShow
         </tbody>
       </table>
 
-      {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} />}
+      {overlay && <GridOverlay badge={overlay.badge} body={overlay.body} cta={overlay.cta} />}
     </div>
   );
 }
@@ -587,7 +594,7 @@ function ListRow({ ev }: { ev: CalEvent }) {
   );
 }
 
-function ListView({ events, overlay }: { events: CalEvent[]; overlay: { badge: string; body: string } | null }) {
+function ListView({ events, overlay }: { events: CalEvent[]; overlay: Overlay | null }) {
   const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
   const upcoming = events
     .filter(e => new Date(e.start_at) >= startOfToday)
@@ -868,10 +875,10 @@ export default function CalendarPage() {
   const numCols  = colDays.length;
 
   // What (if anything) to show over an empty grid.
-  const overlay: { badge: string; body: string } | null =
+  const overlay: Overlay | null =
     !eventsLoaded || eventsError ? null
     : events.length === 0
-      ? { badge: '★ COMING SOON ★', body: "Events are on their way. Once live, you'll see accessible performances, screenings, and community happenings here." }
+      ? { badge: '★ COMING SOON ★', body: "Events are on their way. Know of an accessible performance, screening, or community happening? Add it to the calendar.", cta: { href: '/submit-event', label: 'Submit an event' } }
     : shownEvents.length === 0
       ? { badge: 'NO MATCHES', body: 'No events match this filter. Try a different city, switch off Online only, or clear the filter to see everything.' }
       : null;
