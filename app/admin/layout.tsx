@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 // Next's metadata system on load, so it never actually took effect.
 export const metadata: Metadata = {
   title: 'Admin Dashboard · Artistic Accessibility Collective',
+  robots: { index: false, follow: false },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
