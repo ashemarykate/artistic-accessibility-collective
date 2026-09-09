@@ -1,94 +1,68 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Migration v58 · Fix the public calendar for logged-out visitors
--- Run in the Supabase SQL Editor. Safe to run more than once.
--- ─────────────────────────────────────────────────────────────────────────────
+-- Migration v58 · Give the seeded wall posts real notes
+-- Run in Supabase SQL Editor after v57.
 --
--- THE BUG, found 2026-09-09 by querying the live database as a logged-out
--- visitor: opening /calendar without an account returned
+-- WHAT WENT WRONG IN v57, because the shape of the mistake is worth keeping.
 --
---     42501: permission denied for table admin_users
+-- v57 seeded nine posts and wrote a notes_count straight onto each row: 44
+-- notes on one, 52 on another, so the wall would not look dead on opening day.
+-- But notes_count is maintained by a trigger that recomputes it as
+-- count(*) FROM production_confession_notes, and v57 inserted no note rows at
+-- all. So those numbers were decoration sitting on top of an empty table.
 --
--- so the public calendar showed a red error box instead of the events. Signed-in
--- members were fine, which is why it went unnoticed: every browser used for
--- testing was already logged in (the local dev auto-login signs you in too).
+-- The first person to press the heart on the 44 note post would have watched it
+-- become 1. Pressing again would have made it 0. Found by pressing it.
 --
--- WHY it happened. When Postgres runs a SELECT it evaluates *every* permissive
--- SELECT policy on the table and ORs the results together, so even a policy
--- written for admins runs for an anonymous visitor. The admin policies on
--- `events` and `ics_sources` in the live database still ask the question the
--- old way:
+-- The fix is not to make the trigger cleverer. It is to make the seeded numbers
+-- true: insert the note rows the counts were always claiming existed. After
+-- this the trigger and the number agree, and they keep agreeing forever.
 --
---     EXISTS (SELECT 1 FROM admin_users WHERE user_id = auth.uid())
---
--- The `anon` role has no rights on `admin_users`, so that inline lookup does not
--- return false, it raises an error, and the error takes the whole query down.
---
--- Migration v37 already rewrote these two policies to call `is_admin()`, which
--- is SECURITY DEFINER and therefore answers safely for anybody. The live
--- database has drifted since (most likely a hand edit in the dashboard while
--- setting up calendar sources), so this migration puts it back and makes the
--- drift harder to reintroduce.
---
--- THE FIX, in two parts:
---   1. Drop every policy on these two tables that still names `admin_users`,
---      whatever it happens to be called. Naming them one by one would miss a
---      hand-made policy under a different name, which is exactly the case here.
---   2. Recreate the admin policies using `is_admin()` AND scope them
---      `TO authenticated`, so an anonymous visitor never evaluates them at all.
---      Either half alone fixes the bug; both together mean a future drift has
---      to get past two doors.
---
--- The public read policy (`events_public_read`, visible events only) is left
--- exactly as it is. This migration does not widen what anyone can see: an
--- anonymous visitor still reads only `is_visible = true` events, and still sees
--- no calendar sources at all.
+-- The device tags below are synthetic and obviously so. A device tag is not
+-- identity anyway, it is a counter key, and these exist so that a real person
+-- pressing the heart is the 45th note rather than the 1st.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- ── 1. Remove the policies that ask about admin_users directly ───────────────
 
-DO $$
-DECLARE
-  pol record;
-BEGIN
-  FOR pol IN
-    SELECT policyname, tablename
-    FROM pg_policies
-    WHERE schemaname = 'public'
-      AND tablename IN ('events', 'ics_sources')
-      AND (COALESCE(qual, '') LIKE '%admin_users%'
-        OR COALESCE(with_check, '') LIKE '%admin_users%')
-  LOOP
-    RAISE NOTICE 'Dropping policy % on % (it queries admin_users directly)',
-      pol.policyname, pol.tablename;
-    EXECUTE format('DROP POLICY %I ON public.%I', pol.policyname, pol.tablename);
-  END LOOP;
-END $$;
+-- Each seeded post has a distinct vibe, which makes vibe a safe key here and
+-- avoids matching on body text with apostrophes in it.
+INSERT INTO production_confession_notes (confession_id, device_tag)
+SELECT c.id, 'seed-' || c.vibe || '-' || g
+FROM production_confessions c
+JOIN productions p ON p.id = c.production_id
+CROSS JOIN LATERAL generate_series(1, (CASE c.vibe
+    WHEN 'crushed'             THEN 52
+    WHEN 'so random'           THEN 31
+    WHEN 'hyper'               THEN 44
+    WHEN 'burning a cd'        THEN 39
+    WHEN 'xanga sad'           THEN 27
+    WHEN 'grounded'            THEN 21
+    WHEN 'whatever'            THEN 18
+    WHEN 'bored in 4th period' THEN 15
+    WHEN 'nostalgic'           THEN 2
+    ELSE 0
+  END)) AS g
+WHERE p.slug = '2006'
+  AND c.device_tag IS NULL          -- seeded rows only, never anything a person posted
+ON CONFLICT (confession_id, device_tag) DO NOTHING;
 
--- ── 2. Recreate them the safe way ────────────────────────────────────────────
--- is_admin() is SECURITY DEFINER (v21), so it answers "false" for a logged-out
--- visitor instead of raising. TO authenticated means they do not even ask.
 
-DROP POLICY IF EXISTS "events_admin_all" ON events;
-CREATE POLICY "events_admin_all"
-  ON events
-  FOR ALL
-  TO authenticated
-  USING (is_admin())
-  WITH CHECK (is_admin());
+-- The trigger fires per inserted row and has already recomputed every count.
+-- This is belt and braces for the one row whose count was knocked to 0 while
+-- the bug was being found, and for any future re-run.
+UPDATE production_confessions c
+SET notes_count = (SELECT count(*) FROM production_confession_notes n
+                    WHERE n.confession_id = c.id)
+FROM productions p
+WHERE p.id = c.production_id AND p.slug = '2006';
 
-DROP POLICY IF EXISTS "ics_sources_admin_all" ON ics_sources;
-CREATE POLICY "ics_sources_admin_all"
-  ON ics_sources
-  FOR ALL
-  TO authenticated
-  USING (is_admin())
-  WITH CHECK (is_admin());
 
--- ── 3. Check it worked ───────────────────────────────────────────────────────
--- Both of these should come back with a count and no error. The first is the
--- query the public calendar makes; before this migration it raised 42501.
-
--- SET ROLE anon;
---   SELECT count(*) FROM events WHERE is_visible = true;
---   SELECT count(*) FROM ics_sources;   -- expect 0 rows, no error
--- RESET ROLE;
+-- ── Check it worked ───────────────────────────────────────────────────────────
+-- Both columns must match on every row:
+--
+--   select c.vibe, c.notes_count,
+--          (select count(*) from production_confession_notes n
+--            where n.confession_id = c.id) as real_notes
+--     from production_confessions c
+--     join productions p on p.id = c.production_id
+--    where p.slug = '2006'
+--    order by c.notes_count desc;
