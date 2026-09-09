@@ -1105,24 +1105,24 @@ const graves = [
       new tab and we say who made the thing and what year it is from.
       y: the year it came out.  by: who made it.  n: the line under the title. */
 const GAMES = [
-  {cat:"stuff that still boots", games:[
+  {cat:"software", games:[
     {t:"Kid Pix Studio", y:"1995", by:"Broderbund",
      url:"https://archive.org/details/kid-pix-studio_202110",
-     n:"the wacky brush, the rubber stamps, the stick of dynamite that blew up your whole drawing. emulated right in the page, no disc to find."},
+     n:"a drawing program from 1995, running in the page."},
     {t:"Neopets Classic", y:"1999", by:"a fan rebuild",
      url:"https://neopetsclassic.com/",
-     n:"the old layout, put back together by people who missed it. neggsweeper, cheat, the faerie quests. go feed something."},
+     n:"a fan rebuild of the old neopets."},
   ]},
-  {cat:"flash games somebody saved", games:[
+  {cat:"flash games", games:[
     {t:"Hiccupping Dil", y:"1998", by:"Nickelodeon",
      url:"https://www.webdesignmuseum.org/flash-games/hiccupping-dil-in-1998",
-     n:"rugrats. the baby has the hiccups. that was the entire game and it was plenty."},
+     n:"a rugrats flash game."},
     {t:"Mini Golf", y:"2006", by:"Electrotank",
      url:"https://www.webdesignmuseum.org/flash-games/mini-golf-in-2006",
-     n:"computer lab contraband, straight out of 2006. hit Play Game on the page and it loads."},
+     n:"flash mini golf. press Play Game on the page and it loads."},
     {t:"SpongeBob: Bikini Bottom Carnival", y:"2006", by:"Nickelodeon",
      url:"https://www.webdesignmuseum.org/flash-games/spongebob-bikini-bottom-carnival-in-2006",
-     n:"nick.com after school, the real one, running on a flash emulator now."},
+     n:"a nick.com flash game, running on an emulator."},
   ]},
 ];
 
@@ -1711,7 +1711,7 @@ function viewCountdown(){
           <legend class="sr-only">${live ? "your vote" : "your practice vote"}</legend>
           ${rows}
         </fieldset>
-        ${live && !ME.sn ? `<p class="blog-p ct-cap">sign on with a screen name to vote. any name, it is 2006.</p>` : ``}
+        ${live && !ME.sn ? `<p class="blog-p ct-cap">sign on with a screen name to vote.</p>` : ``}
         ${ME.sn ? `<p class="blog-p ct-as">${live ? "voting" : "practicing"} as <b>${esc(ME.sn)}</b></p>` : ``}
         <button type="submit" class="btn-xp primary votebtn" id="castbtn" ${p === "after" ? "disabled" : ""}>${
           p === "after" ? "voting is closed"
@@ -1732,7 +1732,8 @@ function viewCountdown(){
         </p>
         <p class="blog-p">
           send a file or a link, whatever you have. we will put it on our youtube
-          and it goes on the countdown next to fergie, where people can vote for it.
+          and it goes on the countdown where people can vote for it. on the night,
+          it could be you instead of fergie.
         </p>
         <p style="text-align:center;margin:12px 0 0">
           <a class="sticker" style="--neon:#ff2e88" href="${esc(submitUrl)}"
@@ -1742,8 +1743,9 @@ function viewCountdown(){
       </section>
 
       <hr>
-      <p class="blog-p">one house rule. you are voting for the song, not for one exact
-        video. what we roll on the night is our business.</p>
+      <p class="blog-p">you are voting for the song or clip by its title. what plays
+        in that spot on the night might be the original, or it might be a homemade
+        one. it could be you instead of fergie.</p>
       <p class="blog-sig">best viewed in 800x600</p>
     </div>`;
   return chrome("Video Countdown", body, {status: statusText()});
@@ -1795,7 +1797,7 @@ function wireCountdown(){
         const r = await fetch("/api/2006/vote", {method:"POST", headers:{"Content-Type":"application/json"},
           body: JSON.stringify({videoId: chosen.value, screenName: ME.sn, device: deviceTag(), website: ""})});
         out = await r.json();
-      } catch(x){ out = {ok:false, message:"the internet did that thing. try again?"}; }
+      } catch(x){ out = {ok:false, message:"that did not go through. try again?"}; }
       btn.disabled = false;
       if(!out.ok){ err.textContent = out.message || "that did not count."; say(err.textContent); return; }
       myVote = chosen.value; LS.set("vote", myVote);
@@ -1901,13 +1903,12 @@ function viewPlay(){
     <div class="pane blog">
       <h2 class="blog-h">play</h2>
       <p class="blog-p">
-        games from back then that somebody kept running. click one and it opens
-        in its own tab, so this window stays exactly where you left it.
+        games from back then that still run. each one opens in its own tab.
       </p>
       <hr>
       ${groups}
       <hr>
-      <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install &nbsp;·&nbsp; best played instead of homework</p>
+      <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install</p>
     </div>`;
   return chrome("Play", body, {status: GAMES.reduce((n,g)=>n+g.games.length,0) + " games"});
 }
@@ -2009,7 +2010,7 @@ function composerHTML(){
         <div id="cf-pic" hidden>
           <label class="cf-lab" for="cf-alt">say what is in it</label>
           <input type="text" id="cf-alt" maxlength="200" value="${esc(d.alt || "")}"
-                 placeholder="me and my sister in matching juicy tracksuits">
+                 placeholder="me and my friend at the mall, 2006">
           <p class="cf-hint">one line. people who cannot see the picture get this instead.</p>
           <div id="cf-gate" ${photoOK ? "hidden" : ""}>
             <label class="cf-lab" for="cf-ans">what year is it?</label>
@@ -2200,7 +2201,7 @@ async function postConfession(){
     const r = await fetch("/api/2006/confess", {method: "POST", body: fd});
     out = await r.json();
   } catch(e){
-    out = {ok: false, message: "the internet did that thing. try again?"};
+    out = {ok: false, message: "that did not go through. try again?"};
   }
   wallBusy = false;
 
@@ -2389,8 +2390,7 @@ function viewBlog(){
               <h3 class="xa-date">${esc(d.key)}</h3>
               ${d.items.map(blogEntry).join("")}
             </section>`).join(""))
-        : `<p class="xa-none">nobody has written anything yet. give them a minute,
-             they are in tech.</p>`);
+        : `<p class="xa-none">nothing here yet.</p>`);
 
   const months = [...new Set(posts.map(p => {
     const d = new Date(p.posted_at);
@@ -2436,7 +2436,7 @@ function viewBlog(){
                    placeholder="untitled is fine">
             <label class="xa-lab" for="es-body">the entry</label>
             <textarea id="es-body" rows="7" maxlength="6000"
-                      placeholder="dear xanga,">${esc(draftGet().esBody || "")}</textarea>
+                      placeholder="your entry">${esc(draftGet().esBody || "")}</textarea>
             <p class="xa-fine"><span id="es-left">${6000 - (draftGet().esBody || "").length}</span> characters left
                &nbsp;·&nbsp; posting as <b>${esc(ME.sn)}</b></p>
             <input class="cf-hp" type="text" id="es-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -2493,7 +2493,7 @@ function wireBlog(){
         body: JSON.stringify({title: ti.value, body: t.value, screenName: ME.sn, device: deviceTag(),
                               website: document.getElementById("es-hp").value})});
       out = await r.json();
-    } catch(x){ out = {ok:false, message:"the internet did that thing. try again?"}; }
+    } catch(x){ out = {ok:false, message:"that did not go through. try again?"}; }
     if(!out.ok){
       btn.disabled = false; btn.textContent = "post it";
       err.textContent = out.message || "that did not go through."; say(err.textContent); return;
@@ -2571,7 +2571,8 @@ function viewShow(){
         <li><a href="#" data-go="videos"><b>vote.</b></a> practice now, for real the day
           before the show. whatever is winning when we start is what we play.</li>
         <li><a href="#" data-go="videos"><b>send a video.</b></a> a homemade 2006
-          anything. it goes on the countdown next to fergie.</li>
+          anything. it goes on the countdown, and on the night it could be playing
+          instead of fergie.</li>
         <li><a href="#" data-go="wall"><b>confess.</b></a> say a thing on the wall, as
           yourself or as nobody.</li>
         <li><a href="#" data-go="blog"><b>write.</b></a> during the show, type an entry

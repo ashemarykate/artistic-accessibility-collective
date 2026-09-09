@@ -29,7 +29,7 @@ function no(message: string, status = 400) {
 
 export async function POST(req: Request) {
   let payload: { kind?: string; id?: string };
-  try { payload = await req.json(); } catch { return no('that did not arrive in one piece.'); }
+  try { payload = await req.json(); } catch { return no('that did not go through.'); }
 
   const id = String(payload.id ?? '');
   const kind = payload.kind === 'post' ? 'post' : payload.kind === 'wall' ? 'wall' : null;

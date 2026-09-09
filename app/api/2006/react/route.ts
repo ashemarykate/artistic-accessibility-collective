@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   try {
     payload = await req.json();
   } catch {
-    return no('that did not arrive in one piece.');
+    return no('that did not go through.');
   }
 
   const kind = payload.kind === 'warn' ? 'warn' : 'note';

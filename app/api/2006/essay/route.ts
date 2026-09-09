@@ -32,7 +32,7 @@ function no(message: string, status = 400) {
 
 export async function POST(req: Request) {
   let payload: { title?: string; body?: string; screenName?: string; device?: string; website?: string };
-  try { payload = await req.json(); } catch { return no('that did not arrive in one piece.'); }
+  try { payload = await req.json(); } catch { return no('that did not go through.'); }
 
   if (String(payload.website ?? '').trim() !== '') return NextResponse.json({ ok: true, skipped: true });
 
@@ -62,14 +62,14 @@ export async function POST(req: Request) {
       const wait = Math.ceil((COOLDOWN_MS - since) / 1000);
       return no(`give it ${wait} more seconds before the next one.`, 429);
     }
-    if (recent.length >= HOURLY_CAP) return no('that is a lot of essays for one hour. take a breath.', 429);
+    if (recent.length >= HOURLY_CAP) return no('that is the limit for one hour. try again later.', 429);
   }
 
   const title = cleanBody(payload.title, MAX_TITLE);
   const text = cleanBody(payload.body, MAX_ESSAY);
   if (!text) return no('there is nothing in it yet.');
   if (String(payload.body ?? '').length > MAX_ESSAY) {
-    return no(`that is over ${MAX_ESSAY} characters. it is a blog, not a thesis. cut the middle.`);
+    return no(`that is over ${MAX_ESSAY} characters.`);
   }
 
   const { data: row, error } = await admin

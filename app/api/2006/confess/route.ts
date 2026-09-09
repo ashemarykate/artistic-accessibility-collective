@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   try {
     form = await req.formData();
   } catch {
-    return no('that did not arrive in one piece. try again?');
+    return no('that did not go through. try again?');
   }
 
   // The honeypot. A person never sees this field and never fills it in. A bot
@@ -69,10 +69,10 @@ export async function POST(req: Request) {
     const since = Date.now() - new Date(recent[0].created_at).getTime();
     if (since < COOLDOWN_MS) {
       const wait = Math.ceil((COOLDOWN_MS - since) / 1000);
-      return no(`hang on ${wait} more second${wait === 1 ? '' : 's'}. the wall is not going anywhere.`, 429);
+      return no(`hang on ${wait} more second${wait === 1 ? '' : 's'}.`, 429);
     }
     if (recent.length >= HOURLY_CAP) {
-      return no('that is a lot of posting for one hour. give it a bit and come back.', 429);
+      return no('that is the limit for one hour. try again later.', 429);
     }
   }
 
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
 
   if (!body && !hasPhoto) return no('there is nothing in it yet.');
   if (String(form.get('body') ?? '').length > MAX_BODY) {
-    return no(`that is longer than ${MAX_BODY} characters. this is a confession, not an essay. the essays go on the blog.`);
+    return no(`that is longer than ${MAX_BODY} characters. longer writing goes on the blog.`);
   }
 
   // ── the picture ────────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       return no('say what is in the picture first. one line is plenty.');
     }
     if (photo.size > MAX_IMAGE_BYTES) {
-      return no('that picture is bigger than 5mb. it was 2006, nothing was that big.');
+      return no('that picture is bigger than 5mb.');
     }
 
     const input = Buffer.from(await photo.arrayBuffer());

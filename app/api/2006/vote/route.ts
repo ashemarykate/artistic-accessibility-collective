@@ -25,7 +25,7 @@ function no(message: string, status = 400) {
 
 export async function POST(req: Request) {
   let payload: { videoId?: string; screenName?: string; device?: string; website?: string };
-  try { payload = await req.json(); } catch { return no('that did not arrive in one piece.'); }
+  try { payload = await req.json(); } catch { return no('that did not go through.'); }
 
   // The honeypot, same as the wall. Cheerful fake success for a bot.
   if (String(payload.website ?? '').trim() !== '') return NextResponse.json({ ok: true, skipped: true });
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const screenName = cleanScreenName(payload.screenName);
   const videoId = String(payload.videoId ?? '');
   if (!device) return no('reload the page and try again?');
-  if (!screenName) return no('sign on with a screen name first. anyone will do, it is 2006.');
+  if (!screenName) return no('sign on with a screen name first.');
   if (!/^[0-9a-f-]{36}$/i.test(videoId)) return no('that video does not look real.');
 
   const admin = adminClient();
