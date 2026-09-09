@@ -1691,8 +1691,8 @@ function viewCountdown(){
       </div>
 
       ${live ? `<p class="blog-p ct-phase"><b>voting is open and it counts.</b> we check
-          the standings as each show starts and play them in that order, top to
-          number one. change your mind as often as you like: your newest vote is
+          the standings as each show starts and play them in that order, counting
+          down to number one. change your mind as often as you like: your newest vote is
           the one that counts.</p>`
         : p === "after" ? `<p class="blog-p ct-phase"><b>voting is closed.</b> thank you.
           the list stays up to look at, and we will open it again for november.</p>`
@@ -1738,13 +1738,13 @@ function viewCountdown(){
           <a class="sticker" style="--neon:#ff2e88" href="${esc(submitUrl)}"
              target="_blank" rel="noopener noreferrer">📼 SUBMIT UR VIDEO</a>
         </p>
-        <p class="blog-sig">opens the form in a new tab &nbsp;·&nbsp; you will need a google account for the upload</p>
+        <p class="blog-sig">opens the form in a new tab</p>
       </section>
 
       <hr>
       <p class="blog-p">one house rule. you are voting for the song, not for one exact
         video. what we roll on the night is our business.</p>
-      <p class="blog-sig">mtv stopped taking votes by phone on july 10, 2006 &nbsp;·&nbsp; best viewed in 800x600</p>
+      <p class="blog-sig">best viewed in 800x600</p>
     </div>`;
   return chrome("Video Countdown", body, {status: statusText()});
 }
@@ -1997,7 +1997,7 @@ function composerHTML(){
 
         <label class="cf-lab" for="cf-body">${mine ? "what is the vibe" : "what is it"}</label>
         <textarea id="cf-body" maxlength="500" rows="3"
-          placeholder="${mine ? "say the thing" : "nobody will know it was you"}">${esc(d.body || "")}</textarea>
+          placeholder="${mine ? "what is the vibe" : "posted without your screen name"}">${esc(d.body || "")}</textarea>
         <p class="cf-count"><span id="cf-left">${500 - (d.body || "").length}</span> characters left</p>
 
         <label class="cf-lab" for="cf-vibe">how are you feeling</label>
@@ -2038,16 +2038,15 @@ function viewWall(){
     ? `<p class="blog-p">loading the wall...</p>`
     : rows.length
       ? rows.map(confessionCard).join("")
-      : `<p class="blog-p">nothing on the wall yet. be the first one, it is the
-           hardest and the best job.</p>`;
+      : `<p class="blog-p">nothing on the wall yet.</p>`;
 
   const body = `
     <div class="pane blog">
       <h2 class="blog-h">confessions &amp; vibes</h2>
       <p class="blog-p">
         say a thing. it goes up the second you press the button, nobody checks it
-        first. post as yourself or post as nobody, then give other people's
-        notes so the good ones climb.
+        first. post as yourself or post as nobody. give other people's posts
+        notes and the ones with the most climb.
       </p>
 
       <div class="cf-add">
@@ -2401,7 +2400,7 @@ function viewBlog(){
   const body = `
     <div class="pane xanga">
       <div class="xa-nav">
-        <b>the2006ers</b>: <a href="#xa-entries">weblog</a> ·
+        <b>2006</b>: <a href="#xa-entries">weblog</a> ·
         <a href="#" data-go="wall">confessions</a> ·
         <a href="#" data-go="videos">videos</a> ·
         <a href="#" data-go="playlists">audio</a> ·
@@ -2410,15 +2409,9 @@ function viewBlog(){
 
       <div class="xa-side">
         <div class="xa-box">
-          <h3>the2006ers</h3>
+          <h3>2006</h3>
           <p><a href="#" data-go="buddies">read my profile</a><br>
              <a href="#" data-go="wall">sign my guestbook</a></p>
-          <p><b>Member Since:</b> 6/30/2006</p>
-        </div>
-        <div class="xa-box">
-          <h3>Subscriptions</h3>
-          <p>subscribers: 1. it is you. there is no button, you are just
-             subscribed now.</p>
         </div>
         <div class="xa-box">
           <h3>Archives</h3>
@@ -2428,16 +2421,14 @@ function viewBlog(){
 
       <div class="xa-main" id="xa-entries">
         <h2 class="xa-h">the blog</h2>
-        <p class="xa-lede">the cast writes in here. reviews of things from 2006,
-          and the essays people write during the show. it updates when they feel
-          like it, which was the whole point of having one.</p>
+        <p class="xa-lede">the cast writes in here: reviews of things from 2006,
+          and the essays people write during the show.</p>
         ${entries}
 
         <div class="xa-submit" id="xa-write">
           <h3>writing one during the show?</h3>
           <p>type it right here. it goes up the second you press post, with your
-             screen name on it. reviews of 2006 things, the essay you wrote in the
-             dark, whatever you have.</p>
+             screen name on it.</p>
           ${ME.sn ? `
           <form id="essay" novalidate>
             <label class="xa-lab" for="es-title">title</label>
@@ -2457,8 +2448,7 @@ function viewBlog(){
         </div>
 
         <p class="xa-foot">
-          ${posts.length} ${posts.length === 1 ? "entry" : "entries"} ·
-          comments are off · your mood was probably accomplished
+          ${posts.length} ${posts.length === 1 ? "entry" : "entries"}
         </p>
       </div>
     </div>`;
@@ -2562,8 +2552,7 @@ function viewShow(){
       ${phaseBanner()}
       <h2 class="live-h">2006 <span>the year. the show. live.</span></h2>
       <p class="live-p">a play performed like an episode of TRL. the audience picks
-        the countdown, the cast performs it, and the whole thing is online with a
-        few seats in the room.</p>
+        the countdown. live online, with limited seating in our studio.</p>
 
       <div class="live-dates">
         ${dates.map(d => `<div class="live-date">
@@ -2571,7 +2560,6 @@ function viewShow(){
           <span>${esc(showDate(d))} CT</span>
         </div>`).join("")}
       </div>
-      <p class="live-where">live online, with limited seating in our studio.</p>
       ${CONFIG.RESERVE_URL
         ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
              rel="noopener noreferrer">reserve a free seat in the studio</a>
@@ -2677,7 +2665,7 @@ function smarterChild(raw){
   if(has("age","old are you")) return "I was born in 2001, which makes me the oldest teenager on the internet.";
 
   /* ── the show ── */
-  if(has("the show","the play","tickets","when is")) return "\"2006\" is a play performed like an episode of TRL! Three shows, live online with a few seats in the room: october 9 at 7, october 10 at 2, october 11 at 7, all central. Tap \"Show\" at the bottom for the seat link. I would come but I have no legs.";
+  if(has("the show","the play","tickets","when is")) return "\"2006\" is a play performed like an episode of TRL! Three shows, live online with a few seats in the room: october 9 at 7, october 10 at 2, october 11 at 7, all central. Tap \"Show\" at the bottom for the seat link.";
   if(has("vote","video","trl","countdown")) return "Videos get voted up the countdown just like TRL! Tap \"Countdown\" at the bottom and have a practice vote. Tell them SmarterChild sent you. They won't care, but tell them.";
   if(has("playlist","mixtape","mix")) return "Playlists! Everybody in the show makes one. Mine is eight hours of a modem connecting. Nobody has listened to it.";
   if(has("about","what is it about")) return "OK, now this is getting personal.";
