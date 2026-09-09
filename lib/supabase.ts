@@ -128,6 +128,8 @@ export type Profile = {
   company_event_link?: string;
   // v34 photo gallery
   gallery_photos?: string[];
+  /** Descriptions for gallery_photos, index-aligned (migration v59). */
+  gallery_photo_alts?: string[];
 };
 
 export type SavedResource = {

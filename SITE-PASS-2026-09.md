@@ -31,6 +31,11 @@ what anyone can see.
 Verify after running: open the calendar in a private window (logged out) and
 confirm events appear.
 
+**Second file to run: `supabase-migration-v59.sql`.** Profile gallery photos
+had nowhere to store a description, so requiring one needed a column. The
+uploader works either way (it falls back to saving photos without descriptions
+if the column is missing), but descriptions are only kept once v59 has run.
+
 **Also noticed:** all 322 upcoming events are tagged `in-person`. Nothing is
 tagged online or hybrid, so the new "Upcoming Live Events" panel on the member
 home will stay empty until an online event is added or an existing one is
@@ -176,7 +181,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: decide whether `/share-feedback` still matters. If yes, link it from
     Help and the Start menu. If no, redirect it to `/contact`.
 
-22. **Alt text is optional on production photos.**
+22. DONE 2026-09-09 (MK chose: required, no exceptions). **Alt text is optional on production photos.**
     `components/ProductionPhotoUploader.tsx:149`.
     How: require a description or an explicit "decorative" choice before
     upload completes. Same rule for `GalleryUploader`.

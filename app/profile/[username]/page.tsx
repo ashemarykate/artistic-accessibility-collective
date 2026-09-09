@@ -1381,18 +1381,25 @@ export default function ProfilePage() {
                     gap: '8px', listStyle: 'none', padding: 0, margin: 0,
                   }}
                 >
-                  {profile.gallery_photos.map((url, i) => (
+                  {profile.gallery_photos.map((url, i) => {
+                    // The description written by the member. Photos added
+                    // before descriptions were required fall back to the old
+                    // generated text until they are described.
+                    const described = (profile.gallery_photo_alts?.[i] ?? '').trim();
+                    const photoAlt = described || `Gallery photo ${i + 1} for ${displayName}`;
+                    return (
                     <li key={url}>
-                      <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`View gallery photo ${i + 1} for ${displayName} full size`}>
+                      <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`${photoAlt}. View full size.`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={url}
-                          alt={`Gallery photo ${i + 1} for ${displayName}`}
+                          alt={photoAlt}
                           style={{ width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', borderRadius: '4px', border: '2px solid var(--aac-blue-light)' }}
                         />
                       </a>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               </div>
             </MsBox>

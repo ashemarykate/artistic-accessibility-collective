@@ -156,7 +156,7 @@ type EditableProfile = Omit<Pick<Profile,
   | 'experience_level' | 'rate_info' | 'education'
   | 'not_great_at' | 'learning_now' | 'want_to_learn'
   | 'colleges' | 'professional_certifications' | 'trainings_completed'
-  | 'profile_types' | 'company_event_link' | 'gallery_photos'
+  | 'profile_types' | 'company_event_link' | 'gallery_photos' | 'gallery_photo_alts'
   // Two fields are widened to allow null, because for these "clear it" is a
   // real answer a member can give and has to be storable. Sending undefined
   // would drop the key from the update and silently leave the old value behind.
@@ -237,6 +237,7 @@ export default function EditProfilePage() {
   const [profileTypes,               setProfileTypes]              = useState<string[]>([]);
   const [companyEventLink,           setCompanyEventLink]          = useState('');
   const [galleryPhotos,              setGalleryPhotos]             = useState<string[]>([]);
+  const [galleryAlts,                setGalleryAlts]               = useState<string[]>([]);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -303,6 +304,7 @@ export default function EditProfilePage() {
     setProfileTypes(data.profile_types                         ?? []);
     setCompanyEventLink(data.company_event_link                ?? '');
     setGalleryPhotos(data.gallery_photos                       ?? []);
+    setGalleryAlts(data.gallery_photo_alts                     ?? []);
 
     setLoading(false);
     headingRef.current?.focus();
@@ -418,6 +420,7 @@ export default function EditProfilePage() {
       profile_types:      profileTypes,
       company_event_link: companyEventLink.trim()   || undefined,
       gallery_photos:     galleryPhotos,
+      gallery_photo_alts: galleryAlts,
     };
 
     const { error } = await supabase
@@ -639,8 +642,9 @@ export default function EditProfilePage() {
                 <GalleryUploader
                   userId={profile.user_id}
                   galleryPaths={galleryPhotos}
+                  galleryAlts={galleryAlts}
                   displayName={displayName || profile.full_name || ''}
-                  onSaved={(newPaths) => setGalleryPhotos(newPaths)}
+                  onSaved={(newPaths, newAlts) => { setGalleryPhotos(newPaths); setGalleryAlts(newAlts); }}
                 />
               </div>
             </div>
