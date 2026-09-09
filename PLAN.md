@@ -1,6 +1,8 @@
-# AAC — Plan & Progress
+# AAC — Plan & Progress (historical)
 
-Running list of what's built, what's next, and what's coming later.
+> **This file describes the pre-launch state and is kept for history.**
+> The live plan is `SITE-PASS-2026-09.md`. The site is deployed, the database
+> is live, and everything in the checklist below is done.
 
 ---
 
@@ -43,7 +45,7 @@ Running list of what's built, what's next, and what's coming later.
 
 ## To Do Before Testers
 
-These are the things Mary Kate's husband needs to handle:
+These were all completed before the beta launch:
 
 - [ ] Run `supabase-migration.sql` in Supabase SQL Editor
 - [ ] Run `supabase-migration-v2.sql` in Supabase SQL Editor

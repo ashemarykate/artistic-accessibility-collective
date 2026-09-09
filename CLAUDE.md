@@ -6,9 +6,9 @@ This file gives Claude context for working on this project. Read it at the start
 
 ## About the Project
 
-The **Artistic Accessibility Collective (AAC)** is a member directory and community platform for accessibility professionals in the arts — ASL interpreters, captioners, educators, content creators, and others — as well as accessible businesses and events. Built and owned by **Mary Kate Ashe**, who is the founder and a non-technical user. Her husband helps with technical/infrastructure tasks.
+The **Artistic Accessibility Collective (AAC)** is a member directory and community platform for accessibility professionals in the arts — ASL interpreters, captioners, educators, content creators, and others — as well as accessible businesses and events. Built and owned by **Mary Kate Ashe**, the founder. She is not a programmer, and she does all of the technical work herself with Claude's help: Supabase, migrations, deployment, and code. Give her the instructions directly, in plain language. Never route technical work to anyone else.
 
-The app is currently in **beta testing** with ~50 invited testers. The database is not yet live — migrations still need to be run.
+The app is **live and in beta** with invited testers. The database is live: 57 migrations have been written and applied, and there are real approved members with real accounts. Treat production data as real.
 
 ---
 
@@ -16,13 +16,13 @@ The app is currently in **beta testing** with ~50 invited testers. The database 
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 + custom CSS design system in `app/globals.css` |
 | Database | Supabase (PostgreSQL + RLS) |
 | Auth | Supabase Auth (magic link preferred, password as fallback) |
-| Email | Resend (via `/api/contact` route) |
-| File storage | Supabase Storage (planned for photo uploads — not yet built) |
+| Email | Resend (contact form and member login links) |
+| File storage | Supabase Storage, bucket `profile-photos` (built and in use) |
 | Hosting | Vercel |
 
 ---
@@ -66,19 +66,31 @@ Logo height: **72px** on most pages. **100px** on the invite code and type-selec
 - `app/login/page.tsx` — Member login (magic link + password toggle)
 - `app/submit/page.tsx` — **Registration/join form** — the most complex page; see below
 - `app/contact/page.tsx` — Public contact form (sends via Resend)
-- `app/members/page.tsx` — Member dashboard (requires auth)
-- `app/directory/page.tsx` — Public member directory
-- `app/profile/[id]/page.tsx` — Individual profile view
+- `app/dashboard/page.tsx` — "My Collective", the member home (requires auth)
+- `app/members/page.tsx` — Member directory, searchable (requires auth)
+- `app/profile/[username]/page.tsx` — Individual profile view
 - `app/admin/page.tsx` — Admin dashboard (requires admin role)
-- `app/feedback/page.tsx` — Tester feedback page
+- `app/feedback/page.tsx` — Tester feedback, round 1 (writes to `tester_feedback`)
+
+`app/directory`, `app/hire-us`, and `app/together` are redirect stubs, not pages.
+
+### The other sections (each has its own retro skin)
+Calendar, Library, Cinema, Resources, Learning Hub, Make Art, Printer,
+Projects (productions), Backstage (production team area), Staffing and Reports
+(client documents), Messages, Access Card, My Lists, My Resources.
 
 ### API
 - `app/api/contact/route.ts` — Handles contact form submissions via Resend
 
 ### Database
-- `supabase-migration.sql` — **Run first** — creates all core tables
-- `supabase-migration-v2.sql` — **Run second** — adds columns for beta features (invite codes, tester feedback table, business profile columns, etc.)
-- `lib/supabase.ts` — Supabase client
+- `supabase-migration*.sql` — 57 files, applied in order. **Everything through
+  v56 is applied to the live database.** Never re-run the `CREATE TABLE` blocks
+  in the early files; the tables exist.
+- **Live policies have drifted from the files.** Do not trust the `.sql` files
+  alone as the source of truth for what the live database allows. When it
+  matters, verify empirically with a throwaway script using the keys in
+  `.env.local`, then delete the script.
+- `lib/supabase.ts` — Supabase client. Throws at startup if the env vars are missing.
 
 ---
 
@@ -92,7 +104,8 @@ invite → type_select → form → success
 
 **Step: `invite`**
 User enters their invite code. Validated against the `invite_codes` table in Supabase.
-- **Test bypass**: code `AAAC-TEST` skips DB validation entirely. Remove this once the database is live and real codes are generated.
+- **Test bypass**: code `AAAC-TEST` skips database validation, but only when
+  `NODE_ENV !== 'production'`. It does nothing on the live site.
 
 **Step: `type_select`**
 User chooses between "Create Your Profile" (individual) or "Register Your Business" (business/event). Has a Back button to return to invite step.
@@ -134,7 +147,12 @@ This project targets **WCAG 2.1 AA**. Key patterns already implemented:
 - Error messages use `role="alert"` for immediate announcement
 - Status messages (loading, etc.) use `role="status" aria-live="polite"`
 - Focus is programmatically managed on step transitions (refs + `.focus()`)
-- Every page sets `document.title` on mount and restores it on unmount
+- **Page titles come from a route-level `layout.tsx` exporting `metadata`, never
+  from `document.title`.** This is settled. An imperative title set on mount is
+  overridden by Next's metadata on load, and its cleanup clobbers the next
+  page's title on a soft navigation. Every new page needs a `layout.tsx`.
+  (Two deliberate exceptions: a title set from state *after* load, such as
+  "Message Sent", and `app/error.tsx`, which cannot export metadata.)
 - Success screens focus their heading on mount via `useRef`
 - Skip nav link is in the layout
 - All interactive elements meet 44×44px minimum touch target
@@ -162,7 +180,7 @@ Write clearly and casually. No formal punctuation markers that signal AI writing
 
 ## Test Accounts (Supabase)
 
-Two accounts exist in Supabase for local testing. Both have password `justtestit`.
+Two accounts exist in Supabase for local testing.
 
 | Email | Role | Goes to |
 |---|---|---|
@@ -171,32 +189,54 @@ Two accounts exist in Supabase for local testing. Both have password `justtestit
 
 Both have approved individual profiles already inserted.
 
----
-
-## Admin Setup (not yet done)
-
-After migrations are run:
-1. Find Mary Kate's auth user ID in Supabase → Authentication → Users
-2. Run: `INSERT INTO admin_users (user_id) VALUES ('her-id-here');`
+**Passwords are never written in code or in this file.** Local auto-login reads
+`DEV_AUTO_LOGIN_EMAIL` and `DEV_AUTO_LOGIN_PASSWORD` from `.env.local`, which is
+not committed, and `components/DevAutoLogin.tsx` does not mount in production.
+Set `NEXT_PUBLIC_DEV_AUTO_LOGIN=true` locally to use it.
 
 ---
 
-## Deployment Checklist (not yet done)
+## Admin Setup (done)
 
-1. Run `supabase-migration.sql` in Supabase SQL Editor
-2. Run `supabase-migration-v2.sql` in Supabase SQL Editor
-3. Insert Mary Kate's user ID into `admin_users`
-4. Add env vars to Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `RESEND_API_KEY`
-5. Connect GitHub repo to Vercel and deploy
-6. Test end-to-end with `AAAC-TEST` code
-7. Run `SELECT generate_invite_codes(50);` to generate beta invite codes
-8. Remove `AAAC-TEST` bypass from `app/submit/page.tsx` (or leave for ongoing testing)
+Mary Kate is in `admin_users` as `super_admin`. New admins are added from the
+admin dashboard's "Add an admin" form, which calls `add_admin_by_email`. The
+person must have logged in at least once first.
+
+Admin-only database rules use the `is_admin()` helper. Any new admin policy
+must use it rather than an inline `EXISTS` on `admin_users`.
 
 ---
 
-## Photo Uploads (not yet built)
+## Deployment (done, and live)
 
-Deferred to a future round. Will use **Supabase Storage** — a bucket needs to be created in the Supabase dashboard first. The UI for uploading on the profile/submit pages does not yet exist. Tester feedback will inform how profiles should display photos before building this.
+The site is deployed on Vercel and connected to the GitHub repo. Migrations are
+applied, admins are set, and 50 invite codes were generated.
+
+Environment variables in Vercel: `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`,
+and `CRON_SECRET` (the calendar sync route refuses to run without it).
+
+**Push to git after every commit, without being asked.**
+
+---
+
+## Photo Uploads (built)
+
+Three uploaders write to the `profile-photos` Supabase Storage bucket:
+`PhotoUploader` (avatars), `GalleryUploader` (profile galleries, capped at 8),
+and `ProductionPhotoUploader` (production hero and gallery images).
+
+Alt text is currently optional on production and gallery photos. Making it
+required, with an explicit "decorative" choice, is an open decision.
+
+---
+
+## The Live Plan
+
+`SITE-PASS-2026-09.md` in the repo root is the current working plan: a tiered
+list from urgent to fun, with DONE markers and a short list of things only
+Mary Kate can do. Read it before starting new work, and update it as items land.
+`PLAN.md` and `TODO.md` are historical and describe a pre-launch state.
 
 ---
 

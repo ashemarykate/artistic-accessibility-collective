@@ -1,4 +1,9 @@
-# TODO List - Artistic Accessibility Collective
+# TODO List (historical) - Artistic Accessibility Collective
+
+> **Kept for history. This is the original pre-launch MVP list.**
+> The live plan is `SITE-PASS-2026-09.md`. Many items below are long done
+> (deployment, migrations, profile editing, photo uploads, accessibility
+> passes), and the open questions at the bottom were answered in 2026.
 
 ## ✅ Completed (MVP)
 
