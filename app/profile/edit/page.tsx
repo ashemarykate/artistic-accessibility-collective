@@ -242,6 +242,37 @@ export default function EditProfilePage() {
   const [notifyMessages,             setNotifyMessages]            = useState(true);
   const [notifyEndorsements,         setNotifyEndorsements]        = useState(true);
   const [notifyEventReminders,       setNotifyEventReminders]      = useState(true);
+  const [newPassword,                setNewPassword]               = useState('');
+  const [confirmPassword,            setConfirmPassword]           = useState('');
+  const [passwordBusy,               setPasswordBusy]              = useState(false);
+  const [passwordMsg,                setPasswordMsg]               = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
+  // Setting a password is its own action, not part of Save Changes: it goes to
+  // the login system rather than the profiles table, and mixing the two would
+  // mean a failed password change could look like a failed profile save.
+  const handleSetPassword = async () => {
+    setPasswordMsg(null);
+    if (newPassword.length < 8) {
+      setPasswordMsg({ type: 'err', text: 'Use at least 8 characters.' });
+      document.getElementById('new-password')?.focus();
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: 'err', text: 'Those two do not match. Type it again.' });
+      document.getElementById('confirm-password')?.focus();
+      return;
+    }
+    setPasswordBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPasswordBusy(false);
+    if (error) {
+      setPasswordMsg({ type: 'err', text: error.message || 'That did not work. Please try again.' });
+      return;
+    }
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordMsg({ type: 'ok', text: 'Password saved. You can now log in with it, or keep using email links.' });
+  };
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -1318,6 +1349,59 @@ export default function EditProfilePage() {
                   ))}
                 </div>
               </fieldset>
+            </div>
+          </div>
+
+          {/* ══ Section: Password ══════════════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Password</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+                You never need a password here: an email link signs you in. Set one anyway if you would rather log in that way, or change the one you have.
+              </p>
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label htmlFor="new-password" className="form-label">New password</label>
+                <input
+                  id="new-password"
+                  type="password"
+                  className="form-input"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  aria-describedby="new-password-hint"
+                />
+                <p id="new-password-hint" style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
+                  At least 8 characters.
+                </p>
+              </div>
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label htmlFor="confirm-password" className="form-label">Type it again</label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  className="form-input"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={handleSetPassword}
+                disabled={passwordBusy || (!newPassword && !confirmPassword)}
+                aria-busy={passwordBusy}
+              >
+                {passwordBusy ? 'Saving…' : 'Save password'}
+              </button>
+              {passwordMsg && (
+                <p
+                  role={passwordMsg.type === 'err' ? 'alert' : 'status'}
+                  style={{ marginTop: '0.625rem', fontSize: '0.8125rem', color: passwordMsg.type === 'err' ? 'var(--color-error, #cc0000)' : 'var(--aac-blue)' }}
+                >
+                  {passwordMsg.text}
+                </p>
+              )}
             </div>
           </div>
 

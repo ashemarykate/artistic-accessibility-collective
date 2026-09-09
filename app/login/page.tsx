@@ -17,6 +17,10 @@ function LoginForm() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'info' | 'error'>('info');
   const [mode, setMode] = useState<'login' | 'magic'>('magic');
+  // Set once a link has actually gone out, so the "didn't get it" help only
+  // appears to somebody who is genuinely waiting on an email.
+  const [linkSentTo, setLinkSentTo] = useState('');
+  const [resendIn, setResendIn] = useState(0);
 
   // Show an error message if redirected here with ?error=profile_not_linked
   useEffect(() => {
@@ -40,6 +44,14 @@ function LoginForm() {
    *  who has never used the Collective lands on a Collective login page with
    *  no idea whether they are in the right place. */
   const headedBackstage = (searchParams.get('next') ?? '').startsWith('/backstage');
+
+  // Counts the cooldown down out loud rather than just disabling the button,
+  // so somebody who cannot see the button state still knows how long to wait.
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
 
   const showMsg = (text: string, type: 'info' | 'error' = 'info') => {
     setMessage(text);
@@ -121,7 +133,9 @@ function LoginForm() {
         },
       });
       if (error) throw error;
-      showMsg("We've sent a login link to your email. Check your inbox (and spam just in case).");
+      setLinkSentTo(normalizedEmail);
+      setResendIn(60);
+      showMsg("We've sent a login link to your email. Check your inbox, and your spam folder just in case.");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       showMsg(message || 'Something went wrong. Please try again.', 'error');
@@ -217,6 +231,30 @@ function LoginForm() {
             <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.75rem', textAlign: 'center' }}>
               We&apos;ll email you a one-click login link. No password needed.
             </p>
+
+            {linkSentTo && (
+              <div style={{ marginTop: '1.25rem', padding: '0.875rem', background: 'var(--aac-blue-light)', borderRadius: 'var(--radius-md)' }}>
+                <p style={{ fontSize: '0.8125rem', fontWeight: 700, marginBottom: '0.375rem' }}>
+                  Didn&apos;t get it?
+                </p>
+                <ul style={{ fontSize: '0.8125rem', lineHeight: 1.7, paddingLeft: '1.15rem', marginBottom: '0.625rem' }}>
+                  <li>Give it a minute. Email is not always instant.</li>
+                  <li>Check spam and any promotions tab.</li>
+                  <li>Make sure {linkSentTo} is the address you joined with.</li>
+                  <li>The link works once, so use the newest email if you asked twice.</li>
+                </ul>
+                <button
+                  type="submit"
+                  className="btn btn-outline btn-sm"
+                  disabled={loading || resendIn > 0}
+                >
+                  {resendIn > 0 ? `Send it again in ${resendIn}s` : 'Send it again'}
+                </button>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                  Still nothing? Email contact@artisticaccessibility.com and we will sort it out by hand.
+                </p>
+              </div>
+            )}
           </form>
         ) : (
           <form onSubmit={handleLogin} noValidate>
@@ -255,6 +293,25 @@ function LoginForm() {
                 'Log In'
               )}
             </button>
+
+            {/* No separate password reset email on purpose. There is already
+                one hardened way back in, and a second one would be a second
+                thing to keep safe. Sign in by link, then set a new password in
+                Edit Profile. */}
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.875rem', textAlign: 'center' }}>
+              Forgotten your password?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('magic');
+                  setPassword('');
+                  showMsg('No problem. Put your email address in below and we will send you a link that signs you in without a password. Once you are in, you can set a new one from Edit Profile.');
+                }}
+                style={{ background: 'none', border: 'none', padding: 0, color: 'var(--aac-blue)', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer', fontSize: '0.8125rem' }}
+              >
+                Sign in with an email link instead
+              </button>
+            </p>
           </form>
         )}
 

@@ -42,6 +42,13 @@ what anyone can see.
 Verify after running: open the calendar in a private window (logged out) and
 confirm events appear.
 
+**All migrations through v60 are run and verified as of 2026-09-09.**
+
+**Still unconfirmed: `CRON_SECRET` in Vercel.** Two scheduled jobs now refuse
+to run without it, by design: the nightly calendar sync and the new event
+reminders. Neither will say anything out loud if it is missing; they just
+return 500 to the scheduler. Check Vercel, Settings, Environment Variables.
+
 **Second file to run: `supabase-migration-v59.sql`.** Profile gallery photos
 had nowhere to store a description, so requiring one needed a column. The
 uploader works either way (it falls back to saving photos without descriptions
@@ -213,12 +220,12 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     public sections. Add `robots: { index: false }` to client-document
     layouts.
 
-25. **No password reset or "didn't get the email" path.**
+25. DONE 2026-09-09. **No password reset or "didn't get the email" path.**
     How: on `/login`, add a resend link with a cooldown, and a
     `resetPasswordForEmail` flow for password users, landing on a small
     `/auth/reset` page.
 
-26. BUILT 2026-09-09, needs `supabase-migration-v60.sql` run. **No email notifications** for new DMs, endorsements, or approvals.
+26. DONE 2026-09-09. v60 run and verified: switches persist, the duplicate guard refuses a repeat, members cannot read the log, and every route guard (401/400/403/404) behaves. **No email notifications** for new DMs, endorsements, or approvals.
     How: Supabase database webhooks (or a cron route) into Resend. Start with
     profile approved and new message. Add a per-member opt-out column.
 
@@ -242,6 +249,17 @@ dashes in copy, Modal component is solid, 51 files use live regions.
   Harmless for people, but worth a look at `lib/useUnsavedChanges.ts` callers.
 - Item 13 note: the back-of-house note form at `app/admin/page.tsx` already
   had `noValidate`; only two forms needed the fix.
+
+## Noticed 2026-09-09, worth a look
+
+**Leaving Edit Profile with unsaved changes can strand the app.** The
+unsaved-changes guard registers a beforeunload handler. Chrome refuses to show
+that dialog when the page has had no user gesture, and the client-side
+navigation is left half finished: the destination renders behind a Loading
+placeholder that never clears. A fresh tab loads the same page fine, and
+production is unaffected, so this only bites during a session where somebody
+edits a profile and then navigates away without clicking anything first. Worth
+handling properly in `lib/useUnsavedChanges.ts` rather than leaving to chance.
 
 ## Tier 6: fun ideas that fit the retro voice
 
