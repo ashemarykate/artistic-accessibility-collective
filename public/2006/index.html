@@ -408,6 +408,146 @@
   }
   .blog .sticker:hover{transform:rotate(1deg)}
 
+  /* ══════════ CONFESSIONS & VIBES ══════════
+     A Tumblr dashboard living inside the AIM window. Same dark neon ground as
+     the Countdown, so it reads as a website the desk has open rather than as a
+     new thing bolted on.
+     Doubled selectors again wherever a rule lands on a <p>: .pane p beats a
+     single class and would paint it dark grey on black. */
+  .cf-add{display:flex;gap:6px;margin:10px 0 0}
+  .cf-add .btn-xp{flex:1;padding-top:9px;padding-bottom:9px}
+
+  .cf-new{border:1px solid var(--neon);background:#0c0c0c;margin:10px 0 0;padding:0}
+  .cf-new fieldset{border:0;margin:0;padding:9px}
+  .cf-new legend{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:10px;letter-spacing:1.5px;
+    text-transform:uppercase;background:var(--neon);color:#000;padding:2px 7px;margin-left:0;
+  }
+  .blog .cf-as{font-size:11.5px;color:#9a9a9a;margin:4px 0 8px}
+  .blog .cf-as b{color:#fff}
+  .cf-lab{
+    display:block;font-family:"W95FA",Tahoma,sans-serif;font-size:10px;
+    color:#cfcfcf;letter-spacing:.5px;margin:8px 0 3px;
+  }
+  .cf-new textarea, .cf-new input[type=text], .cf-new select{
+    width:100%;box-sizing:border-box;font-family:inherit;font-size:12.5px;
+    background:#fff;color:#111;border:1px solid #808080;
+    box-shadow:inset 1px 1px 0 #4a4a4a;padding:5px 6px;
+  }
+  .cf-new input[type=file]{width:100%;box-sizing:border-box;font-size:11px;color:#bbb}
+  .blog .cf-count{font-size:9.5px;color:#7d7d7d;margin:3px 0 0;text-align:right}
+  .blog .cf-hint{font-size:11px;color:#8a8a8a;margin:4px 0 0;line-height:1.4}
+  .blog .cf-err{color:#ff6a6a;font-size:12px;margin:8px 0 0}
+  .blog .cf-err:empty{margin:0}
+  .cf-btns{display:flex;gap:6px;margin-top:10px}
+  .cf-btns .btn-xp{flex:1}
+  /* The honeypot. Off screen rather than display:none, because some scripts
+     skip what is display:none and this one is meant to be filled in. */
+  .cf-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+  .cf-tabs{display:flex;gap:5px;margin:14px 0 8px;border-bottom:1px solid #262626;padding-bottom:6px}
+  .cf-tab{
+    background:none;border:1px solid #333;color:#9a9a9a;font-family:"W95FA",Tahoma,sans-serif;
+    font-size:10px;letter-spacing:.5px;padding:5px 10px;cursor:pointer;
+  }
+  .cf-tab.on{background:var(--neon);border-color:var(--neon);color:#000}
+
+  .cf{background:#0a0a0a;border:1px solid #262626;padding:9px;margin:0 0 9px}
+  .cf-head{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+  .cf-ico{
+    width:36px;height:36px;flex:none;display:block;image-rendering:pixelated;
+    border:1px solid #333;background:#000;
+  }
+  .blog .cf-who{flex:1;min-width:0;font-size:12.5px;color:#9a9a9a;margin:0}
+  .blog .cf-who b{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:12px;color:#fff;
+    word-break:break-word;
+  }
+  .cf-vibe{
+    flex:none;display:inline-flex;align-items:center;gap:4px;padding:2px 6px;
+    font-family:"W95FA",Tahoma,sans-serif;font-size:8.5px;letter-spacing:.5px;
+    text-transform:uppercase;background:var(--v,#39ff14);color:#000;
+  }
+  .cf-vibe img{width:12px;height:12px;display:block}
+  .blog .cf-body{
+    font-size:13.5px;line-height:1.45;color:#d6d6d6;margin:8px 0 0;
+    white-space:pre-line;word-break:break-word;
+  }
+  .cf-body img{width:16px;height:16px;vertical-align:-3px}
+  .cf-photo{display:block;max-width:100%;height:auto;margin:9px 0 0;border:1px solid #262626}
+  .blog .cf-when{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:9px;color:#6e6e6e;
+    margin:9px 0 0;letter-spacing:.3px;
+  }
+  .cf-acts{display:flex;gap:6px;margin-top:7px;border-top:1px solid #1c1c1c;padding-top:7px}
+  .cf-note, .cf-warn{
+    background:none;border:1px solid #2e2e2e;color:#9a9a9a;cursor:pointer;
+    font-family:"W95FA",Tahoma,sans-serif;font-size:10px;padding:5px 9px;
+  }
+  .cf-note.on{border-color:#ff2e88;color:#ff2e88}
+  .cf-note:hover, .cf-warn:hover{border-color:#5a5a5a;color:#ddd}
+  .cf-warn{margin-left:auto}
+  .cf-warn:disabled{opacity:.5;cursor:default}
+  .cf:focus-visible{outline:3px solid #ffd652;outline-offset:2px}
+
+  /* ══════════ THE BLOG — a Xanga ══════════
+     White, blue and prim, on purpose. Xanga was not the black neon thing; it
+     was the tidy one, and putting the two next to each other is most of why
+     they are separate screens. */
+  .xanga{background:#fff;padding:0;font-family:Verdana,Tahoma,sans-serif}
+  .xa-nav{
+    background:#e8eef7;border-bottom:1px solid #b9c8dd;padding:5px 8px;
+    font-size:10.5px;color:#4a5a70;
+  }
+  .xa-nav b{color:#1a3d6e}
+  .xanga a{color:#2b5a8c}
+  .xa-side{padding:8px 8px 0;display:grid;gap:7px}
+  .xa-box{border:1px solid #c3d0e0;background:#f7f9fc}
+  .xa-box h3{
+    margin:0;background:#dae4f0;border-bottom:1px solid #c3d0e0;
+    font-size:10.5px;color:#1a3d6e;padding:3px 7px;letter-spacing:.5px;
+  }
+  .xanga .xa-box p{font-size:11px;line-height:1.6;color:#42506a;margin:0;padding:6px 7px}
+  .xa-main{padding:10px 8px 12px}
+  .xanga .xa-h{
+    font-family:"Times New Roman",Times,serif;font-size:22px;color:#1a3d6e;
+    margin:0 0 4px;letter-spacing:-.5px;
+  }
+  .xanga .xa-lede{font-size:11.5px;line-height:1.6;color:#5a6a80;margin:0 0 12px}
+  .xa-date{
+    font-size:12px;color:#1a3d6e;margin:14px 0 6px;padding-bottom:3px;
+    border-bottom:1px solid #dfe6f0;
+  }
+  .xa{border:1px solid #d8e0ec;background:#fff;padding:9px 10px;margin:0 0 9px;position:relative}
+  .xa-pin{
+    position:absolute;top:-1px;right:-1px;background:#ff2e88;color:#fff;
+    font-family:"W95FA",Tahoma,sans-serif;font-size:8.5px;letter-spacing:1px;
+    text-transform:uppercase;padding:2px 6px;
+  }
+  .xanga .xa-t{
+    font-family:"Times New Roman",Times,serif;font-size:16px;color:#111;
+    margin:0 0 3px;padding-right:52px;
+  }
+  .xanga .xa-by{font-size:10.5px;color:#7a869a;margin:0 0 7px}
+  .xanga .xa-by b{color:#2b5a8c}
+  .xa-mm{background:#f4f7fb;border:1px solid #e2e9f2;padding:5px 7px;margin:0 0 8px}
+  .xanga .xa-mm p{font-size:10.5px;color:#42506a;margin:1px 0;display:flex;align-items:center;gap:5px}
+  .xa-mm img{width:14px;height:14px}
+  .xa-body{font-size:12.5px;line-height:1.6;color:#222;word-break:break-word}
+  .xa-body p{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:#222}
+  .xa-body ul, .xa-body ol{margin:0 0 8px;padding-left:22px}
+  .xa-body blockquote{margin:0 0 8px;padding-left:9px;border-left:3px solid #dae4f0;color:#4a5a70}
+  .xa-body img{max-width:100%;height:auto}
+  .xanga .xa-none{font-size:12px;color:#7a869a;font-style:italic;margin:12px 0}
+  .xa-submit{border:1px dashed #c3d0e0;background:#fbfcfe;padding:9px 10px;margin:16px 0 0}
+  .xa-submit h3{font-size:12px;color:#1a3d6e;margin:0 0 4px}
+  .xanga .xa-submit p{font-size:11.5px;color:#5a6a80;margin:0 0 7px;line-height:1.5}
+  .xanga .xa-fine{font-size:9.5px;color:#8a94a6;margin:5px 0 0}
+  .xanga .xa-foot{
+    text-align:center;font-size:9.5px;color:#8a94a6;margin:14px 0 0;
+    border-top:1px solid #e6ecf4;padding-top:7px;
+  }
+
   /* The collective, sitting on the wallpaper rather than on a bar of its own,
      so it reads as part of the desk instead of a footer bolted to the window.
      Drop shadow because the collage underneath is busy and light in places. */
@@ -523,6 +663,14 @@
   }
   .tool .t-ico{display:block;font-size:13px;margin-bottom:1px}
   .tool.on{background:rgba(255,255,255,.55);border-color:#a87d1c}
+  /* Eight sections do not fit across a phone in one row: each button lands at
+     about 32px, well under the 44px this project holds itself to. Two rows of
+     four gives every one of them room, and a taskbar two rows deep is more
+     Windows than less. */
+  @media (max-width: 560px){
+    .toolbar{flex-wrap:wrap}
+    .tool{flex:1 1 22%}
+  }
   .tool:active{border-color:#a87d1c;background:rgba(255,255,255,.4)}
   .statusline{
     font-size:10px;color:#666;padding:3px 8px;background:var(--chrome);
@@ -602,7 +750,8 @@
   @media (pointer: coarse){
     .buddy{padding-top:11px;padding-bottom:11px}
     .so-anon{padding-top:12px;padding-bottom:12px}
-    .btn-xp{padding-top:11px;padding-bottom:11px}
+    /* Padding alone lands these at 37px. The project holds itself to 44. */
+    .btn-xp{padding-top:11px;padding-bottom:11px;min-height:44px}
     .votebtn{padding-top:10px;padding-bottom:10px}
     .blog-list li{padding:4px 0}
     .so-input input{padding-top:9px;padding-bottom:9px}
@@ -611,13 +760,24 @@
     .sticker{padding-top:11px;padding-bottom:11px}
     .blog-link{display:inline-block;padding:5px 0}
     .grp{padding-top:12px;padding-bottom:8px}
-    .menubar button{padding:11px 12px}
+    .menubar button{padding:11px 12px;min-height:44px}
     .tb-btn{width:34px;height:30px;line-height:28px}
     .tool{padding:10px 6px}
     .pod-menu button{padding-top:13px;padding-bottom:13px}
     .so-btn{padding:10px 12px}
     .pl-row, .say, .tape{min-height:44px}
     .ct-label, .ct-watch, .gm-a{padding-top:6px;padding-bottom:6px}
+    .cf-note, .cf-warn, .cf-tab{min-height:44px}
+    .cf-new textarea, .cf-new input[type=text], .cf-new select{
+      padding-top:10px;padding-bottom:10px;min-height:44px}
+    /* A file input sizes to its native button, which is short. Padding the
+       control is the only way to give the tap somewhere to land. */
+    .cf-new input[type=file]{padding:12px 0;min-height:44px}
+    /* min-height does nothing to an inline box, which is why these were still
+       landing at 25px with padding on them. */
+    .xa-nav a, .xa-box a{display:inline-block;padding:10px 0;min-height:44px;line-height:24px}
+    .xa-submit .btn-xp{display:inline-flex;align-items:center;min-height:44px}
+    .ct-watch{min-height:44px}
     .ct-radio{width:18px;height:18px}
     .votebtn, .sticker{min-height:44px}
     .smileybar button{padding:8px}
@@ -673,7 +833,11 @@ const CONFIG = {
 };
 
 /* ② LINKS */
-const LINKS = { submit:"https://forms.gle/874dScLaJXzJEkB97", tickets:"#" };
+const LINKS = {
+  submit: "https://forms.gle/874dScLaJXzJEkB97",   // video submissions
+  essay:  "",                                      // essays written during the show. empty falls back to submit
+  tickets: "#",
+};
 
 /* ══════════════════════════════════════════════════════════
    ③  THE CAST
@@ -910,6 +1074,99 @@ function esc(s){const d=document.createElement("div");d.textContent=String(s==nu
 if(myVote && !BALLOT.some(v => v.slot === myVote)){ myVote = null; LS.set("vote", null); }
 function titleOf(slot){ const v = BALLOT.find(x => x.slot === slot); return v ? v.title : ""; }
 
+/* ══════════════════ THE WALL — state and small helpers ══════════════════ */
+
+/* The buddy icons, out of Mary Kate's own folder. A screen name is hashed to a
+   number and the number picks one, so a person keeps the same face across every
+   post they ever make without one thing about them being stored. */
+const ICONS_2006 = [
+  "icon-001.gif", "icon-002.jpg", "icon-003.png", "icon-004.gif", "icon-005.png",
+  "icon-006.jpg", "icon-007.gif", "icon-008.gif", "icon-009.gif", "icon-010.gif",
+  "icon-011.gif", "icon-012.gif", "icon-013.gif", "icon-014.gif", "icon-015.gif",
+  "icon-016.jpg", "icon-017.jpg", "icon-018.gif", "icon-019.gif", "icon-020.jpg",
+  "icon-021.jpg", "icon-022.png", "icon-023.png", "icon-024.jpg", "icon-025.png",
+  "icon-026.png", "icon-027.gif", "icon-028.jpg", "icon-029.gif", "icon-030.jpg",
+  "icon-031.jpg", "icon-032.png", "icon-033.gif", "icon-034.jpg", "icon-035.png",
+  "icon-036.gif", "icon-037.jpg", "icon-038.png", "icon-039.gif", "icon-040.jpg",
+  "icon-041.gif", "icon-042.jpg", "icon-043.jpg", "icon-044.png", "icon-045.jpg",
+  "icon-046.gif", "icon-047.png", "icon-048.png", "icon-049.jpg", "icon-050.jpg",
+  "icon-051.jpg", "icon-052.gif", "icon-053.png", "icon-054.png", "icon-055.jpg",
+  "icon-056.jpg", "icon-057.gif", "icon-058.gif", "icon-059.png", "icon-060.jpg",
+  "icon-061.png", "icon-062.png", "icon-063.gif", "icon-064.jpg", "icon-065.jpg",
+  "icon-066.png", "icon-067.gif", "icon-068.jpg", "icon-069.gif", "icon-070.jpg",
+  "icon-071.gif", "icon-072.gif", "icon-073.gif", "icon-074.jpg", "icon-075.jpg",
+  "icon-076.gif", "icon-077.gif", "icon-078.jpg", "icon-079.jpg", "icon-080.png",
+  "icon-081.gif", "icon-082.gif", "icon-083.gif", "icon-084.png", "icon-085.jpg",
+  "icon-086.jpg", "icon-087.gif", "icon-088.gif", "icon-089.jpg", "icon-090.gif",
+  "icon-091.jpg", "icon-092.jpg", "icon-093.png", "icon-094.png", "icon-095.gif",
+  "icon-096.jpg", "icon-097.jpg", "icon-098.gif", "icon-099.gif", "icon-100.gif",
+  "icon-101.gif", "icon-102.png", "icon-103.gif", "icon-104.jpg", "icon-105.jpg",
+  "icon-106.png", "icon-107.gif", "icon-108.jpg", "icon-109.jpg", "icon-110.gif",
+  "icon-111.gif", "icon-112.png", "icon-113.jpg", "icon-114.png", "icon-115.gif",
+  "icon-116.gif", "icon-117.jpg", "icon-118.jpg", "icon-119.gif", "icon-120.jpg",
+  "icon-121.gif", "icon-122.gif", "icon-123.gif", "icon-124.gif", "icon-125.gif",
+  "icon-126.jpg", "icon-127.jpg", "icon-128.png", "icon-129.gif", "icon-130.gif",
+  "icon-131.gif", "icon-132.gif", "icon-133.gif", "icon-134.gif", "icon-135.jpg",
+  "icon-136.jpg", "icon-137.jpg", "icon-138.jpg", "icon-139.jpg", "icon-140.png",
+  "icon-141.gif"
+];
+function iconFor(sn){
+  let h = 0;
+  for(let i = 0; i < sn.length; i++) h = (h * 31 + sn.charCodeAt(i)) >>> 0;
+  return "/2006/icons/" + ICONS_2006[h % ICONS_2006.length];
+}
+
+/* The twelve moods. Word, colour and face, all three, every time: a vibe is
+   never carried by the colour on its own. The faces are the AIM emoticons
+   already in this file, looked up by name. */
+const VIBES = [
+  {v:"crushed",             c:"#ff2e88", i:"crying"},
+  {v:"hyper",               c:"#39ff14", i:"grin"},
+  {v:"bored in 4th period", c:"#8a8a8a", i:"sarcastic"},
+  {v:"xanga sad",           c:"#9b59ff", i:"frown"},
+  {v:"so random",           c:"#ffe600", i:"tongue"},
+  {v:"in love",             c:"#ff6a9d", i:"kiss"},
+  {v:"nostalgic",           c:"#00f0ff", i:"smile"},
+  {v:"mad at my sister",    c:"#ff6a00", i:"angry"},
+  {v:"burning a cd",        c:"#c0c0c0", i:"cool"},
+  {v:"grounded",            c:"#7a5cff", i:"gasp"},
+  {v:"tired",               c:"#5c7a8a", i:"halo"},
+  {v:"whatever",            c:"#a0a0a0", i:"wink"},
+];
+function vibeOf(name){ return VIBES.find(x => x.v === name) || null; }
+
+/* Not identity. A random tag this browser keeps so the server can count posts
+   per browser rather than per internet address. Per address would mean a whole
+   theatre on one wifi shares one allowance, and the wall would die ninety
+   seconds into the show for everybody at once. */
+function deviceTag(){
+  let d = LS.get("device", null);
+  if(!/^[a-z0-9]{16,40}$/.test(d || "")){
+    d = Array.from(crypto.getRandomValues(new Uint8Array(12)))
+             .map(b => b.toString(36).padStart(2, "0")).join("").slice(0, 24);
+    LS.set("device", d);
+  }
+  return d;
+}
+
+/* Every timestamp on this site renders with the year forced to 2006 and the
+   weekday recomputed for that real 2006 date, so it reads as a date that
+   genuinely existed rather than as this year wearing a hat. A seed row already
+   dated 2006 comes out as itself. One rule, no special cases. */
+const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTHS = ["January","February","March","April","May","June","July","August",
+                "September","October","November","December"];
+function stamp2006(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return "";
+  const y = new Date(2006, d.getMonth(), d.getDate(), d.getHours(), d.getMinutes());
+  let h = y.getHours(); const ap = h < 12 ? "am" : "pm";
+  h = h % 12; if(h === 0) h = 12;
+  const mm = String(y.getMinutes()).padStart(2, "0");
+  return DAYS[y.getDay()] + ", " + MONTHS[y.getMonth()] + " " + y.getDate() +
+         ", 2006 \u00b7 " + h + ":" + mm + " " + ap;
+}
+
 /* Speaks one line to a screen reader and to nobody else. Clearing it first
    matters: saving the same pick twice writes an identical string, and an
    aria-live region that does not change announces nothing. */
@@ -949,6 +1206,8 @@ const MENU = [
   {id:"videos",    label:"The Countdown"},
   {id:"playlists", label:"Playlists"},
   {id:"play",      label:"Play"},
+  {id:"wall",      label:"Confessions & Vibes"},
+  {id:"blog",      label:"The Blog"},
   {id:"graveyard", label:"Graveyard"},
 ];
 let screen = ME.sn ? "home" : "signon";
@@ -991,13 +1250,15 @@ function toolbarHTML(){
   const t = (id,ico,label)=>`<button class="tool ${screen===id?"on":""}" data-go="${id}"><span class="t-ico">${ico}</span>${label}</button>`;
   return `<nav class="toolbar" aria-label="Sections">
     ${t("home","🎧","iPod")}${t("buddies","👥","2006ers")}${t("videos","🎬","Countdown")}
-    ${t("playlists","🎵","Playlists")}${t("play","🕹️","Play")}${t("show","📺","The Show")}
+    ${t("playlists","🎵","Playlists")}${t("play","🕹️","Play")}${t("wall","💬","Vibes")}
+    ${t("blog","📓","Blog")}${t("show","📺","Show")}
   </nav>`;
 }
 const SCREEN_TITLES = {
   signon:'Sign On', home:'iPod menu', buddies:'Buddy list, the cast of 2006',
   videos:'The Countdown, a practice vote', playlists:'Playlists',
   play:'Play, games that still work',
+  wall:'Confessions and Vibes', blog:'The Blog',
   graveyard:'The Graveyard', show:'About 2006',
 };
 function render(){
@@ -1009,6 +1270,8 @@ function render(){
   else if(screen==="videos")    app.innerHTML = viewCountdown();
   else if(screen==="playlists") app.innerHTML = viewPlaylists();
   else if(screen==="play")      app.innerHTML = viewPlay();
+  else if(screen==="wall")      app.innerHTML = viewWall();
+  else if(screen==="blog")      app.innerHTML = viewBlog();
   else if(screen==="graveyard") app.innerHTML = viewGraveyard();
   else                          app.innerHTML = viewShow();
   app.querySelectorAll("[data-go]").forEach(el=>{
@@ -1019,6 +1282,8 @@ function render(){
   if(screen==="buddies") wireBuddies();
   if(screen==="videos")  wireCountdown();
   if(screen==="playlists") wirePlaylists();
+  if(screen==="wall")    wireWall();
+  if(screen==="blog")    wireBlog();
   if(screen==="show")    wireShow();
 }
 
@@ -1457,6 +1722,561 @@ function viewPlay(){
       <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install &nbsp;·&nbsp; best played instead of homework</p>
     </div>`;
   return chrome("Play", body, {status: GAMES.reduce((n,g)=>n+g.games.length,0) + " games"});
+}
+
+/* ══════════════════ CONFESSIONS & VIBES ══════════════════
+   The wall. Two buttons at the top, one feed underneath, and a post is public
+   the instant somebody presses the button. No approval step, by design.
+
+   Nothing here decides anything. The page cannot: the anon key is printed in
+   this file's source, so every rule that matters lives in /api/2006/confess on
+   our own server. What is here is the door, the drawing, and the manners.
+
+   The draft is mirrored into localStorage on every keystroke, because render()
+   rebuilds the whole of #app and loadLive() calls it again about a second after
+   the page opens. Without that, a network reply arriving mid sentence would
+   wipe what somebody was typing.
+   ═══════════════════════════════════════════════════════════════════════════ */
+let wall = [], wallLoaded = false, wallTab = "newest", wallBusy = false, wallMsg = "";
+let composer = null;                       // null, "anon" or "me"
+let myNotes = LS.get("notes", {}) || {};
+let photoOK = LS.get("photoOK", false);
+
+function draftGet(){ return LS.get("draft", {}) || {}; }
+function draftSet(patch){ LS.set("draft", Object.assign(draftGet(), patch)); }
+function draftClear(){ LS.set("draft", {}); }
+
+function wallSorted(){
+  const rows = wall.slice();
+  if(wallTab === "notes"){
+    rows.sort((a,b) => (b.notes_count - a.notes_count)
+                    || (new Date(b.posted_at) - new Date(a.posted_at)));
+  } else {
+    rows.sort((a,b) => new Date(b.posted_at) - new Date(a.posted_at));
+  }
+  return rows;
+}
+
+function confessionCard(p){
+  const who  = p.is_anon ? "anonymous" : (p.screen_name || "someone");
+  const said = p.is_anon ? "confessed" : "said";
+  const ico  = p.is_anon ? (ICONS.runman || ICONS.online) : iconFor(who);
+  const vb   = vibeOf(p.vibe);
+  const when = stamp2006(p.posted_at);
+  const noted = !!myNotes[p.id];
+  const n = p.notes_count || 0;
+  const label = who + " " + said + ", " + when
+              + (vb ? ", feeling " + vb.v : "")
+              + ", " + n + " note" + (n === 1 ? "" : "s");
+  return `
+    <article class="cf" data-id="${esc(p.id)}" aria-label="${esc(label)}">
+      <div class="cf-head">
+        <img class="cf-ico" src="${esc(ico)}" alt="">
+        <p class="cf-who"><b>${esc(who)}</b> ${said}:</p>
+        ${vb ? `<span class="cf-vibe" style="--v:${vb.c}">${
+          ICONS[vb.i] ? `<img src="${ICONS[vb.i]}" alt="">` : ``}${esc(vb.v)}</span>` : ``}
+      </div>
+      ${p.body ? `<p class="cf-body">${smileyfy(p.body)}</p>` : ``}
+      ${p.image_path ? `<img class="cf-photo" src="${esc(p.image_path)}"
+           alt="${esc(p.image_alt || "")}" loading="lazy">` : ``}
+      <p class="cf-when">${esc(when)}</p>
+      <div class="cf-acts">
+        <button class="cf-note ${noted ? "on" : ""}" data-note="${esc(p.id)}"
+                aria-pressed="${noted ? "true" : "false"}">
+          <span aria-hidden="true">${noted ? "♥" : "♡"}</span>
+          <span class="cf-n">${n}</span> note${n === 1 ? "" : "s"}</button>
+        <button class="cf-warn" data-warn="${esc(p.id)}">
+          <span aria-hidden="true">⚠</span> warn</button>
+      </div>
+    </article>`;
+}
+
+function composerHTML(){
+  if(!composer) return "";
+  const d = draftGet();
+  const mine = composer === "me";
+  const title = mine ? "add to the vibe" : "anon confession";
+  const opts = VIBES.map(v =>
+    `<option value="${esc(v.v)}" ${d.vibe === v.v ? "selected" : ""}>${esc(v.v)}</option>`).join("");
+  return `
+    <form class="cf-new" id="composer" novalidate>
+      <fieldset>
+        <legend>${title}</legend>
+        <p class="cf-as">${mine
+          ? `posting as <b>${esc(ME.sn || "you")}</b>`
+          : `posting as <b>anonymous</b>. your screen name is not saved on this one.`}</p>
+
+        <label class="cf-lab" for="cf-body">${mine ? "what is the vibe" : "what is it"}</label>
+        <textarea id="cf-body" maxlength="500" rows="3"
+          placeholder="${mine ? "say the thing" : "nobody will know it was you"}">${esc(d.body || "")}</textarea>
+        <p class="cf-count"><span id="cf-left">${500 - (d.body || "").length}</span> characters left</p>
+
+        <label class="cf-lab" for="cf-vibe">how are you feeling</label>
+        <select id="cf-vibe"><option value="">pick one</option>${opts}</select>
+
+        <label class="cf-lab" for="cf-photo">got a picture from 2006?</label>
+        <input type="file" id="cf-photo" accept="image/jpeg,image/png,image/gif,image/webp">
+
+        <div id="cf-pic" hidden>
+          <label class="cf-lab" for="cf-alt">say what is in it</label>
+          <input type="text" id="cf-alt" maxlength="200" value="${esc(d.alt || "")}"
+                 placeholder="me and my sister in matching juicy tracksuits">
+          <p class="cf-hint">one line. people who cannot see the picture get this instead.</p>
+          <div id="cf-gate" ${photoOK ? "hidden" : ""}>
+            <label class="cf-lab" for="cf-ans">what year is it?</label>
+            <input type="text" id="cf-ans" autocomplete="off">
+            <p class="cf-hint">text is open to everybody. pictures need this, because a
+              picture is harder to take back.</p>
+          </div>
+        </div>
+
+        <input class="cf-hp" type="text" id="cf-hp" name="website"
+               tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <p class="cf-err" id="cf-err" role="alert">${esc(wallMsg)}</p>
+        <div class="cf-btns">
+          <button type="submit" class="btn-xp primary" id="cf-post" ${wallBusy ? "disabled" : ""}>
+            ${wallBusy ? "posting..." : "post it"}</button>
+          <button type="button" class="btn-xp" id="cf-cancel">never mind</button>
+        </div>
+      </fieldset>
+    </form>`;
+}
+
+function viewWall(){
+  const rows = wallSorted();
+  const feed = !wallLoaded
+    ? `<p class="blog-p">loading the wall...</p>`
+    : rows.length
+      ? rows.map(confessionCard).join("")
+      : `<p class="blog-p">nothing on the wall yet. be the first one, it is the
+           hardest and the best job.</p>`;
+
+  const body = `
+    <div class="pane blog">
+      <h2 class="blog-h">confessions &amp; vibes</h2>
+      <p class="blog-p">
+        say a thing. it goes up the second you press the button, nobody checks it
+        first. post as yourself or post as nobody, then give other people's
+        notes so the good ones climb.
+      </p>
+
+      <div class="cf-add">
+        <button class="btn-xp primary" data-open="anon">anon confession</button>
+        <button class="btn-xp primary" data-open="me">add to the vibe</button>
+      </div>
+      ${composerHTML()}
+
+      <div class="cf-tabs" role="group" aria-label="how to sort the wall">
+        <button class="cf-tab ${wallTab === "newest" ? "on" : ""}" data-tab="newest"
+                aria-pressed="${wallTab === "newest"}">newest</button>
+        <button class="cf-tab ${wallTab === "notes" ? "on" : ""}" data-tab="notes"
+                aria-pressed="${wallTab === "notes"}">most notes</button>
+      </div>
+
+      <div class="cf-feed" id="cf-feed">${feed}</div>
+
+      <p class="blog-sig">
+        every date on here is a real 2006 date &nbsp;·&nbsp; warn a post three times
+        and it comes down on its own
+      </p>
+    </div>`;
+  return chrome("Confessions & Vibes", body,
+    {status: wallLoaded ? rows.length + (rows.length === 1 ? " post" : " posts") : "loading..."});
+}
+
+async function loadWall(){
+  try {
+    const rows = await sbGet(
+      "production_confessions?select=id,is_anon,screen_name,body,vibe,image_path,image_alt,"
+      + "notes_count,posted_at,productions!inner(slug)"
+      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+      + "&order=posted_at.desc&limit=200"
+    );
+    if(Array.isArray(rows)) wall = rows;
+  } catch(e){
+    // Stale beats broken. An empty wall with a loading line stuck on it is
+    // worse than an empty wall that admits it could not reach anything.
+    console.warn("2006: could not load the wall.", e);
+  }
+  wallLoaded = true;
+  if(screen === "wall") render();
+}
+
+function wireWall(){
+  if(!wallLoaded && !wall.length) loadWall();
+
+  app.querySelectorAll("[data-open]").forEach(b => {
+    b.onclick = () => {
+      composer = b.dataset.open; wallMsg = ""; render();
+      const t = document.getElementById("cf-body");
+      if(t){ t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+      say(composer === "anon" ? "anonymous confession box open."
+                              : "posting as " + (ME.sn || "you") + ".");
+    };
+  });
+
+  app.querySelectorAll("[data-tab]").forEach(b => {
+    b.onclick = () => {
+      wallTab = b.dataset.tab; render();
+      const first = document.querySelector(`[data-tab="${wallTab}"]`);
+      if(first) first.focus();
+      say(wallTab === "notes" ? "sorted by most notes." : "sorted by newest.");
+    };
+  });
+
+  const form = document.getElementById("composer");
+  if(form){
+    const t = document.getElementById("cf-body");
+    const left = document.getElementById("cf-left");
+    t.oninput = () => {
+      draftSet({body: t.value});
+      if(left) left.textContent = 500 - t.value.length;
+    };
+    document.getElementById("cf-vibe").onchange = e => draftSet({vibe: e.target.value});
+    const alt = document.getElementById("cf-alt");
+    if(alt) alt.oninput = () => draftSet({alt: alt.value});
+
+    // Revealed rather than re-rendered, so choosing a file never throws focus
+    // back to the top of the window.
+    const pic = document.getElementById("cf-photo");
+    pic.onchange = () => {
+      document.getElementById("cf-pic").hidden = !pic.files.length;
+      if(pic.files.length){
+        say("picture chosen. say what is in it before you post.");
+        const a = document.getElementById("cf-alt"); if(a) a.focus();
+      }
+    };
+
+    document.getElementById("cf-cancel").onclick = () => {
+      composer = null; wallMsg = ""; draftClear(); render();
+      const back = document.querySelector('[data-open="anon"]');
+      if(back) back.focus();
+    };
+
+    form.onsubmit = e => { e.preventDefault(); postConfession(); };
+  }
+
+  app.querySelectorAll("[data-note]").forEach(b => {
+    b.onclick = () => react(b.dataset.note, "note", b);
+  });
+  app.querySelectorAll("[data-warn]").forEach(b => {
+    b.onclick = () => {
+      if(b.dataset.sure !== "1"){
+        b.dataset.sure = "1"; b.textContent = "sure?";
+        setTimeout(() => { if(b.dataset.sure === "1"){
+          b.dataset.sure = ""; b.innerHTML = '<span aria-hidden="true">⚠</span> warn';
+        }}, 4000);
+        return;
+      }
+      react(b.dataset.warn, "warn", b);
+    };
+  });
+}
+
+async function postConfession(){
+  if(wallBusy) return;
+  const t   = document.getElementById("cf-body");
+  const pic = document.getElementById("cf-photo");
+  const alt = document.getElementById("cf-alt");
+  const ans = document.getElementById("cf-ans");
+  const err = document.getElementById("cf-err");
+  const file = pic && pic.files.length ? pic.files[0] : null;
+
+  if(!t.value.trim() && !file){
+    err.textContent = "there is nothing in it yet."; say("there is nothing in it yet."); return;
+  }
+  if(file && !(alt && alt.value.trim())){
+    err.textContent = "say what is in the picture first. one line is plenty.";
+    say("say what is in the picture first."); if(alt) alt.focus(); return;
+  }
+
+  const fd = new FormData();
+  fd.set("device", deviceTag());
+  fd.set("anon", composer === "anon" ? "1" : "0");
+  fd.set("screenName", ME.sn || "");
+  fd.set("body", t.value);
+  fd.set("vibe", document.getElementById("cf-vibe").value);
+  fd.set("website", document.getElementById("cf-hp").value);
+  if(file){
+    fd.set("photo", file);
+    fd.set("alt", alt.value);
+    if(ans && !ans.closest("#cf-gate").hidden) fd.set("answer", ans.value);
+    else fd.set("answer", LS.get("photoAns", ""));
+  }
+
+  wallBusy = true; wallMsg = ""; render();
+  let out = null;
+  try {
+    const r = await fetch("/api/2006/confess", {method: "POST", body: fd});
+    out = await r.json();
+  } catch(e){
+    out = {ok: false, message: "the internet did that thing. try again?"};
+  }
+  wallBusy = false;
+
+  if(!out || !out.ok){
+    wallMsg = (out && out.message) || "that did not go through.";
+    render(); say(wallMsg);
+    const e2 = document.getElementById("cf-err"); if(e2) e2.focus?.();
+    return;
+  }
+
+  // The answer worked, so this browser never sees the question again.
+  if(file){
+    photoOK = true; LS.set("photoOK", true);
+    if(ans && ans.value) LS.set("photoAns", ans.value);
+  }
+  if(out.post) wall.unshift(out.post);
+  composer = null; wallMsg = ""; draftClear(); wallTab = "newest";
+  render();
+  say("posted. it is on the wall now.");
+  const first = document.querySelector(".cf");
+  if(first){ first.setAttribute("tabindex", "-1"); first.focus(); }
+}
+
+async function react(id, kind, btn){
+  const pressed = btn.getAttribute("aria-pressed") === "true";
+  try {
+    const r = await fetch("/api/2006/react", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({id, kind, device: deviceTag(), undo: kind === "note" && pressed}),
+    });
+    const out = await r.json();
+    if(!out.ok){ say(out.message || "that did not land."); return; }
+
+    if(kind === "note"){
+      const now = !pressed;
+      if(now) myNotes[id] = 1; else delete myNotes[id];
+      LS.set("notes", myNotes);
+      btn.setAttribute("aria-pressed", now ? "true" : "false");
+      btn.classList.toggle("on", now);
+      btn.querySelector("span").textContent = now ? "♥" : "♡";
+      const c = btn.querySelector(".cf-n"); if(c) c.textContent = out.notes;
+      const row = wall.find(p => p.id === id); if(row) row.notes_count = out.notes;
+      say(now ? "noted." : "note taken back.");
+    } else {
+      btn.disabled = true; btn.textContent = "warned";
+      say("warned. thank you.");
+      if(out.gone){
+        wall = wall.filter(p => p.id !== id);
+        say("that post has come off the wall.");
+        render();
+      }
+    }
+  } catch(e){ say("that did not land. try again?"); }
+}
+
+/* ══════════════════ THE BLOG — a Xanga ══════════════════
+   Written by the cast in Backstage, where the colour swatches and the fonts
+   already live. This screen is the window those posts appear in.
+
+   Newest first, always, which is the reason this is a separate screen from the
+   wall: the wall floats the most liked to the top, and an essay somebody wrote
+   during the show has to be at the top because it just happened, not lose its
+   place to a confession from last week with forty notes. One list cannot do
+   both.
+
+   White and blue and prim, deliberately, against the black neon of the
+   Countdown and the wall. Xanga really did look like this.
+   ═══════════════════════════════════════════════════════════════════════════ */
+let posts = [], postsLoaded = false;
+
+/* The cast writes formatted text, so real formatting has to reach the screen,
+   and this is the one place a page built by hand can get hurt.
+
+   Hand the string to the browser's own parser, then walk it and keep a short
+   fixed list of tags, rebuilding each one from scratch rather than copying
+   anything the writer typed. The parser is the point: it decodes character
+   references before we ever look at an address, so the old trick of writing
+   javascript: with an encoded letter in it is already decoded by the time the
+   scheme is checked, and dies by construction rather than by anyone
+   remembering to block it. */
+const OK_TAGS = {
+  p:[], br:[], hr:[], strong:[], b:[], em:[], i:[], u:[], s:[], strike:[], del:[],
+  h2:[], h3:[], h4:[], ul:[], ol:[], li:[], blockquote:[], figure:[], figcaption:[],
+  a:["href"], span:["style"],
+};
+const OK_FONTS = [
+  "Comic Sans MS, Comic Sans, cursive",
+  "Times New Roman, Times, serif",
+  "Courier New, Courier, monospace",
+  "Impact, Haettenschweiler, sans-serif",
+  "Tahoma, Verdana, sans-serif",
+];
+function safeStyle(v){
+  const out = [];
+  const col = /(?:^|;)\s*color\s*:\s*(#[0-9a-f]{6})\s*(?:;|$)/i.exec(v || "");
+  if(col) out.push("color:" + col[1].toLowerCase());
+  const fam = /(?:^|;)\s*font-family\s*:\s*([^;]+)/i.exec(v || "");
+  if(fam){
+    const want = fam[1].trim().replace(/["']/g, "").toLowerCase();
+    const hit = OK_FONTS.find(f => f.toLowerCase() === want);
+    if(hit) out.push("font-family:" + hit);
+  }
+  return out.join(";");
+}
+function safeHtml(dirty){
+  const doc = new DOMParser().parseFromString("<body>" + (dirty || "") + "</body>", "text/html");
+  const walk = (src, dst) => {
+    src.childNodes.forEach(n => {
+      if(n.nodeType === 3){ dst.appendChild(document.createTextNode(n.nodeValue)); return; }
+      if(n.nodeType !== 1) return;
+      const tag = n.tagName.toLowerCase();
+      // These carry code rather than words, so their text goes too. Everything
+      // else is unwrapped: the tag disappears and what it wrapped survives.
+      if(tag === "script" || tag === "style" || tag === "template") return;
+      if(!OK_TAGS[tag]){ walk(n, dst); return; }      // unwrap, keep the words
+      const el = document.createElement(tag);
+      if(tag === "a"){
+        // Read through the parser's own decoding, then insist on a real scheme.
+        const href = (n.getAttribute("href") || "").trim();
+        // Protocol relative, //host, is off site while looking like a path.
+        // Dropped here so this agrees with lib/sanitize-html.ts, which drops it
+        // on the way in. Two sanitizers that disagree is how a hole appears.
+        const abs = href.startsWith("//") ? null
+          : (() => { try { return new URL(href, location.origin); } catch(e){ return null; } })();
+        if(abs && (abs.protocol === "http:" || abs.protocol === "https:")){
+          el.setAttribute("href", abs.href);
+          el.setAttribute("target", "_blank");
+          el.setAttribute("rel", "noopener noreferrer");
+        } else {
+          walk(n, dst); return;                        // drop the link, keep the words
+        }
+      }
+      if(tag === "span"){
+        const st = safeStyle(n.getAttribute("style"));
+        if(st) el.setAttribute("style", st);
+      }
+      walk(n, el);
+      dst.appendChild(el);
+    });
+  };
+  const out = document.createElement("div");
+  walk(doc.body, out);
+  return out.innerHTML;
+}
+
+function blogEntry(p){
+  const d = new Date(p.posted_at);
+  let h = d.getHours(); const ap = h < 12 ? "AM" : "PM"; h = h % 12 || 12;
+  const time = h + ":" + String(d.getMinutes()).padStart(2, "0") + " " + ap;
+  const mood = (p.mood || "").trim(), music = (p.music || "").trim();
+  const face = mood ? ICONS[mood.toLowerCase()] : null;
+  return `
+    <article class="xa" aria-labelledby="xt-${esc(p.id)}">
+      ${p.pinned ? `<span class="xa-pin">sticky</span>` : ``}
+      <h4 class="xa-t" id="xt-${esc(p.id)}">${esc(p.title || "(no title)")}</h4>
+      <p class="xa-by">posted by <b>${esc(p.byline || "the cast")}</b> @ ${time}</p>
+      ${(mood || music) ? `<div class="xa-mm">
+        ${mood  ? `<p><b>Current Mood:</b> ${esc(mood)}${
+          face ? ` <img src="${face}" alt="">` : ``}</p>` : ``}
+        ${music ? `<p><b>Current Music:</b> ${esc(music)}</p>` : ``}
+      </div>` : ``}
+      <div class="xa-body">${safeHtml(p.body)}</div>
+    </article>`;
+}
+
+function viewBlog(){
+  // Grouped by the day they were posted, which is how Xanga did it and which
+  // gives the date headings for free.
+  const pinned = posts.filter(p => p.pinned);
+  const rest   = posts.filter(p => !p.pinned);
+  const days = [];
+  rest.forEach(p => {
+    const key = stamp2006(p.posted_at).split(" · ")[0];
+    const last = days[days.length - 1];
+    if(last && last.key === key) last.items.push(p);
+    else days.push({key, items: [p]});
+  });
+
+  const entries = !postsLoaded
+    ? `<p class="xa-none">loading...</p>`
+    : (posts.length
+        ? (pinned.map(blogEntry).join("") +
+           days.map(d => `<section class="xa-day" aria-label="${esc(d.key)}">
+              <h3 class="xa-date">${esc(d.key)}</h3>
+              ${d.items.map(blogEntry).join("")}
+            </section>`).join(""))
+        : `<p class="xa-none">nobody has written anything yet. give them a minute,
+             they are in tech.</p>`);
+
+  const months = [...new Set(posts.map(p => {
+    const d = new Date(p.posted_at);
+    return MONTHS[d.getMonth()].slice(0, 3).toLowerCase() + " 2006";
+  }))];
+
+  const body = `
+    <div class="pane xanga">
+      <div class="xa-nav">
+        <b>the2006ers</b>: <a href="#xa-entries">weblog</a> ·
+        <a href="#" data-go="wall">confessions</a> ·
+        <a href="#" data-go="videos">videos</a> ·
+        <a href="#" data-go="playlists">audio</a> ·
+        <a href="#" data-go="buddies">profile</a>
+      </div>
+
+      <div class="xa-side">
+        <div class="xa-box">
+          <h3>the2006ers</h3>
+          <p><a href="#" data-go="buddies">read my profile</a><br>
+             <a href="#" data-go="wall">sign my guestbook</a></p>
+          <p><b>Member Since:</b> 6/30/2006</p>
+        </div>
+        <div class="xa-box">
+          <h3>Subscriptions</h3>
+          <p>subscribers: 1. it is you. there is no button, you are just
+             subscribed now.</p>
+        </div>
+        <div class="xa-box">
+          <h3>Archives</h3>
+          <p>${months.length ? months.map(esc).join(" · ") : "nothing yet"}</p>
+        </div>
+      </div>
+
+      <div class="xa-main" id="xa-entries">
+        <h2 class="xa-h">the blog</h2>
+        <p class="xa-lede">the cast writes in here. reviews of things from 2006,
+          and the essays people write during the show. it updates when they feel
+          like it, which was the whole point of having one.</p>
+        ${entries}
+
+        <div class="xa-submit">
+          <h3>wrote one during the show?</h3>
+          <p>send it over and it goes up here with your name on it, or without,
+             whichever you want.</p>
+          <a class="btn-xp primary" href="${esc(LINKS.essay || LINKS.submit)}"
+             target="_blank" rel="noopener noreferrer">hand in my essay</a>
+          <p class="xa-fine">opens a form in a new tab</p>
+        </div>
+
+        <p class="xa-foot">
+          ${posts.length} ${posts.length === 1 ? "entry" : "entries"} ·
+          comments are off · your mood was probably accomplished
+        </p>
+      </div>
+    </div>`;
+  return chrome("The Blog", body,
+    {status: postsLoaded ? posts.length + (posts.length === 1 ? " entry" : " entries") : "loading..."});
+}
+
+async function loadBlog(){
+  try {
+    const rows = await sbGet(
+      "production_posts?select=id,title,byline,body,pinned,posted_at,mood,music,productions!inner(slug)"
+      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+      + "&is_published=eq.true&order=pinned.desc,posted_at.desc&limit=100"
+    );
+    if(Array.isArray(rows)) posts = rows;
+  } catch(e){
+    console.warn("2006: could not load the blog.", e);
+  }
+  postsLoaded = true;
+  if(screen === "blog") render();
+}
+
+function wireBlog(){
+  if(!postsLoaded && !posts.length) loadBlog();
 }
 
 /* ══════════════════ GRAVEYARD ══════════════════ */
