@@ -1,7 +1,14 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
 
-const MAX = { name: 200, email: 254, subject: 200, message: 5000 };
+const MAX = { name: 200, email: 254, subject: 200, message: 5000, short: 300 };
+
+const REASON_LABELS: Record<string, string> = {
+  general:    'Just getting in touch',
+  barrier:    'SOMETHING DID NOT WORK',
+  suggestion: 'A suggestion',
+  work:       'Working with us',
+};
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Light per-address rate limit: 5 messages per 10 minutes. In-memory, so it
@@ -40,6 +47,10 @@ export async function POST(request: Request) {
     const subject = clean(body.subject, MAX.subject);
     const message = clean(body.message, MAX.message);
     const honeypot = clean(body.website, 200);
+    const reason = clean(body.reason, 40);
+    const pageUrl = clean(body.pageUrl, MAX.short);
+    const tryingTo = clean(body.tryingTo, MAX.short);
+    const browsingWith = clean(body.browsingWith, MAX.short);
 
     // Bots fill the hidden "website" field; people never see it. Pretend it
     // worked so the bot moves on.
@@ -59,17 +70,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Too many messages. Please try again in a few minutes.' }, { status: 429 });
     }
 
+    // An access barrier is the one kind of message that should be obvious in a
+    // full inbox, so it says so in the subject line rather than waiting to be
+    // opened. Everything else keeps the subject the sender chose.
+    const reasonLabel = REASON_LABELS[reason] ?? '';
+    const subjectLine = reason === 'barrier'
+      ? `Access barrier reported${subject ? `: ${subject}` : ` by ${name}`}`
+      : subject || `New Contact Form Submission from ${name}`;
+
+    // The three barrier questions, only when they were asked and answered.
+    const barrierRows = reason === 'barrier'
+      ? [
+          ['Page', pageUrl],
+          ['Trying to', tryingTo],
+          ['Browsing with', browsingWith],
+        ]
+          .filter(([, v]) => v)
+          .map(([k, v]) => `<p><strong>${k}:</strong> ${escapeHtml(v)}</p>`)
+          .join('\n')
+      : '';
+
     // Send email to both addresses
     const { data, error } = await resend.emails.send({
       from: 'Artistic Accessibility Collective <noreply@artisticaccessibility.com>',
       to: ['mk@artisticaccessibility.com', 'contact@artisticaccessibility.com'],
-      subject: subject || `New Contact Form Submission from ${name}`,
+      subject: subjectLine,
       replyTo: email,
       html: `
-        <h2>New Contact Form Submission</h2>
+        <h2>${reason === 'barrier' ? 'Someone hit a barrier on the site' : 'New Contact Form Submission'}</h2>
         <p><strong>From:</strong> ${escapeHtml(name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Subject:</strong> ${escapeHtml(subject) || '(No subject)'}</p>
+        ${reasonLabel ? `<p><strong>About:</strong> ${escapeHtml(reasonLabel)}</p>` : ''}
+        ${barrierRows}
         <hr />
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>

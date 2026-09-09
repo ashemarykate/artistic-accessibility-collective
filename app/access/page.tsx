@@ -54,7 +54,8 @@ export default function AccessPage() {
 
       <PolicySection id="tell-us" heading="Tell us about a barrier">
         <p style={p}>
-          If something here stopped you, we want to know, even if you are not sure it is our fault. Write to contact@artisticaccessibility.com or use <Link href="/contact" style={{ color: '#0d5c4a' }}>the contact form</Link>. It helps to know what page you were on, what you were trying to do, and what you use to browse, but send it even if you cannot say all three.
+          If something here stopped you, we want to know, even if you are not sure it is our fault. Use{' '}
+          <Link href="/contact?reason=barrier" style={{ color: '#0d5c4a' }}>the contact form</Link>, which asks what page you were on, what you were trying to do, and what you browse with. All three are optional, so send it even if you can only answer one. You can email contact@artisticaccessibility.com instead if that is easier.
         </p>
         <p style={p}>Every message gets a reply from a person, and a barrier goes to the front of the queue ahead of new features.</p>
       </PolicySection>

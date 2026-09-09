@@ -14,6 +14,24 @@ type FieldErrors = {
 
 const navyBg = { background: 'var(--aac-navy)', minHeight: '100%' };
 
+/**
+ * Why somebody is writing. This exists for one reason: a blank message box
+ * gets "your site is hard to use", which nobody can act on. Picking the second
+ * option opens three short questions that turn the same message into something
+ * fixable the same day.
+ *
+ * The values travel in the URL too, so /contact?reason=barrier arrives with the
+ * right one already chosen. The Access Statement links here that way.
+ */
+const REASONS = [
+  { value: 'general',    label: 'Just getting in touch' },
+  { value: 'barrier',    label: 'Something on the site did not work for me' },
+  { value: 'suggestion', label: 'A suggestion for the site or the Collective' },
+  { value: 'work',       label: 'Working with us on a project' },
+] as const;
+
+type ReasonValue = typeof REASONS[number]['value'];
+
 export default function ContactPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -28,8 +46,23 @@ export default function ContactPage() {
     email: '',
     subject: '',
     message: '',
+    reason: 'general' as ReasonValue,
+    // Only asked about, and only sent, when the reason is a barrier.
+    pageUrl: '',
+    tryingTo: '',
+    browsingWith: '',
     website: '', // honeypot: hidden from people, filled by bots
   });
+
+  // Preselect from ?reason=. Read from the address bar rather than through
+  // useSearchParams, which would drag this whole page behind a Suspense
+  // boundary for the sake of one optional string.
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get('reason');
+    if (wanted && REASONS.some((r) => r.value === wanted)) {
+      setFormData((prev) => ({ ...prev, reason: wanted as ReasonValue }));
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -221,6 +254,72 @@ export default function ContactPage() {
               <p id="error-email" className="form-error" role="alert">{fieldErrors.email}</p>
             )}
           </div>
+
+          <div className="form-group">
+            <label htmlFor="contact-reason" className="form-label">What is this about?</label>
+            <select
+              id="contact-reason"
+              className="form-input"
+              value={formData.reason}
+              onChange={(e) => setFormData({ ...formData, reason: e.target.value as ReasonValue })}
+            >
+              {REASONS.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {formData.reason === 'barrier' && (
+            <div
+              style={{
+                border: '2px solid var(--aac-blue)', borderRadius: 'var(--radius-md)',
+                padding: '1rem', marginBottom: '1.25rem', background: 'var(--aac-blue-light)',
+              }}
+            >
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.875rem' }}>
+                Sorry about that. Three optional questions, so we can find it quickly. Skip any of them and still send.
+              </p>
+
+              <div className="form-group">
+                <label htmlFor="contact-page" className="form-label">What page were you on?</label>
+                <input
+                  id="contact-page"
+                  type="text"
+                  className="form-input"
+                  value={formData.pageUrl}
+                  onChange={(e) => setFormData({ ...formData, pageUrl: e.target.value })}
+                  placeholder="The calendar, or paste the web address"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="contact-trying" className="form-label">What were you trying to do?</label>
+                <input
+                  id="contact-trying"
+                  type="text"
+                  className="form-input"
+                  value={formData.tryingTo}
+                  onChange={(e) => setFormData({ ...formData, tryingTo: e.target.value })}
+                  placeholder="Find an interpreter near me"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label htmlFor="contact-browsing" className="form-label">What do you browse with?</label>
+                <input
+                  id="contact-browsing"
+                  type="text"
+                  className="form-input"
+                  value={formData.browsingWith}
+                  onChange={(e) => setFormData({ ...formData, browsingWith: e.target.value })}
+                  placeholder="iPhone with VoiceOver, Chrome on Windows, whatever you know"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="contact-subject" className="form-label">Subject</label>

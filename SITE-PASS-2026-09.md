@@ -191,13 +191,23 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: filter the hub's content by subject, or add a visible "coming soon"
     note so both audiences get the same message.
 
-21. **Two feedback forms with different jobs and no explanation.**
-    `/feedback` is the logged-in tester round-1 form (writes to
-    `tester_feedback`). `/share-feedback` is a public form that emails through
-    the contact route. Neither links to the other, and `/share-feedback` has
-    no inbound links in the app.
-    How: decide whether `/share-feedback` still matters. If yes, link it from
-    Help and the Start menu. If no, redirect it to `/contact`.
+21. DONE 2026-09-09. **Two feedback forms with different jobs and no
+    explanation.** Resolved by retiring the public one. `/share-feedback` had
+    no inbound link anywhere in the repo, so it had never collected anything,
+    and it posted to the same contact route the contact form already uses: a
+    second door into the same room, with no handle on the outside. Its two
+    questions also duplicated the first two of the member survey, which has 29
+    responses from 36 approved members and is working fine.
+
+    It now redirects to `/contact?reason=suggestion`, kept as a redirect rather
+    than deleted in case the address was shared outside this repo.
+
+    The public need it gestured at was real, so the contact form absorbed it.
+    A "what is this about" selector, and picking "something on the site did not
+    work for me" opens three optional questions: what page, what you were
+    trying to do, what you browse with. A barrier report also gets its own
+    subject line so it stands out in a full inbox. The Access Statement links
+    straight to `/contact?reason=barrier`, arriving with it chosen.
 
 22. DONE 2026-09-09 (MK chose: required, no exceptions). **Alt text is optional on production photos.**
     `components/ProductionPhotoUploader.tsx:149`.
