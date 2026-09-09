@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { requireClientDocAccess } from '@/lib/client-docs';
 import type { Metadata } from 'next';
 import { getStaffingSheet } from '@/lib/staffing/data';
 import type { StaffingSheetData } from '@/lib/staffing/types';
@@ -445,14 +446,23 @@ function CtaSection() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+// Same as the reports: a locked sheet does not name the event in the tab.
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const data = getStaffingSheet(slug);
   if (!data) return {};
+  const sp = await searchParams;
+  try {
+    requireClientDocAccess(sp);
+  } catch {
+    return { title: 'Not Found · Artistic Accessibility Collective' };
+  }
   return {
     title: `${data.event.name}: Event Staffing Price-Out · Artistic Accessibility`,
   };
@@ -460,9 +470,14 @@ export async function generateMetadata({
 
 export default async function StaffingSheetPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  // Before anything else. This sheet carries rates.
+  requireClientDocAccess(await searchParams);
+
   const { slug } = await params;
   const data = getStaffingSheet(slug);
   if (!data) notFound();

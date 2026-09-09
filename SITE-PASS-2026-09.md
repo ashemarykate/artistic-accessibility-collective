@@ -8,6 +8,36 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ---
 
+## Client documents are no longer public, 2026-09-09
+
+Mary Kate: "I don't want any of the reports or anything to be public facing.
+That's all stuff I'm still working on."
+
+They were. Checked against the live site that day: both real client documents
+returned 200 to anyone, with the organisation named in the browser tab.
+
+    /reports/ogden-downtown-alliance    200
+    /staffing/riot-fest                 200
+    /reports/sample                     200
+
+The `noindex` and robots.txt rules added earlier do not help with this. They
+ask a search engine not to list a page; they do nothing about a person opening
+the address.
+
+`lib/client-docs.ts` now gates both. Local development is unchanged, so
+writing a report never involves a password. In production a document renders
+only when `CLIENT_DOCS_KEY` is set in Vercel and the address carries a
+matching `?key=`. Everything else is a 404 identical to the one a made-up slug
+gets, so an address cannot confirm that a report for an organisation exists.
+
+It fails closed: with no key set, they are all 404 in production, including
+for Mary Kate. Opening the door is a decision she makes rather than inherits.
+
+**To view or share one:** set `CLIENT_DOCS_KEY` in Vercel to a long random
+string, then use `/reports/<slug>?key=<string>`. To close everything again,
+delete the variable. When these stop being drafts and need per-client access,
+`lib/client-docs.ts` is the one place to change.
+
 ## Migration numbering collision, 2026-09-09 (resolved, nothing broken)
 
 Two sessions were open in this folder on the same day and both wrote a

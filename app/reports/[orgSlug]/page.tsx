@@ -1,5 +1,6 @@
 import Logo from '@/components/Logo';
 import { notFound } from 'next/navigation';
+import { requireClientDocAccess } from '@/lib/client-docs';
 import type { Metadata } from 'next';
 import { getReportData } from '@/lib/reports/data';
 import type {
@@ -919,14 +920,24 @@ function ServicesSection({ services }: { services: ReportData['services'] }) {
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
+// The title is part of the document. A locked report gives away nothing,
+// not even the client's name in a browser tab or a shared link preview.
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ orgSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { orgSlug } = await params;
   const data = getReportData(orgSlug);
   if (!data) return {};
+  const sp = await searchParams;
+  try {
+    requireClientDocAccess(sp);
+  } catch {
+    return { title: 'Not Found · Artistic Accessibility Collective' };
+  }
   return {
     title: `${data.org.name}: Accessibility Assessment · Artistic Accessibility`,
   };
@@ -936,9 +947,14 @@ const AREA_BG = ['white', '#f6f7fa'];
 
 export default async function ReportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ orgSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  // Before anything else. These are drafts about named organisations.
+  requireClientDocAccess(await searchParams);
+
   const { orgSlug } = await params;
   const data = getReportData(orgSlug);
   if (!data) notFound();
