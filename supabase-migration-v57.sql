@@ -23,6 +23,39 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 
+-- ── 0. The switches the cast holds ───────────────────────────────────────────
+-- Moved to the front 2026-09-09. These columns have to exist before section 1,
+-- because the wall's public SELECT policy reads wall_open and wall_frozen. With
+-- the ALTER further down the file, a first run died on
+--   ERROR: 42703: column pm.wall_open does not exist
+-- and nothing after that point was created.
+
+ALTER TABLE production_microsite
+  ADD COLUMN IF NOT EXISTS wall_open       BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS wall_frozen     BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS photo_question  TEXT    NOT NULL DEFAULT 'what year is it?',
+  ADD COLUMN IF NOT EXISTS photo_answer    TEXT    NOT NULL DEFAULT '2006',
+  ADD COLUMN IF NOT EXISTS wall_wordlist   TEXT    NOT NULL DEFAULT '';
+
+COMMENT ON COLUMN production_microsite.wall_open IS
+  'The wall accepts posts and shows them. Off by default: a new show does not
+   open an anonymous door on the internet without somebody deciding to.';
+COMMENT ON COLUMN production_microsite.wall_frozen IS
+  'Panic switch. The wall instantly shows starred posts only. Nothing is
+   deleted and unfreezing puts everything back. Enforced in the SELECT policy,
+   so it is real rather than cosmetic.';
+COMMENT ON COLUMN production_microsite.photo_question IS
+  'The question in front of a picture upload. Ships as "what year is it?", and
+   the answer is written all over the page on purpose: it stops crawlers, not
+   people, and stopping crawlers is the job. Change both fields to something
+   only the room knows if that ever stops being enough.';
+COMMENT ON COLUMN production_microsite.wall_wordlist IS
+  'Comma separated. A post that hits the list still goes up immediately, like
+   everything else. It is flagged so it sorts to the top of the cast pile. This
+   is deliberately not a filter: nobody is ever told their post worked when it
+   did not.';
+
+
 -- ── 1. The wall ───────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS production_confessions (
@@ -212,35 +245,7 @@ CREATE TRIGGER confession_warns_count
   FOR EACH ROW EXECUTE FUNCTION bump_confession_warns();
 
 
--- ── 4. The switches the cast holds ────────────────────────────────────────────
-
-ALTER TABLE production_microsite
-  ADD COLUMN IF NOT EXISTS wall_open       BOOLEAN NOT NULL DEFAULT false,
-  ADD COLUMN IF NOT EXISTS wall_frozen     BOOLEAN NOT NULL DEFAULT false,
-  ADD COLUMN IF NOT EXISTS photo_question  TEXT    NOT NULL DEFAULT 'what year is it?',
-  ADD COLUMN IF NOT EXISTS photo_answer    TEXT    NOT NULL DEFAULT '2006',
-  ADD COLUMN IF NOT EXISTS wall_wordlist   TEXT    NOT NULL DEFAULT '';
-
-COMMENT ON COLUMN production_microsite.wall_open IS
-  'The wall accepts posts and shows them. Off by default: a new show does not
-   open an anonymous door on the internet without somebody deciding to.';
-COMMENT ON COLUMN production_microsite.wall_frozen IS
-  'Panic switch. The wall instantly shows starred posts only. Nothing is
-   deleted and unfreezing puts everything back. Enforced in the SELECT policy,
-   so it is real rather than cosmetic.';
-COMMENT ON COLUMN production_microsite.photo_question IS
-  'The question in front of a picture upload. Ships as "what year is it?", and
-   the answer is written all over the page on purpose: it stops crawlers, not
-   people, and stopping crawlers is the job. Change both fields to something
-   only the room knows if that ever stops being enough.';
-COMMENT ON COLUMN production_microsite.wall_wordlist IS
-  'Comma separated. A post that hits the list still goes up immediately, like
-   everything else. It is flagged so it sorts to the top of the cast pile. This
-   is deliberately not a filter: nobody is ever told their post worked when it
-   did not.';
-
-
--- ── 4b. Current Mood, Current Music ───────────────────────────────────────────
+-- ── 4. Current Mood, Current Music ────────────────────────────────────────────
 -- Two text fields on a blog post, and they buy more 2006 than anything else in
 -- this pass. Both optional: the line is skipped entirely when they are empty.
 
