@@ -408,6 +408,108 @@
   }
   .blog .sticker:hover{transform:rotate(1deg)}
 
+  /* ══════════ THE SHOW: LIVE ══════════
+     The front door. Light, because it is information, and it sits inside the
+     chat room window so the cast's answers underneath still read as the same
+     conversation. */
+  .live{padding:10px 11px 12px;background:#fff;border-bottom:1px solid var(--chrome-dk)}
+  .ph{
+    background:#fff8d6;border:1px solid #e6c866;padding:7px 9px;margin:0 0 10px;
+    font-size:11.5px;line-height:1.5;color:#4a3800;
+  }
+  .ph b{color:#1a3d6e}
+  .ph a{color:#1a3d6e;font-weight:bold}
+  .ph-live{background:#ffe3ec;border-color:#ff2e88;color:#5a0022}
+  .ph-live b, .ph-live a{color:#c4005c}
+  .ph-after{background:#e8f4ff;border-color:#7ea8dc;color:#1a3d6e}
+  .live-h{
+    font-family:"Times New Roman",Times,serif;font-size:26px;letter-spacing:-1px;
+    color:#1a3d6e;margin:0;line-height:1;
+  }
+  .live-h span{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+    color:#7a869a;margin-top:3px;font-family:"W95FA",Tahoma,sans-serif}
+  .live .live-p{font-size:12px;line-height:1.55;color:#42506a;margin:8px 0 10px}
+  .live-dates{display:grid;gap:5px}
+  .live-date{
+    display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+    background:#f4f7fb;border:1px solid #dae4f0;padding:6px 8px;font-size:12px;
+  }
+  .live-date b{color:#1a3d6e}
+  .live-date span{color:#42506a}
+  .live .live-where{font-size:11.5px;color:#42506a;margin:8px 0 8px}
+  .live-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;padding:7px 12px}
+  .live .live-fine{font-size:9.5px;color:#8a94a6;margin:4px 0 0}
+  .live-h3{font-size:12px;color:#1a3d6e;margin:14px 0 6px;letter-spacing:.5px;text-transform:uppercase}
+  .live-how{margin:0;padding-left:18px;font-size:12px;line-height:1.55;color:#42506a}
+  .live-how li{margin:0 0 5px}
+  .live-how a{color:#1a3d6e;text-decoration:none}
+  .live-how a b{text-decoration:underline}
+
+  /* ══════════ VIDEO COUNTDOWN, the TRL bits ══════════ */
+  .trl-head{display:flex;align-items:flex-end;gap:10px;margin:0 0 6px}
+  .trl-badge{
+    font-family:Impact,"Arial Narrow",sans-serif;font-size:30px;letter-spacing:1px;
+    background:#fff;color:#000;padding:0 6px;line-height:1.05;transform:skew(-8deg);
+  }
+  .blog .trl-h{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:14px;letter-spacing:3px;
+    text-transform:uppercase;color:#fff;margin:0;line-height:1.15;flex:1;
+  }
+  .trl-live{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:9px;letter-spacing:1.5px;
+    color:#ff2e88;border:1px solid #ff2e88;padding:2px 6px;white-space:nowrap;
+  }
+  .blog .ct-phase{margin:8px 0 10px}
+  .ct-jump{margin:0 0 12px}
+  .ct-jump .btn-xp{display:block;text-align:center;text-decoration:none;padding:8px}
+  .ct-row{display:block;padding:0;overflow:hidden}
+  .ct-thumb{
+    display:block;width:100%;position:relative;padding:0;border:0;background:#000;cursor:pointer;
+    aspect-ratio:16/9;overflow:hidden;
+  }
+  .ct-thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+  .ct-thumb:hover img{opacity:1}
+  .ct-playbtn{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:44px;height:32px;background:rgba(0,0,0,.75);border:1px solid #fff;
+    color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;
+  }
+  .ct-row.on .ct-playbtn{border-color:var(--neon)}
+  .ct-embed{aspect-ratio:16/9;background:#000}
+  .ct-embed iframe{width:100%;height:100%;border:0;display:block}
+  .ct-main{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;position:relative}
+  .ct-rank{
+    position:absolute;z-index:1;left:0;top:0;
+    font-family:Impact,"Arial Narrow",sans-serif;font-size:22px;line-height:1;
+    background:var(--neon);color:#000;padding:4px 8px 3px;
+  }
+  .ct-row.on .ct-rank{background:#fff}
+  .ct-main .ct-label{flex:1}
+  .ct-main .ct-tag{align-self:flex-start;margin-top:2px}
+
+  /* ══════════ cast mode ══════════ */
+  .cf-del, .xa-del{
+    background:none;border:1px solid #c00;color:#ff6a6a;cursor:pointer;
+    font-family:"W95FA",Tahoma,sans-serif;font-size:10px;padding:5px 9px;
+  }
+  .xa-del{color:#c00;padding:2px 7px;font-size:9.5px;vertical-align:middle}
+  .cf-del:hover, .xa-del:hover{background:#c00;color:#fff}
+  .xa-aud{
+    font-family:"W95FA",Tahoma,sans-serif;font-size:8.5px;letter-spacing:.5px;
+    text-transform:uppercase;background:#dae4f0;color:#1a3d6e;padding:1px 5px;
+  }
+
+  /* ══════════ the essay box ══════════ */
+  .xa-lab{display:block;font-size:10.5px;color:#1a3d6e;margin:8px 0 3px;font-weight:bold}
+  .xa-submit input[type=text], .xa-submit textarea{
+    width:100%;box-sizing:border-box;font-family:inherit;font-size:12.5px;
+    background:#fff;color:#111;border:1px solid #808080;
+    box-shadow:inset 1px 1px 0 #4a4a4a;padding:5px 6px;
+  }
+  .xanga .xa-err{color:#c00;font-size:11.5px;margin:6px 0 0}
+  .xanga .xa-err:empty{margin:0}
+  .xa-submit .btn-xp{margin-top:8px}
+
   /* ══════════ CONFESSIONS & VIBES ══════════
      A Tumblr dashboard living inside the AIM window. Same dark neon ground as
      the Countdown, so it reads as a website the desk has open rather than as a
@@ -667,9 +769,12 @@
      about 32px, well under the 44px this project holds itself to. Two rows of
      four gives every one of them room, and a taskbar two rows deep is more
      Windows than less. */
+  /* Five sections now. 18% each puts all five on one row at 375px wide with
+     every button about 72px, and stops the last one wrapping alone onto a
+     second row and stretching across it. */
   @media (max-width: 560px){
     .toolbar{flex-wrap:wrap}
-    .tool{flex:1 1 22%}
+    .tool{flex:1 1 18%;padding-left:0;padding-right:0}
   }
   .tool:active{border-color:#a87d1c;background:rgba(255,255,255,.4)}
   .statusline{
@@ -766,7 +871,9 @@
     .pod-menu button{padding-top:13px;padding-bottom:13px}
     .so-btn{padding:10px 12px}
     .pl-row, .say, .tape{min-height:44px}
-    .ct-label, .ct-watch, .gm-a{padding-top:6px;padding-bottom:6px}
+    .ct-label, .gm-a{padding-top:6px;padding-bottom:6px}
+    .cf-del, .xa-del{min-height:44px}
+    .xa-submit input[type=text], .xa-submit textarea{padding-top:10px;padding-bottom:10px;min-height:44px}
     .cf-note, .cf-warn, .cf-tab{min-height:44px}
     .cf-new textarea, .cf-new input[type=text], .cf-new select{
       padding-top:10px;padding-bottom:10px;min-height:44px}
@@ -777,6 +884,9 @@
        landing at 25px with padding on them. */
     .xa-nav a, .xa-box a{display:inline-block;padding:10px 0;min-height:44px;line-height:24px}
     .xa-submit .btn-xp{display:inline-flex;align-items:center;min-height:44px}
+    /* The four "how to play along" links are the front door's calls to
+       action, not incidental prose, so they get a real target on touch. */
+    .live-how a{display:inline-block;padding:10px 0;min-height:44px;line-height:24px}
     .ct-watch{min-height:44px}
     .ct-radio{width:18px;height:18px}
     .votebtn, .sticker{min-height:44px}
@@ -924,54 +1034,42 @@ const buddies = [
 
       The order below is only the order they appear. It is not a ranking, and
       the slot names are not positions, so lines can move around freely.       */
-const BALLOT = [
+const BALLOT = [   // fallback until production_videos is seeded; see loadLive()
   {slot:"s01", yt:"5T0utQ-XWGY", title:"Fergalicious",
-   artist:"Fergie", year:"2006",
-   note:"you spelled it out loud. everyone did."},
+   artist:"Fergie", year:"2006"},
 
   {slot:"s02", yt:"dTAAsCNK7RA", title:"Here It Goes Again",
-   artist:"OK Go", year:"2006",
-   note:"eight treadmills, one take, no cuts."},
+   artist:"OK Go", year:"2006"},
 
   {slot:"s03", yt:"vc6vs-l5dkc", title:"I Write Sins Not Tragedies",
-   artist:"Panic! At The Disco", year:"2006",
-   note:"the wedding, the vest, the whole thing."},
+   artist:"Panic! At The Disco", year:"2006"},
 
   {slot:"s04", yt:"oofSnsGkops", title:"You're Beautiful",
-   artist:"James Blunt", year:"2005",
-   note:"2005, but it would not leave 2006 alone."},
+   artist:"James Blunt", year:"2005"},
 
   {slot:"s05", yt:"gH476CxJxfg", title:"Bad Day",
-   artist:"Daniel Powter", year:"2006",
-   note:"the sound of getting voted off something."},
+   artist:"Daniel Powter", year:"2006"},
 
   {slot:"s06", yt:"znUS2KqPYCw", title:"Ms. New Booty",
-   artist:"Bubba Sparxxx ft. Ying Yang Twins", year:"2006",
-   note:"every school dance, right up until they turned the lights on."},
+   artist:"Bubba Sparxxx ft. Ying Yang Twins", year:"2006"},
 
   {slot:"s07", yt:"fFRkpvvop3I", title:"Over My Head (Cable Car)",
-   artist:"The Fray", year:"2006",
-   note:"the one that lived on your profile."},
+   artist:"The Fray", year:"2006"},
 
   {slot:"s08", yt:"PQmDUEv939A", title:"Black Horse And The Cherry Tree",
-   artist:"KT Tunstall", year:"2005",
-   note:"2005 again. one woman, one loop pedal, no band."},
+   artist:"KT Tunstall", year:"2005"},
 
   {slot:"s09", yt:"eiiU-Fky18s", title:"Cupid's Chokehold",
-   artist:"Gym Class Heroes ft. Patrick Stump", year:"2006",
-   note:"the Supertramp bit is the whole song and you know it."},
+   artist:"Gym Class Heroes ft. Patrick Stump", year:"2006"},
 
   {slot:"s10", yt:"dDxgSvJINlU", title:"Hate Me",
-   artist:"Blue October", year:"2006",
-   note:"for the away message you left up all week."},
+   artist:"Blue October", year:"2006"},
 
   {slot:"s11", yt:"6-KQ1tp_qOQ", title:"Here In Your Arms",
-   artist:"hellogoodbye", year:"2006",
-   note:"the sidekick years, condensed."},
+   artist:"hellogoodbye", year:"2006"},
 
   {slot:"s12", yt:"Rt0spqQtMKg", title:"D*** in a Box",
-   artist:"The Lonely Island ft. Justin Timberlake", year:"2006",
-   note:"december 2006. the year snl figured out the internet."},
+   artist:"The Lonely Island ft. Justin Timberlake", year:"2006"},
 ];
 
 /* ⑥ PLAYLISTS — mixes by the team. In the portal each creator adds their own.
@@ -1066,13 +1164,52 @@ const LS = {
 const ME = { sn: LS.get("sn", null) };
 let myVote = LS.get("vote", null);
 
+/* The countdown as the page currently knows it. Starts as the hardcoded
+   fallback and is replaced by production_videos once loadLive() returns, at
+   which point the cast controls it from Backstage. A row's slot is its id, so
+   a vote follows the row through any rename or swap. */
+let VIDEOS = BALLOT.map(v => Object.assign({}, v));
+let STANDINGS = {};          // video id -> votes, only while voting is live
+let CAST = null;             // {name} when a cast member is logged in on the main site
+let SHOW_DATES = [           // fallback until production_dates is seeded
+  {label:"Friday night",     start_at:"2026-10-10T00:00:00Z"},
+  {label:"Saturday matinee", start_at:"2026-10-10T19:00:00Z"},
+  {label:"Sunday night",     start_at:"2026-10-12T00:00:00Z"},
+];
+CONFIG.RESERVE_URL = CONFIG.RESERVE_URL || "";
+CONFIG.SUBMIT_FORM_URL = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
+
+/* Three states, and the switch in Backstage decides the one that matters.
+   live: voting_open is on, votes count, standings show.
+   after: the last show has passed and voting is off. thank you, see you in november.
+   practice: everything else. */
+function phase(){
+  if(CONFIG.VOTING_OPEN) return "live";
+  const last = SHOW_DATES.reduce((m, d) => Math.max(m, +new Date(d.start_at)), 0);
+  if(last && Date.now() > last + 36 * 3600 * 1000) return "after";
+  return "practice";
+}
+function showDate(d, opts){
+  return new Date(d.start_at).toLocaleString("en-US", Object.assign(
+    {timeZone:"America/Chicago", weekday:"long", month:"long", day:"numeric",
+     hour:"numeric", minute:"2-digit"}, opts || {}));
+}
+function firstShowLine(){
+  const f = SHOW_DATES.slice().sort((a,b) => new Date(a.start_at) - new Date(b.start_at))[0];
+  return f ? new Date(f.start_at).toLocaleString("en-US",
+    {timeZone:"America/Chicago", month:"long", day:"numeric"}) : "";
+}
+
 function esc(s){const d=document.createElement("div");d.textContent=String(s==null?"":s);return d.innerHTML;}
 
 /* A pick saved by an older version of this file, for a slot that has since
    been deleted. Without this the confirmation line reads "your pick: " and
    then stops. */
-if(myVote && !BALLOT.some(v => v.slot === myVote)){ myVote = null; LS.set("vote", null); }
-function titleOf(slot){ const v = BALLOT.find(x => x.slot === slot); return v ? v.title : ""; }
+function titleOf(slot){ const v = VIDEOS.find(x => x.slot === slot); return v ? v.title : ""; }
+function dropStalePick(){
+  if(myVote && !VIDEOS.some(v => v.slot === myVote)){ myVote = null; LS.set("vote", null); }
+}
+dropStalePick();
 
 /* ══════════════════ THE WALL — state and small helpers ══════════════════ */
 
@@ -1201,12 +1338,17 @@ function styleOf(b){ return `background:${b.bg||"#000"};color:${b.fg||"#fff"};fo
 
 /* ══════════════════ ROUTER ══════════════════ */
 const MENU = [
-  {id:"show",      label:"The Show"},
+  {id:"show",      label:"The Show: Live"},
   {id:"buddies",   label:"2006ers"},
-  {id:"videos",    label:"The Countdown"},
+  {id:"videos",    label:"Video Countdown"},
+  {id:"wall",      label:"Confessions & Vibes"},
+  {id:"reminisce", label:"Reminisce", folder:true},
+];
+/* The folder. Everything that is not the show itself lives one level down, so
+   a first time visitor sees four things and not nine. */
+const REMINISCE = [
   {id:"playlists", label:"Playlists"},
   {id:"play",      label:"Play"},
-  {id:"wall",      label:"Confessions & Vibes"},
   {id:"blog",      label:"The Blog"},
   {id:"graveyard", label:"Graveyard"},
 ];
@@ -1233,6 +1375,7 @@ function chrome(title, bodyHTML, opts){
     ${bodyHTML}
     ${toolbarHTML()}
     <div class="statusline"><span id="statusmsg">${o.status||""}</span><span>${
+      CAST ? "cast mode" + (CAST.name.includes("@") ? "" : ": " + esc(CAST.name)) + " &nbsp;·&nbsp; " : ""}${
       CONFIG.SHOW_MODE ? "● LIVE" : "0% ⚠"}</span></div>
   </div>
   ${aacFooter()}`;
@@ -1249,17 +1392,16 @@ function aacFooter(){
 function toolbarHTML(){
   const t = (id,ico,label)=>`<button class="tool ${screen===id?"on":""}" data-go="${id}"><span class="t-ico">${ico}</span>${label}</button>`;
   return `<nav class="toolbar" aria-label="Sections">
-    ${t("home","🎧","iPod")}${t("buddies","👥","2006ers")}${t("videos","🎬","Countdown")}
-    ${t("playlists","🎵","Playlists")}${t("play","🕹️","Play")}${t("wall","💬","Vibes")}
-    ${t("blog","📓","Blog")}${t("show","📺","Show")}
+    ${t("home","🎧","iPod")}${t("show","📺","Show")}${t("buddies","👥","2006ers")}
+    ${t("videos","🎬","Countdown")}${t("wall","💬","Vibes")}
   </nav>`;
 }
 const SCREEN_TITLES = {
   signon:'Sign On', home:'iPod menu', buddies:'Buddy list, the cast of 2006',
-  videos:'The Countdown, a practice vote', playlists:'Playlists',
+  videos:'Video Countdown', playlists:'Playlists', reminisce:'Reminisce',
   play:'Play, games that still work',
   wall:'Confessions and Vibes', blog:'The Blog',
-  graveyard:'The Graveyard', show:'About 2006',
+  graveyard:'The Graveyard', show:'The Show: Live',
 };
 function render(){
   const h1 = document.getElementById('screen-title');
@@ -1273,6 +1415,7 @@ function render(){
   else if(screen==="wall")      app.innerHTML = viewWall();
   else if(screen==="blog")      app.innerHTML = viewBlog();
   else if(screen==="graveyard") app.innerHTML = viewGraveyard();
+  else if(screen==="reminisce") app.innerHTML = viewHome(REMINISCE, "Reminisce");
   else                          app.innerHTML = viewShow();
   app.querySelectorAll("[data-go]").forEach(el=>{
     el.onclick = (e)=>{ e.preventDefault(); screen = el.dataset.go; selected=-1; render(); };
@@ -1285,6 +1428,9 @@ function render(){
   if(screen==="wall")    wireWall();
   if(screen==="blog")    wireBlog();
   if(screen==="show")    wireShow();
+  if(screen==="reminisce") wireHome(REMINISCE);
+  clearInterval(window.__tick); window.__tick = null;
+  if(screen==="videos" && phase()==="live") window.__tick = setInterval(loadStandings, 20000);
 }
 
 /* ══════════════════ SIGN ON — the landing page ══════════════════ */
@@ -1325,7 +1471,8 @@ function viewSignOn(){
       </div>
       <div class="so-ver">Version: 2006 &nbsp;·&nbsp; ${
         CONFIG.SHOW_MODE ? "<b style='color:#a00'>● SHOW MODE: the cast is online</b>"
-        : "COMING SOON &amp; TAKING SUBMISSIONS"}</div>
+        : phase()==="live" ? "<b style='color:#a00'>● VOTING IS OPEN</b>"
+        : "LIVE " + esc(firstShowLine()).toUpperCase() + " &amp; TAKING SUBMISSIONS"}</div>
     </div>
   </div>
   ${aacFooter()}`;
@@ -1353,18 +1500,21 @@ function wireSignOn(){
 function openSignOn(){ screen = "signon"; render(); }
 
 /* ══════════════════ HOME — iPod ══════════════════ */
-function viewHome(){
-  const items = MENU.map((m,i)=>`
+function viewHome(list, title){
+  list = list || MENU;
+  const items = list.map((m,i)=>`
     <li class="${i===podSel?"on":""}">
-      <button data-go="${m.id}" data-pod="${i}">${esc(m.label)}<span class="chev">›</span></button>
+      <button data-go="${m.id}" data-pod="${i}">${esc(m.label)}<span class="chev">${m.folder ? "▸" : "›"}</span></button>
     </li>`).join("");
   return `
     <div class="ipod">
       <div class="pod-screen">
-        <div class="pod-bar"><span>iPod</span><span class="pod-batt"></span></div>
+        <div class="pod-bar"><span>${esc(title || "iPod")}</span><span class="pod-batt"></span></div>
         <ul class="pod-menu">
           ${items}
-          <li><button id="podsign">${ME.sn?"Sign Off":"Sign On"}<span class="chev">›</span></button></li>
+          ${list === MENU
+            ? `<li><button id="podsign">${ME.sn?"Sign Off":"Sign On"}<span class="chev">›</span></button></li>`
+            : `<li><button data-go="home">‹ back<span class="chev"></span></button></li>`}
         </ul>
         <div class="pod-note">${ME.sn?`signed on as <b>${esc(ME.sn)}</b>`:"not signed on"}</div>
       </div>
@@ -1377,20 +1527,24 @@ function viewHome(){
       </div>
     </div>
     <div class="pod-caption">
-      ${CONFIG.SHOW_MODE
-        ? "● SHOW MODE: the cast is online"
-        : "COMING SOON &nbsp;·&nbsp; " + (CONFIG.SUBMISSIONS_OPEN?"NOW TAKING SUBMISSIONS":"submissions closed")}
+      ${CONFIG.SHOW_MODE ? "● SHOW MODE: the cast is online"
+        : phase()==="live" ? "● VOTING IS OPEN &nbsp;·&nbsp; it counts now"
+        : phase()==="after" ? "thank you &nbsp;·&nbsp; see you in november"
+        : "LIVE " + esc(firstShowLine()).toUpperCase() + " &nbsp;·&nbsp; "
+          + (CONFIG.SUBMISSIONS_OPEN ? "SEND US UR VIDEO" : "submissions closed")}
     </div>
     ${aacFooter()}`;
 }
-function wireHome(){
-  const move = d=>{ podSel = (podSel + d + MENU.length) % MENU.length; render(); };
+function wireHome(list){
+  list = list || MENU;
+  const move = d=>{ podSel = (podSel + d + list.length) % list.length; render(); };
   document.getElementById("wNext").onclick = ()=>move(1);
   document.getElementById("wPrev").onclick = ()=>move(-1);
   document.getElementById("wPlay").onclick = ()=>{ screen="videos"; render(); };
   document.getElementById("wMenu").onclick = ()=>{ podSel=0; render(); };
-  document.getElementById("wCenter").onclick = ()=>{ screen = MENU[podSel].id; render(); };
-  document.getElementById("podsign").onclick = ()=>{
+  document.getElementById("wCenter").onclick = ()=>{ screen = list[podSel].id; podSel = 0; render(); };
+  const sign = document.getElementById("podsign");
+  if(sign) sign.onclick = ()=>{
     if(ME.sn){ ME.sn=null; LS.set("sn",null); }
     screen = "signon"; render();
   };
@@ -1455,273 +1609,210 @@ function wireBuddies(){
   });
 }
 
-/* ══════════════════ THE COUNTDOWN ══════════════════
-   A practice ballot. Pick one, press the button, the screen tells you what you
-   picked. Nothing is sent anywhere: a pick lives in that person's own browser
-   and nowhere else.
+/* ══════════════════ VIDEO COUNTDOWN ══════════════════
+   Two sections, named in Mary Kate's words: "practice voting with these
+   iconic pieces" and "submit your own homemade 2006 video". No commentary on
+   the rows, just the video. A thumbnail you can press to play it right there,
+   one at a time, because twelve players loading at once is a mess on a phone
+   and a maze for a keyboard.
 
-   Why no numbers on the list. Nothing has been voted on yet, so any rank here
-   would come from the order of an array in this file. A number that carries no
-   information is a costume, and it is the most load bearing costume you could
-   put on a screen called the countdown. The page says so out loud instead.
-
-   Why a real radio group and not twelve tap to vote buttons. Twelve buttons
-   plus twelve watch links is twenty four tab stops, three times any other
-   screen here. A radio group is ONE stop: tab in, arrows move the pick, tab
-   out. Arrowing through the list casts nothing, so reading it is safe.
-
-   Everything about the pick is rebuilt from myVote every time the view runs,
-   never patched in afterwards, because loadLive() re-renders the whole screen
-   a second after boot and would otherwise wipe it.
+   Three phases, see phase(). In practice the pick lives in this browser. When
+   voting is live the pick goes to /api/2006/vote, the standings come back
+   from the database, and the list re-sorts into the order the show will play.
    ═══════════════════════════════════════════════════════════════════════════ */
+let openEmbed = null;
+
 function statusText(){
-  return myVote ? "your pick: " + titleOf(myVote)
-                : BALLOT.length + " videos · practice vote";
+  const p = phase();
+  if(p === "live") return myVote ? "your vote: " + titleOf(myVote) : "voting is open";
+  return myVote ? "your pick: " + titleOf(myVote) : VIDEOS.length + " videos · practice vote";
+}
+
+function orderedVideos(){
+  const rows = VIDEOS.slice();
+  if(phase() === "live"){
+    rows.sort((a,b) => ((STANDINGS[b.slot]||0) - (STANDINGS[a.slot]||0)) || (a.ord - b.ord));
+  } else {
+    rows.sort((a,b) => a.ord - b.ord);
+  }
+  return rows;
+}
+
+function countdownRow(v, i, live){
+  const on = myVote === v.slot;
+  const votes = STANDINGS[v.slot] || 0;
+  const rank = live ? i + 1 : null;
+  const embed = openEmbed === v.slot;
+  const media = embed
+    ? `<div class="ct-embed"><iframe
+         src="https://www.youtube-nocookie.com/embed/${esc(v.yt)}?autoplay=1&rel=0"
+         title="${esc(v.title)}, ${esc(v.artist)}" allow="autoplay; encrypted-media; picture-in-picture"
+         allowfullscreen></iframe></div>`
+    : `<button type="button" class="ct-thumb" data-play="${esc(v.slot)}"
+         aria-label="play ${esc(v.title)} by ${esc(v.artist)}">
+         <img src="https://i.ytimg.com/vi/${esc(v.yt)}/hqdefault.jpg" alt="" loading="lazy">
+         <span class="ct-playbtn" aria-hidden="true">▶</span>
+       </button>`;
+  return `
+    <div class="ct-row ${on ? "on" : ""} ${embed ? "open" : ""}">
+      ${rank ? `<span class="ct-rank" aria-hidden="true">${rank}</span>` : ``}
+      ${media}
+      <div class="ct-main">
+        <input type="radio" name="ballot" class="ct-radio" id="b-${esc(v.slot)}"
+               value="${esc(v.slot)}" ${on ? "checked" : ""}>
+        <label class="ct-label" for="b-${esc(v.slot)}">
+          <span class="ct-t">${rank ? `<span class="sr-only">number ${rank}, </span>` : ``}${esc(v.title)}</span>
+          <span class="ct-a">${esc(v.artist)} &nbsp;·&nbsp; ${esc(v.year || "")}${
+            v.ours ? ` &nbsp;·&nbsp; <span class="ct-ours">our version</span>` : ``}${
+            live ? ` &nbsp;·&nbsp; ${votes} vote${votes === 1 ? "" : "s"}` : ``}</span>
+        </label>
+        ${on ? `<span class="ct-tag" aria-hidden="true">${live ? "your vote" : "your pick"}</span>` : ``}
+      </div>
+    </div>`;
 }
 
 function viewCountdown(){
-  const rows = BALLOT.map((v, i) => {
-    const on   = myVote === v.slot;
-    const neon = NEON[i % NEON.length];
-    return `
-      <div class="ct-row ${on ? "on" : ""}" style="--neon:${neon}">
-        <input type="radio" name="ballot" class="ct-radio"
-               id="b-${esc(v.slot)}" value="${esc(v.slot)}" ${on ? "checked" : ""}>
-        <label class="ct-label" for="b-${esc(v.slot)}">
-          <span class="ct-t">${esc(v.title)}</span>
-          <span class="ct-a">${esc(v.artist)} &nbsp;·&nbsp; ${esc(v.year)}</span>
-          ${v.note ? `<span class="ct-n">${esc(v.note)}</span>` : ``}
-          ${v.ours ? `<span class="ct-ours">our version</span>` : ``}
-        </label>
-        ${on ? `<span class="ct-tag" aria-hidden="true">your pick</span>` : ``}
-        <a class="ct-watch" data-yt="${esc(v.yt)}"
-           href="https://www.youtube.com/watch?v=${esc(v.yt)}"
-           target="_blank" rel="noopener noreferrer">watch it on youtube<span
-           class="sr-only">: ${esc(v.title)}, ${esc(v.artist)}.</span>
-          <span class="ct-meta">opens in a new tab</span>
-        </a>
-      </div>`;
-  }).join("");
+  const p = phase(), live = p === "live";
+  const rows = orderedVideos().map((v, i) => countdownRow(v, i, live)).join("");
+  const submitUrl = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
 
   const body = `
-    <div class="pane blog">
-      <h2 class="blog-h">the countdown</h2>
-      <p class="blog-p">
-        twelve videos that are going in the show. no numbers on them yet, and
-        that is what the voting is for: the ones people request most are the
-        ones we play, counting down to number one.
-      </p>
+    <div class="pane blog trl">
+      <div class="trl-head">
+        <span class="trl-badge">TRL</span>
+        <h2 class="trl-h">video<br>countdown</h2>
+        <span class="trl-live">${live ? "● LIVE" : p === "after" ? "OFF AIR" : "REHEARSAL"}</span>
+      </div>
 
-      <hr>
+      ${live ? `<p class="blog-p ct-phase"><b>voting is open and it counts.</b> we check
+          the standings as each show starts and play them in that order, top to
+          number one. change your mind as often as you like: your newest vote is
+          the one that counts.</p>`
+        : p === "after" ? `<p class="blog-p ct-phase"><b>voting is closed.</b> thank you.
+          the list stays up to look at, and we will open it again for november.</p>`
+        : `<p class="blog-p ct-phase"><b>practice voting.</b> nothing counts yet. real
+          voting opens the day before the first show, and whatever is winning
+          when we start is what we play.</p>`}
+
+      <div class="ct-jump">
+        <a class="btn-xp" href="#ct-submit" id="ct-jumpbtn">submit your own homemade 2006 video ↓</a>
+      </div>
+
+      <h3 class="blog-cat" style="--neon:#39ff14">${live ? "vote for number one" : "practice voting with these iconic pieces"}</h3>
 
       <form id="ballot" novalidate>
         <fieldset class="ct-set">
-          <legend class="ct-legend">
-            practice vote. pick the one you want at number one, then press the
-            button at the bottom. nothing counts yet, we are just showing you
-            how it will work. your pick is saved in this browser and nowhere else.
-          </legend>
+          <legend class="sr-only">${live ? "your vote" : "your practice vote"}</legend>
           ${rows}
         </fieldset>
-
-        <p class="blog-p ct-cap">
-          these open on youtube, so the captions are whatever youtube has and
-          some of them are auto captions. anything we make ourselves gets real
-          captions and audio description.
-        </p>
-        ${ME.sn ? `<p class="blog-p ct-as">voting as <b>${esc(ME.sn)}</b></p>` : ``}
-
-        <button type="submit" class="btn-xp primary votebtn" id="castbtn">${
-          myVote ? "change my practice vote" : "cast my practice vote"}</button>
+        ${live && !ME.sn ? `<p class="blog-p ct-cap">sign on with a screen name to vote. any name, it is 2006.</p>` : ``}
+        ${ME.sn ? `<p class="blog-p ct-as">${live ? "voting" : "practicing"} as <b>${esc(ME.sn)}</b></p>` : ``}
+        <button type="submit" class="btn-xp primary votebtn" id="castbtn" ${p === "after" ? "disabled" : ""}>${
+          p === "after" ? "voting is closed"
+          : live ? (myVote ? "change my vote" : "cast my vote")
+          : (myVote ? "change my practice vote" : "cast my practice vote")}</button>
         <p class="blog-p ct-err" id="ct-err" role="alert"></p>
       </form>
-
-      <p class="blog-p ct-pick" id="ct-pick">${
-        myVote ? "your pick: " + esc(titleOf(myVote)) + "." : ""}</p>
-      <p class="blog-p">
-        that is the whole thing. one pick, one button. the real one works the
-        same way, on a longer list, because your video could be on it.
-      </p>
+      <p class="blog-p ct-pick" id="ct-pick">${myVote ? (live ? "your vote: " : "your pick: ") + esc(titleOf(myVote)) + "." : ""}</p>
 
       <hr>
 
-      <h3 class="blog-cat" style="--neon:#ffe600">on deck</h3>
-      <p class="blog-p">
-        nothing on deck yet. this is where the videos you send us line up,
-        waiting to get on the list.
-      </p>
-      <p class="blog-p">
-        the song you had on repeat. the video you rewound. the bit you and your
-        friends still quote at each other. it does not have to be good, 2006 was
-        not good.
-      </p>
-      <p style="text-align:center;margin:12px 0 0">
-        <a class="sticker" style="--neon:#ff2e88" href="${esc(LINKS.submit)}"
-           target="_blank" rel="noopener noreferrer">📼 SUBMIT UR VIDEO</a>
-      </p>
-      <p class="blog-sig">a link and a sentence is plenty &nbsp;·&nbsp; opens the form in a new tab</p>
+      <section id="ct-submit" tabindex="-1">
+        <h3 class="blog-cat" style="--neon:#ff2e88">submit your own homemade 2006 video</h3>
+        <p class="blog-p">
+          make something based on 2006 and send it to us. a song, a music video, a
+          major media event, a film scene. lip sync it. perform it. get a group of
+          friends and do the dance. you know. 2006.
+        </p>
+        <p class="blog-p">
+          send a file or a link, whatever you have. we will put it on our youtube
+          and it goes on the countdown next to fergie, where people can vote for it.
+        </p>
+        <p style="text-align:center;margin:12px 0 0">
+          <a class="sticker" style="--neon:#ff2e88" href="${esc(submitUrl)}"
+             target="_blank" rel="noopener noreferrer">📼 SUBMIT UR VIDEO</a>
+        </p>
+        <p class="blog-sig">opens the form in a new tab &nbsp;·&nbsp; you will need a google account for the upload</p>
+      </section>
 
       <hr>
-
-      <p class="blog-p">
-        one house rule. you are voting for the song, not for one exact video.
-        what we roll on the night is our business.
-      </p>
-      <p class="blog-sig">
-        mtv stopped taking votes by phone on july 10, 2006 &nbsp;·&nbsp; best viewed in 800x600
-      </p>
+      <p class="blog-p">one house rule. you are voting for the song, not for one exact
+        video. what we roll on the night is our business.</p>
+      <p class="blog-sig">mtv stopped taking votes by phone on july 10, 2006 &nbsp;·&nbsp; best viewed in 800x600</p>
     </div>`;
-  return chrome("The Countdown", body, {status: statusText()});
+  return chrome("Video Countdown", body, {status: statusText()});
 }
 const NEON = ["#39ff14", "#ff00ff", "#00f0ff", "#ffe600", "#ff6a00", "#ff2e88"];
 
+async function loadStandings(){
+  if(phase() !== "live") return;
+  try {
+    const rows = await sbGet("production_countdown_standings?select=video_id,votes");
+    if(Array.isArray(rows)){
+      const next = {};
+      rows.forEach(r => { if(VIDEOS.some(v => v.slot === r.video_id)) next[r.video_id] = r.votes; });
+      STANDINGS = next;
+      if(screen === "videos" && !document.activeElement.closest?.("#ballot")) render();
+    }
+  } catch(e){ console.warn("2006: standings", e); }
+}
+
 function wireCountdown(){
+  const jump = document.getElementById("ct-jumpbtn");
+  if(jump) jump.onclick = e => {
+    e.preventDefault();
+    const t = document.getElementById("ct-submit");
+    t.scrollIntoView({behavior:"smooth", block:"start"}); t.focus();
+  };
+
+  app.querySelectorAll("[data-play]").forEach(b => {
+    b.onclick = () => {
+      openEmbed = b.dataset.play; render();
+      const f = document.querySelector(".ct-row.open iframe"); if(f) f.focus();
+      say("playing " + titleOf(openEmbed) + ".");
+    };
+  });
+
   const form = document.getElementById("ballot");
-  form.onsubmit = (e) => {
+  form.onsubmit = async e => {
     e.preventDefault();
     const chosen = form.querySelector('input[name="ballot"]:checked');
     const err = document.getElementById("ct-err");
-    if(!chosen){
-      err.textContent = "pick one first, then press the button.";
-      say("pick one first, then press the button.");
-      return;                       // focus stays on the button
-    }
+    if(!chosen){ err.textContent = "pick one first, then press the button."; say(err.textContent); return; }
     err.textContent = "";
-    myVote = chosen.value;
-    LS.set("vote", myVote);
 
-    /* Patched in place rather than re rendered. A render() here would rebuild
-       the form under the user's feet and throw focus back to the top of the
-       window, which on a keyboard means losing your place after every vote. */
+    if(phase() === "live"){
+      if(!ME.sn){ err.textContent = "sign on with a screen name first."; say(err.textContent); return; }
+      const btn = document.getElementById("castbtn"); btn.disabled = true;
+      let out = null;
+      try {
+        const r = await fetch("/api/2006/vote", {method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({videoId: chosen.value, screenName: ME.sn, device: deviceTag(), website: ""})});
+        out = await r.json();
+      } catch(x){ out = {ok:false, message:"the internet did that thing. try again?"}; }
+      btn.disabled = false;
+      if(!out.ok){ err.textContent = out.message || "that did not count."; say(err.textContent); return; }
+      myVote = chosen.value; LS.set("vote", myVote);
+      say("vote counted. your vote is " + titleOf(myVote) + ".");
+      await loadStandings(); render();
+      const again = document.getElementById("castbtn"); if(again) again.focus();
+      return;
+    }
+
+    myVote = chosen.value; LS.set("vote", myVote);
     document.getElementById("ct-pick").textContent = "your pick: " + titleOf(myVote) + ".";
     document.getElementById("castbtn").textContent = "change my practice vote";
-    const sm = document.getElementById("statusmsg");
-    if(sm) sm.textContent = statusText();
+    const sm = document.getElementById("statusmsg"); if(sm) sm.textContent = statusText();
     app.querySelectorAll(".ct-row").forEach(r => {
       const on = r.querySelector("input").value === myVote;
       r.classList.toggle("on", on);
       const tag = r.querySelector(".ct-tag");
-      if(on && !tag){
-        const t = document.createElement("span");
-        t.className = "ct-tag"; t.setAttribute("aria-hidden","true");
-        t.textContent = "your pick";
-        r.insertBefore(t, r.querySelector(".ct-watch"));
-      } else if(!on && tag){ tag.remove(); }
+      if(on && !tag){ const t = document.createElement("span"); t.className = "ct-tag";
+        t.setAttribute("aria-hidden","true"); t.textContent = "your pick"; r.querySelector(".ct-main").appendChild(t); }
+      else if(!on && tag) tag.remove();
     });
     say("practice vote saved. your pick is " + titleOf(myVote) + ".");
   };
-
-  app.querySelectorAll("[data-yt]").forEach(a => {
-    a.onclick = (e) => {
-      e.preventDefault();
-      /* The little 2006 sized window, kept as a gag. autoplay is gone: sound
-         that starts on its own, in a window with no visible controls, over
-         somebody's screen reader, was the worst thing on this screen. The
-         chrome flags are gone too, because they left people in a window with
-         no address bar and no way back. */
-      const win = window.open(
-        "https://www.youtube.com/embed/" + encodeURIComponent(a.dataset.yt) + "?rel=0",
-        "_blank",
-        "width=560,height=340,resizable=yes,scrollbars=yes"
-      );
-      /* noopener stays OUT of the feature string: putting it there makes
-         window.open return null, which would fire the fallback below and open
-         a second window on every click. */
-      if(win){ try{ win.opener = null; }catch(err){} }
-      else   { window.open(a.href, "_blank", "noopener"); }
-    };
-  });
-}
-
-/* ══════════════════ PLAYLISTS ══════════════════
-   Restored: the router called viewPlaylists and wirePlaylists, the iPod menu
-   and the toolbar both offered Playlists, and neither function existed. The
-   data and the CSS were still here, so only these two were missing. Clicking
-   Playlists threw inside render() and the screen silently stayed where it was.
-   ══════════════════════════════════════════════════════════════════════════ */
-let openPl = null;
-
-function viewPlaylists(){
-  const rows = playlists.map(pl => {
-    const isOpen = openPl === pl.id;
-    const n = pl.tracks.length;
-    return `
-      <button class="pl-row ${isOpen ? "on" : ""}" data-pl="${esc(pl.id)}" aria-expanded="${isOpen}">
-        <span class="pl-art" aria-hidden="true">${isOpen ? "\u25be" : "\u266a"}</span>
-        <span class="pl-meta">
-          <span class="pl-t">${esc(pl.title)}</span>
-          <span class="pl-b">${esc(pl.byline)}${n ? ` \u00b7 ${n} song${n === 1 ? "" : "s"}` : ""}</span>
-        </span>
-        <span class="pl-chev" aria-hidden="true">${isOpen ? "" : "\u203a"}</span>
-      </button>
-      ${isOpen ? `
-        <div class="pl-open">
-          ${pl.description ? `<p class="pl-desc">${esc(pl.description)}</p>` : ""}
-          ${n ? `<ol class="pl-tracks">${pl.tracks.map(tr => `
-            <li>
-              <span class="tr-t">${esc(tr.t)}</span>
-              <span class="tr-a">${esc(tr.a)}</span>
-              ${tr.note ? `<span class="tr-n">${esc(tr.note)}</span>` : ""}
-            </li>`).join("")}</ol>`
-            : `<p class="pl-empty">no songs on this one yet.</p>`}
-        </div>` : ``}`;
-  }).join("");
-
-  const body = `
-    <div class="pane">
-      <div class="pane-pad" style="padding-bottom:6px">
-        <h2>Playlists</h2>
-        <p>mixes made by the people in the show. tap one to see what's on it.</p>
-      </div>
-      ${rows}
-    </div>`;
-  return chrome("Playlists", body, {status: playlists.length + " playlists"});
-}
-
-function wirePlaylists(){
-  app.querySelectorAll("[data-pl]").forEach(btn => {
-    btn.onclick = () => {
-      openPl = (openPl === btn.dataset.pl) ? null : btn.dataset.pl;
-      render();
-    };
-  });
-}
-
-/* ══════════════════ PLAY ══════════════════
-   Nothing is embedded. These are other people's sites, an iframe would break
-   the ones that need a real page of their own, and it would hide who is
-   actually hosting the thing. So: one big link per game, new tab, and the row
-   says so out loud rather than surprising anyone with a jumped tab. ══════════ */
-function viewPlay(){
-  const groups = GAMES.map((g, gi) => `
-    <h3 class="blog-cat" style="--neon:${NEON[gi % NEON.length]}">${esc(g.cat)}</h3>
-    <ul class="gm-list">
-      ${g.games.map((gm, i) => {
-        const neon = NEON[(gi + i + 1) % NEON.length];
-        return `<li>
-          <a class="gm-a" style="--neon:${neon}" href="${esc(gm.url)}"
-             target="_blank" rel="noopener noreferrer">
-            <span class="gm-t">${esc(gm.t)}</span>
-            <span class="gm-meta">${esc(gm.y)} &nbsp;·&nbsp; ${esc(gm.by)} &nbsp;·&nbsp; opens in a new tab</span>
-            <span class="gm-n">${esc(gm.n)}</span>
-          </a>
-        </li>`;
-      }).join("")}
-    </ul>`).join("<hr>");
-
-  const body = `
-    <div class="pane blog">
-      <h2 class="blog-h">play</h2>
-      <p class="blog-p">
-        games from back then that somebody kept running. click one and it opens
-        in its own tab, so this window stays exactly where you left it.
-      </p>
-      <hr>
-      ${groups}
-      <hr>
-      <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install &nbsp;·&nbsp; best played instead of homework</p>
-    </div>`;
-  return chrome("Play", body, {status: GAMES.reduce((n,g)=>n+g.games.length,0) + " games"});
 }
 
 /* ══════════════════ CONFESSIONS & VIBES ══════════════════
@@ -1787,6 +1878,7 @@ function confessionCard(p){
           <span class="cf-n">${n}</span> note${n === 1 ? "" : "s"}</button>
         <button class="cf-warn" data-warn="${esc(p.id)}">
           <span aria-hidden="true">⚠</span> warn</button>
+        ${CAST ? `<button class="cf-del" data-del-wall="${esc(p.id)}">delete</button>` : ``}
       </div>
     </article>`;
 }
@@ -1957,6 +2049,7 @@ function wireWall(){
     form.onsubmit = e => { e.preventDefault(); postConfession(); };
   }
 
+  wireModerate();
   app.querySelectorAll("[data-note]").forEach(b => {
     b.onclick = () => react(b.dataset.note, "note", b);
   });
@@ -2167,7 +2260,9 @@ function blogEntry(p){
     <article class="xa" aria-labelledby="xt-${esc(p.id)}">
       ${p.pinned ? `<span class="xa-pin">sticky</span>` : ``}
       <h4 class="xa-t" id="xt-${esc(p.id)}">${esc(p.title || "(no title)")}</h4>
-      <p class="xa-by">posted by <b>${esc(p.byline || "the cast")}</b> @ ${time}</p>
+      <p class="xa-by">posted by <b>${esc(p.byline || "the cast")}</b> @ ${time}${
+        p.is_audience ? ` &nbsp;·&nbsp; <span class="xa-aud">from the audience</span>` : ``}${
+        CAST && p.is_audience ? ` &nbsp;·&nbsp; <button class="xa-del" data-del-post="${esc(p.id)}">delete</button>` : ``}</p>
       ${(mood || music) ? `<div class="xa-mm">
         ${mood  ? `<p><b>Current Mood:</b> ${esc(mood)}${
           face ? ` <img src="${face}" alt="">` : ``}</p>` : ``}
@@ -2241,13 +2336,27 @@ function viewBlog(){
           like it, which was the whole point of having one.</p>
         ${entries}
 
-        <div class="xa-submit">
-          <h3>wrote one during the show?</h3>
-          <p>send it over and it goes up here with your name on it, or without,
-             whichever you want.</p>
-          <a class="btn-xp primary" href="${esc(LINKS.essay || LINKS.submit)}"
-             target="_blank" rel="noopener noreferrer">hand in my essay</a>
-          <p class="xa-fine">opens a form in a new tab</p>
+        <div class="xa-submit" id="xa-write">
+          <h3>writing one during the show?</h3>
+          <p>type it right here. it goes up the second you press post, with your
+             screen name on it. reviews of 2006 things, the essay you wrote in the
+             dark, whatever you have.</p>
+          ${ME.sn ? `
+          <form id="essay" novalidate>
+            <label class="xa-lab" for="es-title">title</label>
+            <input type="text" id="es-title" maxlength="80" value="${esc(draftGet().esTitle || "")}"
+                   placeholder="untitled is fine">
+            <label class="xa-lab" for="es-body">the entry</label>
+            <textarea id="es-body" rows="7" maxlength="6000"
+                      placeholder="dear xanga,">${esc(draftGet().esBody || "")}</textarea>
+            <p class="xa-fine"><span id="es-left">${6000 - (draftGet().esBody || "").length}</span> characters left
+               &nbsp;·&nbsp; posting as <b>${esc(ME.sn)}</b></p>
+            <input class="cf-hp" type="text" id="es-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="xa-err" id="es-err" role="alert"></p>
+            <button type="submit" class="btn-xp primary" id="es-post">post it</button>
+          </form>`
+          : `<p class="xa-fine">sign on with a screen name first, so the entry has a name on it.
+             <a href="#" data-go="home">sign on ›</a></p>`}
         </div>
 
         <p class="xa-foot">
@@ -2261,12 +2370,14 @@ function viewBlog(){
 }
 
 async function loadBlog(){
+  const q = (cols) => sbGet(
+    "production_posts?select=" + cols + ",productions!inner(slug)"
+    + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+    + "&is_published=eq.true&order=pinned.desc,posted_at.desc&limit=100");
   try {
-    const rows = await sbGet(
-      "production_posts?select=id,title,byline,body,pinned,posted_at,mood,music,productions!inner(slug)"
-      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
-      + "&is_published=eq.true&order=pinned.desc,posted_at.desc&limit=100"
-    );
+    let rows;
+    try { rows = await q("id,title,byline,body,pinned,posted_at,mood,music,is_audience"); }
+    catch(e){ rows = await q("id,title,byline,body,pinned,posted_at"); }   // before v57/v59
     if(Array.isArray(rows)) posts = rows;
   } catch(e){
     console.warn("2006: could not load the blog.", e);
@@ -2277,6 +2388,35 @@ async function loadBlog(){
 
 function wireBlog(){
   if(!postsLoaded && !posts.length) loadBlog();
+  wireModerate();
+  const form = document.getElementById("essay");
+  if(!form) return;
+  const t = document.getElementById("es-body"), ti = document.getElementById("es-title");
+  const left = document.getElementById("es-left");
+  t.oninput  = () => { draftSet({esBody: t.value});  if(left) left.textContent = 6000 - t.value.length; };
+  ti.oninput = () => { draftSet({esTitle: ti.value}); };
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const err = document.getElementById("es-err");
+    if(!t.value.trim()){ err.textContent = "there is nothing in it yet."; say(err.textContent); t.focus(); return; }
+    const btn = document.getElementById("es-post"); btn.disabled = true; btn.textContent = "posting...";
+    let out = null;
+    try {
+      const r = await fetch("/api/2006/essay", {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({title: ti.value, body: t.value, screenName: ME.sn, device: deviceTag(),
+                              website: document.getElementById("es-hp").value})});
+      out = await r.json();
+    } catch(x){ out = {ok:false, message:"the internet did that thing. try again?"}; }
+    if(!out.ok){
+      btn.disabled = false; btn.textContent = "post it";
+      err.textContent = out.message || "that did not go through."; say(err.textContent); return;
+    }
+    if(out.post) posts.unshift(out.post);
+    draftSet({esBody:"", esTitle:""});
+    render();
+    say("posted. it is on the blog now.");
+    const first = document.querySelector(".xa"); if(first){ first.setAttribute("tabindex","-1"); first.focus(); }
+  };
 }
 
 /* ══════════════════ GRAVEYARD ══════════════════ */
@@ -2294,15 +2434,66 @@ function viewGraveyard(){
   return chrome("R.I.P. 2006", body, {status:graves.length+" dearly departed"});
 }
 
-/* ══════════════════ THE SHOW ══════════════════ */
+/* ══════════════════ THE SHOW: LIVE ══════════════════
+   The front door. Where and when, how to reserve a seat, and how to play
+   along. The cast's answers to "what is 2006" sit underneath, still in the
+   chat room they were always in, because that is the part people screenshot.
+   The phase banner at the top is the one place on the site that says what is
+   happening right now, and every other screen points back here for it. */
+function phaseBanner(){
+  const p = phase();
+  if(p === "live") return `<div class="ph ph-live" role="status">
+      <b>voting is open.</b> it counts now. we check the standings as each show
+      starts and play them in that order, so the list can change between
+      friday and sunday. <a href="#" data-go="videos">go vote ›</a></div>`;
+  if(p === "after") return `<div class="ph ph-after" role="status">
+      <b>that was 2006.</b> thank you for coming. the wall and the blog stay up,
+      and we will see you in november.</div>`;
+  return `<div class="ph" role="status">
+      <b>right now:</b> practice voting is on and we are taking video
+      submissions. real voting opens the day before the first show.</div>`;
+}
 function viewShow(){
   const said  = buddies.filter(b => (b.about||"").trim());
   const here  = buddies.filter(b => b.status !== "offline");
-
+  const dates = SHOW_DATES.slice().sort((a,b) => new Date(a.start_at) - new Date(b.start_at));
   const rows = said.map(b => `
     <div class="cr-msg" style="${chatStyle(b)}"><b class="cr-sn">${esc(b.sn)}:</b> <span class="cr-txt">${smileyfy(b.about)}</span></div>`).join("");
 
   const body = `
+    <div class="live">
+      ${phaseBanner()}
+      <h2 class="live-h">2006 <span>the year. the show. live.</span></h2>
+      <p class="live-p">a play performed like an episode of TRL. the audience picks
+        the countdown, the cast performs it, and the whole thing is online with a
+        few seats in the room.</p>
+
+      <div class="live-dates">
+        ${dates.map(d => `<div class="live-date">
+          <b>${esc(d.label || "")}</b>
+          <span>${esc(showDate(d))} CT</span>
+        </div>`).join("")}
+      </div>
+      <p class="live-where">live online, with limited seating in our studio.</p>
+      ${CONFIG.RESERVE_URL
+        ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
+             rel="noopener noreferrer">reserve a free seat in the studio</a>
+           <p class="live-fine">opens a form in a new tab. pick which show.</p>`
+        : `<p class="live-fine">seat reservations open soon.</p>`}
+
+      <h3 class="live-h3">how to play along</h3>
+      <ol class="live-how">
+        <li><a href="#" data-go="videos"><b>vote.</b></a> practice now, for real the day
+          before the show. whatever is winning when we start is what we play.</li>
+        <li><a href="#" data-go="videos"><b>send a video.</b></a> a homemade 2006
+          anything. it goes on the countdown next to fergie.</li>
+        <li><a href="#" data-go="wall"><b>confess.</b></a> say a thing on the wall, as
+          yourself or as nobody.</li>
+        <li><a href="#" data-go="blog"><b>write.</b></a> during the show, type an entry
+          straight into the blog.</li>
+      </ol>
+    </div>
+
     <div class="cr-wrap">
       <div class="cr-log" id="saylog">
         <div class="cr-msg cr-pic"><b class="cr-sn">what:</b>
@@ -2315,33 +2506,8 @@ function viewShow(){
           ${buddies.map(b=>`<span class="${b.status==="offline"?"gone":""}">${esc(b.sn)}</span>`).join("")}
         </div>
       </div>
-    </div>
-
-    <div class="cr-tools">
-      <span class="fbtn" style="color:#1a3d6e;font-weight:bold">A</span>
-      <span class="fbtn" style="font-weight:bold">B</span>
-      <span class="fbtn" style="font-style:italic">I</span>
-      <span class="fbtn" style="text-decoration:underline">U</span>
-      <span class="fbtn" style="color:var(--link);text-decoration:underline">link</span>
-      <span class="fbtn"><img class="i" src="${ICONS.smile}" width="16" height="16" alt=""></span>
-    </div>
-    <div class="cr-send">
-      <div class="cr-entry">only the company can talk in this room.</div>
-      <button class="btn-xp" disabled>Send</button>
-    </div>
-
-    <div class="cr-panel">
-      <b>2006: the year, the show, live</b>
-      <div class="kv">
-        <b>when:</b> COMING SOON<br>
-        <b>where:</b> COMING SOON<br>
-        <b>tickets:</b> not yet, check back<br>
-        <b>submissions:</b> ${CONFIG.SUBMISSIONS_OPEN?"<b style='color:#c00'>OPEN NOW</b>":"closed"}
-      </div>
-      <a class="btn-xp primary" href="${esc(LINKS.submit)}" target="_blank" rel="noopener noreferrer"
-         style="text-decoration:none;display:inline-block;margin-top:8px">📼 Submit a video</a>
     </div>`;
-  return chrome("Chat Room: 2006", body, {status:said.length+" of "+buddies.length+" have answered", chat:true});
+  return chrome("The Show: Live", body, {status: said.length + " of " + buddies.length + " have answered", chat:true});
 }
 function chatStyle(b){
   return `background:${b.bg||"#fff"};color:${b.fg||"#000"};`
@@ -2414,7 +2580,7 @@ function smarterChild(raw){
   if(has("age","old are you")) return "I was born in 2001, which makes me the oldest teenager on the internet.";
 
   /* ── the show ── */
-  if(has("the show","the play","tickets","when is")) return "\"2006\" is a play performed like an episode of TRL! Info: COMING SOON. Submissions: OPEN NOW. Tap \"Countdown\" at the bottom to send one in! I would submit one but I have no arms.";
+  if(has("the show","the play","tickets","when is")) return "\"2006\" is a play performed like an episode of TRL! Three shows, live online with a few seats in the room: october 9 at 7, october 10 at 2, october 11 at 7, all central. Tap \"Show\" at the bottom for the seat link. I would come but I have no legs.";
   if(has("vote","video","trl","countdown")) return "Videos get voted up the countdown just like TRL! Tap \"Countdown\" at the bottom and have a practice vote. Tell them SmarterChild sent you. They won't care, but tell them.";
   if(has("playlist","mixtape","mix")) return "Playlists! Everybody in the show makes one. Mine is eight hours of a modem connecting. Nobody has listened to it.";
   if(has("about","what is it about")) return "OK, now this is getting personal.";
@@ -2623,23 +2789,110 @@ async function loadLive(){
 
   // Show switches. A failure here must not take the cast down with it.
   try {
+    const slugQ = `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`;
     const site = await sbGet(
-      "production_microsite?select=show_mode,voting_open,submissions_open,productions!inner(slug)"
-      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+      "production_microsite?select=production_id,show_mode,voting_open,submissions_open,productions!inner(slug)" + slugQ
     );
     if(site && site[0]){
+      CONFIG.PRODUCTION_ID    = site[0].production_id;
       CONFIG.SHOW_MODE        = !!site[0].show_mode;
       CONFIG.VOTING_OPEN      = !!site[0].voting_open;
       CONFIG.SUBMISSIONS_OPEN = !!site[0].submissions_open;
     }
+    // The two links arrive with v59. Asked for separately so a database that
+    // has not run it yet still hands back the switches above.
+    try {
+      const more = await sbGet("production_microsite?select=reserve_url,submit_form_url,productions!inner(slug)" + slugQ);
+      if(more && more[0]){
+        if(more[0].reserve_url)     CONFIG.RESERVE_URL     = more[0].reserve_url;
+        if(more[0].submit_form_url) CONFIG.SUBMIT_FORM_URL = more[0].submit_form_url;
+      }
+    } catch(e){}
   } catch(e){ /* keep the built in switches */ }
 
+  // The show dates. Fallback stays if the table has none for this show yet.
+  try {
+    const d = await sbGet(
+      "production_dates?select=label,start_at,end_at,is_visible,productions!inner(slug)"
+      + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}&is_visible=eq.true&order=start_at`
+    );
+    if(Array.isArray(d) && d.length) SHOW_DATES = d;
+  } catch(e){}
+
+  // The countdown, from the table the cast edits. The hardcoded list stays
+  // until there are approved rows, then never shows again.
+  try {
+    let v;
+    try {
+      v = await sbGet("production_videos?select=id,title,artist,year,youtube_id,ours,sort_order,productions!inner(slug)"
+        + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}&approved=eq.true&is_inspo=eq.false&order=sort_order`);
+    } catch(e){
+      // Before v59: no year, no ours.
+      v = await sbGet("production_videos?select=id,title,artist,youtube_id,sort_order,productions!inner(slug)"
+        + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}&approved=eq.true&is_inspo=eq.false&order=sort_order`);
+    }
+    if(Array.isArray(v) && v.length){
+      VIDEOS = v.map((r, i) => ({slot:r.id, yt:r.youtube_id || "", title:r.title, artist:r.artist || "",
+                                 year:r.year || "", ours:!!r.ours, ord: r.sort_order ?? i}));
+      dropStalePick();
+    }
+  } catch(e){}
+
+  if(phase() === "live") await loadStandings();
   return true;
+}
+
+/* ══════════════════ CAST MODE ══════════════════
+   If a cast member is logged into the main site in this browser, the session
+   is in localStorage on this same origin. The token goes to /api/2006/me, which
+   verifies it and asks the database whether this person may curate the show.
+   A yes grows delete buttons on every audience submission. A no changes
+   nothing, and nothing about the page hints that the question was asked. */
+async function loadCast(){
+  try {
+    const ref = (String(CONFIG.SB_URL).match(/^https?:\/\/([a-z0-9-]+)\./i) || [])[1];
+    const raw = ref && localStorage.getItem("sb-" + ref + "-auth-token");
+    if(!raw) return;
+    const tok = JSON.parse(raw);
+    const access = tok && tok.access_token;
+    if(!access) return;
+    const r = await fetch("/api/2006/me", {headers: {Authorization: "Bearer " + access}});
+    const o = await r.json();
+    if(o && o.cast){ CAST = {name: o.name, token: access}; render(); }
+  } catch(e){ /* not cast, or not logged in. either way, nothing to do */ }
+}
+
+async function moderate(kind, id, btn){
+  if(!CAST) return;
+  // Two presses, four seconds apart at most, same as the warn button.
+  if(btn.dataset.sure !== "1"){
+    btn.dataset.sure = "1"; btn.textContent = "delete for real?";
+    setTimeout(() => { if(btn.dataset.sure === "1"){ btn.dataset.sure = ""; btn.textContent = "delete"; } }, 4000);
+    return;
+  }
+  btn.disabled = true;
+  let out = null;
+  try {
+    const r = await fetch("/api/2006/moderate", {method:"POST",
+      headers: {"Content-Type":"application/json", Authorization: "Bearer " + CAST.token},
+      body: JSON.stringify({kind, id})});
+    out = await r.json();
+  } catch(e){ out = {ok:false, message:"that did not go through."}; }
+  if(!out.ok){ btn.disabled = false; btn.dataset.sure = ""; btn.textContent = "delete"; say(out.message || "that did not delete."); return; }
+  if(kind === "wall") wall = wall.filter(p => p.id !== id);
+  else posts = posts.filter(p => p.id !== id);
+  say("deleted. it is gone for everyone.");
+  render();
+}
+function wireModerate(){
+  app.querySelectorAll("[data-del-wall]").forEach(b => { b.onclick = () => moderate("wall", b.dataset.delWall, b); });
+  app.querySelectorAll("[data-del-post]").forEach(b => { b.onclick = () => moderate("post", b.dataset.delPost, b); });
 }
 
 /* ══════════════════ BOOT ══════════════════ */
 (async function boot(){
   render();
+  loadCast();
   try {
     const gotLive = await loadLive();
     if(gotLive) render();
