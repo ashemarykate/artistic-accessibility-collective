@@ -8,6 +8,17 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ---
 
+## Migration numbering collision, 2026-09-09 (resolved, nothing broken)
+
+Two sessions were open in this folder on the same day and both wrote a
+`supabase-migration-v58.sql`: the public calendar fix below, and the 2006
+wall's "give the seeded posts real notes". Both were run against the live
+database and both worked. The calendar one is preserved as
+`supabase-migration-v58-public-calendar-rls.sql` so neither is lost.
+
+Worth knowing for next time: check the highest existing migration number
+right before writing a new one, not at the start of the session.
+
 ## Found 2026-09-09, urgent, needs MK to run one file
 
 **0. The public calendar was broken for every logged-out visitor.**
@@ -23,7 +34,7 @@ permissive SELECT policy, including admin ones, for anonymous visitors, and
 returning false. Migration v37 had already fixed this in the files; the live
 database has drifted since, exactly as the beta notes warned it might.
 
-Fix written as `supabase-migration-v58.sql`. **MK runs it in the SQL Editor.**
+Fixed by `supabase-migration-v58-public-calendar-rls.sql`. **Run and verified 2026-09-09:** a logged-out visitor now reads 429 events instead of an error.
 It drops any policy on those two tables that names `admin_users`, then
 recreates them with `is_admin()` scoped `TO authenticated`. It does not widen
 what anyone can see.
