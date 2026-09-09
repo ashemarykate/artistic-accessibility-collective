@@ -204,11 +204,16 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: require a description or an explicit "decorative" choice before
     upload completes. Same rule for `GalleryUploader`.
 
-23. **Client documents are placeholders in places.** Reports and staffing
-    use a placeholder display font; `lib/staffing/data/riot-fest.ts:9` has
-    placeholder rates. `_template.ts` will render `[TODO]` literally.
-    How: pick the font, fill the rates, and make the template throw if a
-    `[TODO]` string survives.
+23. MOVED to Mary Kate's Business To Do list, 2026-09-09. **Client documents
+    are placeholders in places.** Reports and staffing use a placeholder
+    display font; `lib/staffing/data/riot-fest.ts:9` has placeholder rates.
+    These are business decisions, not site work, so they live on her own list
+    now. Do not chase them from here.
+
+    One piece does stay on this list, because it is code: `_template.ts` will
+    render a literal `[TODO]` if a report is copied from it and shipped
+    half-filled. Make the template refuse to render rather than print `[TODO]`
+    to a client.
 
 ## Tier 5: missing infrastructure
 
