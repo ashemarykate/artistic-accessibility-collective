@@ -43,7 +43,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
    How: HTML-escape all four fields, regex-check the email, cap lengths, add a
    honeypot field on the form, and a light IP rate limit.
 
-6. WRITTEN as v56, MK runs it. **`can_request_login_link()` lacks `SET search_path`.**
+6. DONE. MK ran v56 on 2026-09-09; verified live (function answers correctly for a known and an unknown address). **`can_request_login_link()` lacks `SET search_path`.**
    `supabase-migration-v55.sql:222`. Sibling functions have it.
    How: write `supabase-migration-v56.sql` that recreates it with
    `SET search_path = public, auth`. Run in the SQL editor.
@@ -55,7 +55,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
    zero rows. Members CAN insert events (go live at once, by design since v20)
    and resource_submissions (pending only). Nothing to fix.
 
-8. WRITTEN as v56, MK runs it. **No unique constraint on one approved profile per user.** A recurrence
+8. DONE. MK ran v56 on 2026-09-09; verified live (18 approved linked profiles, zero duplicates). **No unique constraint on one approved profile per user.** A recurrence
    signs the member out on login.
    How: migration with
    `CREATE UNIQUE INDEX ... ON profiles (user_id) WHERE status = 'approved'`.
@@ -76,7 +76,7 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
     How: throw at module load if either env var is missing, with a plain
     message naming the variable.
 
-11. **Dashboard silently swallows missing tables.** `app/dashboard/page.tsx`
+11. DONE 2026-09-09 (all three tables exist live; the real bug was that Supabase returns errors instead of throwing, so the catch never fired). **Dashboard silently swallows missing tables.** `app/dashboard/page.tsx`
     lines 123, 216, 238.
     How: confirm those tables now exist live, then remove the try/catch
     fallbacks or turn them into visible "couldn't load" states.
@@ -184,7 +184,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: static pages in the retro chrome, linked from the Start menu and the
     login screen. Draft text with MK; she has the voice.
 
-28. **Old planning docs are stale.** PLAN.md still says the database is not
+28. DONE 2026-09-09. **Old planning docs are stale.** PLAN.md still says the database is not
     live and refers work to MK's husband. CLAUDE.md line 9 says the same.
     TODO.md is the original MVP list.
     How: rewrite both to match reality, or fold them into this file and
