@@ -8,6 +8,34 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ---
 
+## Found 2026-09-09, urgent, needs MK to run one file
+
+**0. The public calendar was broken for every logged-out visitor.**
+Opening `/calendar` without an account returned `42501: permission denied for
+table admin_users` and showed a red error box instead of the 322 events.
+Signed-in members were fine, which is why nobody caught it: every test browser
+was already logged in (local dev auto-logins too).
+
+Cause: the live admin policies on `events` and `ics_sources` still ask
+`EXISTS (SELECT 1 FROM admin_users ...)` inline. Postgres evaluates every
+permissive SELECT policy, including admin ones, for anonymous visitors, and
+`anon` has no rights on `admin_users`, so the lookup raises instead of
+returning false. Migration v37 had already fixed this in the files; the live
+database has drifted since, exactly as the beta notes warned it might.
+
+Fix written as `supabase-migration-v58.sql`. **MK runs it in the SQL Editor.**
+It drops any policy on those two tables that names `admin_users`, then
+recreates them with `is_admin()` scoped `TO authenticated`. It does not widen
+what anyone can see.
+
+Verify after running: open the calendar in a private window (logged out) and
+confirm events appear.
+
+**Also noticed:** all 322 upcoming events are tagged `in-person`. Nothing is
+tagged online or hybrid, so the new "Upcoming Live Events" panel on the member
+home will stay empty until an online event is added or an existing one is
+retagged. Not a bug, but worth knowing.
+
 ## Tier 1: fix first (security and data safety)
 
 1. **Hardcoded member password in the client bundle.**
@@ -124,7 +152,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
 
 ## Tier 4: product gaps (things testers will notice)
 
-18. **Six stubbed dashboard panels** (`app/dashboard/page.tsx:722-917`:
+18. DONE 2026-09-09 (MK chose: wire the two event panels, hide the other four). **Six stubbed dashboard panels** (`app/dashboard/page.tsx:722-917`:
     Discussion Board, Job Board, Learning Portal, two Upcoming Events panels,
     My Lists) and `app/my-lists` is only a "coming soon" form.
     How: decide per panel: wire it (both Upcoming Events panels can read the

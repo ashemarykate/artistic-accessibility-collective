@@ -4,7 +4,9 @@ import Logo from '@/components/Logo';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase, getSessionUser, type Profile, type Conversation, type Message, profileHref } from '@/lib/supabase';
 import { RESOURCE_BY_SLUG } from '@/lib/resources-data';
-import { EnvelopeIcon, PersonBubbleIcon, PersonStarIcon, PeopleIcon, FavoritesStarIcon, PersonPlusIcon, WrenchIcon, PencilIcon, MonitorPlayIcon, ListIcon, LiveCameraIcon, LocationPinIcon } from '@/app/components/PixelIcons';
+import { fetchUpcomingEvents, isLiveOnline, isInPerson } from '@/lib/events';
+import type { CalEvent } from '@/lib/supabase';
+import { EnvelopeIcon, PeopleIcon, FavoritesStarIcon, PersonPlusIcon, WrenchIcon, PencilIcon, LiveCameraIcon, LocationPinIcon } from '@/app/components/PixelIcons';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrowserChrome from '@/components/BrowserChrome';
@@ -22,6 +24,73 @@ function relativeDate(iso: string): string {
   const days = Math.floor(hrs / 24);
   if (days < 7)   return `${days}d ago`;
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// ── Upcoming events panel body ────────────────────────────────────────────────
+// Both event panels on the hub read the same community calendar, so an event
+// entered once on the calendar shows up here without being typed again.
+
+function EventPanelBody({
+  events, failed, onRetry, emptyText,
+}: {
+  events: CalEvent[] | null;
+  failed: boolean;
+  onRetry: () => void;
+  emptyText: string;
+}) {
+  if (failed) {
+    return (
+      <div style={{ padding: '10px' }} role="alert">
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+          We could not load the calendar just now.
+        </p>
+        <button type="button" className="btn btn-primary btn-sm" onClick={onRetry}>Try again</button>
+      </div>
+    );
+  }
+  if (events === null) {
+    return (
+      <p role="status" style={{ padding: '10px', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+        Loading upcoming events…
+      </p>
+    );
+  }
+  if (events.length === 0) {
+    return (
+      <div style={{ padding: '10px' }}>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>{emptyText}</p>
+        <Link href="/submit-event" className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem' }}>
+          Submit an event
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <div style={{ padding: '4px 0' }}>
+      {events.map((ev) => {
+        const d = new Date(ev.start_at);
+        const dateStr = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = ev.is_all_day ? '' : `, ${d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+        const where = ev.location_name ? ` at ${ev.location_name}` : '';
+        return (
+          <Link
+            key={ev.id}
+            href="/calendar"
+            aria-label={`${ev.title}, ${dateStr}${timeStr}${where}. Opens the community calendar.`}
+            className="ms-hub-row"
+            style={{ display: 'block', padding: '6px 10px', borderBottom: '1px solid var(--ms-border)', textDecoration: 'none' }}
+          >
+            <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-blue)', lineHeight: 1.3, marginBottom: '1px' }}>
+              {ev.title}
+            </p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+              {dateStr}{timeStr}{ev.organization ? ` · ${ev.organization}` : ''}
+            </p>
+          </Link>
+        );
+      })}
+    </div>
+  );
 }
 
 // ── Conversation preview row ──────────────────────────────────────────────────
@@ -65,7 +134,8 @@ export default function MemberHub() {
   const [recsAvailable, setRecsAvailable] = useState<number | null>(null);
   // Which parts of the hub failed to load. Without this a failed fetch looked
   // exactly like "you have nothing here", which told members something untrue.
-  const [loadErrors, setLoadErrors] = useState<{ messages?: boolean; saved?: boolean; referrals?: boolean }>({});
+  const [loadErrors, setLoadErrors] = useState<{ messages?: boolean; saved?: boolean; referrals?: boolean; events?: boolean }>({});
+  const [upcomingEvents, setUpcomingEvents] = useState<CalEvent[] | null>(null);
   const [recName,    setRecName]    = useState('');
   const [recEmail,   setRecEmail]   = useState('');
   const [recMessage, setRecMessage] = useState('');
@@ -255,6 +325,15 @@ export default function MemberHub() {
       console.error('Could not load saved resources:', err);
       setSavedResources([]);
       setLoadErrors((e) => ({ ...e, saved: true }));
+    }
+
+    // Upcoming events, shared by both event panels below.
+    try {
+      setUpcomingEvents(await fetchUpcomingEvents());
+    } catch (err) {
+      console.error('Could not load upcoming events:', err);
+      setUpcomingEvents(null);
+      setLoadErrors((e) => ({ ...e, events: true }));
     }
 
     setLoading(false);
@@ -753,35 +832,9 @@ export default function MemberHub() {
             </div>
           )}
 
-          {/* Discussion board — coming soon */}
-          <div className="ms-box" style={{ marginBottom: '8px' }}>
-            <div className="ms-box-header">
-              <h2><span role="img" aria-label="little yellow person with speech bubble emoticon"><PersonBubbleIcon /></span> Discussion Board</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-2deg)' }}>
-                Coming Soon
-              </span>
-            </div>
-            <div style={{ padding: '8px 10px' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                A community space for questions, announcements, and conversations across the Collective. Coming in a future update.
-              </p>
-            </div>
-          </div>
-
-          {/* Job board — coming soon */}
-          <div className="ms-box" style={{ marginBottom: '8px' }}>
-            <div className="ms-box-header">
-              <h2><span role="img" aria-label="little orange person with star emoticon"><PersonStarIcon /></span> Job Board</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(1.5deg)' }}>
-                Coming Soon
-              </span>
-            </div>
-            <div style={{ padding: '8px 10px' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                Gig postings, contract opportunities, and full-time roles in arts accessibility, posted by and for Collective members.
-              </p>
-            </div>
-          </div>
+          {/* Discussion Board and Job Board are not built yet. Rather than show
+              two "Coming Soon" boxes on the page members land on after logging
+              in, they stay out of the hub until they do something. */}
 
           {/* Mini directory */}
           <div className="ms-box">
@@ -848,49 +901,32 @@ export default function MemberHub() {
             </div>
           </div>
 
-          {/* Learning Portal — coming soon */}
-          <div className="ms-box" style={{ marginBottom: '8px' }}>
-            <div className="ms-box-header">
-              <h2><span role="img" aria-label="little purple monitor with play button emoticon"><MonitorPlayIcon /></span> Learning Portal</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-1.5deg)' }}>
-                Coming Soon
-              </span>
-            </div>
-            <div style={{ padding: '8px 10px' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                Custom learning videos built for Collective members: skill-building, industry knowledge, and professional development, right here in your hub.
-              </p>
-            </div>
-          </div>
-
-          {/* Upcoming Live Events — coming soon */}
+          {/* Upcoming Live Events, straight from the community calendar */}
           <div className="ms-box" style={{ marginBottom: '8px' }}>
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little magenta camera with live dot emoticon"><LiveCameraIcon /></span> Upcoming Live Events</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(2deg)' }}>
-                Coming Soon
-              </span>
+              <Link href="/calendar" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>calendar</Link>
             </div>
-            <div style={{ padding: '8px 10px' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                Virtual events, webinars, and live sessions hosted by and for the Collective, streamed directly to members.
-              </p>
-            </div>
+            <EventPanelBody
+              events={upcomingEvents === null ? null : upcomingEvents.filter(isLiveOnline).slice(0, 4)}
+              failed={!!loadErrors.events}
+              onRetry={() => loadHub()}
+              emptyText="No online events on the calendar yet. Know of a webinar or streamed session? Add it."
+            />
           </div>
 
-          {/* Upcoming In-Person Events — coming soon */}
+          {/* Upcoming In-Person Events, straight from the community calendar */}
           <div className="ms-box">
             <div className="ms-box-header">
               <h2><span role="img" aria-label="little amber location pin emoticon"><LocationPinIcon /></span> Upcoming In-Person Events</h2>
-              <span style={{ fontSize: '0.6875rem', background: 'var(--aac-yellow)', color: 'var(--aac-navy)', padding: '1px 7px', borderRadius: '999px', fontWeight: 700, transform: 'rotate(-1deg)' }}>
-                Coming Soon
-              </span>
+              <Link href="/calendar" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>calendar</Link>
             </div>
-            <div style={{ padding: '8px 10px' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                Workshops, meetups, and gatherings happening near you. Connect with Collective members in real life.
-              </p>
-            </div>
+            <EventPanelBody
+              events={upcomingEvents === null ? null : upcomingEvents.filter(isInPerson).slice(0, 4)}
+              failed={!!loadErrors.events}
+              onRetry={() => loadHub()}
+              emptyText="No in-person events on the calendar yet. Know of a workshop or meetup? Add it."
+            />
           </div>
 
         </div>
@@ -955,21 +991,6 @@ export default function MemberHub() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* My Lists — coming soon */}
-          <div className="ms-box" style={{ marginBottom: '8px' }}>
-            <div className="ms-box-header">
-              <h2><span role="img" aria-label="little blue bulleted list emoticon"><ListIcon /></span> My Lists</h2>
-            </div>
-            <div style={{ padding: '10px' }}>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
-                Save custom lists of members by specialty, location, language, or anyone you want to find again fast.
-              </p>
-              <Link href="/my-lists" className="btn btn-primary btn-sm" style={{ width: '100%', textAlign: 'center', fontSize: '0.75rem' }}>
-                Tell us what you&apos;d want →
-              </Link>
-            </div>
           </div>
 
           {/* Recently joined */}

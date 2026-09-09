@@ -31,3 +31,29 @@ export async function fetchUpcomingEducationalEvents(limit = 6): Promise<CalEven
   if (error || !data) return [];
   return (data as CalEvent[]).filter(isEducational).slice(0, limit);
 }
+
+/** Every upcoming visible event, soonest first. Throws on a database error so
+ *  the caller can tell "nothing scheduled" apart from "the load failed". */
+export async function fetchUpcomingEvents(limit = 200): Promise<CalEvent[]> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_visible', true)
+    .gte('start_at', startOfToday.toISOString())
+    .order('start_at')
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as CalEvent[];
+}
+
+/** Online and hybrid events: the ones a member can join from anywhere. */
+export function isLiveOnline(ev: CalEvent): boolean {
+  return ev.location_type === 'online' || ev.location_type === 'hybrid';
+}
+
+/** In-person and hybrid events: the ones with a place to turn up to. */
+export function isInPerson(ev: CalEvent): boolean {
+  return ev.location_type === 'in-person' || ev.location_type === 'hybrid';
+}
