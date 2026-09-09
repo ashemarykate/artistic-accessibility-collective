@@ -8,7 +8,8 @@ import BackstageLinks from '@/components/BackstageLinks';
 import BackstagePlaylists from '@/components/BackstagePlaylists';
 import BackstagePosts from '@/components/BackstagePosts';
 import BackstageGraveyard from '@/components/BackstageGraveyard';
-import BackstageVideoLinks from '@/components/BackstageVideoLinks';
+import BackstageCountdown from '@/components/BackstageCountdown';
+import BackstageShowSettings from '@/components/BackstageShowSettings';
 import { rememberAfterLogin } from '@/lib/after-login';
 
 import {
@@ -301,6 +302,7 @@ export default function BackstagePortal() {
 
         <BackstagePlaylists
           productionId={show!.id}
+          siteUrl={site?.public_url || '/2006'}
           userId={userId}
           myScreenName={persona?.screen_name || row?.display_name || 'me'}
           preview={preview}
@@ -308,33 +310,38 @@ export default function BackstagePortal() {
 
         <BackstagePosts
           productionId={show!.id}
+          siteUrl={site?.public_url || '/2006'}
           userId={userId}
           myScreenName={persona?.screen_name || row?.display_name || 'me'}
           canPin={role === 'producer'}
           preview={preview}
         />
 
-        <BackstageVideoLinks
+        <BackstageCountdown
           productionId={show!.id}
           canCurate={role === 'producer' || role === 'creator'}
+          votingOpen={Boolean(site?.voting_open)}
           preview={preview}
+          siteUrl={site?.public_url || '/2006'}
         />
 
         <BackstageGraveyard
           productionId={show!.id}
+          siteUrl={site?.public_url || '/2006'}
           canCurate={role === 'producer' || role === 'creator'}
           preview={preview}
         />
 
 
-        {role === 'producer' && (
-        <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginTop: '1.25rem', color: '#222' }}>
-          <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>Still to come</h2>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem', color: '#444' }}>
-            <li><strong>Show mode.</strong> {SECTIONS.showMode.blurb}</li>
-          </ul>
-        </section>
-
+        {site && role === 'producer' && (
+          <BackstageShowSettings
+            site={site}
+            productionId={show!.id}
+            canEdit={role === 'producer'}
+            preview={preview}
+            siteUrl={site.public_url || '/2006'}
+            onChange={(patch) => setSite((prev) => (prev ? { ...prev, ...patch } : prev))}
+          />
         )}
 
         <p style={{ marginTop: '1.25rem' }}>

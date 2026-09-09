@@ -1,5 +1,6 @@
 'use client';
 
+import SeeOnSite from '@/components/SeeOnSite';
 import { useState } from 'react';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
 import { saveMicrositeLinks, type MicrositeState } from '@/lib/backstage';
@@ -88,7 +89,10 @@ export default function BackstageLinks({
 
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
-      <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>Where everything lives</h2>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>Where everything lives</h2>
+        <SeeOnSite href={`${site.public_url || '/2006'}#show`} label="The Show: Live" />
+      </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         The places this show keeps things. A greyed out icon means nobody has
         added that link yet.

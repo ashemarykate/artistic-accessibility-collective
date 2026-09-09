@@ -104,6 +104,12 @@ export interface Post {
   is_published: boolean;
   pinned: boolean;
   posted_at: string;
+  /** Current Mood, Current Music. Both optional, both skipped on the site when empty. */
+  mood?: string;
+  music?: string;
+  /** Written by the audience on the public site during the show. */
+  is_audience?: boolean;
+  flagged?: boolean;
 }
 
 export interface MicrositeState {
@@ -118,6 +124,15 @@ export interface MicrositeState {
   public_url: string | null;
   drive_url: string | null;
   submissions_url: string | null;
+  /* v57, the wall */
+  wall_open?: boolean;
+  wall_frozen?: boolean;
+  photo_question?: string;
+  photo_answer?: string;
+  wall_wordlist?: string;
+  /* v59, the front door */
+  reserve_url?: string;
+  submit_form_url?: string;
 }
 
 export const PERSONA_DEFAULTS: Persona = {
@@ -441,6 +456,7 @@ export async function savePost(p: Post): Promise<{ ok: boolean; error?: string }
     .update({
       title: p.title, byline: p.byline, body: p.body,
       is_published: p.is_published, pinned: p.pinned,
+      mood: p.mood ?? '', music: p.music ?? '',
     })
     .eq('id', p.id)
     .select('id');
@@ -613,4 +629,95 @@ export async function saveVideoLink(v: VideoLink): Promise<{ ok: boolean; error?
 export async function deleteVideoLink(id: string): Promise<{ ok: boolean; error?: string }> {
   const { data, error } = await supabase.from('production_video_links').delete().eq('id', id).select('id');
   return wrote(data, error);
+}
+
+
+/* ── Show settings: the switches and the links, in one save ─────────────── */
+
+export type MicrositeSettings = Pick<MicrositeState,
+  'show_mode' | 'voting_open' | 'submissions_open' |
+  'wall_open' | 'wall_frozen' | 'photo_question' | 'photo_answer' | 'wall_wordlist' |
+  'reserve_url' | 'submit_form_url'>;
+
+export async function saveMicrositeSettings(
+  productionId: string,
+  patch: Partial<MicrositeSettings>,
+): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_microsite')
+    .update(patch)
+    .eq('production_id', productionId)
+    .select('production_id');
+  return wrote(data, error);
+}
+
+
+/* ── The countdown: production_videos, the table the public page reads ──── */
+
+export type CountdownVideo = {
+  id: string;
+  production_id: string;
+  title: string;
+  artist: string;
+  year: string;
+  youtube_id: string;
+  submitted_by: string | null;
+  approved: boolean;
+  is_inspo: boolean;
+  /** Our own version: a homemade video, or the swap. */
+  ours: boolean;
+  sort_order: number;
+};
+
+export async function fetchCountdown(productionId: string): Promise<CountdownVideo[]> {
+  const { data } = await supabase
+    .from('production_videos')
+    .select('*')
+    .eq('production_id', productionId)
+    .order('sort_order')
+    .order('created_at');
+  return (data ?? []).map((r) => ({
+    year: '', ours: false, artist: '', ...r,
+  })) as CountdownVideo[];
+}
+
+export async function createCountdownVideo(
+  productionId: string, sortOrder: number,
+): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_videos')
+    .insert({ production_id: productionId, title: '', artist: '', youtube_id: '',
+              approved: true, is_inspo: false, sort_order: sortOrder })
+    .select('id')
+    .single();
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, id: data.id };
+}
+
+export async function saveCountdownVideo(v: CountdownVideo): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_videos')
+    .update({
+      title: v.title, artist: v.artist, year: v.year, youtube_id: v.youtube_id,
+      approved: v.approved, ours: v.ours, sort_order: v.sort_order,
+    })
+    .eq('id', v.id)
+    .select('id');
+  return wrote(data, error);
+}
+
+export async function deleteCountdownVideo(id: string): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase.from('production_videos').delete().eq('id', id).select('id');
+  return wrote(data, error);
+}
+
+/** Live standings, video id to votes. Empty until v59 is run. */
+export async function fetchStandings(productionId: string): Promise<Record<string, number>> {
+  const { data } = await supabase
+    .from('production_countdown_standings')
+    .select('video_id, votes')
+    .eq('production_id', productionId);
+  const out: Record<string, number> = {};
+  (data ?? []).forEach((r: { video_id: string; votes: number }) => { out[r.video_id] = r.votes; });
+  return out;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import SeeOnSite from '@/components/SeeOnSite';
 import { useEffect, useRef, useState } from 'react';
 import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
@@ -37,13 +38,14 @@ const SAMPLE: Post[] = [{
 }];
 
 export default function BackstagePosts({
-  productionId, userId, myScreenName, canPin, preview,
+  productionId, userId, myScreenName, canPin, preview, siteUrl = '/2006',
 }: {
   productionId: string;
   userId: string | null;
   myScreenName: string;
   canPin: boolean;
   preview?: boolean;
+  siteUrl?: string;
 }) {
   const [posts, setPosts] = useState<Post[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -118,11 +120,14 @@ export default function BackstagePosts({
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
       {confirmDialog}
-      <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-70.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         Posts
       </h2>
+        <SeeOnSite href={`${siteUrl}#blog`} label="The Blog" />
+      </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         Write something and it shows up on the public site under your screen
         name. A post stays private until you tick Published, so you can leave
@@ -153,6 +158,7 @@ export default function BackstagePosts({
                 <strong>{p.title || 'untitled post'}</strong>
                 <span style={{ color: '#5a6b8c', fontSize: '0.85rem' }}>
                   {'  '}{p.byline}
+                  {p.is_audience && ' · from the audience'}
                   {p.pinned && ' · pinned'}
                   {p.is_published ? ' · live' : ' · draft'}
                   {!editable && ' · not yours'}
@@ -172,6 +178,21 @@ export default function BackstagePosts({
                       </label>
                       <input className="form-input" value={p.byline}
                              onChange={(e) => patch(p.id, { byline: e.target.value })} />
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <div>
+                          <label htmlFor={`mood-${p.id}`} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600 }}>Current Mood</label>
+                          <input id={`mood-${p.id}`} className="form-input" value={p.mood ?? ''} placeholder="accomplished"
+                                 onChange={(e) => patch(p.id, { mood: e.target.value })} />
+                        </div>
+                        <div>
+                          <label htmlFor={`music-${p.id}`} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600 }}>Current Music</label>
+                          <input id={`music-${p.id}`} className="form-input" value={p.music ?? ''} placeholder="crazy, gnarls barkley"
+                                 onChange={(e) => patch(p.id, { music: e.target.value })} />
+                        </div>
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: '#556', margin: '0.25rem 0 0' }}>
+                        Both optional. A mood that matches one of the AIM faces, like crying or cool, gets the face next to it on the site.
+                      </p>
 
                       <label htmlFor={`body-${p.id}`} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginTop: '0.5rem' }}>
                         The post

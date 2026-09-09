@@ -1,5 +1,6 @@
 'use client';
 
+import SeeOnSite from '@/components/SeeOnSite';
 import { useEffect, useState } from 'react';
 import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
@@ -30,11 +31,12 @@ const SAMPLE: Grave[] = [
 ];
 
 export default function BackstageGraveyard({
-  productionId, canCurate, preview,
+  productionId, canCurate, preview, siteUrl = '/2006',
 }: {
   productionId: string;
   canCurate: boolean;
   preview?: boolean;
+  siteUrl?: string;
 }) {
   const [graves, setGraves] = useState<Grave[]>(preview ? SAMPLE : []);
   const [busy, setBusy] = useState(false);
@@ -130,11 +132,14 @@ export default function BackstageGraveyard({
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
       {confirmDialog}
-      <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-62.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         The Graveyard
       </h2>
+        <SeeOnSite href={`${siteUrl}#graveyard`} label="the Graveyard" />
+      </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         Things we miss, shown on the public site. Anyone can send one in, and
         nothing they send appears until somebody here approves it. One entry can

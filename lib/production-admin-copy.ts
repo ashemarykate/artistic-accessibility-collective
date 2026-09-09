@@ -52,10 +52,16 @@ export const SECTIONS = {
   },
 
   videos: {
-    title: 'Video submissions',
+    title: 'The Video Countdown',
     blurb:
-      'Everything the public sends in lands here first, and nothing reaches the site until one of us says yes. Watch it, then approve it or leave it. Approving puts it straight onto the countdown where the audience can vote for it. If you approve something by accident you can take it back down, and no one will have seen it unless a show was running.',
+      'The list people vote on, exactly as the site shows it. Add a video, paste the YouTube link, save, and the site has it on its next load. A submission that came in as a file goes on our YouTube first, then the link goes here. While voting is open this sorts itself by votes: check it as each show starts and play that order.',
     forRoles: ['producer', 'creator'] as PortalRole[],
+  },
+  wall: {
+    title: 'Confessions and the blog',
+    blurb:
+      'The audience writes straight onto the site, no approval step, on purpose. So the moderation is you: when you are logged in here and open the public site in the same browser, every audience post grows a delete button. Press it twice and it is gone for everyone. The freeze switch below is for the night that is not enough.',
+    forRoles: ['producer', 'creator', 'crew'] as PortalRole[],
   },
 
   playlists: {
@@ -66,9 +72,9 @@ export const SECTIONS = {
   },
 
   showMode: {
-    title: 'Show mode',
+    title: 'The switches',
     blurb:
-      'The live switches. Turning on show mode opens the message windows so the audience can write to the cast during a performance. Voting opens the countdown. Both take effect on every phone in the room within a second or two, so save these for when you actually mean it.',
+      'What the site is doing right now. Voting is the big one: on the day before the first show, off the day after the last, and say so from the stage. Show mode opens the message windows during a performance. The wall has its own open switch and a freeze button for emergencies. Every one of these reaches every phone in the room within a second or two of Save.',
     forRoles: ['producer'] as PortalRole[],
   },
 

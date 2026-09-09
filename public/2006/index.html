@@ -1352,7 +1352,13 @@ const REMINISCE = [
   {id:"blog",      label:"The Blog"},
   {id:"graveyard", label:"Graveyard"},
 ];
-let screen = ME.sn ? "home" : "signon";
+/* Backstage links straight to a screen with a hash: /2006#videos opens the
+   countdown. Read once at boot. Somebody not signed on gets the sign on window
+   first and lands on the screen they were sent to right after. */
+const SCREENS = ["show","buddies","videos","wall","reminisce","playlists","play","blog","graveyard","home"];
+let pendingScreen = SCREENS.includes(location.hash.replace("#","")) ? location.hash.replace("#","") : null;
+let screen = ME.sn ? (pendingScreen || "home") : "signon";
+if(ME.sn) pendingScreen = null;
 let podSel = 0;
 let selected = -1;
 
@@ -1491,7 +1497,7 @@ function wireSignOn(){
   const go = (name)=>{
     ME.sn = name || (input.value||"").trim().slice(0,20) || anonName();
     LS.set("sn", ME.sn);
-    screen = "home"; render();
+    screen = pendingScreen || "home"; pendingScreen = null; render();
   };
   document.getElementById("signonbtn").onclick = ()=>go();
   document.getElementById("anonbtn").onclick = ()=>go(anonName());
@@ -1813,6 +1819,97 @@ function wireCountdown(){
     });
     say("practice vote saved. your pick is " + titleOf(myVote) + ".");
   };
+}
+
+/* ══════════════════ PLAYLISTS ══════════════════
+   Restored: the router called viewPlaylists and wirePlaylists, the iPod menu
+   and the toolbar both offered Playlists, and neither function existed. The
+   data and the CSS were still here, so only these two were missing. Clicking
+   Playlists threw inside render() and the screen silently stayed where it was.
+   ══════════════════════════════════════════════════════════════════════════ */
+let openPl = null;
+
+function viewPlaylists(){
+  const rows = playlists.map(pl => {
+    const isOpen = openPl === pl.id;
+    const n = pl.tracks.length;
+    return `
+      <button class="pl-row ${isOpen ? "on" : ""}" data-pl="${esc(pl.id)}" aria-expanded="${isOpen}">
+        <span class="pl-art" aria-hidden="true">${isOpen ? "\u25be" : "\u266a"}</span>
+        <span class="pl-meta">
+          <span class="pl-t">${esc(pl.title)}</span>
+          <span class="pl-b">${esc(pl.byline)}${n ? ` \u00b7 ${n} song${n === 1 ? "" : "s"}` : ""}</span>
+        </span>
+        <span class="pl-chev" aria-hidden="true">${isOpen ? "" : "\u203a"}</span>
+      </button>
+      ${isOpen ? `
+        <div class="pl-open">
+          ${pl.description ? `<p class="pl-desc">${esc(pl.description)}</p>` : ""}
+          ${n ? `<ol class="pl-tracks">${pl.tracks.map(tr => `
+            <li>
+              <span class="tr-t">${esc(tr.t)}</span>
+              <span class="tr-a">${esc(tr.a)}</span>
+              ${tr.note ? `<span class="tr-n">${esc(tr.note)}</span>` : ""}
+            </li>`).join("")}</ol>`
+            : `<p class="pl-empty">no songs on this one yet.</p>`}
+        </div>` : ``}`;
+  }).join("");
+
+  const body = `
+    <div class="pane">
+      <div class="pane-pad" style="padding-bottom:6px">
+        <h2>Playlists</h2>
+        <p>mixes made by the people in the show. tap one to see what's on it.</p>
+      </div>
+      ${rows}
+    </div>`;
+  return chrome("Playlists", body, {status: playlists.length + " playlists"});
+}
+
+function wirePlaylists(){
+  app.querySelectorAll("[data-pl]").forEach(btn => {
+    btn.onclick = () => {
+      openPl = (openPl === btn.dataset.pl) ? null : btn.dataset.pl;
+      render();
+    };
+  });
+}
+
+/* ══════════════════ PLAY ══════════════════
+   Nothing is embedded. These are other people's sites, an iframe would break
+   the ones that need a real page of their own, and it would hide who is
+   actually hosting the thing. So: one big link per game, new tab, and the row
+   says so out loud rather than surprising anyone with a jumped tab. ══════════ */
+function viewPlay(){
+  const groups = GAMES.map((g, gi) => `
+    <h3 class="blog-cat" style="--neon:${NEON[gi % NEON.length]}">${esc(g.cat)}</h3>
+    <ul class="gm-list">
+      ${g.games.map((gm, i) => {
+        const neon = NEON[(gi + i + 1) % NEON.length];
+        return `<li>
+          <a class="gm-a" style="--neon:${neon}" href="${esc(gm.url)}"
+             target="_blank" rel="noopener noreferrer">
+            <span class="gm-t">${esc(gm.t)}</span>
+            <span class="gm-meta">${esc(gm.y)} &nbsp;·&nbsp; ${esc(gm.by)} &nbsp;·&nbsp; opens in a new tab</span>
+            <span class="gm-n">${esc(gm.n)}</span>
+          </a>
+        </li>`;
+      }).join("")}
+    </ul>`).join("<hr>");
+
+  const body = `
+    <div class="pane blog">
+      <h2 class="blog-h">play</h2>
+      <p class="blog-p">
+        games from back then that somebody kept running. click one and it opens
+        in its own tab, so this window stays exactly where you left it.
+      </p>
+      <hr>
+      ${groups}
+      <hr>
+      <p class="blog-sig">no downloads &nbsp;·&nbsp; nothing to install &nbsp;·&nbsp; best played instead of homework</p>
+    </div>`;
+  return chrome("Play", body, {status: GAMES.reduce((n,g)=>n+g.games.length,0) + " games"});
 }
 
 /* ══════════════════ CONFESSIONS & VIBES ══════════════════

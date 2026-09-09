@@ -1,5 +1,6 @@
 'use client';
 
+import SeeOnSite from '@/components/SeeOnSite';
 import { useEffect, useState } from 'react';
 import { useConfirm } from '@/components/useConfirm';
 import { PORTAL_PANEL_STYLE, SECTIONS } from '@/lib/production-admin-copy';
@@ -30,12 +31,13 @@ const SAMPLE: Playlist[] = [{
 }];
 
 export default function BackstagePlaylists({
-  productionId, userId, myScreenName, preview,
+  productionId, userId, myScreenName, preview, siteUrl = '/2006',
 }: {
   productionId: string;
   userId: string | null;
   myScreenName: string;
   preview?: boolean;
+  siteUrl?: string;
 }) {
   const [lists, setLists] = useState<Playlist[]>(preview ? SAMPLE : []);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -95,11 +97,14 @@ export default function BackstagePlaylists({
   return (
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
       {confirmDialog}
-      <h2 style={{ marginTop: 0, color: 'var(--aac-blue)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>
         <img src="/images/desktop-icons/icon-80.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         {SECTIONS.playlists.title}
       </h2>
+        <SeeOnSite href={`${siteUrl}#playlists`} label="Playlists" />
+      </div>
       <p style={{ color: '#444', marginTop: 0 }}>{SECTIONS.playlists.blurb}</p>
 
       <p style={{ margin: '0.75rem 0' }}>
