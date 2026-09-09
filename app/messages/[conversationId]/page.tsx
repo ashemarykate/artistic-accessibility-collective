@@ -2,6 +2,7 @@
 import Logo from '@/components/Logo';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { notifyAbout } from '@/lib/notify-client';
 import { supabase, getSessionUser, type Profile, type Message, profileHref } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -157,6 +158,10 @@ export default function ConversationPage() {
       .from('conversations')
       .update({ last_message_at: newMsg.sent_at })
       .eq('id', conversationId);
+
+    // Tell them by email, unless they have turned that off or already have an
+    // unread message here. Not awaited: the message is already sent.
+    void notifyAbout('message', newMsg.id);
 
     // Return focus to textarea
     textareaRef.current?.focus();

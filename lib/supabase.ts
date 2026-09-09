@@ -130,6 +130,10 @@ export type Profile = {
   gallery_photos?: string[];
   /** Descriptions for gallery_photos, index-aligned (migration v59). */
   gallery_photo_alts?: string[];
+  /** Email switches (migration v60). Default to true for everyone. */
+  notify_messages?: boolean;
+  notify_endorsements?: boolean;
+  notify_event_reminders?: boolean;
 };
 
 export type SavedResource = {

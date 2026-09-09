@@ -161,7 +161,34 @@ export default function AdminDashboard() {
       }).eq('id', profileId);
 
       if (error) throw error;
-      setAdminActionMsg({ type: 'ok', text: 'Profile approved.' });
+
+      // Approving used to be step one of two, with "Send Login Email" as a
+      // separate click that was easy to forget. The email carries the login
+      // link, so somebody approved without it is approved and locked out.
+      // Sent here, and reported separately so a failed email does not read as
+      // a failed approval.
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/send-login-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ profileId }),
+      }).catch(() => null);
+
+      if (res?.ok) {
+        setEmailStatus((prev) => ({ ...prev, [profileId]: 'sent' }));
+        setAdminActionMsg({ type: 'ok', text: 'Profile approved, and their login email is on its way.' });
+      } else {
+        const detail = res ? (await res.json().catch(() => null))?.error : 'Network error';
+        setEmailStatus((prev) => ({ ...prev, [profileId]: 'error' }));
+        setEmailErrorDetail((prev) => ({ ...prev, [profileId]: detail || 'Could not send' }));
+        setAdminActionMsg({
+          type: 'err',
+          text: 'Profile approved, but the login email did not go out. Use Send Login Email to try again.',
+        });
+      }
       fetchAll();
     } catch (err) {
       console.error('Approve profile error:', err);

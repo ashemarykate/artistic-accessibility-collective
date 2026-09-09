@@ -218,7 +218,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     `resetPasswordForEmail` flow for password users, landing on a small
     `/auth/reset` page.
 
-26. **No email notifications** for new DMs, endorsements, or approvals.
+26. BUILT 2026-09-09, needs `supabase-migration-v60.sql` run. **No email notifications** for new DMs, endorsements, or approvals.
     How: Supabase database webhooks (or a cron route) into Resend. Start with
     profile approved and new message. Add a per-member opt-out column.
 

@@ -157,6 +157,7 @@ type EditableProfile = Omit<Pick<Profile,
   | 'not_great_at' | 'learning_now' | 'want_to_learn'
   | 'colleges' | 'professional_certifications' | 'trainings_completed'
   | 'profile_types' | 'company_event_link' | 'gallery_photos' | 'gallery_photo_alts'
+  | 'notify_messages' | 'notify_endorsements' | 'notify_event_reminders'
   // Two fields are widened to allow null, because for these "clear it" is a
   // real answer a member can give and has to be storable. Sending undefined
   // would drop the key from the update and silently leave the old value behind.
@@ -238,6 +239,9 @@ export default function EditProfilePage() {
   const [companyEventLink,           setCompanyEventLink]          = useState('');
   const [galleryPhotos,              setGalleryPhotos]             = useState<string[]>([]);
   const [galleryAlts,                setGalleryAlts]               = useState<string[]>([]);
+  const [notifyMessages,             setNotifyMessages]            = useState(true);
+  const [notifyEndorsements,         setNotifyEndorsements]        = useState(true);
+  const [notifyEventReminders,       setNotifyEventReminders]      = useState(true);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -305,6 +309,9 @@ export default function EditProfilePage() {
     setCompanyEventLink(data.company_event_link                ?? '');
     setGalleryPhotos(data.gallery_photos                       ?? []);
     setGalleryAlts(data.gallery_photo_alts                     ?? []);
+    setNotifyMessages(data.notify_messages                     ?? true);
+    setNotifyEndorsements(data.notify_endorsements             ?? true);
+    setNotifyEventReminders(data.notify_event_reminders        ?? true);
 
     setLoading(false);
     headingRef.current?.focus();
@@ -421,12 +428,35 @@ export default function EditProfilePage() {
       company_event_link: companyEventLink.trim()   || undefined,
       gallery_photos:     galleryPhotos,
       gallery_photo_alts: galleryAlts,
+      notify_messages:        notifyMessages,
+      notify_endorsements:    notifyEndorsements,
+      notify_event_reminders: notifyEventReminders,
     };
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', profile!.id);
+    // Migrations v59 and v60 added the photo-description and email-switch
+    // columns. If the site is deployed before one of them has been run, an
+    // update naming a missing column is rejected in full, which would take the
+    // whole profile save down with it.
+    //
+    // So a missing column is dropped and the save retried. Only the column the
+    // database actually named, not every recent one: Postgres reports them one
+    // at a time, and throwing away a photo description because an unrelated
+    // email switch is missing would lose work the member had just done. The
+    // loop is bounded by the number of columns it is willing to give up.
+    const DROPPABLE = ['gallery_photo_alts', 'notify_messages', 'notify_endorsements', 'notify_event_reminders'];
+    const payload: Record<string, unknown> = { ...updates };
+    let error: { code?: string; message?: string } | null = null;
+
+    for (let attempt = 0; attempt <= DROPPABLE.length; attempt++) {
+      ({ error } = await supabase.from('profiles').update(payload).eq('id', profile!.id));
+      if (!error) break;
+      const missingColumn = (error.code === 'PGRST204' || error.code === '42703')
+        ? DROPPABLE.find((c) => c in payload && (error!.message ?? '').includes(c))
+        : undefined;
+      if (!missingColumn) break;
+      console.warn(`Column ${missingColumn} does not exist yet, so it is being left out of this save. Run the pending migration.`);
+      delete payload[missingColumn];
+    }
 
     setSaving(false);
 
@@ -1255,6 +1285,41 @@ export default function EditProfilePage() {
               </div>
             </div>
           )}
+
+          {/* ══ Section: Email ══════════════════════════════════════════ */}
+          <div className="ms-box" style={{ marginBottom: '1.25rem' }}>
+            <div className="ms-box-header">Email</div>
+            <div className="ms-box-body" style={{ padding: '1.25rem' }}>
+              <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+                <legend className="form-label" style={{ marginBottom: '0.375rem' }}>When should we email you?</legend>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.875rem' }}>
+                  Turn off anything you would rather not get. We will still email you a login link when you ask for one, and we never put the contents of a private message in an email.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {([
+                    { checked: notifyMessages, set: setNotifyMessages, label: 'Somebody sends me a message', hint: 'One email per conversation until you have read it.' },
+                    { checked: notifyEndorsements, set: setNotifyEndorsements, label: 'Somebody endorses me', hint: null },
+                    { checked: notifyEventReminders, set: setNotifyEventReminders, label: 'The day before something I am attending', hint: null },
+                  ] as const).map((row) => (
+                    <label key={row.label} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', minHeight: 44 }}>
+                      <input
+                        type="checkbox"
+                        checked={row.checked}
+                        onChange={(e) => { row.set(e.target.checked); setDirty(true); }}
+                        style={{ width: 16, height: 16, marginTop: 4, flexShrink: 0 }}
+                      />
+                      <span>
+                        {row.label}
+                        {row.hint && (
+                          <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{row.hint}</span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+          </div>
 
           {/* ══ Section: Privacy ══════════════════════════════════════════ */}
           <div className="ms-box" style={{ marginBottom: '1.75rem' }}>

@@ -3,6 +3,7 @@ import Logo from '@/components/Logo';
 
 import { useEffect, useState, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { notifyAbout } from '@/lib/notify-client';
 import { supabase, getSessionUser, type Profile, type Endorsement, REQUIRED_PROFILE_VERSION, profileHref, PROFILE_TYPES_OPTIONS } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -231,8 +232,12 @@ export default function ProfilePage() {
         await supabase.from('endorsements').delete()
           .eq('endorser_id', currentUserProfile.id).eq('endorsed_id', profile.id);
       } else {
+        // The id is made here rather than read back, because no RLS policy
+        // lets the endorser select the row they just wrote.
+        const endorsementId = crypto.randomUUID();
         await supabase.from('endorsements')
-          .insert({ endorser_id: currentUserProfile.id, endorsed_id: profile.id });
+          .insert({ id: endorsementId, endorser_id: currentUserProfile.id, endorsed_id: profile.id });
+        void notifyAbout('endorsement', endorsementId);
       }
       await fetchData();
     } catch (err) {
