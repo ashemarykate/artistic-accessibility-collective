@@ -284,6 +284,14 @@ function LoginForm() {
             ← Back to Home
           </Link>
         </p>
+
+        <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.8 }}>
+          <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>Your Privacy</Link>
+          {' · '}
+          <Link href="/conduct" style={{ color: 'inherit', textDecoration: 'underline' }}>Code of Conduct</Link>
+          {' · '}
+          <Link href="/access" style={{ color: 'inherit', textDecoration: 'underline' }}>Access Statement</Link>
+        </p>
       </div>
     </main>
   </BrowserChrome>

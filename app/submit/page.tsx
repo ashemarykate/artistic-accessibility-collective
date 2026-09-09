@@ -1062,6 +1062,15 @@ export default function SubmitProfile() {
                 value={testerOtherFeedback} onChange={(e) => setTesterOtherFeedback(e.target.value)} />
             </div>
 
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: '1rem' }}>
+              By joining you are agreeing to our{' '}
+              <Link href="/conduct" style={{ color: 'inherit', textDecoration: 'underline' }}>Code of Conduct</Link>.
+              Here is what we do with your information in{' '}
+              <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>Your Privacy</Link>,
+              and what this site does for access in our{' '}
+              <Link href="/access" style={{ color: 'inherit', textDecoration: 'underline' }}>Access Statement</Link>.
+            </p>
+
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <button type="submit" className="btn btn-primary btn-lg" style={{ flex: '1 1 auto' }}
                 disabled={loading} aria-busy={loading}>

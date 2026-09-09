@@ -60,6 +60,11 @@ const NAV: Node[] = [
     { label: 'The Collective',     icon: 63, href: '/collective' },
     { label: 'Get an Access Card', icon: 52, href: '/access-card' },
   ] },
+  { type: 'folder', name: 'THE SMALL PRINT', children: [
+    { label: 'Your Privacy',      icon: 76,    href: '/privacy' },
+    { label: 'Code of Conduct',   icon: 'faq', href: '/conduct' },
+    { label: 'Access Statement',  icon: 84,    href: '/access' },
+  ] },
 ];
 
 // ── Sub-components ─────────────────────────────────────────────────────────────

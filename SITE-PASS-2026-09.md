@@ -211,7 +211,7 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     How: Supabase database webhooks (or a cron route) into Resend. Start with
     profile approved and new message. Add a per-member opt-out column.
 
-27. **No privacy policy, terms, code of conduct, or access statement.** A
+27. DRAFTED 2026-09-09, needs MK's edit before it counts as done. **No privacy policy, terms, code of conduct, or access statement.** A
     directory with DMs needs at least conduct + privacy. Access statement is
     item 1 in CREATIVE-ACCESS-PLAN.md.
     How: static pages in the retro chrome, linked from the Start menu and the
