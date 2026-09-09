@@ -63,6 +63,9 @@ export default function MemberHub() {
 
   // Refer a Colleague (Collective members only)
   const [recsAvailable, setRecsAvailable] = useState<number | null>(null);
+  // Which parts of the hub failed to load. Without this a failed fetch looked
+  // exactly like "you have nothing here", which told members something untrue.
+  const [loadErrors, setLoadErrors] = useState<{ messages?: boolean; saved?: boolean; referrals?: boolean }>({});
   const [recName,    setRecName]    = useState('');
   const [recEmail,   setRecEmail]   = useState('');
   const [recMessage, setRecMessage] = useState('');
@@ -111,16 +114,21 @@ export default function MemberHub() {
       return;
     }
     setLinkFailed(false);
+    setLoadErrors({});
     setProfile(profileData);
     const resolvedProfile = profileData;
 
-    // Referral quota (wrapped in try/catch — safe before migration runs)
+    // Referral quota. A failure here is reported, not hidden: showing "0 left"
+    // when the count simply did not load would be a lie.
     if (resolvedProfile.member_type === 'collective') {
       try {
-        const { data: avail } = await supabase.rpc('get_available_recommendations', { user_profile_id: resolvedProfile.id });
+        const { data: avail, error: availError } = await supabase.rpc('get_available_recommendations', { user_profile_id: resolvedProfile.id });
+        if (availError) throw availError;
         setRecsAvailable(typeof avail === 'number' ? avail : 0);
-      } catch {
-        // Referral system not yet migrated
+      } catch (err) {
+        console.error('Could not load referral quota:', err);
+        setRecsAvailable(null);
+        setLoadErrors((e) => ({ ...e, referrals: true }));
       }
     }
 
@@ -149,25 +157,29 @@ export default function MemberHub() {
     setRecentMembers(memberList.slice(0, 3));
     setAllMembers(memberList.slice(0, 12));
 
-    // Messaging (wrapped in try/catch — safe before migration runs)
+    // Messaging. Supabase returns errors rather than throwing them, so each
+    // query's error is checked explicitly; otherwise a failed load rendered as
+    // the cheerful "No messages yet" empty state.
     try {
-      const { data: myConvs } = await supabase
+      const { data: myConvs, error: convError } = await supabase
         .from('conversations')
         .select('*')
         .or(`profile_a_id.eq.${resolvedProfile.id},profile_b_id.eq.${resolvedProfile.id}`)
         .order('last_message_at', { ascending: false })
         .limit(4);
+      if (convError) throw convError;
 
       if (myConvs && myConvs.length > 0) {
         const convIds = myConvs.map((c: Conversation) => c.id);
 
         // Fetch unread count
-        const { count: unread } = await supabase
+        const { count: unread, error: unreadError } = await supabase
           .from('messages')
           .select('id', { count: 'exact', head: true })
           .in('conversation_id', convIds)
           .is('read_at', null)
           .neq('sender_profile_id', resolvedProfile.id);
+        if (unreadError) throw unreadError;
         setUnreadCount(unread ?? 0);
 
         // Fetch latest message per conversation + other profile
@@ -175,7 +187,7 @@ export default function MemberHub() {
           c.profile_a_id === resolvedProfile.id ? c.profile_b_id : c.profile_a_id
         );
 
-        const [{ data: otherProfiles }, { data: lastMsgs }] = await Promise.all([
+        const [{ data: otherProfiles, error: profErr }, { data: lastMsgs, error: msgErr }] = await Promise.all([
           supabase.from('profiles')
             .select('id, full_name, display_name, avatar_url, username')
             .in('id', otherIds),
@@ -184,6 +196,8 @@ export default function MemberHub() {
             .in('conversation_id', convIds)
             .order('sent_at', { ascending: false }),
         ]);
+        if (profErr) throw profErr;
+        if (msgErr) throw msgErr;
 
         const otherMap = Object.fromEntries(
           (otherProfiles ?? []).map((p: Pick<Profile, 'id' | 'full_name' | 'display_name' | 'avatar_url' | 'username'>) => [p.id, p])
@@ -212,16 +226,19 @@ export default function MemberHub() {
           });
         setConvPreviews(previews);
       }
-    } catch {
-      // Messages table not yet created
+    } catch (err) {
+      console.error('Could not load messages:', err);
+      setConvPreviews([]);
+      setLoadErrors((e) => ({ ...e, messages: true }));
     }
 
     // Saved resources — fetch slugs and look up names from shared resource data
     try {
-      const { data: favRows } = await supabase
+      const { data: favRows, error: favError } = await supabase
         .from('resource_favorites')
         .select('resource_slug')
         .eq('user_id', user.id);
+      if (favError) throw favError;
 
       if (favRows) {
         const resolved = favRows
@@ -234,8 +251,10 @@ export default function MemberHub() {
           .filter(Boolean) as { slug: string; name: string; categoryTitle: string; categoryEmoji: string }[];
         setSavedResources(resolved);
       }
-    } catch {
-      // resource_favorites not yet created
+    } catch (err) {
+      console.error('Could not load saved resources:', err);
+      setSavedResources([]);
+      setLoadErrors((e) => ({ ...e, saved: true }));
     }
 
     setLoading(false);
@@ -624,7 +643,14 @@ export default function MemberHub() {
               <Link href="/messages" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>view all</Link>
             </div>
             <div style={{ padding: '4px 0' }}>
-              {convPreviews.length === 0 ? (
+              {loadErrors.messages ? (
+                <div style={{ padding: '12px 10px', textAlign: 'center' }} role="alert">
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                    We could not load your messages just now.
+                  </p>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => loadHub()}>Try again</button>
+                </div>
+              ) : convPreviews.length === 0 ? (
                 <div style={{ padding: '12px 10px', textAlign: 'center' }}>
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
                     No messages yet. Find a member and say hello!
@@ -681,7 +707,9 @@ export default function MemberHub() {
             <div className="ms-box" style={{ marginBottom: '8px' }}>
               <div className="ms-box-header">
                 <h2><span role="img" aria-label="handshake emoji">🤝</span> Refer a Colleague</h2>
-                {recsAvailable != null && (
+                {loadErrors.referrals ? (
+                  <span style={{ fontSize: '0.6875rem', color: 'inherit' }}>count unavailable</span>
+                ) : recsAvailable != null && (
                   <span style={{ fontSize: '0.6875rem', color: 'inherit' }}>{recsAvailable} of 3 left this month</span>
                 )}
               </div>
@@ -877,7 +905,16 @@ export default function MemberHub() {
               <h2><span role="img" aria-label="little gold star emoticon"><FavoritesStarIcon /></span> My Resources</h2>
               <Link href="/resources" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>all</Link>
             </div>
-            {savedResources.length === 0 ? (
+            {loadErrors.saved ? (
+              <div style={{ padding: '10px' }} role="alert">
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
+                  We could not load your saved resources just now.
+                </p>
+                <button type="button" className="btn btn-primary btn-sm" style={{ width: '100%', fontSize: '0.75rem' }} onClick={() => loadHub()}>
+                  Try again
+                </button>
+              </div>
+            ) : savedResources.length === 0 ? (
               <div style={{ padding: '10px' }}>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '8px' }}>
                   You haven&apos;t saved any resources yet. Heart the ones you love!
