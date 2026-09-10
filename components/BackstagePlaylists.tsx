@@ -99,7 +99,7 @@ export default function BackstagePlaylists({
       {confirmDialog}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
       <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>
-        <img src="/images/desktop-icons/icon-80.png" alt="" width={24} height={24}
+        <img src="/2006/cd.png" alt="" width={24} height={24}
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         {SECTIONS.playlists.title}
       </h2>
