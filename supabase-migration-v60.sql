@@ -60,7 +60,8 @@ WHERE p.slug = '2006'
 -- ── 3. The year, as the company that decides that had it ─────────────────────
 -- Billboard's Year-End Hot 100 for 2006, the top fifty, in order. The byline is
 -- Billboard because Billboard is who decides that. Taken from the published
--- chart on 2026-09-10; the position rides along as the note on each track.
+-- chart on 2026-09-10. The list is in chart order and the page numbers it, so
+-- the tracks carry no note.
 
 INSERT INTO production_playlists
   (production_id, created_by, title, byline, description, tracks, is_visible, sort_order)
@@ -70,252 +71,252 @@ SELECT p.id, NULL, 'the top 50 of 2006', 'a mix by Billboard',
          {
                   "t": "Bad Day",
                   "a": "Daniel Powter",
-                  "note": "#1"
+                  "note": ""
          },
          {
                   "t": "Temperature",
                   "a": "Sean Paul",
-                  "note": "#2"
+                  "note": ""
          },
          {
                   "t": "Promiscuous",
                   "a": "Nelly Furtado featuring Timbaland",
-                  "note": "#3"
+                  "note": ""
          },
          {
                   "t": "You''re Beautiful",
                   "a": "James Blunt",
-                  "note": "#4"
+                  "note": ""
          },
          {
                   "t": "Hips Don''t Lie",
                   "a": "Shakira featuring Wyclef Jean",
-                  "note": "#5"
+                  "note": ""
          },
          {
                   "t": "Unwritten",
                   "a": "Natasha Bedingfield",
-                  "note": "#6"
+                  "note": ""
          },
          {
                   "t": "Crazy",
                   "a": "Gnarls Barkley",
-                  "note": "#7"
+                  "note": ""
          },
          {
                   "t": "Ridin''",
                   "a": "Chamillionaire featuring Krayzie Bone",
-                  "note": "#8"
+                  "note": ""
          },
          {
                   "t": "SexyBack",
                   "a": "Justin Timberlake featuring Timbaland",
-                  "note": "#9"
+                  "note": ""
          },
          {
                   "t": "Check on It",
                   "a": "Beyoncé featuring Slim Thug and Bun B",
-                  "note": "#10"
+                  "note": ""
          },
          {
                   "t": "Be Without You",
                   "a": "Mary J. Blige",
-                  "note": "#11"
+                  "note": ""
          },
          {
                   "t": "Grillz",
                   "a": "Nelly featuring Paul Wall and Ali & Gipp",
-                  "note": "#12"
+                  "note": ""
          },
          {
                   "t": "Over My Head (Cable Car)",
                   "a": "The Fray",
-                  "note": "#13"
+                  "note": ""
          },
          {
                   "t": "Me & U",
                   "a": "Cassie",
-                  "note": "#14"
+                  "note": ""
          },
          {
                   "t": "Buttons",
                   "a": "Pussycat Dolls featuring Snoop Dogg",
-                  "note": "#15"
+                  "note": ""
          },
          {
                   "t": "Run It!",
                   "a": "Chris Brown featuring Juelz Santana",
-                  "note": "#16"
+                  "note": ""
          },
          {
                   "t": "So Sick",
                   "a": "Ne-Yo",
-                  "note": "#17"
+                  "note": ""
          },
          {
                   "t": "It''s Goin'' Down",
                   "a": "Yung Joc featuring Nitti",
-                  "note": "#18"
+                  "note": ""
          },
          {
                   "t": "SOS",
                   "a": "Rihanna",
-                  "note": "#19"
+                  "note": ""
          },
          {
                   "t": "I Write Sins Not Tragedies",
                   "a": "Panic! at the Disco",
-                  "note": "#20"
+                  "note": ""
          },
          {
                   "t": "Move Along",
                   "a": "The All-American Rejects",
-                  "note": "#21"
+                  "note": ""
          },
          {
                   "t": "London Bridge",
                   "a": "Fergie",
-                  "note": "#22"
+                  "note": ""
          },
          {
                   "t": "Dani California",
                   "a": "Red Hot Chili Peppers",
-                  "note": "#23"
+                  "note": ""
          },
          {
                   "t": "Snap Yo Fingers",
                   "a": "Lil Jon featuring E-40 and Sean Paul",
-                  "note": "#24"
+                  "note": ""
          },
          {
                   "t": "Lean wit It, Rock wit It",
                   "a": "Dem Franchize Boyz featuring Peanut and Charlay",
-                  "note": "#25"
+                  "note": ""
          },
          {
                   "t": "What Hurts the Most",
                   "a": "Rascal Flatts",
-                  "note": "#26"
+                  "note": ""
          },
          {
                   "t": "How to Save a Life",
                   "a": "The Fray",
-                  "note": "#27"
+                  "note": ""
          },
          {
                   "t": "Unfaithful",
                   "a": "Rihanna",
-                  "note": "#28"
+                  "note": ""
          },
          {
                   "t": "Chasing Cars",
                   "a": "Snow Patrol",
-                  "note": "#29"
+                  "note": ""
          },
          {
                   "t": "Lips of an Angel",
                   "a": "Hinder",
-                  "note": "#30"
+                  "note": ""
          },
          {
                   "t": "Everytime We Touch",
                   "a": "Cascada",
-                  "note": "#31"
+                  "note": ""
          },
          {
                   "t": "Ain''t No Other Man",
                   "a": "Christina Aguilera",
-                  "note": "#32"
+                  "note": ""
          },
          {
                   "t": "Dance, Dance",
                   "a": "Fall Out Boy",
-                  "note": "#33"
+                  "note": ""
          },
          {
                   "t": "Gold Digger",
                   "a": "Kanye West featuring Jamie Foxx",
-                  "note": "#34"
+                  "note": ""
          },
          {
                   "t": "Money Maker",
                   "a": "Ludacris featuring Pharrell",
-                  "note": "#35"
+                  "note": ""
          },
          {
                   "t": "Ms. New Booty",
                   "a": "Bubba Sparxxx featuring Ying Yang Twins",
-                  "note": "#36"
+                  "note": ""
          },
          {
                   "t": "(When You Gonna) Give It Up to Me",
                   "a": "Sean Paul featuring Keyshia Cole",
-                  "note": "#37"
+                  "note": ""
          },
          {
                   "t": "Photograph",
                   "a": "Nickelback",
-                  "note": "#38"
+                  "note": ""
          },
          {
                   "t": "Because of You",
                   "a": "Kelly Clarkson",
-                  "note": "#39"
+                  "note": ""
          },
          {
                   "t": "Stickwitu",
                   "a": "Pussycat Dolls",
-                  "note": "#40"
+                  "note": ""
          },
          {
                   "t": "I''m ''n Luv (wit a Stripper)",
                   "a": "T-Pain featuring Mike Jones",
-                  "note": "#41"
+                  "note": ""
          },
          {
                   "t": "My Humps",
                   "a": "The Black Eyed Peas",
-                  "note": "#42"
+                  "note": ""
          },
          {
                   "t": "Where''d You Go",
                   "a": "Fort Minor featuring Holly Brook and Jonah Matranga",
-                  "note": "#43"
+                  "note": ""
          },
          {
                   "t": "Yo (Excuse Me Miss)",
                   "a": "Chris Brown",
-                  "note": "#44"
+                  "note": ""
          },
          {
                   "t": "Walk Away",
                   "a": "Kelly Clarkson",
-                  "note": "#45"
+                  "note": ""
          },
          {
                   "t": "Laffy Taffy",
                   "a": "D4L",
-                  "note": "#46"
+                  "note": ""
          },
          {
                   "t": "What You Know",
                   "a": "T.I.",
-                  "note": "#47"
+                  "note": ""
          },
          {
                   "t": "Dirty Little Secret",
                   "a": "The All-American Rejects",
-                  "note": "#48"
+                  "note": ""
          },
          {
                   "t": "Savin'' Me",
                   "a": "Nickelback",
-                  "note": "#49"
+                  "note": ""
          },
          {
                   "t": "Don''t Forget About Us",
                   "a": "Mariah Carey",
-                  "note": "#50"
+                  "note": ""
          }
 ]'::jsonb,
        true, 2
