@@ -32,7 +32,9 @@ export async function POST(req: Request) {
   try { payload = await req.json(); } catch { return no('that did not go through.'); }
 
   const id = String(payload.id ?? '');
-  const kind = payload.kind === 'post' ? 'post' : payload.kind === 'wall' ? 'wall' : null;
+  const kind = payload.kind === 'post' ? 'post'
+    : payload.kind === 'wall' ? 'wall'
+    : payload.kind === 'playlist' ? 'playlist' : null;
   if (!kind) return no('what kind of thing is that?');
   if (!/^[0-9a-f-]{36}$/i.test(id)) return no('that id does not look real.');
 
@@ -56,6 +58,19 @@ export async function POST(req: Request) {
       if (key) await admin.storage.from('confession-photos').remove([key]);
     }
     const { error } = await admin.from('production_confessions').delete().eq('id', id);
+    if (error) return no('it would not delete. try once more?', 502);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (kind === 'playlist') {
+    const { data: pl } = await admin
+      .from('production_playlists')
+      .select('id, is_audience')
+      .eq('id', id).eq('production_id', p.id)
+      .maybeSingle();
+    if (!pl) return no('that mix is already gone.', 404);
+    if (!pl.is_audience) return no('that one is a cast mix. edit it in Backstage.', 403);
+    const { error } = await admin.from('production_playlists').delete().eq('id', id);
     if (error) return no('it would not delete. try once more?', 502);
     return NextResponse.json({ ok: true });
   }

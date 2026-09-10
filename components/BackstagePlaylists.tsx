@@ -134,7 +134,7 @@ export default function BackstagePlaylists({
               >
                 <strong>{l.title || 'untitled mix'}</strong>
                 <span style={{ color: '#5a6b8c', fontSize: '0.85rem' }}>
-                  {'  '}{l.byline} · {l.tracks.length} song{l.tracks.length === 1 ? '' : 's'}
+                  {'  '}{l.byline} · {l.tracks.length} song{l.tracks.length === 1 ? '' : 's'}{l.is_audience && ' · from the audience'}
                   {!l.is_visible && ' · hidden'}
                   {!editable && ' · not yours'}
                 </span>

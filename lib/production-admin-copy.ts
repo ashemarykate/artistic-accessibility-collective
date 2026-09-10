@@ -67,7 +67,7 @@ export const SECTIONS = {
   playlists: {
     title: 'Playlists',
     blurb:
-      'Make a mix. Name it, add songs, say why each one is on there if you want to. Your playlists show up on the site under your name, and you can hide one while you are still fiddling with it. These are yours: other people can see them but only you can edit yours.',
+      'Make a mix. Name it, add songs, say why each one is on there if you want to. Your playlists show up on the site under your name, and you can hide one while you are still fiddling with it. These are yours: other people can see them but only you can edit yours. The audience makes mixes too, straight on the site; those are marked here, and a producer can take one down.',
     forRoles: ['producer', 'creator'] as PortalRole[],
   },
 

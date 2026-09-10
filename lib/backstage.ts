@@ -95,6 +95,8 @@ export interface Playlist {
   tracks: { t: string; a: string; note?: string }[];
   is_visible: boolean;
   sort_order: number;
+  /** Made by the audience on the public site. Producers can take it down. */
+  is_audience?: boolean;
 }
 
 export interface Post {

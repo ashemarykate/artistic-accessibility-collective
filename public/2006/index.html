@@ -767,6 +767,19 @@
   .pl-t{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pl-b{display:block;font-size:9.5px;color:#7a8699;margin-top:1px}
   .pl-row.on .pl-b{color:#dce8f8}
+  .pl-mod{margin:0 0 6px;text-align:right}
+  .pl-new{border-top:1px solid var(--chrome-dk);margin-top:8px}
+  .pl-new h3{font-size:13px;margin:0 0 4px;color:#1a3d6e}
+  .pane .pl-new p{font-size:11.5px;line-height:1.5;margin:0 0 8px;color:#333}
+  .pl-lab{display:block;font-size:11px;font-weight:bold;color:#1a3d6e;margin:8px 0 3px}
+  .pl-new input[type=text], .pl-new textarea{
+    width:100%;box-sizing:border-box;font-family:inherit;font-size:12.5px;
+    background:#fff;color:#111;border:1px solid #808080;box-shadow:inset 1px 1px 0 #4a4a4a;padding:5px 6px;
+  }
+  .pane .pl-fine{font-size:9.5px;color:#666;margin:5px 0 0}
+  .pane .pl-err{color:#c00;font-size:11.5px;margin:6px 0 0}
+  .pane .pl-err:empty{margin:0}
+  .pl-new .btn-xp{margin-top:8px}
   .pl-chev{color:#7a8699;font-size:12px;flex:none}
   .pl-open{background:#f7f8fb;border-bottom:1px solid #e2e5ec;padding:6px 8px 8px}
   .pl-desc{font-size:10.5px;color:#556;margin:0 0 6px;font-style:italic}
@@ -908,6 +921,7 @@
     .cf-del, .xa-del{min-height:44px}
     .cast-line a{padding:6px 2px}
     .xa-submit input[type=text], .xa-submit textarea{padding-top:10px;padding-bottom:10px;min-height:44px}
+    .pl-new input[type=text], .pl-new textarea{padding-top:10px;padding-bottom:10px;min-height:44px}
     .cf-note, .cf-warn, .cf-tab{min-height:44px}
     .cf-new textarea, .cf-new input[type=text], .cf-new select{
       padding-top:10px;padding-bottom:10px;min-height:44px}
@@ -1121,9 +1135,6 @@ let playlists = [
      {t:"Dani California",             a:"Red Hot Chili Peppers", note:""},
      {t:"Chasing Cars",                a:"Snow Patrol",         note:"track 8 is always the sad one."},
    ]},
-  {id:"pl2", title:"[your mix here]", byline:"add yours in the portal",
-   description:"every creator gets to make one. name it, add songs, say why.",
-   tracks:[]},
 ];
 
 /* ⑦ THE GRAVEYARD */
@@ -1944,12 +1955,13 @@ function viewPlaylists(){
                       : `<img class="pl-cd" src="/2006/cd.png" alt="">`; })()}
         <span class="pl-meta">
           <span class="pl-t">${esc(pl.title)}</span>
-          <span class="pl-b">${esc(pl.byline)}${n ? ` \u00b7 ${n} song${n === 1 ? "" : "s"}` : ""}</span>
+          <span class="pl-b">${esc(pl.byline)}${n ? ` \u00b7 ${n} song${n === 1 ? "" : "s"}` : ""}${pl.is_audience ? ` \u00b7 from the audience` : ``}</span>
         </span>
         <span class="pl-chev" aria-hidden="true">${isOpen ? "" : "\u203a"}</span>
       </button>
       ${isOpen ? `
         <div class="pl-open">
+          ${CAST && pl.is_audience ? `<p class="pl-mod"><button class="xa-del" data-del-pl="${esc(pl.id)}">delete</button></p>` : ``}
           ${pl.description ? `<p class="pl-desc">${esc(pl.description)}</p>` : ""}
           ${n ? `<ol class="pl-tracks">${pl.tracks.map(tr => `
             <li>
@@ -1965,14 +1977,94 @@ function viewPlaylists(){
     <div class="pane">
       <div class="pane-pad" style="padding-bottom:6px">
         <h2>Playlists</h2>
-        <p>mixes made by the people in the show. tap one to see what's on it.</p>
+        <p>mixes by the people in the show, and by anyone who makes one. tap one
+           to see what is on it.</p>
       </div>
-      ${rows}
+      ${playlistsLoaded || playlists.length ? rows : `<p class="pl-empty pane-pad">loading...</p>`}
+      <div class="pl-new pane-pad" id="pl-write">
+        <h3>make a mix</h3>
+        <p>name it, list the songs, and it is on here the second you press post,
+           with your screen name on it.</p>
+        ${ME.sn ? `
+        <form id="mixform" novalidate>
+          <label class="pl-lab" for="mx-title">the mix is called</label>
+          <input type="text" id="mx-title" maxlength="60" value="${esc(draftGet().mxTitle || "")}" placeholder="summer mix vol. 4">
+          <label class="pl-lab" for="mx-desc">what it is for</label>
+          <input type="text" id="mx-desc" maxlength="200" value="${esc(draftGet().mxDesc || "")}" placeholder="optional">
+          <label class="pl-lab" for="mx-tracks">the songs. one per line, song - artist</label>
+          <textarea id="mx-tracks" rows="6" placeholder="Crazy - Gnarls Barkley&#10;SexyBack - Justin Timberlake">${esc(draftGet().mxTracks || "")}</textarea>
+          <p class="pl-fine">up to 30 songs. a third dash adds a note: song - artist - why it is on here.
+             &nbsp;\u00b7&nbsp; posting as <b>${esc(ME.sn)}</b></p>
+          <input class="cf-hp" type="text" id="mx-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <p class="pl-err" id="mx-err" role="alert"></p>
+          <button type="submit" class="btn-xp primary" id="mx-post">post it</button>
+        </form>`
+        : `<p class="pl-fine">sign on with a screen name first, so the mix has a name on it.
+           <a href="#" data-go="home">sign on \u203a</a></p>`}
+      </div>
     </div>`;
   return chrome("Playlists", body, {status: playlists.length + " playlists"});
 }
 
+/* The mixes come from production_playlists, the table Backstage writes to.
+   The hardcoded list stays only as a fallback for an empty table. A mix with
+   no songs on it is skipped, because there is nothing to show. */
+let playlistsLoaded = false;
+async function loadPlaylists(){
+  const q = (cols) => sbGet(
+    "production_playlists?select=" + cols + ",productions!inner(slug)"
+    + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+    + "&is_visible=eq.true&order=sort_order,created_at.desc&limit=100");
+  try {
+    let rows;
+    try { rows = await q("id,title,byline,description,tracks,is_audience"); }
+    catch(e){ rows = await q("id,title,byline,description,tracks"); }   // before v60
+    if(Array.isArray(rows)){
+      const live = rows.filter(r => Array.isArray(r.tracks) && r.tracks.length);
+      if(live.length) playlists = live;
+    }
+  } catch(e){ console.warn("2006: could not load the playlists.", e); }
+  playlistsLoaded = true;
+  if(screen === "playlists") render();
+}
+
+async function postMix(){
+  const ti = document.getElementById("mx-title"), de = document.getElementById("mx-desc"),
+        tr = document.getElementById("mx-tracks"), err = document.getElementById("mx-err"),
+        btn = document.getElementById("mx-post");
+  if(!ti.value.trim()){ err.textContent = "give the mix a name."; say(err.textContent); ti.focus(); return; }
+  if(!tr.value.trim()){ err.textContent = "add at least one song. one per line, song - artist."; say(err.textContent); tr.focus(); return; }
+  btn.disabled = true; btn.textContent = "posting...";
+  let out = null;
+  try {
+    const r = await fetch("/api/2006/playlist", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({title: ti.value, description: de.value, tracks: tr.value, screenName: ME.sn,
+                            device: deviceTag(), website: document.getElementById("mx-hp").value})});
+    out = await r.json();
+  } catch(x){ out = {ok:false, message:"that did not go through. try again?"}; }
+  if(!out.ok){
+    btn.disabled = false; btn.textContent = "post it";
+    err.textContent = out.message || "that did not go through."; say(err.textContent); return;
+  }
+  if(out.playlist) playlists.unshift(out.playlist);
+  draftSet({mxTitle:"", mxDesc:"", mxTracks:""});
+  openPl = out.playlist ? out.playlist.id : null;
+  render();
+  say("posted. your mix is on here now.");
+  const first = document.querySelector(".pl-row"); if(first) first.focus();
+}
+
 function wirePlaylists(){
+  if(!playlistsLoaded) loadPlaylists();
+  wireModerate();
+  const form = document.getElementById("mixform");
+  if(form){
+    const ti = document.getElementById("mx-title"), de = document.getElementById("mx-desc"), tr = document.getElementById("mx-tracks");
+    ti.oninput = () => draftSet({mxTitle: ti.value});
+    de.oninput = () => draftSet({mxDesc: de.value});
+    tr.oninput = () => draftSet({mxTracks: tr.value});
+    form.onsubmit = e => { e.preventDefault(); postMix(); };
+  }
   app.querySelectorAll("[data-pl]").forEach(btn => {
     btn.onclick = () => {
       openPl = (openPl === btn.dataset.pl) ? null : btn.dataset.pl;
@@ -3082,6 +3174,7 @@ async function moderate(kind, id, btn){
   } catch(e){ out = {ok:false, message:"that did not go through."}; }
   if(!out.ok){ btn.disabled = false; btn.dataset.sure = ""; btn.textContent = "delete"; say(out.message || "that did not delete."); return; }
   if(kind === "wall") wall = wall.filter(p => p.id !== id);
+  else if(kind === "playlist") playlists = playlists.filter(p => p.id !== id);
   else posts = posts.filter(p => p.id !== id);
   say("deleted. it is gone for everyone.");
   render();
@@ -3089,6 +3182,7 @@ async function moderate(kind, id, btn){
 function wireModerate(){
   app.querySelectorAll("[data-del-wall]").forEach(b => { b.onclick = () => moderate("wall", b.dataset.delWall, b); });
   app.querySelectorAll("[data-del-post]").forEach(b => { b.onclick = () => moderate("post", b.dataset.delPost, b); });
+  app.querySelectorAll("[data-del-pl]").forEach(b => { b.onclick = () => moderate("playlist", b.dataset.delPl, b); });
 }
 
 /* ══════════════════ BOOT ══════════════════ */
