@@ -59,7 +59,7 @@ export default function BackstagePortal() {
           away_msg: 'not here, prolly back later',
           profile: 'friends. music. swim.\n\norlando bloom <3',
           about: '',
-          bg: '#3e7391', fg: '#c3adaf', font: 'sys', size: 13,
+          bg: '#3e7391', fg: '#c3adaf', font: 'sys', size: 13, avatar: 'mk',
         } as Persona);
         setState('ready');
       }, 0);
@@ -201,6 +201,21 @@ export default function BackstagePortal() {
             </p>
           ) : (
             <>
+              {p.avatar && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', marginBottom: '0.9rem' }}>
+                  <img
+                    src={`/2006/cast/${p.avatar}.gif`}
+                    alt=""
+                    style={{ height: '72px', width: 'auto', imageRendering: 'pixelated', background: '#fff',
+                             border: '1px solid #c3d0e0', padding: '4px 8px' }}
+                  />
+                  <div style={{ fontSize: '0.85rem', color: '#444' }}>
+                    <strong style={{ display: 'block', color: '#222' }}>Your buddy icon</strong>
+                    This is you on the buddy list, next to anything you post, and in the
+                    line across the top of The Show.
+                  </div>
+                </div>
+              )}
               <Field label="Screen name" hint="The name on the buddy list. Everybody sees this one.">
                 <input className="form-input" value={p.screen_name ?? ''} maxLength={30}
                        onChange={(e) => set({ screen_name: e.target.value })} />

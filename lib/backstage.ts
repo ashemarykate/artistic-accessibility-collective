@@ -70,6 +70,9 @@ export interface Persona {
   font?: 'comic' | 'sys' | 'square';
   size?: number;
   is_bot?: boolean;
+  /** The ensemble icon: a slug for a file in public/2006/cast/. Set by a
+   *  producer, shown everywhere this person appears on the site. */
+  avatar?: string;
 }
 
 export interface ProductionSummary {
