@@ -262,6 +262,23 @@
   .buddy.sel{background:var(--sel)}
   .buddy.sel .sn{color:#fff}
   .buddy img.i{width:16px;height:16px;flex:none}
+  /* The ensemble icons. Pixel art, so never smoothed. */
+  .av{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:none;display:block}
+  .av-lg{width:32px;height:32px}
+  .titlebar .av{width:18px;height:18px;margin-right:4px;vertical-align:-4px;display:inline-block}
+  .info-av{height:96px;width:auto;image-rendering:pixelated;display:block;margin:0 auto 8px}
+  .xa-av{width:20px;height:20px;object-fit:contain;image-rendering:pixelated;vertical-align:-5px;margin-right:4px}
+  .pl-av{width:28px;height:28px;object-fit:contain;image-rendering:pixelated;flex:none}
+  /* Six people in one row across the top of The Show, all the same height.
+     56px tall puts the whole line at about 240px wide, inside the 300px
+     window with room to spare. */
+  .cast-line{
+    list-style:none;margin:0 0 10px;padding:8px 6px 6px;display:flex;justify-content:center;
+    align-items:flex-end;gap:6px;background:#fff;border:1px solid #dae4f0;
+  }
+  .cast-line li{margin:0}
+  .cast-line a{display:block;line-height:0}
+  .live .cast-line img, .cast-line img{height:56px !important;width:auto;max-width:none;image-rendering:pixelated;display:block}
   .buddy.away .sn{color:#7d7d7d;font-style:italic}
   .buddy.offline .sn{color:#a0a0a0}
   .idle{margin-left:auto;font-size:11px;color:#888;padding-right:4px}
@@ -873,6 +890,7 @@
     .pl-row, .say, .tape{min-height:44px}
     .ct-label, .gm-a{padding-top:6px;padding-bottom:6px}
     .cf-del, .xa-del{min-height:44px}
+    .cast-line a{padding:6px 2px}
     .xa-submit input[type=text], .xa-submit textarea{padding-top:10px;padding-bottom:10px;min-height:44px}
     .cf-note, .cf-warn, .cf-tab{min-height:44px}
     .cf-new textarea, .cf-new input[type=text], .cf-new select{
@@ -1247,10 +1265,30 @@ const ICONS_2006 = [
   "icon-136.jpg", "icon-137.jpg", "icon-138.jpg", "icon-139.jpg", "icon-140.png",
   "icon-141.gif"
 ];
+/* A cast member's own icon, by screen name, or null for everybody else.
+   Every place a person's face shows asks this first, so an ensemble member
+   looks like themselves wherever they turn up. */
+function castOf(sn){
+  if(!sn) return null;
+  const s = String(sn).toLowerCase();
+  return buddies.find(b => b.avatar && !b.isBot && String(b.sn).toLowerCase() === s) || null;
+}
+function castIcon(sn){ const b = castOf(sn); return b ? b.avatar + ".png" : null; }
 function iconFor(sn){
+  const own = castIcon(sn);
+  if(own) return own;
   let h = 0;
   for(let i = 0; i < sn.length; i++) h = (h * 31 + sn.charCodeAt(i)) >>> 0;
   return "/2006/icons/" + ICONS_2006[h % ICONS_2006.length];
+}
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function castLine(){
+  const cast = buddies.filter(b => b.avatar && !b.isBot);
+  if(!cast.length) return "";
+  return `<ul class="cast-line" aria-label="the 2006ers">
+    ${cast.map(b => `<li><a href="#" data-go="buddies">
+      <img src="${esc(b.avatar)}${REDUCED ? ".png" : ".gif"}" alt="${esc(b.sn)}"></a></li>`).join("")}
+  </ul>`;
 }
 
 /* The twelve moods. Word, colour and face, all three, every time: a vibe is
@@ -1571,6 +1609,7 @@ function viewBuddies(){
       ${arr.map(b=>{
         const i = buddies.indexOf(b);
         return `<button class="buddy ${b.status}" data-b="${i}">
+          ${b.avatar ? `<img class="av" src="${esc(b.avatar)}.png" alt="">` : ``}
           <img class="i" src="${ICONS[b.status]||ICONS.online}" alt="${b.status}">
           <span class="sn">${esc(b.sn)}</span>
           ${b.idleMin?`<span class="idle">${b.idleMin} min</span>`:``}
@@ -1579,7 +1618,9 @@ function viewBuddies(){
     </div>`;
   const body = `
     <div class="bl-head">
-      <img class="i" src="${ICONS.runman||ICONS.online}" alt="">
+      ${castIcon(ME.sn)
+        ? `<img class="av av-lg" src="${esc(castIcon(ME.sn))}" alt="">`
+        : `<img class="i" src="${ICONS.runman||ICONS.online}" alt="">`}
       <div>
         <div class="me">${esc(ME.sn||"not signed on")}</div>
         <div class="mail">${CONFIG.SHOW_MODE ? "● you're online, IMs are open" : "✉ You have no new e-mail"}</div>
@@ -1837,7 +1878,9 @@ function viewPlaylists(){
     const n = pl.tracks.length;
     return `
       <button class="pl-row ${isOpen ? "on" : ""}" data-pl="${esc(pl.id)}" aria-expanded="${isOpen}">
-        <span class="pl-art" aria-hidden="true">${isOpen ? "\u25be" : "\u266a"}</span>
+        ${(() => { const who = (pl.byline || "").replace(/^a mix by\s+/i, "").trim(); const ic = castIcon(who);
+            return ic ? `<img class="pl-av" src="${esc(ic)}" alt="">`
+                      : `<span class="pl-art" aria-hidden="true">${isOpen ? "\u25be" : "\u266a"}</span>`; })()}
         <span class="pl-meta">
           <span class="pl-t">${esc(pl.title)}</span>
           <span class="pl-b">${esc(pl.byline)}${n ? ` \u00b7 ${n} song${n === 1 ? "" : "s"}` : ""}</span>
@@ -2357,7 +2400,8 @@ function blogEntry(p){
     <article class="xa" aria-labelledby="xt-${esc(p.id)}">
       ${p.pinned ? `<span class="xa-pin">sticky</span>` : ``}
       <h4 class="xa-t" id="xt-${esc(p.id)}">${esc(p.title || "(no title)")}</h4>
-      <p class="xa-by">posted by <b>${esc(p.byline || "the cast")}</b> @ ${time}${
+      <p class="xa-by">${castIcon(p.byline)
+        ? `<img class="xa-av" src="${esc(castIcon(p.byline))}" alt="">` : ``}posted by <b>${esc(p.byline || "the cast")}</b> @ ${time}${
         p.is_audience ? ` &nbsp;·&nbsp; <span class="xa-aud">from the audience</span>` : ``}${
         CAST && p.is_audience ? ` &nbsp;·&nbsp; <button class="xa-del" data-del-post="${esc(p.id)}">delete</button>` : ``}</p>
       ${(mood || music) ? `<div class="xa-mm">
@@ -2549,6 +2593,7 @@ function viewShow(){
 
   const body = `
     <div class="live">
+      ${castLine()}
       ${phaseBanner()}
       <h2 class="live-h">2006 <span>the year. the show. live.</span></h2>
       <p class="live-p">a play performed like an episode of TRL. the audience picks
@@ -2722,7 +2767,9 @@ function openIM(i){
       : `<div class="auto">${esc(b.sn)} is online.</div>`;
   popwin.innerHTML = `
     <div class="titlebar">
-      <img class="i" src="${ICONS[b.status]||ICONS.online}" width="16" height="16" alt="">
+      ${b.avatar
+        ? `<img class="av" src="${esc(b.avatar)}.png" alt="">`
+        : `<img class="i" src="${ICONS[b.status]||ICONS.online}" width="16" height="16" alt="">`}
       IM with ${esc(b.sn)}
       <span class="tb-btns"><button class="tb-btn x" id="popx" aria-label="close">✕</button></span>
     </div>
@@ -2794,11 +2841,14 @@ function openInfo(i){
   const hasAway = (b.status==="away"||b.status==="idle") && b.awayMsg;
   popwin.innerHTML = `
     <div class="titlebar">
-      <img class="i" src="${ICONS[b.status]||ICONS.online}" width="16" height="16" alt="">
+      ${b.avatar
+        ? `<img class="av" src="${esc(b.avatar)}.png" alt="">`
+        : `<img class="i" src="${ICONS[b.status]||ICONS.online}" width="16" height="16" alt="">`}
       Buddy Info: ${esc(b.sn)}
       <span class="tb-btns"><button class="tb-btn x" id="popx2" aria-label="close">✕</button></span>
     </div>
     <div class="info-body">
+      ${b.avatar ? `<img class="info-av" src="${esc(b.avatar)}.gif" alt="">` : ``}
       <div class="info-row"><b>Screen Name:</b> ${esc(b.sn)}</div>
       <div class="info-row"><b>Role in 2006:</b> ${esc(b.role)}</div>
       <div class="info-row"><b>Warning Level:</b> 0%</div>
@@ -2847,6 +2897,10 @@ function personaToBuddy(row){
     font:     FONT_KEYS[p.font] || FONTS.comic,
     size:     Number(p.size) || 13,
     isBot:    !!p.is_bot,
+    // The ensemble icons. A slug in the persona, files in /2006/cast/. The
+    // still is the buddy icon; the gif is the turnaround for the line on
+    // The Show: Live.
+    avatar:   p.avatar ? "/2006/cast/" + String(p.avatar).replace(/[^a-z0-9-]/g, "") : "",
   };
 }
 
