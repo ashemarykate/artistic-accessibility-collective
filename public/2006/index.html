@@ -271,6 +271,14 @@
   /* The wordmark is the title, so it takes the window's width. Explicit, and
      specific enough that the image resets elsewhere in the file do not win. */
   .live .live-wm{display:block;width:100%;max-width:320px;height:auto;margin:0 0 4px}
+  /* Standing on the window: bottom edge of the row sits on the window's top
+     border. The window's own shadow falls behind them, so they read as in
+     front of it. */
+  .signon-cast{
+    display:flex;justify-content:center;align-items:flex-end;gap:6px;
+    margin:12px auto -1px;padding:0 6px;position:relative;z-index:1;
+  }
+  .frame .signon-cast img{height:56px;width:auto;image-rendering:pixelated;display:block}
   .titlebar .av{width:18px;height:18px;margin-right:4px;vertical-align:-4px;display:inline-block}
   .info-av{height:96px;width:auto;image-rendering:pixelated;display:block;margin:0 auto 8px}
   .xa-av{width:20px;height:20px;object-fit:contain;image-rendering:pixelated;vertical-align:-5px;margin-right:4px}
@@ -987,42 +995,42 @@ const FONTS = {
 };
 
 const buddies = [
-  {sn:"mkashe9",  status:"away",   idleMin:23, role:"Writer/Performer/Editor/Tech",
+  {sn:"mkashe9", avatar:"/2006/cast/mk",  status:"away",   idleMin:23, role:"Writer/Performer/Editor/Tech",
    bg:"#3e7391", fg:"#c3adaf", font:FONTS.sys,
    size:13,
    about:"[write yours in the Production Admin and it lands right here]",
    awayMsg:"not here, prolly back later",
    profile:"friends. music. swim.\n\norlando bloom <3"},
 
-  {sn:"SBconfetti", status:"away", idleMin:0, role:"Writer/Performer/Editor",
+  {sn:"SBconfetti", avatar:"/2006/cast/jen", status:"away", idleMin:0, role:"Writer/Performer/Editor",
    bg:"#ff00ff", fg:"#66ff00", font:FONTS.comic,
    size:16,
    about:"[write yours in the Production Admin and it lands right here]",
    awayMsg:"BRB I'M NOT HERE RIGHT NOW. PROBABLY DOIN' HW FOR SPEEDY'S CLASS LOL. LEAVE A MESSAGE AFTER THE BEEP. ~~BEEEEEEEEP~~ :-P",
    profile:"And when she walks\nAll the wind blows and the angels sing\nShe'll never notice me\nCause she is watchin' wrestling\nCreamin' over tough guys\nListenin' to rap metal\nTurntables in her eyes\nShe likes 'em with a mustache\nRacetrack season pass\nDrivin' in a Trans-Am\nDoes a mullet make a man?"},
 
-  {sn:"x0x_BlueShellVictim_x0x", status:"away", idleMin:112, role:"Writer/Performer/Editor",
+  {sn:"x0x_BlueShellVictim_x0x", avatar:"/2006/cast/lip", status:"away", idleMin:112, role:"Writer/Performer/Editor",
    bg:"#000000", fg:"#5ce9f5", font:FONTS.sys,
    size:12,
    about:"[write yours in the Production Admin and it lands right here]",
    awayMsg:"What would you do if your son was at home?",
    profile:"Yo listen up here's a story about a little guy that lives in a blue world....\n\n“Chocolate rain, makes the best of friends begin to fight” -Tay Zonday\n\n@(o.0)@"},
 
-  {sn:"neodafunky", status:"idle", idleMin:4, role:"Writer/Performer/Editor",
+  {sn:"neodafunky", avatar:"/2006/cast/yongwoo", status:"idle", idleMin:4, role:"Writer/Performer/Editor",
    bg:"#e8912e", fg:"#ffffff", font:FONTS.square,
    size:12,
    about:"[write yours in the Production Admin and it lands right here]",
    awayMsg:"yo. im not here. you can pretend i am if youre weird",
    profile:"aka bboy flicker (wild 7 crew)\na/s/l: not telling you/male/not telling you\nfavorite band: streetlight manifesto\nfavorite song: bang on! -propellerheads\nfavorite movie: city of god\nfavorite bboy: bboy baek\n\nemo sux\n\n'Oh, He was really being charitable to us when He gave us pain! Why couldn't He have used a doorbell instead to notify us, or one of His celestial choirs? Or a system of blue-and-red neon tubes right in the middle of each person's forehead. Any jukebox manufacturer worth his salt could have done that. Why couldn't He?'\n'People would certainly look silly walking around with red neon tubes in the middle of their foreheads.'\n'They certainly look beautiful now writhing in agony or stupefied with morphine, don't they?'\n-joseph heller, Catch-22\n\n*trip*"},
 
-  {sn:"EmmaIsNine", status:"away", idleMin:57, role:"Writer/Performer",
+  {sn:"EmmaIsNine", avatar:"/2006/cast/emma", status:"away", idleMin:57, role:"Writer/Performer",
    bg:"#000000", fg:"#ffffff", font:FONTS.comic,
    size:13,
    about:"",
    awayMsg:"[away message coming soon]",
    profile:"[bio coming soon]"},
 
-  {sn:"bbulldogs48", status:"offline", idleMin:0, role:"Tech",
+  {sn:"bbulldogs48", avatar:"/2006/cast/alec", status:"offline", idleMin:0, role:"Tech",
    bg:"#000000", fg:"#ffffff", font:FONTS.comic,
    size:13,
    about:"",
@@ -1489,8 +1497,19 @@ function render(){
 }
 
 /* ══════════════════ SIGN ON — the landing page ══════════════════ */
+/* The six of them, standing on top of the sign on window. Decorative here:
+   the names are on the buddy list one screen later, so this row is hidden
+   from screen readers rather than being six more things to tab past before
+   the sign on box. Stills, not the turnaround. */
+function signOnCast(){
+  const cast = buddies.filter(b => b.avatar && !b.isBot);
+  if(!cast.length) return "";
+  return `<div class="signon-cast" aria-hidden="true">
+    ${cast.map(b => `<img src="${esc(b.avatar)}.png" alt="">`).join("")}
+  </div>`;
+}
 function viewSignOn(){
-  return `<div class="win">
+  return `${signOnCast()}<div class="win">
     <div class="titlebar">
       <img class="i" src="${ICONS.runman||ICONS.online}" width="16" height="16" alt="">
       Sign On
