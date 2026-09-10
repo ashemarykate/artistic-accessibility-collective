@@ -1405,8 +1405,36 @@ const REMINISCE = [
 /* Backstage links straight to a screen with a hash: /2006#videos opens the
    countdown. Read once at boot. Somebody not signed on gets the sign on window
    first and lands on the screen they were sent to right after. */
-const SCREENS = ["show","buddies","videos","wall","reminisce","playlists","play","blog","graveyard","home"];
-let pendingScreen = SCREENS.includes(location.hash.replace("#","")) ? location.hash.replace("#","") : null;
+/* One address per screen. /2006 is the sign on and the iPod; everything else
+   is /2006/<what it is called>, so an ad can point straight at the countdown
+   or the blog. next.config.ts serves this file for each of these, the page
+   reads the last part of the address on load, and the address bar follows
+   you as you move around so a copied link lands where you were. The old
+   #hash form still works. */
+const SLUG_TO_SCREEN = {
+  show:"show", "2006ers":"buddies", countdown:"videos", videos:"videos",
+  vibes:"wall", confessions:"wall", blog:"blog", playlists:"playlists",
+  play:"play", graveyard:"graveyard", reminisce:"reminisce", home:"home",
+};
+const SCREEN_TO_SLUG = {
+  show:"show", buddies:"2006ers", videos:"countdown", wall:"vibes", blog:"blog",
+  playlists:"playlists", play:"play", graveyard:"graveyard", reminisce:"reminisce",
+};
+const SCREENS = Object.keys(SCREEN_TO_SLUG).concat(["home"]);
+function screenFromAddress(){
+  const seg = location.pathname.replace(/\/+$/, "").split("/").pop();
+  const fromPath = seg && seg !== "2006" ? SLUG_TO_SCREEN[seg] : null;
+  const fromHash = SLUG_TO_SCREEN[location.hash.replace("#","")];
+  return fromPath || fromHash || null;
+}
+function reflectAddress(){
+  if(!/^\/2006(\/|$)/.test(location.pathname)) return;   // a copy served elsewhere leaves the bar alone
+  if(screen === "signon") return;   // keep /2006/blog in the bar while signing on, so a reload still lands there
+  const slug = SCREEN_TO_SLUG[screen];
+  const want = slug ? "/2006/" + slug : "/2006";
+  if(location.pathname !== want || location.hash) history.replaceState(null, "", want);
+}
+let pendingScreen = screenFromAddress();
 let screen = ME.sn ? (pendingScreen || "home") : "signon";
 if(ME.sn) pendingScreen = null;
 let podSel = 0;
@@ -1465,6 +1493,7 @@ const SCREEN_TITLES = {
   graveyard:'The Graveyard', show:'The Show: Live',
 };
 function render(){
+  reflectAddress();
   const h1 = document.getElementById('screen-title');
   if (h1) h1.textContent = (SCREEN_TITLES[screen] || '2006') + ' · 2006';
   if(screen==="signon")         app.innerHTML = viewSignOn();

@@ -171,7 +171,7 @@ export default function BackstageCountdown({
                style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
           The Video Countdown
         </h2>
-        <SeeOnSite href={`${siteUrl}#videos`} label="the Video Countdown" />
+        <SeeOnSite href={`${siteUrl}/countdown`} label="the Video Countdown" />
       </div>
       <p style={{ color: '#444', margin: '0.5rem 0 0' }}>
         The list people vote on. Edit a row and save, and the site has it on its

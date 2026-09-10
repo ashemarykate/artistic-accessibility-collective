@@ -24,6 +24,15 @@ const nextConfig: NextConfig = {
         source: '/2006',
         destination: '/2006/index.html',
       },
+      // One address per screen, so an ad or a post can send people straight
+      // to the countdown or the blog: /2006/blog, /2006/countdown. The page
+      // reads the last segment on load and opens that screen. The list is
+      // explicit so /2006/icons/... and the other asset folders keep serving
+      // files rather than the page.
+      {
+        source: '/2006/:screen(show|2006ers|countdown|videos|vibes|confessions|blog|playlists|play|graveyard|reminisce)',
+        destination: '/2006/index.html',
+      },
     ];
   },
 };

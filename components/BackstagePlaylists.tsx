@@ -103,7 +103,7 @@ export default function BackstagePlaylists({
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         {SECTIONS.playlists.title}
       </h2>
-        <SeeOnSite href={`${siteUrl}#playlists`} label="Playlists" />
+        <SeeOnSite href={`${siteUrl}/playlists`} label="Playlists" />
       </div>
       <p style={{ color: '#444', marginTop: 0 }}>{SECTIONS.playlists.blurb}</p>
 

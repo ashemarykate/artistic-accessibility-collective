@@ -138,7 +138,7 @@ export default function BackstageGraveyard({
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         The Graveyard
       </h2>
-        <SeeOnSite href={`${siteUrl}#graveyard`} label="the Graveyard" />
+        <SeeOnSite href={`${siteUrl}/graveyard`} label="the Graveyard" />
       </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         Things we miss, shown on the public site. Anyone can send one in, and

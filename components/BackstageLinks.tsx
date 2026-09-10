@@ -91,7 +91,7 @@ export default function BackstageLinks({
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
         <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>Where everything lives</h2>
-        <SeeOnSite href={`${site.public_url || '/2006'}#show`} label="The Show: Live" />
+        <SeeOnSite href={`${site.public_url || '/2006'}/show`} label="The Show: Live" />
       </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         The places this show keeps things. A greyed out icon means nobody has

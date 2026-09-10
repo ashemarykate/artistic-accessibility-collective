@@ -126,7 +126,7 @@ export default function BackstagePosts({
              style={{ verticalAlign: '-5px', marginRight: '0.5rem', imageRendering: 'pixelated' }} />
         Posts
       </h2>
-        <SeeOnSite href={`${siteUrl}#blog`} label="The Blog" />
+        <SeeOnSite href={`${siteUrl}/blog`} label="The Blog" />
       </div>
       <p style={{ color: '#444', marginTop: 0 }}>
         Write something and it shows up on the public site under your screen

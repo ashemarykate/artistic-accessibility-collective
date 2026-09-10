@@ -70,7 +70,7 @@ export default function BackstageShowSettings({
     <section style={{ ...PORTAL_PANEL_STYLE, padding: '1.25rem', marginBottom: '1.25rem', color: '#222' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
         <h2 style={{ marginTop: 0, marginBottom: 0, color: 'var(--aac-blue)' }}>The switches</h2>
-        <SeeOnSite href={`${siteUrl}#show`} label="The Show: Live" />
+        <SeeOnSite href={`${siteUrl}/show`} label="The Show: Live" />
       </div>
       <p style={{ color: '#444', margin: '0.5rem 0 0.75rem' }}>
         What the site is doing right now. Every one of these changes the public
