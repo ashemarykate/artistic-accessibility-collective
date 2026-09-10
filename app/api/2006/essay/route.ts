@@ -39,9 +39,10 @@ export async function POST(req: Request) {
   const admin = adminClient();
   const settings = await loadWallSettings(admin, SLUG);
   if (!settings) return no('the blog is not set up yet.', 404);
-  // One switch for "the audience can write on this site". If the wall is shut,
-  // the essay box is shut with it, and the cast has one thing to remember.
-  if (!settings.wallOpen) return no('the blog is closed to new entries right now.', 403);
+  // Always open, on purpose. During the live show a link elsewhere sends people
+  // here to write alongside the people on stage, and nobody should arrive to a
+  // closed door because a switch for the wall was off. The wall has its own
+  // switch; the blog does not have one.
 
   const device = cleanDeviceTag(payload.device);
   if (!device) return no('reload the page and try again?');

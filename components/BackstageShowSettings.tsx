@@ -87,8 +87,8 @@ export default function BackstageShowSettings({
         help="Shows the submit button on the countdown. Off, and the page says submissions are closed." />
 
       <h3 style={{ fontSize: '0.95rem', color: 'var(--aac-blue)', margin: '1rem 0 0' }}>The wall and the blog</h3>
-      <Switch k="wall_open" label="The audience can write"
-        help="One switch for both: confessions on the wall and entries on the blog. Off, and the page says it is closed, nothing is deleted." />
+      <Switch k="wall_open" label="The wall is open"
+        help="Confessions and vibes. Off, and the page says the wall is closed, nothing is deleted. The blog is always open and has no switch: during the show a link sends people there to write." />
       <Switch k="wall_frozen" label="Freeze the wall" danger
         help="The panic button. The wall instantly shows starred posts only, on every phone. Nothing is deleted, and unfreezing puts everything back. For the night something is on a screen that should not be." />
       <Text k="photo_question" label="The question in front of a picture"
