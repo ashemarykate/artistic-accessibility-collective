@@ -279,6 +279,10 @@
     margin:12px auto -1px;padding:0 6px;position:relative;z-index:1;
   }
   .frame .signon-cast img{height:56px;width:auto;image-rendering:pixelated;display:block}
+  /* Emma's sprite is the widest of the six, so at the same height she reads as
+     bigger than everyone. A touch shorter evens it out; both rows align to the
+     bottom, so every pair of feet stays on the same line. */
+  .frame .signon-cast img[src*="/cast/emma"], .live .cast-line img[src*="/cast/emma"]{height:50px !important}
   .titlebar .av{width:18px;height:18px;margin-right:4px;vertical-align:-4px;display:inline-block}
   .info-av{height:96px;width:auto;image-rendering:pixelated;display:block;margin:0 auto 8px}
   .xa-av{width:20px;height:20px;object-fit:contain;image-rendering:pixelated;vertical-align:-5px;margin-right:4px}
