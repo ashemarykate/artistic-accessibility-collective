@@ -254,7 +254,7 @@
   }
   .grp .tri{font-size:9px;width:10px;color:#333}
   .grp .cnt{font-weight:normal;color:#666}
-  .grp.off-grp{color:#888}
+  .grp.off-grp{color:#6e6e6e}
   .buddy{
     display:flex;align-items:center;gap:6px;width:100%;background:none;border:0;
     cursor:pointer;text-align:left;font-family:inherit;
@@ -297,9 +297,9 @@
   .cast-line li{margin:0}
   .cast-line a{display:block;line-height:0}
   .live .cast-line img, .cast-line img{height:56px !important;width:auto;max-width:none;image-rendering:pixelated;display:block}
-  .buddy.away .sn{color:#7d7d7d;font-style:italic}
-  .buddy.offline .sn{color:#a0a0a0}
-  .idle{margin-left:auto;font-size:11px;color:#888;padding-right:4px}
+  .buddy.away .sn{color:#6e6e6e;font-style:italic}
+  .buddy.offline .sn{color:#767676}
+  .idle{margin-left:auto;font-size:11px;color:#6e6e6e;padding-right:4px}
   .buddy.sel .idle{color:#dce8f8}
   .collapsed .buddy{display:none}
 
@@ -875,11 +875,16 @@
   .im-entry:disabled{background:#f4f2e8;color:#999;font-style:italic}
   .im-actions{display:flex;justify-content:flex-end;gap:6px;padding:6px;align-items:center}
   .typing{margin-right:auto;font-size:10px;color:#888;font-family:inherit;padding-left:4px}
+  /* An XP button is a pale face, so it has to carry its own dark text. Without
+     this it inherited whatever the screen set: on the black screens that is
+     #d6d6d6, which is 1.19:1 on the button and 1.03:1 while pressed. Invisible,
+     and it was every button on the countdown, the wall, the blog and the mixes. */
   .btn-xp{
-    font-family:inherit;font-size:11px;
+    font-family:inherit;font-size:11px;color:#1a1a1a;
     background:linear-gradient(180deg,#fff,#ece9d8);
     border:1px solid #003c74;border-radius:3px;padding:5px 14px;cursor:pointer;
   }
+  .btn-xp:visited{color:#1a1a1a}
   .btn-xp:active{background:#ddd9c8}
   .btn-xp.primary{font-weight:bold}
   .btn-xp:disabled{opacity:.5;cursor:default}
@@ -3132,6 +3137,26 @@ async function watchSwitches(){
   } catch(e){ /* offline for a moment. the next tick tries again. */ }
 }
 
+/* The three links the front door and the countdown need. Asked for separately
+   from the switches so a database that has not run the newest migration still
+   hands back everything else, and asked for remind_url on its own because that
+   column arrives with a migration that may not have been run yet: a select for
+   a missing column fails the whole query, not just that field. */
+async function readLinks(){
+  const slugQ = `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`;
+  try {
+    const r = await sbGet("production_microsite?select=reserve_url,submit_form_url,productions!inner(slug)" + slugQ);
+    if(r && r[0]){
+      if(r[0].reserve_url)     CONFIG.RESERVE_URL     = r[0].reserve_url;
+      if(r[0].submit_form_url) CONFIG.SUBMIT_FORM_URL = r[0].submit_form_url;
+    }
+  } catch(e){}
+  try {
+    const r = await sbGet("production_microsite?select=remind_url,productions!inner(slug)" + slugQ);
+    if(r && r[0] && r[0].remind_url) CONFIG.REMIND_URL = r[0].remind_url;
+  } catch(e){}
+}
+
 async function loadLive(){
   if(!CONFIG.SB_URL || !CONFIG.SB_KEY) return false;
 
@@ -3150,6 +3175,7 @@ async function loadLive(){
   try {
     await readSwitches();
   } catch(e){ /* keep the built in switches */ }
+  await readLinks();
 
   // The show dates. Fallback stays if the table has none for this show yet.
   try {
