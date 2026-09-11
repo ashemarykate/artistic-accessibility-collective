@@ -1222,6 +1222,7 @@ let SHOW_DATES = [           // fallback until production_dates is seeded
   {label:"Sunday night",     start_at:"2026-10-12T00:00:00Z"},
 ];
 CONFIG.RESERVE_URL = CONFIG.RESERVE_URL || "";
+CONFIG.REMIND_URL = CONFIG.REMIND_URL || "https://forms.gle/Cb12QmGo6S6LdxzH9"; // TEMP TEST
 CONFIG.SUBMIT_FORM_URL = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
 
 /* Three states, and the switch in Backstage decides the one that matters.
@@ -2760,10 +2761,17 @@ function viewShow(){
           <span>${esc(showDate(d))} CT</span>
         </div>`).join("")}
       </div>
+      ${CONFIG.REMIND_URL
+        ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.REMIND_URL)}" target="_blank"
+             rel="noopener noreferrer">email me the link<span class="sr-only"> (opens a form in a new tab)</span></a>
+           <p class="live-fine">watching from home? we will send you a reminder and the
+             link to watch. opens a form in a new tab. pick which show.</p>`
+        : ``}
       ${CONFIG.RESERVE_URL
-        ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
-             rel="noopener noreferrer">reserve a free seat in the studio</a>
-           <p class="live-fine">opens a form in a new tab. pick which show.</p>`
+        ? `<a class="btn-xp live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
+             rel="noopener noreferrer">reserve a free seat in the studio<span class="sr-only"> (opens a form in a new tab)</span></a>
+           <p class="live-fine">coming to us in person? seats in the room are limited.
+             opens a form in a new tab. pick which show.</p>`
         : `<p class="live-fine">seat reservations open soon.</p>`}
 
       <h3 class="live-h3">how to play along</h3>
@@ -3067,6 +3075,63 @@ async function sbGet(path){
   return r.json();
 }
 
+/* ══════════════════ THE SWITCHES ══════════════════
+   The cast flips voting, show mode and submissions in Backstage, and Backstage
+   promises every phone gets it within a second or two. This is what makes that
+   true. The page used to read them once at boot and never again, so anyone who
+   opened the site before the flip practised all night: their vote was saved to
+   their own phone and never reached the server, and they were told it counted.
+
+   Polled rather than pushed, because a static file has nowhere to push to. Every
+   20 seconds, and again the moment a phone comes back from sleep, which is the
+   case that actually matters in a theatre: screens lock, background timers stop,
+   and the interval alone would miss the flip entirely.
+
+   It only redraws when something really changed, and never while somebody is
+   typing or has their finger in the ballot, so the screen does not jump out
+   from under a half finished confession. */
+async function readSwitches(){
+  const site = await sbGet(
+    "production_microsite?select=production_id,show_mode,voting_open,submissions_open,productions!inner(slug)"
+    + `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`
+  );
+  if(!site || !site[0]) return false;
+  const before = [CONFIG.SHOW_MODE, CONFIG.VOTING_OPEN, CONFIG.SUBMISSIONS_OPEN].join();
+  CONFIG.PRODUCTION_ID    = site[0].production_id;
+  CONFIG.SHOW_MODE        = !!site[0].show_mode;
+  CONFIG.VOTING_OPEN      = !!site[0].voting_open;
+  CONFIG.SUBMISSIONS_OPEN = !!site[0].submissions_open;
+  return before !== [CONFIG.SHOW_MODE, CONFIG.VOTING_OPEN, CONFIG.SUBMISSIONS_OPEN].join();
+}
+
+/* True while somebody is mid sentence or mid vote. Redrawing under them would
+   throw away what they typed and lose their place, which is worse than being
+   twenty seconds late to a switch. */
+function busyTyping(){
+  const el = document.activeElement;
+  if(!el || el === document.body) return false;
+  if(/^(TEXTAREA|INPUT|SELECT)$/.test(el.tagName)) return true;
+  return !!el.closest && !!el.closest("#ballot, #composer, #essay, #mixform");
+}
+
+async function watchSwitches(){
+  try {
+    const wasPhase = phase();
+    const changed = await readSwitches();
+    if(!changed) return;
+    // Voting opening or closing changes the whole countdown, so pick the
+    // standings up in the same breath rather than a beat later.
+    if(phase() === "live" && wasPhase !== "live") await loadStandings();
+    if(busyTyping()) return;
+    render();
+    if(phase() !== wasPhase){
+      say(phase() === "live" ? "voting is open now. your vote counts."
+        : phase() === "after" ? "voting has closed."
+        : "the site has changed. voting is not counting right now.");
+    }
+  } catch(e){ /* offline for a moment. the next tick tries again. */ }
+}
+
 async function loadLive(){
   if(!CONFIG.SB_URL || !CONFIG.SB_KEY) return false;
 
@@ -3083,25 +3148,7 @@ async function loadLive(){
 
   // Show switches. A failure here must not take the cast down with it.
   try {
-    const slugQ = `&productions.slug=eq.${encodeURIComponent(CONFIG.SLUG)}`;
-    const site = await sbGet(
-      "production_microsite?select=production_id,show_mode,voting_open,submissions_open,productions!inner(slug)" + slugQ
-    );
-    if(site && site[0]){
-      CONFIG.PRODUCTION_ID    = site[0].production_id;
-      CONFIG.SHOW_MODE        = !!site[0].show_mode;
-      CONFIG.VOTING_OPEN      = !!site[0].voting_open;
-      CONFIG.SUBMISSIONS_OPEN = !!site[0].submissions_open;
-    }
-    // The two links arrive with v59. Asked for separately so a database that
-    // has not run it yet still hands back the switches above.
-    try {
-      const more = await sbGet("production_microsite?select=reserve_url,submit_form_url,productions!inner(slug)" + slugQ);
-      if(more && more[0]){
-        if(more[0].reserve_url)     CONFIG.RESERVE_URL     = more[0].reserve_url;
-        if(more[0].submit_form_url) CONFIG.SUBMIT_FORM_URL = more[0].submit_form_url;
-      }
-    } catch(e){}
+    await readSwitches();
   } catch(e){ /* keep the built in switches */ }
 
   // The show dates. Fallback stays if the table has none for this show yet.
@@ -3189,6 +3236,12 @@ function wireModerate(){
 (async function boot(){
   render();
   loadCast();
+  /* Not tied to window.__tick: that one is cleared on every render, and this
+     has to keep running whatever screen somebody is sitting on. */
+  setInterval(watchSwitches, 20000);
+  document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "visible") watchSwitches();
+  });
   try {
     const gotLive = await loadLive();
     if(gotLive) render();
