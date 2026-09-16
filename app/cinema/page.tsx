@@ -1,7 +1,7 @@
 'use client';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { CINEMA_CATEGORIES, CINEMA_ITEMS, type CinemaItem, type CinemaCategory } from '@/lib/cinema-data';
+import { CINEMA_CATEGORIES, CINEMA_ITEMS, type CinemaItem } from '@/lib/cinema-data';
 import { supabase } from '@/lib/supabase';
 import BrowserChrome from '@/components/BrowserChrome';
 
@@ -25,9 +25,23 @@ const C = {
 
 const MEDIA_TYPES = ['Documentary', 'Film', 'Short Film', 'Podcast', 'Series', 'Performance Recording', 'Talk / Lecture', 'Video Essay', 'Other'];
 
-// Left column: first 4 channels. Right column: last 4.
-const LEFT_CATS  = CINEMA_CATEGORIES.slice(0, 4);
-const RIGHT_CATS = CINEMA_CATEGORIES.slice(4, 8);
+const PER_PAGE = 25;
+
+type SortKey = 'schedule' | 'title' | 'year' | 'runtime';
+
+/** Listing order: ignore a leading article, the way a printed guide files titles. */
+function titleSortKey(title: string): string {
+  return title.replace(/^(a|an|the)\s+/i, '').toLowerCase();
+}
+
+/** Quick filters offered as chips on a channel. AD and CC matter to this audience. */
+const QUICK_FILTERS: { id: string; label: string; match: (i: CinemaItem) => boolean }[] = [
+  { id: 'free',      label: 'FREE ★',         match: (i) => !!i.isFree },
+  { id: 'essential', label: '★ ESSENTIAL',    match: (i) => !!i.isEssential },
+  { id: 'voice',     label: 'DISABLED VOICE', match: (i) => i.tags.includes('Disabled Voice') },
+  { id: 'ad',        label: 'AD',             match: (i) => !!i.hasAD },
+  { id: 'cc',        label: 'CC',             match: (i) => !!i.hasCaptions },
+];
 
 // ── Map a resources DB row → CinemaItem ──────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,8 +70,14 @@ function dbRowToCinemaItem(row: any): CinemaItem {
 export default function CinemaPage() {
   const [search,         setSearch        ] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [showFreeOnly,   setShowFreeOnly  ] = useState(false);
   const [suggest,        setSuggest       ] = useState({ title: '', type: '', why: '', name: '', email: '' });
+
+  // Browsing state: the guide opens on the channel lineup, then you tune to a channel.
+  const [showLineup,   setShowLineup  ] = useState(true);
+  const [sortBy,       setSortBy      ] = useState<SortKey>('schedule');
+  const [page,         setPage        ] = useState(1);
+  const [quickFilters, setQuickFilters] = useState<Set<string>>(new Set());
+  const channelHeadingRef = useRef<HTMLHeadingElement>(null);
   const [suggestStatus,  setSuggestStatus ] = useState<FormStatus>('idle');
   const [dbItems,        setDbItems       ] = useState<CinemaItem[]>([]);
 
@@ -149,11 +169,26 @@ export default function CinemaPage() {
     return [...CINEMA_ITEMS.filter((i) => !dbSlugs.has(i.slug)), ...dbItems];
   }, [dbItems]);
 
+  // Guide-wide totals, counted from the merged list so admin-added titles are included
+  const totals = useMemo(() => ({
+    all:       allItems.length,
+    free:      allItems.filter((i) => i.isFree).length,
+    essential: allItems.filter((i) => i.isEssential).length,
+  }), [allItems]);
+
+  // Per-channel counts and the Essential titles shown in each lineup card
+  const lineup = useMemo(() => CINEMA_CATEGORIES.map((cat) => {
+    const items = allItems.filter((i) => i.category === cat.id);
+    const essentials = items.filter((i) => i.isEssential);
+    return { cat, count: items.length, picks: (essentials.length ? essentials : items).slice(0, 3) };
+  }), [allItems]);
+
   const filtered = useMemo<CinemaItem[]>(() => {
     const q = search.toLowerCase().trim();
+    const active = QUICK_FILTERS.filter((f) => quickFilters.has(f.id));
     return allItems.filter((item) => {
       if (activeCategory && item.category !== activeCategory) return false;
-      if (showFreeOnly && !item.isFree) return false;
+      if (!active.every((f) => f.match(item))) return false;
       if (q) return (
         item.title.toLowerCase().includes(q) ||
         (item.director ?? '').toLowerCase().includes(q) ||
@@ -163,17 +198,65 @@ export default function CinemaPage() {
       );
       return true;
     });
-  }, [search, activeCategory, showFreeOnly, allItems]);
+  }, [search, activeCategory, quickFilters, allItems]);
 
-  const byCategory = useMemo(() => {
-    const map = new Map<string, CinemaItem[]>();
-    CINEMA_CATEGORIES.forEach((cat) => map.set(cat.id, []));
-    filtered.forEach((item) => { map.get(item.category)?.push(item); });
-    return map;
-  }, [filtered]);
+  // Sort. 'schedule' keeps the curated order the data file is written in.
+  const sorted = useMemo<CinemaItem[]>(() => {
+    if (sortBy === 'schedule') return filtered;
+    const out = [...filtered];
+    const byTitle = (a: CinemaItem, b: CinemaItem) => titleSortKey(a.title).localeCompare(titleSortKey(b.title));
+    out.sort((a, b) => {
+      if (sortBy === 'title') return byTitle(a, b);
+      if (sortBy === 'year') {                       // newest first, undated last
+        const ay = a.year ?? -Infinity, by = b.year ?? -Infinity;
+        return ay === by ? byTitle(a, b) : by - ay;
+      }
+      const ar = a.runtimeMinutes ?? Infinity;        // shortest first, unknown last
+      const br = b.runtimeMinutes ?? Infinity;
+      return ar === br ? byTitle(a, b) : ar - br;
+    });
+    return out;
+  }, [filtered, sortBy]);
 
-  const isFiltering = search.trim() || activeCategory || showFreeOnly;
-  const freeCount = CINEMA_ITEMS.filter((i) => i.isFree).length;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const safePage   = Math.min(page, totalPages);
+  const pageItems  = useMemo(
+    () => sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE),
+    [sorted, safePage],
+  );
+
+  const isFiltering = Boolean(search.trim() || activeCategory || quickFilters.size);
+  const activeCat   = activeCategory ? CINEMA_CATEGORIES.find((c) => c.id === activeCategory) ?? null : null;
+
+  /** Tune to a channel (null = full schedule) and move focus to its heading. */
+  const tuneTo = useCallback((categoryId: string | null) => {
+    setActiveCategory(categoryId);
+    setShowLineup(false);
+    setPage(1);
+    requestAnimationFrame(() => channelHeadingRef.current?.focus());
+  }, []);
+
+  const toggleQuickFilter = useCallback((id: string) => {
+    setQuickFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setPage(1);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearch('');
+    setActiveCategory(null);
+    setQuickFilters(new Set());
+    setPage(1);
+  }, []);
+
+  const goToPage = useCallback((n: number) => {
+    setPage(n);
+    channelHeadingRef.current?.focus();
+  }, []);
 
   return (
     <BrowserChrome
@@ -194,7 +277,7 @@ export default function CinemaPage() {
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px' }}>
 
-        {/* ── Top search bar ───────────────────────────────────────── */}
+        {/* ── Top search bar, always available ──────────────────────── */}
         <div
           style={{
             background: C.navy,
@@ -216,111 +299,262 @@ export default function CinemaPage() {
             id="cinema-search"
             type="search"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+              if (e.target.value.trim()) setShowLineup(false);
+            }}
             placeholder="Title, director, keyword…"
             style={{ flex: 1, minWidth: 160, background: C.white, border: `1px solid ${C.lgray}`, color: C.black, fontFamily: C.sans, fontSize: 13, padding: '4px 9px' }}
             className="cinema-ctrl-input"
           />
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
-            <input type="checkbox" checked={showFreeOnly} onChange={(e) => setShowFreeOnly(e.target.checked)} style={{ accentColor: C.yellow, width: 14, height: 14 }} />
-            FREE ONLY ★
-          </label>
-          {isFiltering && (
-            <button
-              onClick={() => { setSearch(''); setActiveCategory(null); setShowFreeOnly(false); }}
-              style={{ background: C.teal, border: `1px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 700, fontSize: 11, padding: '3px 10px', cursor: 'pointer', letterSpacing: '0.06em' }}
-              className="cinema-ctrl-btn"
-            >
-              CLEAR ✕
-            </button>
-          )}
-          <div aria-live="polite" aria-atomic="true" style={{ fontFamily: C.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap' }}>
-            {isFiltering ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : `${CINEMA_ITEMS.length} titles · ${freeCount} free`}
+          <div style={{ fontFamily: C.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)', whiteSpace: 'nowrap' }}>
+            {totals.all} titles · {totals.free} free
           </div>
         </div>
 
-        {/* ── Category filter pills ─────────────────────────────────── */}
-        <div
-          role="group"
-          aria-label="Filter by channel"
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}
-        >
-          {[{ id: null, channel: 'ALL', call: 'ALL CHANNELS' }, ...CINEMA_CATEGORIES.map(c => ({ id: c.id, channel: c.channel, call: c.call + ': ' + c.title }))].map((opt) => {
-            const active = opt.id === null ? activeCategory === null : activeCategory === opt.id;
-            return (
-              <button
-                key={opt.id ?? 'all'}
-                onClick={() => setActiveCategory(opt.id === null ? null : (activeCategory === opt.id ? null : opt.id))}
-                aria-pressed={active}
-                style={{
-                  background: active ? C.navy : C.white,
-                  color: active ? C.white : C.black,
-                  border: `2px solid ${C.navy}`,
-                  fontFamily: C.sans,
-                  fontWeight: 900,
-                  fontSize: 12,
-                  padding: '4px 10px',
-                  cursor: 'pointer',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                }}
-                className="cinema-cat-btn"
-              >
-                {opt.channel} {opt.call !== 'ALL CHANNELS' ? '' : ''}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── Main two-column printed schedule grid ─────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, alignItems: 'start' }} className="cinema-schedule-grid">
-
-          {/* LEFT COLUMN */}
+        {showLineup ? (
+          /* ── Front door: the channel lineup ───────────────────────── */
           <div>
-            {/* Title block — sits above the left column items, on the teal background */}
-            <div style={{ marginBottom: 10 }}>
+            {/* Masthead */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 20, alignItems: 'end', marginBottom: 14 }} className="cinema-masthead">
               <div style={{ fontWeight: 900, fontFamily: C.sans, letterSpacing: '-0.01em', lineHeight: 1.0, color: C.black }}>
                 <div style={{ fontSize: 13, letterSpacing: '0.14em', fontWeight: 900, marginTop: 4 }}>AAC PRESENTS:</div>
                 <div className="cinema-title" style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE CINEMA</div>
               </div>
-              <div style={{ marginTop: 12, borderTop: `2px solid ${C.black}`, paddingTop: 10 }}>
-                <p style={{ margin: '0 0 8px', fontSize: 11, lineHeight: 1.65 }}>
+              <div style={{ borderTop: `2px solid ${C.black}`, paddingTop: 8 }}>
+                <p style={{ margin: '0 0 6px', fontSize: 11, lineHeight: 1.6 }}>
                   A community-curated schedule of films, documentaries, podcasts, and more, centered on disability representation and accessibility in the arts.
                 </p>
-                <p style={{ margin: '0 0 10px', fontSize: 11, lineHeight: 1.65, color: C.gray }}>
+                <p style={{ margin: 0, fontSize: 11, lineHeight: 1.6, color: C.gray }}>
                   Ratings and comments aren&apos;t extras. They&apos;re how this community holds the record honest: whether a film treats its subjects with dignity, whether accessibility features are actually good, what it means to see your experience onscreen. Watch. Then weigh in.
                 </p>
-                <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.5 }}>★ Free items in yellow &nbsp;·&nbsp; ★ Essential picks</div>
-                <div style={{ fontSize: 11, lineHeight: 1.5, marginTop: 2 }}>Click any title to rate, comment, and save.</div>
-                <div style={{ marginTop: 8, fontSize: 11, lineHeight: 1.5, color: C.gray }}>
-                  Something missing?{' '}
-                  <a href="#suggest-form" style={{ color: C.black, fontWeight: 700 }}>Suggest a title ↓</a>
+                <div style={{ marginTop: 6, fontSize: 11, lineHeight: 1.5 }}>
+                  <strong>★ Free items in yellow &nbsp;·&nbsp; ★ Essential picks</strong>
+                  &nbsp;·&nbsp; Click any title to rate, comment, and save.
+                  &nbsp;·&nbsp; Something missing? <a href="#suggest-form" style={{ color: C.black, fontWeight: 700 }}>Suggest a title ↓</a>
                 </div>
-                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <Link href="/library" style={{ color: C.black, fontWeight: 700, fontSize: 12, textDecoration: 'underline' }} className="cinema-nav-link">The Library →</Link>
-                  <Link href="/resources" style={{ color: C.black, fontSize: 12, textDecoration: 'underline' }} className="cinema-nav-link">Resources →</Link>
-                  <Link href="/" style={{ color: C.black, fontSize: 12, textDecoration: 'underline' }} className="cinema-nav-link">← Home</Link>
+                <div style={{ marginTop: 6, display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 12 }}>
+                  <Link href="/library" style={{ color: C.black, fontWeight: 700, textDecoration: 'underline' }} className="cinema-nav-link">The Library →</Link>
+                  <Link href="/resources" style={{ color: C.black, textDecoration: 'underline' }} className="cinema-nav-link">Resources →</Link>
+                  <Link href="/" style={{ color: C.black, textDecoration: 'underline' }} className="cinema-nav-link">← Home</Link>
                 </div>
               </div>
             </div>
 
-            {/* Left-column category sections */}
-            {LEFT_CATS.map((cat) => {
-              const items = byCategory.get(cat.id) ?? [];
-              if (activeCategory && activeCategory !== cat.id) return null;
-              return <ScheduleSection key={cat.id} cat={cat} items={items} favSlugs={cinFavSlugs} favCounts={cinFavCounts} userId={cinUserId} onToggle={toggleCinFav} />;
-            })}
-          </div>
+            {/* Lineup header strip */}
+            <div style={{ background: C.navy, color: C.white, padding: '6px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8, borderBottom: `3px solid ${C.black}` }}>
+              <h2 style={{ margin: 0, fontWeight: 900, fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                Channel Lineup · Pick a Channel
+              </h2>
+              <span style={{ fontFamily: C.mono, fontSize: 11, opacity: 0.75 }}>
+                {totals.all} TITLES · {totals.free} FREE · {totals.essential} ESSENTIAL
+              </span>
+            </div>
 
-          {/* RIGHT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {RIGHT_CATS.map((cat) => {
-              const items = byCategory.get(cat.id) ?? [];
-              if (activeCategory && activeCategory !== cat.id) return null;
-              return <ScheduleSection key={cat.id} cat={cat} items={items} favSlugs={cinFavSlugs} favCounts={cinFavCounts} userId={cinUserId} onToggle={toggleCinFav} />;
-            })}
+            <ul className="cinema-lineup" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10 }}>
+              {lineup.map(({ cat, count, picks }) => (
+                <li key={cat.id} style={{ display: 'flex', minWidth: 0 }}>
+                  <button
+                    onClick={() => tuneTo(cat.id)}
+                    aria-label={`Tune to channel ${cat.channel}, ${cat.title}, ${count} title${count !== 1 ? 's' : ''}`}
+                    className="cinema-lineup-card"
+                    style={{
+                      display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0, textAlign: 'left',
+                      padding: 0, cursor: 'pointer', background: C.white, border: `2px solid ${C.navy}`,
+                      fontFamily: C.sans, color: C.black,
+                    }}
+                  >
+                    {/* Channel header, same navy block as the schedule */}
+                    <span style={{ background: C.navy, color: C.white, padding: '6px 10px', display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: 10, width: '100%', boxSizing: 'border-box' }}>
+                      <span style={{ fontWeight: 900, fontSize: 22, lineHeight: 1, letterSpacing: '-0.02em', opacity: 0.7 }}>{cat.channel}</span>
+                      <span style={{ minWidth: 0 }}>
+                        <span className="cinema-lineup-title" style={{ display: 'block', fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                          {cat.call}: {cat.title.toUpperCase()}
+                        </span>
+                        <span style={{ display: 'block', fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>{cat.description}</span>
+                      </span>
+                      <span style={{ fontFamily: C.mono, fontSize: 10, opacity: 0.6, whiteSpace: 'nowrap' }}>{count} TITLE{count !== 1 ? 'S' : ''}</span>
+                    </span>
+
+                    {/* Three listings peeking out, styled like schedule cells */}
+                    <span aria-hidden="true" style={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>
+                      {picks.map((p, i) => (
+                        <span key={p.slug} style={{ display: 'flex', gap: 5, alignItems: 'baseline', padding: '5px 10px', background: p.isFree ? C.yellow : i % 2 === 0 ? C.white : C.cream, borderBottom: `1px solid ${C.lgray}`, minWidth: 0 }}>
+                          {p.isEssential && <span style={{ fontWeight: 900, fontSize: 11, color: p.isFree ? C.black : C.navy, flex: '0 0 auto' }}>★</span>}
+                          <span style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.title}</span>
+                          {p.year && <span style={{ fontSize: 10, opacity: 0.7, flex: '0 0 auto' }}>({p.year})</span>}
+                        </span>
+                      ))}
+                      <span style={{ padding: '6px 10px', fontSize: 11, fontWeight: 900, letterSpacing: '0.1em', color: C.navy, background: C.white }}>
+                        ▶ TUNE IN
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => tuneTo(null)}
+              className="cinema-ctrl-btn"
+              style={{ width: '100%', marginTop: 10, padding: '11px 16px', background: C.navy, color: C.white, border: `2px solid ${C.black}`, fontFamily: C.sans, fontWeight: 900, fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}
+            >
+              View Full Schedule · All {totals.all} Titles
+            </button>
           </div>
-        </div>
+        ) : (
+          /* ── Tuned to a channel: sorted, filtered, paged ───────────── */
+          <div>
+            {/* Back + change channel */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center', marginBottom: 10 }} role="group" aria-label="Change channel">
+              <button
+                onClick={() => { setShowLineup(true); setActiveCategory(null); setSearch(''); setQuickFilters(new Set()); setPage(1); }}
+                className="cinema-ctrl-btn"
+                style={{ background: C.white, border: `2px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 900, fontSize: 11, padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.08em', marginRight: 6 }}
+              >
+                ◀ CHANNEL LINEUP
+              </button>
+              {[{ id: null as string | null, channel: 'ALL' }, ...CINEMA_CATEGORIES.map((c) => ({ id: c.id as string | null, channel: c.channel }))].map((opt) => {
+                const active = opt.id === activeCategory;
+                return (
+                  <button
+                    key={opt.id ?? 'all'}
+                    onClick={() => tuneTo(opt.id)}
+                    aria-pressed={active}
+                    aria-label={opt.id === null ? 'All channels' : `Channel ${opt.channel}`}
+                    className="cinema-cat-btn"
+                    style={{ background: active ? C.navy : C.white, color: active ? C.white : C.black, border: `2px solid ${C.navy}`, fontFamily: C.sans, fontWeight: 900, fontSize: 12, padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.08em', minWidth: 40 }}
+                  >
+                    {opt.channel}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Channel header */}
+            <div style={{ background: C.navy, color: C.white, padding: '6px 10px', display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: 10 }}>
+              <div style={{ fontWeight: 900, fontSize: 22, lineHeight: 1, letterSpacing: '-0.02em', opacity: 0.7 }}>
+                {activeCat ? activeCat.channel : 'ALL'}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <h2 ref={channelHeadingRef} tabIndex={-1} style={{ margin: 0, fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', outline: 'none' }}>
+                  {activeCat ? `${activeCat.call}: ${activeCat.title.toUpperCase()}` : 'FULL SCHEDULE: ALL CHANNELS'}
+                </h2>
+                <div style={{ fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>
+                  {activeCat ? activeCat.description : 'Every title in the guide, in one listing.'}
+                </div>
+              </div>
+              <div style={{ fontFamily: C.mono, fontSize: 10, opacity: 0.6, whiteSpace: 'nowrap' }}>
+                {sorted.length} TITLE{sorted.length !== 1 ? 'S' : ''}
+              </div>
+            </div>
+
+            {/* Sort + quick filters */}
+            <div style={{ background: C.cream, border: `2px solid ${C.navy}`, borderTop: 'none', padding: '8px 10px', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <label htmlFor="cinema-sort" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Sort by:</label>
+                <select
+                  id="cinema-sort"
+                  value={sortBy}
+                  onChange={(e) => { setSortBy(e.target.value as SortKey); setPage(1); }}
+                  className="cinema-ctrl-input"
+                  style={{ background: C.white, border: `1px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 700, fontSize: 12, padding: '4px 8px', minHeight: 32 }}
+                >
+                  <option value="schedule">Schedule order</option>
+                  <option value="title">Title</option>
+                  <option value="year">Year (newest)</option>
+                  <option value="runtime">Runtime (shortest)</option>
+                </select>
+              </span>
+
+              <span aria-hidden="true" style={{ color: C.gray }}>│</span>
+
+              <span style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                {QUICK_FILTERS.map((f) => {
+                  const on = quickFilters.has(f.id);
+                  return (
+                    <button
+                      key={f.id}
+                      onClick={() => toggleQuickFilter(f.id)}
+                      aria-pressed={on}
+                      className="cinema-cat-btn cinema-chip"
+                      style={{ background: on ? C.navy : C.white, color: on ? C.white : C.black, border: `2px solid ${C.navy}`, fontFamily: C.sans, fontWeight: 900, fontSize: 11, padding: '3px 9px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </span>
+
+              {isFiltering && (
+                <button
+                  onClick={clearFilters}
+                  className="cinema-ctrl-btn"
+                  style={{ background: C.teal, border: `1px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 700, fontSize: 11, padding: '3px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                >
+                  CLEAR ✕
+                </button>
+              )}
+            </div>
+
+            {/* Result line */}
+            <div
+              aria-live="polite"
+              aria-atomic="true"
+              style={{ background: C.white, border: `2px solid ${C.navy}`, borderTop: `1px solid ${C.lgray}`, borderBottom: 'none', padding: '5px 10px', fontFamily: C.mono, fontSize: 11, color: C.gray }}
+            >
+              {sorted.length === 0
+                ? 'NO LISTINGS'
+                : `SHOWING ${(safePage - 1) * PER_PAGE + 1}-${Math.min(safePage * PER_PAGE, sorted.length)} OF ${sorted.length}${totalPages > 1 ? ` · PAGE ${safePage} OF ${totalPages}` : ''}`}
+            </div>
+
+            {/* Listings */}
+            <div style={{ border: `2px solid ${C.navy}`, borderTop: 'none' }}>
+              {sorted.length === 0 ? (
+                <div style={{ padding: '10px 10px', fontSize: 12, color: C.gray, fontStyle: 'italic', background: C.white }}>
+                  No titles match current filters.
+                </div>
+              ) : (
+                pageItems.map((item, idx) => (
+                  <ScheduleCell
+                    key={item.slug}
+                    item={item}
+                    idx={idx}
+                    total={pageItems.length}
+                    isFaved={cinFavSlugs.has(item.slug)}
+                    favCount={cinFavCounts[item.slug] ?? 0}
+                    userId={cinUserId}
+                    onToggle={toggleCinFav}
+                  />
+                ))
+              )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav aria-label="Schedule pages" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+                <button
+                  onClick={() => goToPage(safePage - 1)}
+                  disabled={safePage <= 1}
+                  className="cinema-ctrl-btn"
+                  style={{ background: safePage <= 1 ? C.lgray : C.white, border: `2px solid ${C.navy}`, color: safePage <= 1 ? C.gray : C.black, fontFamily: C.sans, fontWeight: 900, fontSize: 12, padding: '8px 14px', cursor: safePage <= 1 ? 'default' : 'pointer', letterSpacing: '0.08em', minHeight: 40 }}
+                >
+                  ◀ PREV
+                </button>
+                <span style={{ fontFamily: C.mono, fontSize: 12, fontWeight: 700 }}>PAGE {safePage} OF {totalPages}</span>
+                <button
+                  onClick={() => goToPage(safePage + 1)}
+                  disabled={safePage >= totalPages}
+                  className="cinema-ctrl-btn"
+                  style={{ background: safePage >= totalPages ? C.lgray : C.white, border: `2px solid ${C.navy}`, color: safePage >= totalPages ? C.gray : C.black, fontFamily: C.sans, fontWeight: 900, fontSize: 12, padding: '8px 14px', cursor: safePage >= totalPages ? 'default' : 'pointer', letterSpacing: '0.08em', minHeight: 40 }}
+                >
+                  NEXT ▶
+                </button>
+              </nav>
+            )}
+          </div>
+        )}
 
         {/* ── Suggest form ─────────────────────────────────────────── */}
         <div
@@ -446,8 +680,12 @@ export default function CinemaPage() {
         }
         .cinema-heart-btn:focus-visible { outline: 3px solid #0c1e3e; outline-offset: 2px; }
         .cinema-heart-btn:not(:disabled):hover { color: ${C.red} !important; }
+        .cinema-lineup-card:hover, .cinema-lineup-card:focus-visible { outline: 3px solid #0c1e3e; outline-offset: 2px; }
+        .cinema-lineup-card:hover .cinema-lineup-title { text-decoration: underline; }
+        .cinema-chip:focus-visible { outline: 3px solid #0c1e3e; outline-offset: 2px; }
         @media (max-width: 680px) {
-          .cinema-schedule-grid { grid-template-columns: 1fr !important; }
+          .cinema-lineup { grid-template-columns: 1fr !important; }
+          .cinema-masthead { grid-template-columns: 1fr !important; }
           .cinema-form-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 480px) {
@@ -461,69 +699,6 @@ export default function CinemaPage() {
       `}</style>
     </main>
     </BrowserChrome>
-  );
-}
-
-// ── Schedule section component ────────────────────────────────────────────────
-
-function ScheduleSection({
-  cat, items, favSlugs, favCounts, userId, onToggle,
-}: {
-  cat: CinemaCategory; items: CinemaItem[];
-  favSlugs: Set<string>; favCounts: Record<string, number>;
-  userId: string | null; onToggle: (slug: string) => void;
-}) {
-  return (
-    <section aria-labelledby={`ch-label-${cat.id}`} style={{ marginBottom: 10 }}>
-      {/* Channel header — dark navy like the ABC/CBS/NBC headers in the original */}
-      <div
-        id={`ch-label-${cat.id}`}
-        style={{
-          background: C.navy,
-          color: C.white,
-          padding: '6px 10px',
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr auto',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <div style={{ fontWeight: 900, fontSize: 22, lineHeight: 1, letterSpacing: '-0.02em', opacity: 0.7 }}>
-          {cat.channel}
-        </div>
-        <div>
-          <div style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-            {cat.call}: {cat.title.toUpperCase()}
-          </div>
-          <div style={{ fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>{cat.description}</div>
-        </div>
-        <div style={{ fontFamily: C.mono, fontSize: 10, opacity: 0.6, whiteSpace: 'nowrap' }}>
-          {items.length} TITLE{items.length !== 1 ? 'S' : ''}
-        </div>
-      </div>
-
-      {/* Item cells */}
-      <div style={{ border: `2px solid ${C.navy}`, borderTop: 'none' }}>
-        {items.length === 0 ? (
-          <div style={{ padding: '10px 10px', fontSize: 12, color: C.gray, fontStyle: 'italic', background: C.white }}>
-            No titles match current filters.
-          </div>
-        ) : (
-          items.map((item, idx) => (
-            <ScheduleCell
-              key={item.slug}
-              item={item}
-              idx={idx}
-              total={items.length}
-              isFaved={favSlugs.has(item.slug)}
-              favCount={favCounts[item.slug] ?? 0}
-              userId={userId}
-              onToggle={onToggle}
-            />
-          ))
-        )}
-      </div>
-    </section>
   );
 }
 
