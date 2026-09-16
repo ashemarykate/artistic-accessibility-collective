@@ -1239,7 +1239,10 @@ let SHOW_DATES = [           // fallback until production_dates is seeded
   {label:"Sunday night",     start_at:"2026-10-12T00:00:00Z"},
 ];
 CONFIG.RESERVE_URL = CONFIG.RESERVE_URL || "";
-CONFIG.REMIND_URL = CONFIG.REMIND_URL || "https://forms.gle/Cb12QmGo6S6LdxzH9"; // TEMP TEST
+/* Empty on purpose. The email reminder button is off for now: it only
+   appears when Backstage has a link in "Email me the link", so putting a
+   real form there is all it takes to bring it back. */
+CONFIG.REMIND_URL = CONFIG.REMIND_URL || "";
 CONFIG.SUBMIT_FORM_URL = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
 
 /* Three states, and the switch in Backstage decides the one that matters.
