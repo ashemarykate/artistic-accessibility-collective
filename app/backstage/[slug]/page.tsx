@@ -8,6 +8,7 @@ import BackstageLinks from '@/components/BackstageLinks';
 import BackstagePlaylists from '@/components/BackstagePlaylists';
 import BackstagePosts from '@/components/BackstagePosts';
 import BackstageGraveyard from '@/components/BackstageGraveyard';
+import BackstageMovies from '@/components/BackstageMovies';
 import BackstageCountdown from '@/components/BackstageCountdown';
 import BackstageShowSettings from '@/components/BackstageShowSettings';
 import { rememberAfterLogin } from '@/lib/after-login';
@@ -345,6 +346,19 @@ export default function BackstagePortal() {
           siteUrl={site?.public_url || '/2006'}
           canCurate={role === 'producer' || role === 'creator'}
           preview={preview}
+        />
+
+
+        <BackstageMovies
+
+          productionId={show!.id}
+
+          canCurate={role === 'producer' || role === 'creator'}
+
+          preview={preview}
+
+          siteUrl={site?.public_url ?? '/2006'}
+
         />
 
 

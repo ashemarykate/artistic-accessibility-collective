@@ -726,3 +726,60 @@ export async function fetchStandings(productionId: string): Promise<Record<strin
   (data ?? []).forEach((r: { video_id: string; votes: number }) => { out[r.video_id] = r.votes; });
   return out;
 }
+
+
+/* ══════════════════ Blockbuster ══════════════════
+   The wall of films on the public site. Curated by the company, so there is no
+   approval queue: is_visible is the only gate. */
+
+export type MovieEmphasis = 'normal' | 'italic' | 'bold' | 'bolditalic';
+
+export interface Movie {
+  id: string;
+  production_id: string;
+  title: string;
+  note: string;
+  emphasis: MovieEmphasis;
+  sort_order: number;
+  is_visible: boolean;
+}
+
+export async function fetchMovies(productionId: string): Promise<Movie[]> {
+  const { data } = await supabase
+    .from('production_movies')
+    .select('*')
+    .eq('production_id', productionId)
+    .order('sort_order')
+    .order('created_at');
+  return (data ?? []) as Movie[];
+}
+
+export async function createMovie(
+  productionId: string, sortOrder: number,
+): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_movies')
+    .insert({ production_id: productionId, title: '', sort_order: sortOrder })
+    .select('id')
+    .single();
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, id: data.id };
+}
+
+export async function saveMovie(m: Movie): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_movies')
+    .update({
+      title: m.title.trim(), note: m.note.trim(),
+      emphasis: m.emphasis, sort_order: m.sort_order, is_visible: m.is_visible,
+    })
+    .eq('id', m.id)
+    .select('id');
+  return wrote(data, error);
+}
+
+export async function deleteMovie(id: string): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase
+    .from('production_movies').delete().eq('id', id).select('id');
+  return wrote(data, error);
+}
