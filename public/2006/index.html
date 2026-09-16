@@ -744,6 +744,15 @@
   }
   .cr-send .btn-xp{flex:none;padding:5px 12px}
 
+  /* A tab, sitting on the thing it changes. Quiet until you need it. */
+  .too2006{margin:0;padding:0 6px}
+  .too2006 button{
+    display:inline-block;background:var(--chrome);border:1px solid var(--chrome-dk);
+    border-bottom:0;border-radius:4px 4px 0 0;margin:0;
+    font-family:inherit;font-size:10px;color:#1a3d6e;
+    padding:5px 10px 4px;cursor:pointer;text-decoration:underline;
+  }
+  .too2006 button:hover{background:#fff}
   .cr-panel{
     margin:8px 6px 6px;padding:7px 8px;background:#fff;
     border:1px solid var(--chrome-dk);font-size:11.5px;
@@ -1408,7 +1417,69 @@ const PICKER = ["smile","grin","wink","tongue","frown","crying","cool","kiss","h
 const app = document.getElementById("app");
 const overlay = document.getElementById("overlay");
 const popwin = document.getElementById("popwin");
-function styleOf(b){ return `background:${b.bg||"#000"};color:${b.fg||"#fff"};font-family:${b.font||FONTS.comic}`; }
+/* ══════════════════ TOO 2006 FOR YOU ══════════════════
+   Everyone on the buddy list picked their own two colours, the way you did on
+   AIM, and some of those pairs are genuinely hard to read: three of the six
+   sit near 2.4 to 1 where 4.5 is the floor. Their answers to "what is 2006"
+   are the main thing on the front door, so that matters.
+
+   Rather than overrule anybody's colours, there is a switch. Off, you get
+   exactly what each person chose. On, everybody keeps their own background and
+   only the text swaps to black or white, whichever reads against it. Pairs
+   that were already fine are left completely alone, so the switch changes as
+   little as it can.
+
+   It sticks, because somebody who needs it needs it on every screen and every
+   visit. */
+let readable = LS.get("readable", false);
+
+function lumOf(hex){
+  const h = String(hex || "").replace("#", "");
+  const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+  if(!/^[0-9a-f]{6}$/i.test(full)) return null;
+  const v = [0, 2, 4].map(i => {
+    const c = parseInt(full.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+}
+function contrast(a, b){
+  const la = lumOf(a), lb = lumOf(b);
+  if(la === null || lb === null) return 21;      // unknown, leave it be
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+/* The person's own colour when it reads, otherwise black or white, whichever
+   wins against the background they chose. */
+function readableFg(bg, fg){
+  if(!readable || contrast(bg, fg) >= 4.5) return fg;
+  return contrast(bg, "#000000") >= contrast(bg, "#ffffff") ? "#000000" : "#ffffff";
+}
+function tooMuchCount(){
+  return buddies.filter(b => b.bg && b.fg && contrast(b.bg, b.fg) < 4.5).length;
+}
+/* The tab itself, in her words. Only appears when somebody's pair actually
+   fails, so it is not offering to fix nothing. */
+function contrastTab(){
+  if(!readable && !tooMuchCount()) return "";
+  return `<p class="too2006"><button type="button" id="readbtn" aria-pressed="${readable}">${
+    readable ? "put the 2006 colors back" : "click here if this contrast is too 2006 for you"}</button></p>`;
+}
+function wireContrastTab(){
+  const b = document.getElementById("readbtn");
+  if(!b) return;
+  b.onclick = () => {
+    readable = !readable; LS.set("readable", readable);
+    render();
+    const again = document.getElementById("readbtn"); if(again) again.focus();
+    say(readable ? "colors turned up. everybody keeps their background, the words go black or white."
+                 : "back to the colors everybody picked.");
+  };
+}
+
+function styleOf(b){
+  return `background:${b.bg||"#000"};color:${readableFg(b.bg||"#000", b.fg||"#fff")};`
+       + `font-family:${b.font||FONTS.comic}`;
+}
 
 /* ══════════════════ ROUTER ══════════════════ */
 const MENU = [
@@ -1704,18 +1775,20 @@ function viewBuddies(){
         : `<img class="i" src="${ICONS.runman||ICONS.online}" alt="">`}
       <div>
         <div class="me">${esc(ME.sn||"not signed on")}</div>
-        <div class="mail">${CONFIG.SHOW_MODE ? "● you're online, IMs are open" : "✉ You have no new e-mail"}</div>
+        <div class="mail">${CONFIG.SHOW_MODE ? "● the cast is online" : "✉ You have no new e-mail"}</div>
       </div>
     </div>
+    ${contrastTab()}
     <div class="pane" id="list">
       ${grp("2006er", cast, n)}
       ${grp("Bots", bots, bots.length)}
       ${grp("Offline", offline, n, "off-grp")}
     </div>`;
   return chrome((ME.sn||"guest")+"'s Buddy List", body,
-    {icon:"aim", status: CONFIG.SHOW_MODE ? "tap a buddy twice to IM them" : "tap a buddy twice for their profile"});
+    {icon:"aim", status: "tap a buddy twice for their profile"});
 }
 function wireBuddies(){
+  wireContrastTab();
   app.querySelectorAll("[data-grp]").forEach(g=>{
     g.onclick = ()=>{
       const w = g.parentElement; w.classList.toggle("collapsed");
@@ -2797,6 +2870,7 @@ function viewShow(){
       </ol>
     </div>
 
+    ${contrastTab()}
     <div class="cr-wrap">
       <div class="cr-log" id="saylog">
         ${rows}
@@ -2811,10 +2885,11 @@ function viewShow(){
   return chrome("The Show: Live", body, {status: said.length + " of " + buddies.length + " have answered", chat:true});
 }
 function chatStyle(b){
-  return `background:${b.bg||"#fff"};color:${b.fg||"#000"};`
+  return `background:${b.bg||"#fff"};color:${readableFg(b.bg||"#fff", b.fg||"#000")};`
        + `font-family:${b.font||FONTS.comic};font-size:${b.size||13}px`;
 }
 function wireShow(){
+  wireContrastTab();
   // A chat window jumps to the newest line. This one does not: the top is the
   // start of the answer and you scroll down through the rest.
   const log = document.getElementById("saylog");
@@ -2928,7 +3003,12 @@ function openIM(i){
   if(b.status==="offline" && !b.isBot){ openInfo(i); return; }
   const isBot = !!b.isBot;
   const hasAway = (b.status==="away"||b.status==="idle") && b.awayMsg;
-  const canType = isBot || CONFIG.SHOW_MODE;
+  /* SmarterChild only. He answers from a list in this file, so typing at him
+     works and always did. Typing at a person used to be enabled by show mode,
+     but the send went to a server that was never built: it echoed your line
+     into the log as though it had arrived, then whispered that nothing was
+     sent. The real chat with the cast lives in the stream, not here. */
+  const canType = isBot;
   const start = isBot
     ? `<div><span class="who-them">SmarterChild:</span> Hi! I'm <b>SmarterChild</b>! Welcome to "2006"!<br>Ask me anything about the year 2006. Or type <b>joke</b>. Your call.</div>`
     : hasAway
@@ -2958,7 +3038,7 @@ function openIM(i){
       }).join("")}
     </div>
     <textarea class="im-entry" id="imentry" rows="2" ${canType?"":"disabled"}
-      placeholder="${canType ? (isBot?"ask me about 2006...":"type ur message...") : "IMs open during the show, come see it :-)"}"></textarea>
+      placeholder="${canType ? "ask me about 2006..." : "the chat with the cast is in the stream on show night. this window is for reading their away message."}"></textarea>
     <div class="im-actions">
       <span class="typing" id="typing"></span>
       <button class="btn-xp" id="infobtn">Info</button>
@@ -2981,25 +3061,15 @@ function openIM(i){
     log.insertAdjacentHTML("beforeend",
       `<div><span class="who-me">${esc(ME.sn||"you")}:</span> <span style="font-family:'Times New Roman',serif">${smileyfy(v)}</span></div>`);
     entry.value=""; bar.classList.remove("open"); log.scrollTop = log.scrollHeight;
-    if(isBot){
-      typing.textContent = "SmarterChild is typing...";
-      setTimeout(()=>{
-        typing.textContent = "";
-        log.insertAdjacentHTML("beforeend",
-          `<div><span class="who-them">SmarterChild:</span> ${scHTML(smarterChild(v))}</div>`);
-        log.scrollTop = log.scrollHeight;
-      }, 500 + Math.min(900, v.length*30));
-      return;
-    }
-    try{
-      const sent = await API.send(b.sn, v);
-      if(sent === null){
-        typing.textContent = "(no server yet, nothing sent)";
-        setTimeout(()=>typing.textContent="", 2500);
-      }
-    }catch(e){
-      log.insertAdjacentHTML("beforeend", `<div class="auto">message not delivered, try again</div>`);
-    }
+    // Only SmarterChild reaches this: canType is isBot. He replies from the
+    // list in this file, with a pause so it feels like typing.
+    typing.textContent = "SmarterChild is typing...";
+    setTimeout(()=>{
+      typing.textContent = "";
+      log.insertAdjacentHTML("beforeend",
+        `<div><span class="who-them">SmarterChild:</span> ${scHTML(smarterChild(v))}</div>`);
+      log.scrollTop = log.scrollHeight;
+    }, 500 + Math.min(900, v.length*30));
   };
   document.getElementById("sendbtn").onclick = send;
   entry.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
