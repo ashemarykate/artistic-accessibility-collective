@@ -1042,8 +1042,10 @@ const CONFIG = {
   SHOW_TITLE: "2006",
   TAGLINE: "a play in the form of TRL",
   API_BASE: null,        // ← legacy REST shim, unused now
-  // Filled in by build.py for the hosted copy only. The standalone file keeps
-  // the built in cast, because a file:// page cannot reach Supabase.
+  // The anon key, which is public by design: every policy that matters is in
+  // the database, not here. Edit this file directly. There used to be a build
+  // step that generated it from a snapshot in ~/2006/build, and that snapshot
+  // went stale and overwrote the site; both are gone now.
   SB_URL: "https://hxksajwpcjlbycrnvdmi.supabase.co",
   SB_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4a3NhandwY2psYnljcm52ZG1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MjQzNTcsImV4cCI6MjA4NTQwMDM1N30.w4ewPzRx0tA80C3NoNnHBMvxPqobL9bGQWOHGCY9-YA",
   SLUG: "2006",
