@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
       // explicit so /2006/icons/... and the other asset folders keep serving
       // files rather than the page.
       {
-        source: '/2006/:screen(show|2006ers|countdown|videos|vibes|confessions|blog|playlists|play|graveyard|reminisce)',
+        source: '/2006/:screen(show|2006ers|countdown|videos|vibes|confessions|blog|playlists|play|graveyard|blockbuster|reminisce)',
         destination: '/2006/index.html',
       },
     ];
