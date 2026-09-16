@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { LIBRARY_CATEGORIES, LIBRARY_ITEMS, LIBRARY_CATEGORY_BY_ID, type LibraryItem } from '@/lib/library-data';
 import { supabase } from '@/lib/supabase';
@@ -24,6 +24,41 @@ const TYPE_SHORT: Record<string, string> = {
   book: 'BK', essay: 'ES', article: 'AR', journal: 'JR', zine: 'ZN',
   workbook: 'WB', anthology: 'AN', standard: 'ST', blog: 'BL', toolkit: 'TK',
 };
+
+const PER_PAGE = 25;
+
+type SortKey = 'shelf' | 'title' | 'author' | 'year';
+
+/** Library filing order: ignore a leading article, the way a card catalog does. */
+function titleSortKey(title: string): string {
+  return title.replace(/^(a|an|the)\s+/i, '').toLowerCase();
+}
+
+/**
+ * File by the first author's surname. Handles the shapes used in the catalog:
+ * "Name, illustrated by X", "A & B", "Name (ed.)", "Dr. Name".
+ */
+function authorSortKey(author: string): string {
+  let s = author.split(',')[0];                 // drop ", illustrated by ..." / ", translated by ..."
+  s = s.split('&')[0];                          // file under the first author
+  s = s.split(/\swith\s/i)[0];                  // "Judith Heumann with Kristen Joiner" files under Heumann
+  s = s.replace(/\([^)]*\)/g, '');              // drop "(ed.)", "(curator)"
+  s = s.replace(/^\s*(dr|mr|mrs|ms|prof)\.?\s+/i, '');
+  s = s.trim();
+  const parts = s.split(/\s+/).filter(Boolean);
+  // A generational suffix is not a surname: "Leroy F. Moore Jr." files under Moore.
+  while (parts.length > 1 && /^(jr|sr|i{1,3}|iv|v)\.?$/i.test(parts[parts.length - 1])) parts.pop();
+  const surname = parts.length ? parts[parts.length - 1] : s;
+  return `${surname} ${s}`.toLowerCase();
+}
+
+/** The quick filters offered as chips above a shelf. */
+const QUICK_FILTERS: { id: string; label: string; match: (i: LibraryItem) => boolean }[] = [
+  { id: 'free',      label: 'FREE',           match: (i) => !!i.isFree },
+  { id: 'essential', label: '★ ESSENTIAL',    match: (i) => !!i.isEssential },
+  { id: 'voice',     label: 'DISABLED VOICE', match: (i) => i.tags.includes('Disabled Voice') },
+  { id: 'young',     label: 'YOUNG READERS',  match: (i) => i.tags.includes('Young Readers') || i.tags.includes('Young Adult') },
+];
 
 // ── Map a resources DB row → LibraryItem ─────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,8 +86,14 @@ export default function LibraryPage() {
   const [clock, setClock] = useState('');
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [dbItems, setDbItems] = useState<LibraryItem[]>([]);
+
+  // Browsing state: the catalog opens on the drawer view, then you step into a shelf.
+  const [showDrawers, setShowDrawers] = useState(true);
+  const [sortBy, setSortBy] = useState<SortKey>('shelf');
+  const [page, setPage] = useState(1);
+  const [quickFilters, setQuickFilters] = useState<Set<string>>(new Set());
+  const shelfHeadingRef = useRef<HTMLHeadingElement>(null);
 
   // Favorites state
   const [libUserId,     setLibUserId    ] = useState<string | null>(null);
@@ -149,12 +190,27 @@ export default function LibraryPage() {
     return [...LIBRARY_ITEMS.filter((i) => !dbSlugs.has(i.slug)), ...dbItems];
   }, [dbItems]);
 
+  // Catalog-wide totals, counted from the merged list so admin-added items are included
+  const totals = useMemo(() => ({
+    all:       allItems.length,
+    free:      allItems.filter((i) => i.isFree).length,
+    essential: allItems.filter((i) => i.isEssential).length,
+  }), [allItems]);
+
+  // Per-subject counts and the Essential titles shown on each drawer
+  const drawers = useMemo(() => LIBRARY_CATEGORIES.map((cat) => {
+    const items = allItems.filter((i) => i.category === cat.id);
+    const essentials = items.filter((i) => i.isEssential);
+    return { cat, count: items.length, picks: (essentials.length ? essentials : items).slice(0, 3) };
+  }), [allItems]);
+
   // Filter items
   const filtered = useMemo<LibraryItem[]>(() => {
     const q = search.toLowerCase().trim();
+    const active = QUICK_FILTERS.filter((f) => quickFilters.has(f.id));
     return allItems.filter((item) => {
       if (activeCategory && item.category !== activeCategory) return false;
-      if (showFreeOnly && !item.isFree) return false;
+      if (!active.every((f) => f.match(item))) return false;
       if (q) {
         return (
           item.title.toLowerCase().includes(q) ||
@@ -165,20 +221,60 @@ export default function LibraryPage() {
       }
       return true;
     });
-  }, [search, activeCategory, showFreeOnly, allItems]);
+  }, [search, activeCategory, quickFilters, allItems]);
 
-  // Group filtered items by category order
-  const byCategory = useMemo(() => {
-    const map = new Map<string, LibraryItem[]>();
-    LIBRARY_CATEGORIES.forEach((cat) => map.set(cat.id, []));
-    filtered.forEach((item) => {
-      const arr = map.get(item.category);
-      if (arr) arr.push(item);
+  // Sort. 'shelf' keeps the curated order the catalog file is written in.
+  const sorted = useMemo<LibraryItem[]>(() => {
+    if (sortBy === 'shelf') return filtered;
+    const out = [...filtered];
+    out.sort((a, b) => {
+      if (sortBy === 'title')  return titleSortKey(a.title).localeCompare(titleSortKey(b.title));
+      if (sortBy === 'author') return authorSortKey(a.author).localeCompare(authorSortKey(b.author));
+      // year: newest first, undated titles last
+      const ay = a.year ?? -Infinity;
+      const by = b.year ?? -Infinity;
+      if (ay === by) return titleSortKey(a.title).localeCompare(titleSortKey(b.title));
+      return by - ay;
     });
-    return map;
-  }, [filtered]);
+    return out;
+  }, [filtered, sortBy]);
 
-  const isFiltering = search.trim() || activeCategory || showFreeOnly;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const safePage   = Math.min(page, totalPages);
+  const pageItems  = useMemo(
+    () => sorted.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE),
+    [sorted, safePage],
+  );
+
+  const isFiltering = Boolean(search.trim() || activeCategory || quickFilters.size);
+
+  /** Step into a shelf and move focus to its heading. */
+  const openShelf = useCallback((categoryId: string | null) => {
+    setActiveCategory(categoryId);
+    setShowDrawers(false);
+    setPage(1);
+    requestAnimationFrame(() => shelfHeadingRef.current?.focus());
+  }, []);
+
+  const toggleQuickFilter = useCallback((id: string) => {
+    setQuickFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setPage(1);
+  }, []);
+
+  /** Clear search and filters without leaving the shelf. */
+  const clearFilters = useCallback(() => {
+    setSearch('');
+    setActiveCategory(null);
+    setQuickFilters(new Set());
+    setPage(1);
+  }, []);
+
+  const activeCat = activeCategory ? LIBRARY_CATEGORY_BY_ID[activeCategory] : null;
 
   const inputSty: React.CSSProperties = {
     background: C.bg,
@@ -249,19 +345,21 @@ export default function LibraryPage() {
           </div>
 
           <div className="lib-stats" style={{ fontSize: 12, lineHeight: 1.9, textAlign: 'right', color: C.dim }}>
-            <div><span style={{ color: C.amber }}>HOLDINGS.......:</span> {LIBRARY_ITEMS.length} ITEMS</div>
-            <div><span style={{ color: C.amber }}>FREE ACCESS....:</span> {LIBRARY_ITEMS.filter((i) => i.isFree).length} ITEMS</div>
+            <div><span style={{ color: C.amber }}>HOLDINGS.......:</span> {totals.all} ITEMS</div>
+            <div><span style={{ color: C.amber }}>FREE ACCESS....:</span> {totals.free} ITEMS</div>
             <div><span style={{ color: C.amber }}>SUBJECTS.......:  </span>{LIBRARY_CATEGORIES.length} AREAS</div>
             <div><span style={{ color: C.amber }}>STATUS.........:  </span><span style={{ color: C.green }}>OPEN</span></div>
           </div>
         </div>
 
-        {/* Community framing banner */}
-        <div style={{ padding: '14px 20px', background: C.bg, color: C.hi, border: `2px solid ${C.green}`, textShadow: `0 0 4px rgba(255,209,102,0.25)`, fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
-          <strong style={{ color: C.hi }}>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better - whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
-        </div>
+        {/* Community framing banner, shown at the front door only */}
+        {showDrawers && (
+          <div style={{ padding: '14px 20px', background: C.bg, color: C.hi, border: `2px solid ${C.green}`, textShadow: `0 0 4px rgba(255,209,102,0.25)`, fontFamily: C.mono, fontSize: 14, letterSpacing: '0.03em', marginBottom: 14, lineHeight: 1.6 }}>
+            <strong style={{ color: C.hi }}>★ Community-built reading list.</strong> This catalog is curated by and for anyone who wants to understand disability arts and accessibility better - whether you work in the field, are part of the disability community, or are simply curious and want to learn. Centering disabled voices, disability justice frameworks, and the people doing this work. Items marked FREE link directly to legal, freely accessible versions. All suggestions welcome: see the form below.
+          </div>
+        )}
 
-        {/* Search + filter controls */}
+        {/* Search, always available as the fast path into the catalog */}
         <div style={{ padding: '14px 18px', border: `1px solid ${C.amber}`, background: C.bg2, marginBottom: 14, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
             <label htmlFor="lib-search" style={labelSty}>SEARCH.........:</label>
@@ -269,21 +367,16 @@ export default function LibraryPage() {
               id="lib-search"
               type="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+                if (e.target.value.trim()) setShowDrawers(false);
+              }}
               placeholder="Title, author, or keyword…"
               style={inputSty}
               className="opac-input"
             />
           </div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: C.hi, fontSize: 13, whiteSpace: 'nowrap' }}>
-            <input
-              type="checkbox"
-              checked={showFreeOnly}
-              onChange={(e) => setShowFreeOnly(e.target.checked)}
-              style={{ accentColor: C.amber, width: 16, height: 16 }}
-            />
-            FREE ONLY
-          </label>
           <a
             href="#lib-suggest-form"
             style={{ background: C.amber, color: C.bg, border: `1px solid ${C.amber}`, fontFamily: C.mono, fontWeight: 700, fontSize: 12, padding: '6px 13px', textDecoration: 'none', letterSpacing: '0.08em', whiteSpace: 'nowrap', textShadow: 'none', display: 'inline-block' }}
@@ -291,116 +384,201 @@ export default function LibraryPage() {
           >
             + SUGGEST A TITLE
           </a>
-          {isFiltering && (
-            <button
-              onClick={() => { setSearch(''); setActiveCategory(null); setShowFreeOnly(false); }}
-              style={{ background: 'none', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 12, padding: '6px 12px', cursor: 'pointer', letterSpacing: '0.06em' }}
-              className="opac-btn"
-            >
-              CLEAR FILTERS
-            </button>
-          )}
         </div>
 
-        {/* Two-column layout: subject index + results */}
-        <div id="lib-catalog" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 14 }} className="lib-grid">
+        {/* ── Front door: the card catalog drawers ─────────────────────────── */}
+        {showDrawers ? (
+          <div id="lib-catalog">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8, padding: '8px 14px', background: C.bg2, border: `1px solid ${C.amber}`, marginBottom: 12 }}>
+              <h2 style={{ margin: 0, fontFamily: C.mono, fontWeight: 400, fontSize: 13, letterSpacing: '0.1em', color: C.hi }}>
+                ── CARD CATALOG · CHOOSE A SUBJECT ──
+              </h2>
+              <span style={{ color: C.dim, fontSize: 12 }}>{totals.all} ITEMS · {totals.free} FREE · {totals.essential} ESSENTIAL</span>
+            </div>
 
-          {/* Left: subject index */}
-          <aside aria-label="Filter by subject">
-            <div style={{ border: `1px solid ${C.amber}`, background: C.bg2, position: 'sticky', top: 16 }}>
-              <div style={{ padding: '10px 14px', borderBottom: `1px solid ${C.dim}`, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.hi }}>
-                ── SUBJECTS ──
-              </div>
-              <nav aria-label="Subject index">
-                <button
-                  onClick={() => setActiveCategory(null)}
-                  aria-pressed={activeCategory === null}
-                  style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '10px 14px', background: activeCategory === null ? C.amber : 'none', color: activeCategory === null ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 13, letterSpacing: '0.04em', textAlign: 'left', textShadow: 'none' }}
-                  className="opac-subject-btn"
+            <ul className="lib-drawers" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {drawers.map(({ cat, count, picks }) => (
+                <li key={cat.id} style={{ display: 'flex', minWidth: 0 }}>
+                  <button
+                    onClick={() => openShelf(cat.id)}
+                    aria-label={`Open ${cat.title}, ${count} item${count !== 1 ? 's' : ''}`}
+                    className="lib-drawer"
+                    style={{
+                      display: 'flex', flexDirection: 'column', gap: 8, width: '100%', minWidth: 0, textAlign: 'left',
+                      padding: '12px 14px', cursor: 'pointer',
+                      background: `repeating-linear-gradient(135deg, rgba(255,176,0,0.04) 0 6px, transparent 6px 12px), ${C.bg2}`,
+                      border: `1px solid ${C.amber}`, color: C.amber, fontFamily: C.mono,
+                    }}
+                  >
+                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                      <span style={{ color: C.dim, fontSize: 11, letterSpacing: '0.12em' }}>{cat.code}</span>
+                      <span style={{ color: C.hi, fontSize: 11, letterSpacing: '0.06em' }}>{count} ITEMS</span>
+                    </span>
+
+                    <span className="lib-drawer-title" style={{ color: C.hi, fontSize: 14, fontWeight: 700, lineHeight: 1.3, textShadow: `0 0 4px rgba(255,209,102,0.3)` }}>
+                      {cat.title.toUpperCase()}
+                    </span>
+
+                    {/* A few cards peeking out of the drawer */}
+                    <span aria-hidden="true" style={{ borderTop: `1px solid rgba(255,176,0,0.25)`, paddingTop: 7, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+                      {picks.map((p) => (
+                        <span key={p.slug} style={{ fontSize: 11, color: C.amber, lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {p.isEssential ? '★ ' : '· '}{p.title}
+                        </span>
+                      ))}
+                    </span>
+
+                    <span aria-hidden="true" style={{ marginTop: 'auto', paddingTop: 4, fontSize: 11, letterSpacing: '0.1em', color: C.green }}>
+                      ▶ OPEN DRAWER
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => openShelf(null)}
+              style={{ width: '100%', marginTop: 12, padding: '12px 16px', background: C.amber, color: C.bg, border: `1px solid ${C.amber}`, fontFamily: C.mono, fontWeight: 700, fontSize: 13, letterSpacing: '0.1em', cursor: 'pointer', textShadow: 'none' }}
+              className="opac-btn"
+            >
+              {'< '}SEE FULL LIBRARY · ALL {totals.all} ITEMS{' >'}
+            </button>
+          </div>
+        ) : (
+          /* ── A shelf: sorted, filtered, paged ──────────────────────────────── */
+          <div id="lib-catalog">
+            {/* Back to the drawers */}
+            <button
+              onClick={() => { setShowDrawers(true); setActiveCategory(null); setSearch(''); setQuickFilters(new Set()); }}
+              style={{ background: 'none', border: `1px solid ${C.dim}`, color: C.amber, fontFamily: C.mono, fontSize: 12, padding: '7px 13px', cursor: 'pointer', letterSpacing: '0.08em', marginBottom: 12 }}
+              className="opac-btn"
+            >
+              ◀ BACK TO CARD CATALOG
+            </button>
+
+            {/* Shelf header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8, padding: '8px 14px', background: C.bg2, border: `1px solid ${C.amber}`, borderBottom: 'none' }}>
+              <h2
+                ref={shelfHeadingRef}
+                tabIndex={-1}
+                style={{ margin: 0, fontFamily: C.mono, fontWeight: 400, fontSize: 13, letterSpacing: '0.1em', color: C.hi, outline: 'none' }}
+              >
+                {activeCat
+                  ? <><span style={{ color: C.dim, marginRight: 8 }}>{activeCat.code}</span>{activeCat.title.toUpperCase()}</>
+                  : 'ALL SUBJECTS'}
+              </h2>
+              <span style={{ color: C.dim, fontSize: 13 }}>{sorted.length} ITEM{sorted.length !== 1 ? 'S' : ''}</span>
+            </div>
+
+            {/* Sort + quick filters */}
+            <div style={{ border: `1px solid ${C.amber}`, borderBottom: 'none', background: C.bg2, padding: '10px 14px', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <label htmlFor="lib-sort" style={{ color: C.amber, fontFamily: C.mono, fontSize: 12, letterSpacing: '0.06em' }}>SORT BY:</label>
+                <select
+                  id="lib-sort"
+                  value={sortBy}
+                  onChange={(e) => { setSortBy(e.target.value as SortKey); setPage(1); }}
+                  className="opac-input"
+                  style={{ background: C.bg, border: `1px solid ${C.amber}`, color: C.hi, fontFamily: C.mono, fontSize: 12, padding: '5px 8px', minHeight: 32 }}
                 >
-                  <span>ALL SUBJECTS</span>
-                  <span>{LIBRARY_ITEMS.length}</span>
-                </button>
-                {LIBRARY_CATEGORIES.map((cat) => {
-                  const count = LIBRARY_ITEMS.filter((i) => i.category === cat.id).length;
-                  const active = activeCategory === cat.id;
+                  <option value="shelf">SHELF ORDER</option>
+                  <option value="title">TITLE</option>
+                  <option value="author">AUTHOR</option>
+                  <option value="year">YEAR (NEWEST)</option>
+                </select>
+              </span>
+
+              <span aria-hidden="true" style={{ color: C.dim }}>│</span>
+
+              <span style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+                {QUICK_FILTERS.map((f) => {
+                  const on = quickFilters.has(f.id);
                   return (
                     <button
-                      key={cat.id}
-                      onClick={() => setActiveCategory(active ? null : cat.id)}
-                      aria-pressed={active}
-                      style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '9px 14px', background: active ? C.amber : 'none', color: active ? C.bg : C.amber, border: 'none', borderBottom: `1px solid ${C.bg}`, cursor: 'pointer', fontFamily: C.mono, fontSize: 13, letterSpacing: '0.04em', textAlign: 'left', textShadow: active ? 'none' : `0 0 4px rgba(255,176,0,0.3)` }}
-                      className="opac-subject-btn"
+                      key={f.id}
+                      onClick={() => toggleQuickFilter(f.id)}
+                      aria-pressed={on}
+                      className="opac-btn lib-chip"
+                      style={{
+                        background: on ? C.amber : 'none', color: on ? C.bg : C.amber,
+                        border: `1px solid ${on ? C.amber : C.dim}`, fontFamily: C.mono, fontSize: 11,
+                        padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.06em',
+                        textShadow: 'none', minHeight: 32,
+                      }}
                     >
-                      <span><span style={{ color: active ? C.bg : C.dim, marginRight: 6 }}>{cat.code}</span>{cat.title}</span>
-                      <span style={{ color: active ? C.bg : C.hi, flex: '0 0 auto', marginLeft: 4 }}>{count}</span>
+                      {f.label}
                     </button>
                   );
                 })}
-              </nav>
-            </div>
-          </aside>
+              </span>
 
-          {/* Right: results */}
-          <div>
-            {/* Result count */}
+              {isFiltering && (
+                <button
+                  onClick={clearFilters}
+                  style={{ background: 'none', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 11, padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                  className="opac-btn"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+
+            {/* Result line */}
             <div
               aria-live="polite"
               aria-atomic="true"
-              style={{ padding: '8px 14px', background: C.bg2, border: `1px solid ${C.dim}`, marginBottom: 10, fontSize: 13, color: C.dim, letterSpacing: '0.06em' }}
+              style={{ padding: '7px 14px', background: C.bg, border: `1px solid ${C.amber}`, borderBottom: sorted.length ? 'none' : `1px solid ${C.amber}`, fontSize: 12, color: C.dim, letterSpacing: '0.06em' }}
             >
-              {isFiltering
-                ? `${filtered.length} RESULT${filtered.length !== 1 ? 'S' : ''} · ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE ITEMS IN FULL CATALOG`
-                : `${LIBRARY_ITEMS.length} ITEMS · ${LIBRARY_ITEMS.filter((i) => i.isFree).length} FREE · ${LIBRARY_ITEMS.filter((i) => i.isEssential).length} ESSENTIAL`
-              }
+              {sorted.length === 0
+                ? 'NO RESULTS'
+                : `SHOWING ${(safePage - 1) * PER_PAGE + 1}-${Math.min(safePage * PER_PAGE, sorted.length)} OF ${sorted.length}${totalPages > 1 ? ` · PAGE ${safePage} OF ${totalPages}` : ''}`}
             </div>
 
-            {filtered.length === 0 ? (
-              <div style={{ padding: '24px 20px', border: `1px solid ${C.dim}`, background: C.bg2, color: C.dim, fontSize: 14 }}>
+            {sorted.length === 0 ? (
+              <div style={{ padding: '24px 20px', border: `1px solid ${C.dim}`, borderTop: 'none', background: C.bg2, color: C.dim, fontSize: 14 }}>
                 ▶ No items match your search. Try clearing a filter or broadening your keywords.
               </div>
             ) : (
-              <>
-                {/* If filtered to a single category, show flat list; otherwise show grouped */}
-                {LIBRARY_CATEGORIES.map((cat) => {
-                  const items = byCategory.get(cat.id) ?? [];
-                  if (items.length === 0) return null;
-                  return (
-                    <section key={cat.id} aria-labelledby={`cat-${cat.id}`} style={{ marginBottom: 18 }}>
-                      {/* Category header — real h2 for screen reader heading navigation */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 14px', background: C.bg2, border: `1px solid ${C.amber}`, borderBottom: 'none' }}>
-                        <h2
-                          id={`cat-${cat.id}`}
-                          style={{ margin: 0, fontFamily: C.mono, fontWeight: 400, fontSize: 13, letterSpacing: '0.1em', color: C.hi }}
-                        >
-                          <span style={{ color: C.dim, marginRight: 8 }}>{cat.code}</span>
-                          {cat.title.toUpperCase()}
-                        </h2>
-                        <span style={{ color: C.dim, fontFamily: C.mono, fontSize: 13 }}>{items.length} ITEM{items.length !== 1 ? 'S' : ''}</span>
-                      </div>
+              <div style={{ border: `1px solid ${C.amber}`, background: C.bg2 }}>
+                {pageItems.map((item, idx) => (
+                  <LibraryRow
+                    key={item.slug}
+                    item={item}
+                    idx={idx}
+                    total={pageItems.length}
+                    isFaved={libFavSlugs.has(item.slug)}
+                    favCount={libFavCounts[item.slug] ?? 0}
+                    userId={libUserId}
+                    onToggle={toggleLibFav}
+                  />
+                ))}
+              </div>
+            )}
 
-                      {/* Item rows */}
-                      <div style={{ border: `1px solid ${C.amber}`, background: C.bg2 }}>
-                        {items.map((item, idx) => (
-                          <LibraryRow
-                            key={item.slug}
-                            item={item}
-                            idx={idx}
-                            total={items.length}
-                            isFaved={libFavSlugs.has(item.slug)}
-                            favCount={libFavCounts[item.slug] ?? 0}
-                            userId={libUserId}
-                            onToggle={toggleLibFav}
-                          />
-                        ))}
-                      </div>
-                    </section>
-                  );
-                })}
-              </>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav aria-label="Catalog pages" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+                <button
+                  onClick={() => { setPage(safePage - 1); shelfHeadingRef.current?.focus(); }}
+                  disabled={safePage <= 1}
+                  className="opac-btn"
+                  style={{ background: 'none', border: `1px solid ${safePage <= 1 ? C.dim : C.amber}`, color: safePage <= 1 ? C.dim : C.amber, fontFamily: C.mono, fontSize: 12, padding: '8px 14px', cursor: safePage <= 1 ? 'default' : 'pointer', letterSpacing: '0.08em', minHeight: 40 }}
+                >
+                  ◀ PREV
+                </button>
+                <span style={{ color: C.dim, fontSize: 12, letterSpacing: '0.08em' }}>PAGE {safePage} OF {totalPages}</span>
+                <button
+                  onClick={() => { setPage(safePage + 1); shelfHeadingRef.current?.focus(); }}
+                  disabled={safePage >= totalPages}
+                  className="opac-btn"
+                  style={{ background: 'none', border: `1px solid ${safePage >= totalPages ? C.dim : C.amber}`, color: safePage >= totalPages ? C.dim : C.amber, fontFamily: C.mono, fontSize: 12, padding: '8px 14px', cursor: safePage >= totalPages ? 'default' : 'pointer', letterSpacing: '0.08em', minHeight: 40 }}
+                >
+                  NEXT ▶
+                </button>
+              </nav>
             )}
           </div>
-        </div>
+        )}
 
         {/* How to submit a suggestion */}
         <div style={{ padding: '20px', border: `1px solid ${C.amber}`, background: C.bg2, marginTop: 14, position: 'relative' }}>
@@ -469,7 +647,7 @@ export default function LibraryPage() {
         </div>
 
         {/* Function key bar */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: `1px solid ${C.amber}`, marginTop: 14 }} aria-label="Navigation">
+        <div className="lib-fkeys" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: `1px solid ${C.amber}`, marginTop: 14 }} aria-label="Navigation">
           {[['F1', 'Resources', '/resources'], ['F2', 'Cinema', '/cinema'], ['F3', 'Home', '/'], ['F4', 'Contact', '/contact']].map(([key, label, href]) => (
             <Link key={key} href={href} style={{ padding: '8px 12px', textDecoration: 'none', color: C.amber, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, letterSpacing: '0.04em', borderRight: `1px solid ${C.dim}`, minHeight: 44 }} className="opac-fkey">
               <span style={{ background: C.amber, color: C.bg, padding: '1px 6px', fontWeight: 700, textShadow: 'none', fontSize: 12 }}>{key}</span>
@@ -486,6 +664,16 @@ export default function LibraryPage() {
         .opac-fkey:hover, .opac-fkey:focus-visible { background: ${C.amber}; color: ${C.bg}; text-decoration: none; outline: 2px solid ${C.cyan}; }
         .opac-fkey:last-child { border-right: none; }
         .opac-subject-btn:hover, .opac-subject-btn:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
+        .lib-drawer:hover, .lib-drawer:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
+        .lib-drawer:hover .lib-drawer-title { text-decoration: underline; }
+        .lib-chip:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: 2px; }
+        select.opac-input:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: 2px; }
+        @media (max-width: 860px) {
+          .lib-drawers { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 560px) {
+          .lib-drawers { grid-template-columns: 1fr !important; }
+        }
         .lib-row-link:hover .lib-row-title, .lib-row-link:focus-visible .lib-row-title { text-decoration: underline; }
         .lib-row-link:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: -2px; }
         .lib-heart-btn:focus-visible { outline: 2px solid ${C.cyan}; outline-offset: 2px; }
@@ -499,7 +687,6 @@ export default function LibraryPage() {
           .crt-overlay { display: none !important; }
         }
         @media (max-width: 780px) {
-          .lib-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 600px) {
           /* Stack masthead — title above stats */
@@ -512,7 +699,8 @@ export default function LibraryPage() {
         }
         @media (max-width: 540px) {
           .lib-form-grid-2 { grid-template-columns: 1fr !important; }
-          [style*="grid-template-columns: repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+          .lib-fkeys { grid-template-columns: repeat(2, 1fr) !important; }
+          .lib-fkeys > a:nth-child(2) { border-right: none !important; }
           /* Bigger tap targets on filter buttons and suggest link */
           .opac-subject-btn { min-height: 44px !important; font-size: 14px !important; }
           .opac-btn { min-height: 44px !important; padding: 10px 16px !important; font-size: 13px !important; }
