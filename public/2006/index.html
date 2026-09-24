@@ -464,6 +464,7 @@
   .live-h span{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;
     color:#7a869a;margin-top:3px;font-family:"W95FA",Tahoma,sans-serif}
   .live .live-p{font-size:12px;line-height:1.55;color:#42506a;margin:8px 0 10px}
+  .live .live-test{border:1px solid #b6c6e2;background:#f2f6ff;border-radius:4px;padding:8px 10px;margin:10px 0}
   .live-dates{display:grid;gap:5px}
   .live-date{
     display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
@@ -2930,6 +2931,11 @@ function viewShow(){
           <span>${esc(showDate(d))} CT</span>
         </div>`).join("")}
       </div>
+
+      <p class="live-p live-test">these three are a test run for our november show.
+        if you come in person, you may be recorded as part of our live studio
+        audience. if you watch from home, you are testing the interactive 2006
+        experience with us.</p>
       ${CONFIG.REMIND_URL
         ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.REMIND_URL)}" target="_blank"
              rel="noopener noreferrer">email me the link<span class="sr-only"> (opens a form in a new tab)</span></a>
@@ -2939,8 +2945,9 @@ function viewShow(){
       ${CONFIG.RESERVE_URL
         ? `<a class="btn-xp live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
              rel="noopener noreferrer">reserve a free seat in the studio<span class="sr-only"> (opens a form in a new tab)</span></a>
-           <p class="live-fine">coming to us in person? seats in the room are limited.
-             opens a form in a new tab. pick which show.</p>`
+           <p class="live-fine">coming to us in person? seats in the room are limited,
+             and the studio audience may be recorded. opens a form in a new tab.
+             pick which show.</p>`
         : `<p class="live-fine">seat reservations open soon.</p>`}
 
       <h3 class="live-h3">how to play along</h3>
