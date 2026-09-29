@@ -41,6 +41,60 @@ something refuse to run without an environment variable, confirm the variable
 exists before shipping it, then check the job's last-run time the next day.
 A closed door and a broken door look identical from the outside.
 
+## Audit round 3, results so far (2026-09-29)
+
+Method: measure what renders, not what the source says. A production build
+served locally for the logged-out public pages, the dev server for member
+pages. Every visible text node's real colour against its real background;
+every control focused in keyboard mode; landmarks, headings, labels, duplicate
+ids. Then fix, rebuild, and measure again.
+
+**Done, and verified after the fix:**
+- **Text size floor.** 357 places under 12px raised to 12px. 0 remain on any
+  page measured. The shared retro window frame alone cleared about 20 per page.
+- **Keyboard focus ring.** The single yellow line measured about 1.4 to 1 on
+  light pages (65 of 66 controls on the member home, 32 of 33 on the
+  calendar). Now a two-tone navy and yellow ring, forced with !important on
+  controls so inline `outline: none` cannot switch it off. Every control on
+  about 25 pages, over 1,300, now has a ring at 3 to 1 or better.
+- **Text contrast.** Resources 429 failures to 0, calendar 226 to 0, Cinema
+  comments, Make Art, Learning Hub, both Channel pages, My Resources,
+  Collective. Cinema item comments were pale yellow on white (1.4 to 1).
+- **Structure.** Duplicate `main-content` id removed from Resources and
+  profiles. A skip link that never became visible removed from Resources.
+  Submit Event now has a main landmark.
+
+**Clean on the first measure, nothing to fix:** home, login, join, contact,
+Access Card signup, About, Help, Work With Us, Projects, the three small print
+pages, Library, Cinema, Printer, dashboard, members, Edit Profile, feedback,
+My Lists, and the profile pages. No unlabeled fields or empty buttons anywhere.
+
+**Reported by the check and not real:** window buttons flagged as small
+already carry an invisible 44 pixel hit area; a login page and Messages that
+looked stuck were this preview pane's dev server reload loop, the production
+build renders the login page correctly.
+
+**Not measured, and why:**
+- Text over gradients or images (the retro title bars and headers) cannot be
+  read by this check. Between 1 and 57 items per page were skipped. Worth a
+  manual look at the blue gradient headers.
+- The admin dashboard needs an admin login I do not have. Its 12 small-text
+  places were raised in source but not verified in a browser.
+- Screen reader behaviour beyond the accessibility tree. No real assistive
+  technology was used.
+- Zoom to 200 percent and reduced motion were not tested this round.
+
+**Open decision for Mary Kate: the calendar's starting filter.** A signed-in
+member's calendar starts filtered to the city on their profile. With only 186
+upcoming events worldwide, most cities return nothing, so a member can land on
+"No matches" and reasonably think the calendar is broken (the test member in
+Portland does). Recommendation: keep the feature, but fall back to all events
+when their city has none, with a line saying so. Waiting on her.
+
+**Still open from earlier:** `CRON_SECRET` in Vercel (calendar has not synced
+for 25 days), the mk-member test password, editing the three small print
+drafts, and the admin dashboard reloading after every action (item 16).
+
 ## The audit, round 3, scope and method (non-2006, non-backstage)
 
 The July backlog of about 334 findings no longer exists anywhere (the artifact
@@ -62,8 +116,8 @@ redirects and need no audit (`directory`, `hire-us`, `together`,
 2. Seven places turn the focus outline off on something that may not be a
    script-focused heading: `resources` line 621, `access-card` 133, `calendar`
    1492, `cinema` 672, `submit-event` 35, `profile/[username]` 768. Check each.
-3. The unsaved-changes guard on Edit Profile can strand navigation (see
-   "Noticed 2026-09-09" below).
+3. ~~The unsaved-changes guard on Edit Profile can strand navigation.~~ Not a
+   real problem, see the correction under "Noticed 2026-09-09" below.
 
 **Then page by page, in the order people meet them:**
 1. Front doors: home, login, join form, contact, Access Card signup.
@@ -368,14 +422,15 @@ dashes in copy, Modal component is solid, 51 files use live regions.
 
 ## Noticed 2026-09-09, worth a look
 
-**Leaving Edit Profile with unsaved changes can strand the app.** The
-unsaved-changes guard registers a beforeunload handler. Chrome refuses to show
-that dialog when the page has had no user gesture, and the client-side
-navigation is left half finished: the destination renders behind a Loading
-placeholder that never clears. A fresh tab loads the same page fine, and
-production is unaffected, so this only bites during a session where somebody
-edits a profile and then navigates away without clicking anything first. Worth
-handling properly in `lib/useUnsavedChanges.ts` rather than leaving to chance.
+**CORRECTED 2026-09-29: this was not a bug in the site.** The 9 September note
+here said leaving Edit Profile with unsaved changes could strand a page on a
+loading placeholder, blaming the unsaved-changes guard. Checked again: the
+preview pane's hot-reload connection fails and the dev server then reloads the
+page over and over, and a page caught mid-reload shows its loading placeholder.
+The live login page renders fully and stays that way for 20 seconds. The
+Chrome console line about a blocked confirmation panel is real but harmless.
+Nothing to fix. The lesson is about testing: when a page looks stuck in the
+preview pane, check the live site before writing it up as a defect.
 
 ## Tier 6: fun ideas that fit the retro voice
 

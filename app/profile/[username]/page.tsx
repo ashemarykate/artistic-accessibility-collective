@@ -964,7 +964,7 @@ export default function ProfilePage() {
         {/* ════════════════════════════════════
             RIGHT MAIN CONTENT
         ════════════════════════════════════ */}
-        <div id="main-content" style={{ width: '100%' }}>
+        <div style={{ width: '100%' }}>
 
           {/* ── Highlights ── */}
           {profile.highlights && (

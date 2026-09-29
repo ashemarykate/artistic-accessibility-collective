@@ -87,7 +87,7 @@ export default function Collective() {
             style={{ marginTop: '4rem', display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', listStyle: 'none', padding: 0 }}
           >
             <li>
-              <Link href="/" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
+              <Link href="/" style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.8125rem', textDecoration: 'underline' }}>
                 Home
               </Link>
             </li>

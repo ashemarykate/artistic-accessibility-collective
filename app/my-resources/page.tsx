@@ -83,7 +83,7 @@ export default function MyResourcesPage() {
         {/* Back link */}
         <Link
           href="/collective"
-          style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8125rem', textDecoration: 'underline', display: 'inline-block', marginBottom: '1.5rem' }}
+          style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.8125rem', textDecoration: 'underline', display: 'inline-block', marginBottom: '1.5rem' }}
         >
           ← Back to hub
         </Link>
@@ -93,7 +93,7 @@ export default function MyResourcesPage() {
           ♥ My Resources
         </h1>
         {state === 'ready' && (
-          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8125rem', margin: '0 0 2rem', lineHeight: 1.5 }}>
+          <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.8125rem', margin: '0 0 2rem', lineHeight: 1.5 }}>
             {totalSaved === 0
               ? 'Nothing saved yet. Heart items in the Library, Cinema, or Resources to save them here.'
               : `${totalSaved} item${totalSaved !== 1 ? 's' : ''} saved across your collections.`}
@@ -102,7 +102,7 @@ export default function MyResourcesPage() {
 
         {/* Loading */}
         {state === 'loading' && (
-          <div role="status" aria-label="Loading your saved items" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', padding: '2rem 0' }}>
+          <div role="status" aria-label="Loading your saved items" style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.875rem', padding: '2rem 0' }}>
             Loading…
           </div>
         )}
@@ -221,7 +221,7 @@ function SavedSection({
         </h2>
         <Link
           href={href}
-          style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', textDecoration: 'underline' }}
+          style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.75rem', textDecoration: 'underline' }}
           className="my-res-back"
         >
           {browseLinkLabel} →

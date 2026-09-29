@@ -452,7 +452,7 @@ export default function AdminDashboard() {
       <header className="site-header">
         <Link href="/" className="site-header-logo" aria-label="Artistic Accessibility Collective, home"><Logo alt="" /></Link>
         <nav className="site-nav" aria-label="Main navigation">
-          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>Admin</span>
+          <span style={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.875rem' }}>Admin</span>
           {hasMemberProfile && (
             <Link href="/dashboard" className="nav-link">My Collective</Link>
           )}
