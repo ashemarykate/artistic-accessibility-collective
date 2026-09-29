@@ -314,7 +314,7 @@ export default function MakeArtPage() {
 
               {/* Coming soon */}
               <div style={{ border: '3px dashed #aaa', borderRadius: 6, background: '#fafafa', padding: '10px 14px', textAlign: 'center', transform: 'rotate(-0.4deg)' }}>
-                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#777', margin: 0 }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#666', margin: 0 }}>
                   ✨ More projects are on their way. Check back soon!
                 </p>
               </div>

@@ -134,7 +134,7 @@ export default function SubmitLogoPage() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={ex.src} alt={ex.alt} style={{ maxHeight: 34, maxWidth: '100%', width: 'auto', height: 'auto' }} />
                       </div>
-                      <figcaption style={{ fontFamily: UIFONT, fontSize: 12, fontStyle: 'italic', color: '#777', padding: '4px 2px 0' }}>
+                      <figcaption style={{ fontFamily: UIFONT, fontSize: 12, fontStyle: 'italic', color: '#666', padding: '4px 2px 0' }}>
                         &ldquo;{ex.alt}&rdquo;
                       </figcaption>
                     </figure>
@@ -214,7 +214,7 @@ export default function SubmitLogoPage() {
             <div key={color.hex} aria-label={color.name} style={{ width: 18, height: 18, background: color.hex, border: '2px outset #fff', borderRadius: 1, cursor: 'crosshair', flexShrink: 0 }} />
           ))}
           <div style={{ flex: 1 }} aria-hidden="true" />
-          <span style={{ fontSize: 12, color: '#555', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
+          <span style={{ fontSize: 12, color: '#444', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
         </div>
       </div>
 

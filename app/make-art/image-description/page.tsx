@@ -233,7 +233,7 @@ export default function ImageDescriptionPage() {
                     style={{ width: '100%', maxWidth: 360, height: 180, background: 'linear-gradient(135deg, #e8e4dc 25%, #d8d4cc 100%)', border: '3px outset #999', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
                     <span aria-hidden="true" style={{ fontSize: 36, opacity: 0.4 }}>🖼️</span>
-                    <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#888', letterSpacing: '0.06em' }}>
+                    <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#666', letterSpacing: '0.06em' }}>
                       IMAGE COMING SOON
                     </span>
                   </div>
@@ -296,11 +296,11 @@ export default function ImageDescriptionPage() {
                 )
               ) : (
                 <div style={{ border: '2px solid #c85a20', background: '#fff8f0', padding: '10px 14px', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#333', lineHeight: 1.65 }}>
-                  <strong style={{ color: '#c85a20' }}>Want to add your description?</strong>
+                  <strong style={{ color: '#a84a14' }}>Want to add your description?</strong>
                   <br />
                   You need a free Access Card to participate. It takes about two minutes to set up.
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Link href="/access-card/signup" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 12, color: '#fff', background: '#c85a20', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
+                    <Link href="/access-card/signup" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 12, color: '#fff', background: '#a84a14', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
                       Create an Access Card
                     </Link>
                     <Link href="/login" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#333', padding: '3px 10px', textDecoration: 'none', border: '2px outset #bbb', background: '#ddd', display: 'inline-block' }}>
@@ -337,7 +337,7 @@ export default function ImageDescriptionPage() {
                         }}
                       >
                         <p style={{ margin: '0 0 4px' }}>{d.text}</p>
-                        <span style={{ fontSize: 12, color: '#888' }}>
+                        <span style={{ fontSize: 12, color: '#666' }}>
                           {d.isAutoGen ? '🤖 ' : ''}{d.author}
                         </span>
                         {d.isNew && <span style={{ fontSize: 12, color: '#0b5e48', fontWeight: 'bold', marginLeft: 6 }}>NEW</span>}
@@ -358,7 +358,7 @@ export default function ImageDescriptionPage() {
             <div key={color.hex} aria-label={color.name} style={{ width: 18, height: 18, background: color.hex, border: '2px outset #fff', borderRadius: 1, cursor: 'crosshair', flexShrink: 0 }} />
           ))}
           <div style={{ flex: 1 }} aria-hidden="true" />
-          <span style={{ fontSize: 12, color: '#555', alignSelf: 'center', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>ArtisticAccessibility.com</span>
+          <span style={{ fontSize: 12, color: '#444', alignSelf: 'center', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>ArtisticAccessibility.com</span>
         </div>
       </div>
 

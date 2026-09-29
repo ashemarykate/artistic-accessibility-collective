@@ -272,7 +272,7 @@ export default function TheChannelLearningPage() {
           <span style={{ background: '#cc4400', color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, fontWeight: 'bold', padding: '1px 6px', letterSpacing: '0.1em' }}>
             ON AIR
           </span>
-          <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#887755' }}>
+          <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#9a8866' }}>
             Arts Accessibility · The Channel · Learning Hub
           </span>
         </div>

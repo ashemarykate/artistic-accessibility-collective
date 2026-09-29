@@ -411,7 +411,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
             <div style={{
               position: 'absolute', left: 0, top: 0, width: 52, height: '100%',
               boxSizing: 'border-box', borderRight: '1px solid #b4b0a8',
-              fontSize: 12, color: '#888', textAlign: 'right', padding: '2px 4px 0',
+              fontSize: 12, color: '#666', textAlign: 'right', padding: '2px 4px 0',
               userSelect: 'none', background: '#fbfaf7',
             }}>
               {hi === 0 ? fmtHour(h) : fmtHour(h).replace(':00 ', '')}
@@ -634,7 +634,7 @@ function ListView({ events, overlay }: { events: CalEvent[]; overlay: Overlay | 
           }}>
             {DAY_NAMES_LONG[g.date.getDay()]}, {MONTH_NAMES[g.date.getMonth()]} {g.date.getDate()}
             {isToday(g.date) && <span style={{ fontWeight: 'normal' }}> · Today</span>}
-            <span style={{ fontWeight: 'normal', color: '#888', float: 'right', fontSize: 12 }}>
+            <span style={{ fontWeight: 'normal', color: '#666', float: 'right', fontSize: 12 }}>
               {g.items.length} {g.items.length === 1 ? 'event' : 'events'}
             </span>
           </div>
@@ -1079,7 +1079,7 @@ export default function CalendarPage() {
                 fontFamily: '"Tahoma", Arial, sans-serif', background: '#fff', marginBottom: 4,
               }}
             />
-            <p style={{ fontSize: 12, color: '#777', margin: '0 0 14px' }}>
+            <p style={{ fontSize: 12, color: '#5a5a5a', margin: '0 0 14px' }}>
               Matches the city or venue on each event. Leave blank to see everywhere.
             </p>
 
@@ -1387,7 +1387,7 @@ export default function CalendarPage() {
               <div style={{ padding: '4px 6px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 2 }}>
                   {DAY_NAMES.map(d => (
-                    <div key={d} style={{ textAlign: 'center', fontSize: 12, color: '#888', fontWeight: 'bold' }}>
+                    <div key={d} style={{ textAlign: 'center', fontSize: 12, color: '#666', fontWeight: 'bold' }}>
                       {d[0]}
                     </div>
                   ))}
@@ -1469,14 +1469,14 @@ export default function CalendarPage() {
                       </li>
                     ))}
                   </ul>
-                  <div style={{ fontSize: 12, color: '#888', marginTop: 5, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 5, lineHeight: 1.4 }}>
                     Events from these partners pull in automatically.
                   </div>
                 </div>
               )}
 
               {/* Expand to 1-day hint (shown in 3-day/week views on mobile — sidebar visible on desktop only) */}
-              <div style={{ margin: '8px 8px 0', fontSize: 12, color: '#777', lineHeight: 1.5 }}>
+              <div style={{ margin: '8px 8px 0', fontSize: 12, color: '#5a5a5a', lineHeight: 1.5 }}>
                 Tip: Switch to <strong>Day</strong> view for a focused single-day look.
               </div>
             </div>
@@ -1625,7 +1625,7 @@ export default function CalendarPage() {
                   New calendars were just added and are syncing in for the first time. Check back soon, this list fills in automatically as each one comes online.
                 </p>
               )}
-              <p style={{ fontSize: 12, color: '#888', marginTop: 10, marginBottom: 0, lineHeight: 1.4 }}>
+              <p style={{ fontSize: 12, color: '#666', marginTop: 10, marginBottom: 0, lineHeight: 1.4 }}>
                 Know an accessible arts organization with a public calendar we should add? <Link href="/contact" style={{ color: '#263590', textDecoration: 'underline' }}>Let us know</Link>.
               </p>
             </div>

@@ -14,7 +14,7 @@ const NP = {
   goldLight:   '#f0e0a0',
   ink:         '#1c1200',
   ink2:        '#4a3c10',
-  ink3:        '#8a7040',
+  ink3:        '#755d31',
   border:      '#d4b96a',
   borderLight: '#ede0b8',
   link:        '#0a3d7a',
@@ -465,7 +465,6 @@ export default function ResourcesPage() {
   return (
     <>
       {/* Skip link — must be first focusable element before all chrome */}
-      <a className="sr-only" href="#main-content">Skip to main content</a>
 
       {/* Outer wrapper: teal desktop + browser window */}
       <div style={{
@@ -586,7 +585,7 @@ export default function ResourcesPage() {
           </div>
 
           {/* ── Scrollable page content ── */}
-          <main id="main-content" style={{ flex: 1, overflow: 'auto', background: NP.bg }}>
+          <main style={{ flex: 1, overflow: 'auto', background: NP.bg }}>
             <h1 className="sr-only">Free Resource Directory · Artistic Accessibility Collective</h1>
 
             {/* Marquee */}

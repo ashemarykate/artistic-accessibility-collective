@@ -160,7 +160,15 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
   };
 
   return (
-    <section aria-label="Community comments">
+    <section
+      aria-label="Community comments"
+      // The blue palette assumes a blue surface. The Cinema page puts this on a
+      // white card, so its heading and "log in to comment" line landed pale
+      // yellow on white, about 1.4 to 1. The amber palette sits on the Library's
+      // own dark screen and needs nothing. Blue gets a panel of its own, so the
+      // text is always on the colour it was picked for.
+      style={isAmber ? undefined : { background: C.bg, padding: '4px 16px 16px', border: `2px solid ${C.bg2}` }}
+    >
       {/* Screen reader live region */}
       <div ref={liveRef} role="status" aria-live="polite" className="sr-only" />
 

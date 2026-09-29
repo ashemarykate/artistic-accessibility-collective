@@ -397,7 +397,7 @@ export default function LearningHubPage() {
           aria-hidden="true"
           style={{ display: 'flex', background: '#c8c8c8', borderTop: '2px solid #999', padding: '3px 4px', gap: 2, flexShrink: 0, flexWrap: 'wrap', alignItems: 'center' }}
         >
-          <span style={{ fontSize: 12, color: '#555', fontFamily: '"MS Sans Serif", Arial, sans-serif', marginRight: 4, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: '#444', fontFamily: '"MS Sans Serif", Arial, sans-serif', marginRight: 4, flexShrink: 0 }}>
             Contents:
           </span>
           {CONTENTS.map((c) => (
@@ -409,7 +409,7 @@ export default function LearningHubPage() {
                 fontFamily: '"MS Sans Serif", Arial, sans-serif',
                 background: '#d8d8d0',
                 border: '1px outset #aaa',
-                color: '#888',
+                color: '#555',
                 cursor: 'default',
                 userSelect: 'none',
               }}
