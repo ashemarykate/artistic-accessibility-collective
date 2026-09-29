@@ -471,7 +471,7 @@
     background:#f4f7fb;border:1px solid #dae4f0;padding:6px 8px;font-size:12px;
   }
   .live-date b{color:#1a3d6e}
-  .live-date span{color:#42506a}
+  .live-date span{color:#42506a;white-space:nowrap}
   .live .live-where{font-size:11.5px;color:#42506a;margin:8px 0 8px}
   .live-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;padding:7px 12px}
   .live .live-fine{font-size:9.5px;color:#8a94a6;margin:4px 0 0}
@@ -2928,7 +2928,7 @@ function viewShow(){
       <div class="live-dates">
         ${dates.map(d => `<div class="live-date">
           <b>${esc(d.label || "")}</b>
-          <span>${esc(showDate(d))} CT</span>
+          <span>${esc(showDate(d,{weekday:"short",month:"short"}))} CT</span>
         </div>`).join("")}
       </div>
 
