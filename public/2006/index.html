@@ -1302,7 +1302,7 @@ let SHOW_DATES = [           // fallback until production_dates is seeded
 ];
 CONFIG.RESERVE_URL = CONFIG.RESERVE_URL || "";
 /* Empty on purpose. The email reminder button is off for now: it only
-   appears when Backstage has a link in "Email me the link", so putting a
+   appears when Backstage has a reminder link, so putting a
    real form there is all it takes to bring it back. */
 CONFIG.REMIND_URL = CONFIG.REMIND_URL || "";
 CONFIG.SUBMIT_FORM_URL = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
@@ -2944,9 +2944,9 @@ function viewShow(){
         studio audience.</p>
       ${CONFIG.REMIND_URL
         ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.REMIND_URL)}" target="_blank"
-             rel="noopener noreferrer">email me the link<span class="sr-only"> (opens a form in a new tab)</span></a>
-           <p class="live-fine">watching from home? we will send you a reminder and the
-             link to watch. opens a form in a new tab. pick which show.</p>`
+             rel="noopener noreferrer">Get An E-Mail Reminder<span class="sr-only"> (opens a form in a new tab)</span></a>
+           <p class="live-fine">watching from home? sign up for a reminder.
+             opens a form in a new tab. pick which show.</p>`
         : ``}
       ${CONFIG.RESERVE_URL
         ? `<a class="btn-xp live-btn" href="${esc(CONFIG.RESERVE_URL)}" target="_blank"
