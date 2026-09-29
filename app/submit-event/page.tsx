@@ -32,7 +32,6 @@ const WIN_INP: React.CSSProperties = {
   background: '#fff',
   fontFamily: '"MS Sans Serif", Arial, sans-serif',
   boxSizing: 'border-box' as const,
-  outline: 'none',
 };
 const WIN_LABEL: React.CSSProperties = {
   display: 'block',

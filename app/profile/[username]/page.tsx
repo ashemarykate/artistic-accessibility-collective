@@ -765,7 +765,7 @@ export default function ProfilePage() {
                         onChange={(e) => handleUsernameChange(e.target.value)}
                         placeholder="your-name"
                         maxLength={30}
-                        style={{ border: 'none', outline: 'none', flex: 1, fontSize: '0.8125rem', minWidth: 0 }}
+                        style={{ border: 'none', flex: 1, fontSize: '0.8125rem', minWidth: 0 }}
                         aria-describedby={usernameError ? 'username-error' : 'username-hint'}
                         aria-invalid={!!usernameError || usernameAvailable === false}
                       />

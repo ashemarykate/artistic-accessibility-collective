@@ -163,12 +163,50 @@ a:hover { color: var(--aac-blue-dark); }
   z-index: 9999;
 }
 
-/* Visible focus ring */
+/* Visible focus ring.
+ *
+ * TWO-TONE ON PURPOSE. A single yellow line was the ring for years, and on a
+ * white, cream or silver page it measures about 1.4 to 1 against the
+ * background. The standard asks for 3 to 1, so for a keyboard user most of the
+ * site had a focus ring they could not see (65 of 66 controls on the member
+ * home, 32 of 33 on the calendar). Yellow only works on the navy pages.
+ *
+ * So the ring is a dark navy line with a yellow band tucked inside it. On a
+ * light page the navy line does the work. On a navy page the yellow band does.
+ * Either way one of the two always contrasts with what is behind it.
+ */
 :focus-visible {
-  outline: 3px solid var(--aac-yellow);
+  outline: 3px solid var(--aac-navy);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--aac-yellow);
 }
 :focus:not(:focus-visible) { outline: none; }
+
+/* Inline styles beat the rule above, and this site's retro controls set
+ * outline: none or their own box-shadow inline all over the place, which is
+ * exactly how whole forms ended up with no visible focus at all. Anything a
+ * person can actually operate gets the ring with !important so nothing inline
+ * can switch it off. Headings, dialogs and the main region are focused by
+ * script and are deliberately not listed, so they stay quiet. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="option"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--aac-navy) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px var(--aac-yellow) !important;
+}
+
+/* The calendar's panel fills its whole window, so an outset ring would be cut
+ * off by the frame. Draw this one inside instead. */
+#cal-tabpanel:focus-visible { outline-offset: -5px !important; }
 
 /* ============================================
    TYPOGRAPHY
@@ -722,8 +760,6 @@ a.btn:active {
   transition: border-color 0.1s, box-shadow 0.1s;
 }
 .form-input:focus-visible {
-  outline: 3px solid var(--aac-yellow);
-  outline-offset: 2px;
   border-color: var(--aac-blue);
 }
 .form-input::placeholder { color: #5a6580; }
@@ -822,7 +858,6 @@ a.btn:active {
   box-shadow: 2px 2px 6px rgba(38, 53, 144, 0.18);
 }
 .contact-card:focus-visible {
-  outline: 3px solid var(--aac-yellow);
   outline-offset: 1px;
 }
 .contact-card-individual { background: #fefdf8; }
@@ -1045,8 +1080,9 @@ a.btn:active {
   border-width: 0;
 }
 .chip-checkbox:focus-visible + * {
-  outline: 3px solid var(--aac-yellow);
+  outline: 3px solid var(--aac-navy);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--aac-yellow);
 }
 
 .text-muted  { color: var(--color-text-muted); }
@@ -1079,8 +1115,9 @@ a.btn:active {
   box-shadow: 0 2px 8px rgba(38, 53, 144, 0.18);
 }
 .ms-nav-card:focus-visible {
-  outline: 3px solid var(--aac-yellow);
+  outline: 3px solid var(--aac-navy);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--aac-yellow);
 }
 
 /* Unread message count badge in navigation */

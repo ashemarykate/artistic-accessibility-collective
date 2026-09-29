@@ -669,7 +669,6 @@ export default function CinemaPage() {
         .cinema-nav-link:focus-visible {
           background: ${C.black};
           color: ${C.white};
-          outline: none;
         }
         .cinema-item-link:hover .cinema-item-title {
           text-decoration: underline;

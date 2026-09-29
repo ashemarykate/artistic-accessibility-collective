@@ -1489,7 +1489,7 @@ export default function CalendarPage() {
               role="tabpanel"
               tabIndex={0}
               aria-labelledby={`cal-tab-${view}`}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: '#fafaf6', outline: 'none' }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: '#fafaf6' }}
             >
 
               {/* Screen reader heading */}

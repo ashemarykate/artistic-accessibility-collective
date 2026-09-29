@@ -618,7 +618,7 @@ export default function ResourcesPage() {
                   id="resource-search" type="search"
                   placeholder="Search by name, topic, or description…"
                   value={search} onChange={(e) => setSearch(e.target.value)}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 36px 10px 32px', border: `1.5px solid ${NP.border}`, background: NP.white, color: NP.ink, fontFamily: NP.fontBody, fontSize: '1rem', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 36px 10px 32px', border: `1.5px solid ${NP.border}`, background: NP.white, color: NP.ink, fontFamily: NP.fontBody, fontSize: '1rem' }}
                 />
                 {search && (
                   <button onClick={() => setSearch('')} aria-label="Clear search" style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: NP.ink3, fontSize: '0.875rem', padding: '4px' }}>✕</button>
