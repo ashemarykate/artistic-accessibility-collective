@@ -1317,9 +1317,15 @@ function EventsPanel({
   const handleTriggerSync = async () => {
     setSyncing(true); setSyncResult('');
     try {
-      const secret = prompt('CRON_SECRET value (leave blank if not set):');
+      // Runs as you, using your own login. No secret to find or type: the
+      // route accepts a signed-in admin the same way it accepts the scheduler.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setSyncResult('You are signed out. Log in again, then try Sync now.');
+        return;
+      }
       const res = await fetch('/api/sync-calendars', {
-        headers: secret ? { Authorization: `Bearer ${secret}` } : {},
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const json = await res.json();
       if (json.error) setSyncResult(`Error: ${json.error}`);

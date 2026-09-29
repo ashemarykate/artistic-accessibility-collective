@@ -4,8 +4,14 @@
  * Daily cron job: fetches every active ICS feed from ics_sources,
  * parses VEVENT blocks, and upserts events into the events table.
  *
- * Protected by CRON_SECRET — Vercel Cron adds this header automatically.
- * You can also call it manually with:
+ * Two ways in, and nothing else:
+ *   1. The scheduler, which sends CRON_SECRET (Vercel Cron adds the header
+ *      automatically once the variable is set).
+ *   2. A signed-in admin, using their own session. This is what the Sync now
+ *      button in the admin dashboard does, so nobody has to know or type the
+ *      secret, and the button keeps working even if the secret is missing.
+ *
+ * Anyone else gets a refusal. You can also call it by hand with:
  *   curl -H "Authorization: Bearer $CRON_SECRET" https://yourdomain.com/api/sync-calendars
  *
  * Required env vars (add to Vercel):
@@ -91,15 +97,35 @@ function parseICS(text: string): ParsedEvent[] {
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
+/** True when the bearer token belongs to a signed-in admin. */
+async function isAdminToken(token: string): Promise<boolean> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key || !token) return false;
+  const db = createClient(url, key, { auth: { persistSession: false } });
+  const { data: { user }, error } = await db.auth.getUser(token);
+  if (error || !user) return false;
+  const { data: row } = await db.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
+  return !!row;
+}
+
 export async function GET(request: Request) {
-  // Verify cron secret
   const secret = process.env.CRON_SECRET;
-  const auth   = request.headers.get('authorization');
-  if (!secret) {
-    console.error('sync-calendars: CRON_SECRET is not set, refusing to run');
-    return NextResponse.json({ error: 'CRON_SECRET not set' }, { status: 500 });
-  }
-  if (auth !== `Bearer ${secret}`) {
+  const auth   = request.headers.get('authorization') ?? '';
+  const bearer = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+
+  // The scheduler: the header must match the secret, and there must be a secret.
+  const isCron = !!secret && bearer === secret;
+  // A person: an admin's own session. Checked only when it is not the cron.
+  const isAdmin = !isCron && (await isAdminToken(bearer));
+
+  if (!isCron && !isAdmin) {
+    if (!secret) {
+      // Fail closed, but say why so a silent nightly failure is diagnosable.
+      // Without this, a missing variable looks exactly like a working job.
+      console.error('sync-calendars: CRON_SECRET is not set, and the caller is not a signed-in admin');
+      return NextResponse.json({ error: 'CRON_SECRET not set' }, { status: 500 });
+    }
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
