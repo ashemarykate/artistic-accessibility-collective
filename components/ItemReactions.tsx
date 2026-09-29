@@ -208,7 +208,7 @@ export default function ItemReactions({
                   <span style={{ fontFamily: C.mono, fontWeight: 700, fontSize: 14, color: C.text }}>
                     {avgRating!.toFixed(1)}
                   </span>
-                  <span style={{ fontFamily: C.mono, fontSize: 11, color: C.dim }}>
+                  <span style={{ fontFamily: C.mono, fontSize: 12, color: C.dim }}>
                     ({ratingCount} rating{ratingCount !== 1 ? 's' : ''})
                   </span>
                 </div>
@@ -217,7 +217,7 @@ export default function ItemReactions({
 
             {userId ? (
               <div>
-                <div style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, marginBottom: 5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                <div style={{ fontFamily: C.mono, fontSize: 12, color: C.dim, marginBottom: 5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                   {myRating ? `Your rating: ${myRating}/5 (click to change)` : 'Rate this:'}
                 </div>
                 <div
@@ -265,7 +265,7 @@ export default function ItemReactions({
 
           {/* Heart / Save */}
           <div style={{ borderLeft: `1px solid ${C.starEmpty}`, paddingLeft: 24 }}>
-            <div style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, marginBottom: 5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <div style={{ fontFamily: C.mono, fontSize: 12, color: C.dim, marginBottom: 5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               Save to profile
             </div>
             <button
@@ -291,7 +291,7 @@ export default function ItemReactions({
                 {mine.has('heart') ? 'Saved' : 'Save'}
               </span>
               {counts.heart > 0 && (
-                <span style={{ fontSize: 11, opacity: 0.8, marginLeft: 2 }}>{counts.heart}</span>
+                <span style={{ fontSize: 12, opacity: 0.8, marginLeft: 2 }}>{counts.heart}</span>
               )}
             </button>
           </div>

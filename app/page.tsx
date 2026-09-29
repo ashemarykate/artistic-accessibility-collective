@@ -198,7 +198,7 @@ function WinClose({ onClose, label, red }: { onClose: () => void; label: string;
   return (
     <button onClick={onClose} aria-label={label} className="win-close"
       style={red
-        ? { background: '#c0392b', border: '1px solid #8e1a11', borderRadius: 3, width: 26, height: 22, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', lineHeight: 1, flexShrink: 0 }
+        ? { background: '#c0392b', border: '1px solid #8e1a11', borderRadius: 3, width: 26, height: 22, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', lineHeight: 1, flexShrink: 0 }
         : { width: 28, height: 24, background: SILVER, boxShadow: RAISED, border: 'none', cursor: 'pointer', fontWeight: 900, fontSize: 14, color: '#0a0a0a', fontFamily: UIFONT, paddingBottom: 2, flexShrink: 0 }}>
       ✕
     </button>
@@ -209,7 +209,7 @@ function Placeholder({ label, wide }: { label: string; wide?: boolean }) {
   return (
     <div style={{ boxShadow: FIELD, background: '#fff', padding: 3 }} aria-hidden="true">
       <div style={{ height: wide ? 130 : 90, background: 'repeating-linear-gradient(45deg,#e9e9e9 0 8px,#f6f6f6 8px 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#595959', letterSpacing: 1 }}>{label}</span>
+        <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#595959', letterSpacing: 1 }}>{label}</span>
       </div>
     </div>
   );
@@ -252,7 +252,7 @@ function Row({ icon, label, onClick, indent = 0, external, href, sub, hardLink }
       {sub ? (
         <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
           <span>{label}</span>
-          <span className="win-row-sub" style={{ fontSize: 11, color: '#5a5a5a' }}>{sub}</span>
+          <span className="win-row-sub" style={{ fontSize: 12, color: '#5a5a5a' }}>{sub}</span>
         </span>
       ) : (
         <span>{label}</span>
@@ -372,7 +372,7 @@ function AppBody({ k, onOpen, onClose, wide }: { k: string; onOpen: (key: string
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
         <span aria-hidden="true" style={{ flexShrink: 0 }}><Ico n={it.icon} size={52} /></span>
         <div>
-          {it.cat && <div style={{ fontSize: 11, color: '#444', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 3 }}>{it.cat}</div>}
+          {it.cat && <div style={{ fontSize: 12, color: '#444', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 3 }}>{it.cat}</div>}
           <p style={{ margin: 0, fontSize: 13.5, color: '#101010', lineHeight: '19px' }}>{it.blurb}</p>
           {it.soon && <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#595959', fontStyle: 'italic' }}>This page is coming soon, not open yet.</p>}
         </div>
@@ -427,7 +427,7 @@ function FolderBody({ onOpen, wide }: { onOpen: (key: string) => void; wide?: bo
 
 function GroupHdr({ children }: { children: React.ReactNode }) {
   return (
-    <div role="heading" aria-level={2} style={{ background: 'linear-gradient(to bottom,#eae7df,#d8d4cc)', borderTop: '1px solid #c8c4bc', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', fontSize: 10, fontWeight: 700, color: '#1a4fbb', letterSpacing: '.04em' }}>
+    <div role="heading" aria-level={2} style={{ background: 'linear-gradient(to bottom,#eae7df,#d8d4cc)', borderTop: '1px solid #c8c4bc', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', fontSize: 12, fontWeight: 700, color: '#1a4fbb', letterSpacing: '.04em' }}>
       <span aria-hidden="true">▶ </span>{children}
     </div>
   );
@@ -476,7 +476,7 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
           {signOutError}
         </div>
       )}
-      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', textAlign: 'center', fontFamily: UIFONT }}>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 12, color: '#666', textAlign: 'center', fontFamily: UIFONT }}>
         artisticaccessibility.com
       </div>
     </div>
@@ -486,9 +486,9 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
 function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
   return (
     <div>
-      <div aria-hidden="true" style={{ background: '#ece9d8', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontFamily: UIFONT }}>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontFamily: UIFONT }}>
         <span style={{ color: '#555' }}>Address</span>
-        <div style={{ flex: 1, background: '#fff', border: '1px solid #7a7a7a', padding: '2px 5px', fontSize: 11, color: '#000' }}>
+        <div style={{ flex: 1, background: '#fff', border: '1px solid #7a7a7a', padding: '2px 5px', fontSize: 12, color: '#000' }}>
           C:\Artistic Accessibility\Resources\
         </div>
       </div>
@@ -498,7 +498,7 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
         <Row icon={56} label="The Cinema"  href="/cinema" />
         <Row icon={'printer'} label="The Printer" href="/printer" />
       </div>
-      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', fontFamily: UIFONT }}>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 12, color: '#666', fontFamily: UIFONT }}>
         4 items
       </div>
     </div>
@@ -566,7 +566,7 @@ function ProjectsBody() {
     <p id={id} style={{
       margin: 0, padding: '5px 10px', background: '#f4f2ec',
       borderBottom: '1px solid #e2ded6', borderTop: '1px solid #e2ded6',
-      fontFamily: UIFONT, fontSize: 10.5, fontWeight: 700,
+      fontFamily: UIFONT, fontSize: 12, fontWeight: 700,
       letterSpacing: '.06em', textTransform: 'uppercase', color: '#5a5a5a',
     }}>
       {text}
@@ -575,9 +575,9 @@ function ProjectsBody() {
 
   return (
     <div>
-      <div aria-hidden="true" style={{ background: '#ece9d8', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontFamily: UIFONT }}>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderBottom: '1px solid #c8c4bc', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontFamily: UIFONT }}>
         <span style={{ color: '#555' }}>Address</span>
-        <div style={{ flex: 1, background: '#fff', border: '1px solid #7a7a7a', padding: '2px 5px', fontSize: 11, color: '#000' }}>
+        <div style={{ flex: 1, background: '#fff', border: '1px solid #7a7a7a', padding: '2px 5px', fontSize: 12, color: '#000' }}>
           {'C:\\Artistic Accessibility\\Projects & Events\\'}
         </div>
       </div>
@@ -630,7 +630,7 @@ function ProjectsBody() {
         )}
       </div>
 
-      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 10, color: '#666', fontFamily: UIFONT }}>
+      <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 12, color: '#666', fontFamily: UIFONT }}>
         {loading ? 'Reading…' : `${count} item${count === 1 ? '' : 's'}`}
       </div>
     </div>
@@ -749,7 +749,7 @@ function StartMenuFolder({ name, kids, onOpen }: { name: string; kids: string[];
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', background: 'none', border: 'none', textAlign: 'left', cursor: 'default' }}>
         <span aria-hidden="true" style={{ width: 26, height: 26, flexShrink: 0 }}><Ico n={48} size={26} /></span>
         <span style={{ flex: 1 }}>{name}</span>
-        <span aria-hidden="true" style={{ fontSize: 10 }}>▶</span>
+        <span aria-hidden="true" style={{ fontSize: 12 }}>▶</span>
       </button>
       <div className="start-sub" aria-label={name}
         style={{ position: 'absolute', left: '100%', top: -3, minWidth: 214, background: SILVER, boxShadow: RAISED, padding: 3, zIndex: 9002 }}>

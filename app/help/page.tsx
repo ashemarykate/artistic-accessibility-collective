@@ -205,7 +205,7 @@ export default function HelpPage() {
                 }}>
                   <span aria-hidden="true" style={{ fontSize: '0.875rem', lineHeight: 1 }}>{section.emoji}</span>
                   <h2 style={{
-                    fontSize: '0.6875rem',
+                    fontSize: '0.75rem',
                     fontWeight: 700,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
@@ -249,7 +249,7 @@ export default function HelpPage() {
                             aria-hidden="true"
                             style={{
                               flexShrink: 0,
-                              fontSize: '0.625rem',
+                              fontSize: '0.75rem',
                               marginTop: '0.35rem',
                               color: 'var(--aac-blue)',
                               opacity: isOpen ? 1 : 0.5,

@@ -25,7 +25,7 @@ function SpecRow({ label, children }: { label: string; children: React.ReactNode
   return (
     <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '8px 0', borderBottom: '1px solid #e0ddd4' }}>
       <strong style={{ flexShrink: 0, width: 92, fontFamily: KIDFONT, fontSize: 12, color: '#5a2a7a' }}>{label}</strong>
-      <div style={{ fontFamily: UIFONT, fontSize: 11.5, color: '#222', lineHeight: 1.65 }}>{children}</div>
+      <div style={{ fontFamily: UIFONT, fontSize: 12, color: '#222', lineHeight: 1.65 }}>{children}</div>
     </div>
   );
 }
@@ -82,7 +82,7 @@ export default function SubmitLogoPage() {
         </div>
 
         {/* Menu bar */}
-        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', fontFamily: UIFONT, fontSize: 11 }}>
+        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', fontFamily: UIFONT, fontSize: 12 }}>
           {['File','Edit','Goodies','Wacky','Help'].map((m) => (
             <span key={m} aria-hidden="true" style={{ padding: '2px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
@@ -105,13 +105,13 @@ export default function SubmitLogoPage() {
                 >
                   🪧 Submissions
                 </h2>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#555', margin: 0, fontStyle: 'italic' }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#555', margin: 0, fontStyle: 'italic' }}>
                   Every refresh, a new face. Yours could be one of them.
                 </p>
               </div>
 
               {/* About this project */}
-              <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 11, fontFamily: UIFONT, color: '#222', lineHeight: 1.65 }}>
+              <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 12, fontFamily: UIFONT, color: '#222', lineHeight: 1.65 }}>
                 Every time someone loads a page on this site, the logo at the top gets picked at random from a small set of styles, so regulars see something a little different each visit. There are fifteen right now. Design one in your own style, send it our way, and if it fits the spec below, we&rsquo;ll add it to the rotation.
               </div>
 
@@ -120,7 +120,7 @@ export default function SubmitLogoPage() {
                 <h3 id="examples-heading" style={{ fontFamily: KIDFONT, fontSize: 13, color: '#333', margin: '0 0 4px', borderBottom: '2px solid #ccc', paddingBottom: 4 }}>
                   A few from the current rotation
                 </h3>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#555', margin: '0 0 8px' }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#555', margin: '0 0 8px' }}>
                   These three are already live on the site today. Yours could sit right alongside them.
                 </p>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -134,7 +134,7 @@ export default function SubmitLogoPage() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={ex.src} alt={ex.alt} style={{ maxHeight: 34, maxWidth: '100%', width: 'auto', height: 'auto' }} />
                       </div>
-                      <figcaption style={{ fontFamily: UIFONT, fontSize: 10, fontStyle: 'italic', color: '#777', padding: '4px 2px 0' }}>
+                      <figcaption style={{ fontFamily: UIFONT, fontSize: 12, fontStyle: 'italic', color: '#777', padding: '4px 2px 0' }}>
                         &ldquo;{ex.alt}&rdquo;
                       </figcaption>
                     </figure>
@@ -167,11 +167,11 @@ export default function SubmitLogoPage() {
                     <div aria-hidden="true" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       <div style={{ background: '#0d1e4a', padding: '10px 14px', flex: '1 1 140px' }}>
                         <span style={{ color: '#fff', fontFamily: KIDFONT, fontWeight: 'bold', fontSize: 12 }}>Artistic Accessibility</span>
-                        <div style={{ color: '#8fa0c9', fontFamily: 'monospace', fontSize: 9, marginTop: 4 }}>#0d1e4a</div>
+                        <div style={{ color: '#8fa0c9', fontFamily: 'monospace', fontSize: 12, marginTop: 4 }}>#0d1e4a</div>
                       </div>
                       <div style={{ background: '#263590', padding: '10px 14px', flex: '1 1 140px' }}>
                         <span style={{ color: '#fff', fontFamily: KIDFONT, fontWeight: 'bold', fontSize: 12 }}>Artistic Accessibility</span>
-                        <div style={{ color: '#aab4e6', fontFamily: 'monospace', fontSize: 9, marginTop: 4 }}>#263590</div>
+                        <div style={{ color: '#aab4e6', fontFamily: 'monospace', fontSize: 12, marginTop: 4 }}>#263590</div>
                       </div>
                     </div>
                   </SpecRow>
@@ -190,7 +190,7 @@ export default function SubmitLogoPage() {
               </section>
 
               {/* How to send it */}
-              <div style={{ border: '2px solid #5a2a7a', background: '#f4eefa', padding: '10px 14px', fontFamily: UIFONT, fontSize: 11, color: '#333', lineHeight: 1.65 }}>
+              <div style={{ border: '2px solid #5a2a7a', background: '#f4eefa', padding: '10px 14px', fontFamily: UIFONT, fontSize: 12, color: '#333', lineHeight: 1.65 }}>
                 <strong style={{ color: '#5a2a7a' }}>Ready to send one over?</strong>
                 <br />
                 Email it to us with your file attached and your alt text written out. We&rsquo;ll take it from there.
@@ -214,18 +214,18 @@ export default function SubmitLogoPage() {
             <div key={color.hex} aria-label={color.name} style={{ width: 18, height: 18, background: color.hex, border: '2px outset #fff', borderRadius: 1, cursor: 'crosshair', flexShrink: 0 }} />
           ))}
           <div style={{ flex: 1 }} aria-hidden="true" />
-          <span style={{ fontSize: 10, color: '#555', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
+          <span style={{ fontSize: 12, color: '#555', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
         </div>
       </div>
 
       {/* Taskbar */}
-      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: UIFONT, fontSize: 11, userSelect: 'none', zIndex: 10 }}>
+      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: UIFONT, fontSize: 12, userSelect: 'none', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '2px 10px 2px 8px', color: 'white', fontWeight: 'bold', minWidth: 180 }}>
           <span style={{ fontSize: 14 }}>🪧</span>
           Submissions
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: 'monospace' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

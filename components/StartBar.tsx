@@ -108,7 +108,7 @@ function MenuFolder({ name, kids, onNavigate }: { name: string; kids: Leaf[]; on
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 44, padding: '5px 12px 5px 10px', fontFamily: UIFONT, fontSize: 13.5, color: '#101010', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer' }}>
         <span aria-hidden="true" style={{ width: 26, height: 26, flexShrink: 0 }}><Ico n={48} size={26} /></span>
         <span style={{ flex: 1 }}>{name}</span>
-        <span aria-hidden="true" style={{ fontSize: 10 }}>▶</span>
+        <span aria-hidden="true" style={{ fontSize: 12 }}>▶</span>
       </button>
       <div className="sb-sub" aria-label={name}
         style={{ position: 'absolute', left: '100%', bottom: -3, minWidth: 220, background: SILVER, boxShadow: RAISED, padding: 3, zIndex: 9902 }}>

@@ -183,7 +183,7 @@ export default function TheChannelLearningPage() {
         </div>
 
         {/* Menu bar */}
-        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', gap: 0, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11 }}>
+        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', gap: 0, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12 }}>
           {['Signal','Channel','Tune','Schedule','Help'].map((m) => (
             <span key={m} aria-hidden="true" style={{ padding: '2px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
@@ -223,7 +223,7 @@ export default function TheChannelLearningPage() {
                 >
                   The Channel
                 </h2>
-                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#888', margin: 0 }}>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#888', margin: 0 }}>
                   Arts accessibility, on demand. Videos shuffle so every visit starts somewhere new.
                 </p>
               </div>
@@ -240,7 +240,7 @@ export default function TheChannelLearningPage() {
               </div>
 
               {loadFailed && !ready && (
-                <p role="alert" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#ffcc66', margin: 0 }}>
+                <p role="alert" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#ffcc66', margin: 0 }}>
                   Having trouble loading the video? Try refreshing the page.
                 </p>
               )}
@@ -257,7 +257,7 @@ export default function TheChannelLearningPage() {
                   href={PLAYLIST_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#cc9944', textDecoration: 'underline' }}
+                  style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#cc9944', textDecoration: 'underline' }}
                 >
                   Browse the full playlist on YouTube
                 </a>
@@ -269,23 +269,23 @@ export default function TheChannelLearningPage() {
 
         {/* Status bar */}
         <div aria-hidden="true" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#1a1610', borderTop: '2px solid #444', padding: '3px 8px', flexShrink: 0 }}>
-          <span style={{ background: '#cc4400', color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 9, fontWeight: 'bold', padding: '1px 6px', letterSpacing: '0.1em' }}>
+          <span style={{ background: '#cc4400', color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, fontWeight: 'bold', padding: '1px 6px', letterSpacing: '0.1em' }}>
             ON AIR
           </span>
-          <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, color: '#887755' }}>
+          <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#887755' }}>
             Arts Accessibility · The Channel · Learning Hub
           </span>
         </div>
       </div>
 
       {/* Taskbar */}
-      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, userSelect: 'none', zIndex: 10 }}>
+      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, userSelect: 'none', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '2px 10px 2px 8px', color: 'white', fontWeight: 'bold', minWidth: 140 }}>
           <span style={{ fontSize: 14 }}>📺</span>
           The Channel
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: 'monospace' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

@@ -236,7 +236,7 @@ export default function MemberDirectory() {
             <span
               aria-live="polite"
               aria-atomic="true"
-              style={{ fontWeight: 'normal', fontSize: '0.6875rem' }}
+              style={{ fontWeight: 'normal', fontSize: '0.75rem' }}
             >
               {filtered.length} of {profiles.length} shown · members only
             </span>
@@ -301,10 +301,10 @@ export default function MemberDirectory() {
                           <span className="ms-member-badge" aria-label="Member">✨ Member</span>
                         )}
                         {isBusiness && (
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Business</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Business</span>
                         )}
                         {p.volunteer_status === 'yes' && (
-                          <span style={{ fontSize: '0.6875rem', color: '#2d6a2d', background: '#e8f5e8', border: '1px solid #a8d5a8', borderRadius: 3, padding: '1px 5px' }} aria-label="Open to volunteering">
+                          <span style={{ fontSize: '0.75rem', color: '#2d6a2d', background: '#e8f5e8', border: '1px solid #a8d5a8', borderRadius: 3, padding: '1px 5px' }} aria-label="Open to volunteering">
                             🌱 Volunteers
                           </span>
                         )}

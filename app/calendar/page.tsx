@@ -269,7 +269,7 @@ function EventChip({ ev, showLocation, dense }: { ev: CalEvent; showLocation?: b
       title={[ev.title, timeStr, ev.location_name, `Type: ${TYPE_META[type].label}`, ev.organization].filter(Boolean).join(' · ')}
       style={{
         display: 'flex', alignItems: 'center', background: TYPE_META[type].color, color: '#fff',
-        fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
+        fontSize: 12, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 4px', marginBottom: 2, borderRadius: 1,
         overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
         textDecoration: 'none', cursor: ev.event_url ? 'pointer' : 'default',
@@ -300,7 +300,7 @@ function TimeBlock({ ev, style }: { ev: CalEvent; style: React.CSSProperties }) 
         position: 'absolute', zIndex: 1, display: 'flex', alignItems: 'center',
         ...style,
         background: TYPE_META[type].color, color: '#fff',
-        fontSize: 9, fontFamily: '"Tahoma", Arial, sans-serif',
+        fontSize: 12, fontFamily: '"Tahoma", Arial, sans-serif',
         padding: '1px 3px', borderRadius: 2, overflow: 'hidden',
         textDecoration: 'none', cursor: ev.event_url ? 'pointer' : 'default', lineHeight: 1.15,
         boxShadow: '0 0 0 1px rgba(255,255,255,0.4)', minHeight: 44,
@@ -325,13 +325,13 @@ function GridOverlay({ badge, body, cta }: Overlay) {
       <span style={{
         background: '#263590', color: 'white',
         fontFamily: '"MS Sans Serif", Arial, sans-serif',
-        fontSize: 10, fontWeight: 'bold',
+        fontSize: 12, fontWeight: 'bold',
         padding: '2px 12px', letterSpacing: '0.08em',
         border: '1px solid #1a2568',
       }}>{badge}</span>
       <p style={{
         fontFamily: '"MS Sans Serif", Arial, sans-serif',
-        fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+        fontSize: 12, color: '#555', margin: 0, textAlign: 'center',
         maxWidth: 260, lineHeight: 1.5,
       }}>{body}</p>
       {cta && (
@@ -372,7 +372,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
         background: '#ece9d8',
         position: 'sticky', top: 0, zIndex: 3,
       }}>
-        <div style={{ borderRight: '1px solid #b4b0a8', fontSize: 8, color: '#333', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 4px 3px' }}>all day</div>
+        <div style={{ borderRight: '1px solid #b4b0a8', fontSize: 12, color: '#333', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 4px 3px' }}>all day</div>
         {colDays.map((d, i) => {
           const allDay = eventsForDate(events, d).filter(e => !isTimed(e));
           return (
@@ -385,7 +385,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
                 background: isToday(d) ? '#dce8ff' : undefined,
                 fontWeight: isToday(d) ? 'bold' : 'normal',
                 color: isToday(d) ? '#263590' : '#333',
-                fontSize: 11,
+                fontSize: 12,
               }}
             >
               <span className="sr-only">
@@ -411,7 +411,7 @@ function TimeGrid({ colDays, numCols, events, overlay, showLocation }: {
             <div style={{
               position: 'absolute', left: 0, top: 0, width: 52, height: '100%',
               boxSizing: 'border-box', borderRight: '1px solid #b4b0a8',
-              fontSize: 9, color: '#888', textAlign: 'right', padding: '2px 4px 0',
+              fontSize: 12, color: '#888', textAlign: 'right', padding: '2px 4px 0',
               userSelect: 'none', background: '#fbfaf7',
             }}>
               {hi === 0 ? fmtHour(h) : fmtHour(h).replace(':00 ', '')}
@@ -482,7 +482,7 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShow
             {DAY_NAMES.map((d, i) => (
               <th key={d} scope="col" style={{
                 textAlign: 'center', padding: '3px 0',
-                fontSize: 10, fontWeight: 'bold', color: '#555',
+                fontSize: 12, fontWeight: 'bold', color: '#555',
                 borderRight: i < 6 ? '1px solid #b4b0a8' : undefined,
               }}>
                 <span aria-hidden="true">{d}</span>
@@ -519,7 +519,7 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShow
                           lineHeight: '20px',
                           textAlign: 'center',
                           borderRadius: 10,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: isTodayCell ? 'bold' : 'normal',
                           background: isTodayCell ? '#263590' : 'transparent',
                           color: isTodayCell ? '#fff' : '#333',
@@ -538,7 +538,7 @@ function MonthGrid({ monthDate, monthGrid, events, overlay, showLocation, onShow
                             style={{
                               display: 'block', width: '100%', textAlign: 'left',
                               background: 'none', border: 'none', cursor: 'pointer',
-                              fontSize: 9, color: '#263590', fontWeight: 'bold',
+                              fontSize: 12, color: '#263590', fontWeight: 'bold',
                               fontFamily: '"Tahoma", Arial, sans-serif', padding: '2px 2px',
                             }}
                             aria-label={`Show all ${dayEvs.length} events on ${DAY_NAMES_LONG[cellDate.getDay()]}, ${MONTH_NAMES[monthDate.getMonth()]} ${day}`}
@@ -582,13 +582,13 @@ function ListRow({ ev }: { ev: CalEvent }) {
         fontFamily: '"Tahoma", Arial, sans-serif',
       }}
     >
-      <span style={{ width: 62, flexShrink: 0, fontSize: 11, color: '#555', textAlign: 'right', paddingTop: 1, fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ width: 62, flexShrink: 0, fontSize: 12, color: '#555', textAlign: 'right', paddingTop: 1, fontVariantNumeric: 'tabular-nums' }}>
         {timeStr}
       </span>
       <span aria-hidden="true" style={{ width: 10, height: 10, marginTop: 3, flexShrink: 0, background: TYPE_META[type].color, borderRadius: 2 }} />
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, lineHeight: 1.3 }}>{ev.title}</span>
-        <span style={{ display: 'block', fontSize: 11, color: '#666', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta}</span>
+        <span style={{ display: 'block', fontSize: 12, color: '#666', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta}</span>
       </span>
     </EventLeaf>
   );
@@ -634,7 +634,7 @@ function ListView({ events, overlay }: { events: CalEvent[]; overlay: Overlay | 
           }}>
             {DAY_NAMES_LONG[g.date.getDay()]}, {MONTH_NAMES[g.date.getMonth()]} {g.date.getDate()}
             {isToday(g.date) && <span style={{ fontWeight: 'normal' }}> · Today</span>}
-            <span style={{ fontWeight: 'normal', color: '#888', float: 'right', fontSize: 11 }}>
+            <span style={{ fontWeight: 'normal', color: '#888', float: 'right', fontSize: 12 }}>
               {g.items.length} {g.items.length === 1 ? 'event' : 'events'}
             </span>
           </div>
@@ -1034,7 +1034,7 @@ export default function CalendarPage() {
               className="tap-target-btn"
               style={{
                 width: 20, height: 18, background: '#d4d0c8', border: '1px outset #fff',
-                fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
+                fontSize: 12, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
               }}
             >✕</button>
           </div>
@@ -1053,7 +1053,7 @@ export default function CalendarPage() {
             </h2>
             <p style={{
               fontFamily: '"MS Sans Serif", Arial, sans-serif',
-              fontSize: 11.5, color: '#444', margin: '0 0 16px', lineHeight: 1.55,
+              fontSize: 12, color: '#444', margin: '0 0 16px', lineHeight: 1.55,
             }}>
               <strong style={{ color: '#263590' }}>{events.length} accessible events</strong> are on the
               calendar right now, from partner organizations around the world. Narrow them down below,
@@ -1079,7 +1079,7 @@ export default function CalendarPage() {
                 fontFamily: '"Tahoma", Arial, sans-serif', background: '#fff', marginBottom: 4,
               }}
             />
-            <p style={{ fontSize: 10, color: '#777', margin: '0 0 14px' }}>
+            <p style={{ fontSize: 12, color: '#777', margin: '0 0 14px' }}>
               Matches the city or venue on each event. Leave blank to see everywhere.
             </p>
 
@@ -1105,7 +1105,7 @@ export default function CalendarPage() {
                 <div style={{ fontWeight: 'bold', fontSize: 12, color: '#222', lineHeight: 1.3 }}>
                   <span aria-hidden="true">💻 </span>Show online events only
                 </div>
-                <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
                   Virtual, livestreamed, and remote-access events you can join from anywhere.
                 </div>
               </div>
@@ -1202,7 +1202,7 @@ export default function CalendarPage() {
                   className="cal-nav-btn"
                   style={{
                     background: '#d4d0c8', border: '1px outset #fff',
-                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    padding: '1px 8px', fontSize: 12, cursor: 'pointer',
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
                     borderRadius: 2,
                   }}
@@ -1212,7 +1212,7 @@ export default function CalendarPage() {
                   className="cal-nav-btn"
                   style={{
                     background: '#d4d0c8', border: '1px outset #fff',
-                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    padding: '1px 8px', fontSize: 12, cursor: 'pointer',
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
                     borderRadius: 2, fontWeight: 'bold',
                   }}
@@ -1223,7 +1223,7 @@ export default function CalendarPage() {
                   className="cal-nav-btn"
                   style={{
                     background: '#d4d0c8', border: '1px outset #fff',
-                    padding: '1px 8px', fontSize: 11, cursor: 'pointer',
+                    padding: '1px 8px', fontSize: 12, cursor: 'pointer',
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
                     borderRadius: 2,
                   }}
@@ -1283,7 +1283,7 @@ export default function CalendarPage() {
               style={{
                 background: '#263590', color: '#fff',
                 border: '1px outset #1a2568',
-                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                padding: '2px 10px', fontSize: 12, cursor: 'pointer',
                 fontFamily: '"Tahoma", Arial, sans-serif',
                 borderRadius: 2, fontWeight: 'bold',
               }}
@@ -1300,7 +1300,7 @@ export default function CalendarPage() {
                 background: (filterMode === 'online' || locQuery) ? '#263590' : '#d4d0c8',
                 color: (filterMode === 'online' || locQuery) ? '#fff' : '#000',
                 border: '1px outset #fff',
-                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                padding: '2px 10px', fontSize: 12, cursor: 'pointer',
                 fontFamily: '"Tahoma", Arial, sans-serif',
                 borderRadius: 2, fontWeight: (filterMode === 'online' || locQuery) ? 'bold' : 'normal',
               }}
@@ -1316,7 +1316,7 @@ export default function CalendarPage() {
               style={{
                 background: '#d4d0c8', color: '#000',
                 border: '1px outset #fff',
-                padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                padding: '2px 10px', fontSize: 12, cursor: 'pointer',
                 fontFamily: '"Tahoma", Arial, sans-serif',
                 borderRadius: 2,
               }}
@@ -1350,7 +1350,7 @@ export default function CalendarPage() {
                     background: view === v ? '#263590' : '#d4d0c8',
                     color: view === v ? '#fff' : '#000',
                     border: view === v ? '1px inset #1a2568' : '1px outset #fff',
-                    padding: '2px 10px', fontSize: 11, cursor: 'pointer',
+                    padding: '2px 10px', fontSize: 12, cursor: 'pointer',
                     fontFamily: '"Tahoma", Arial, sans-serif',
                     borderRadius: 2, transition: 'background 0.1s',
                   }}
@@ -1378,7 +1378,7 @@ export default function CalendarPage() {
               {/* Mini calendar */}
               <div style={{
                 background: '#263590', color: '#fff',
-                fontSize: 10, fontWeight: 'bold',
+                fontSize: 12, fontWeight: 'bold',
                 padding: '3px 8px',
                 letterSpacing: '0.04em',
               }}>
@@ -1387,7 +1387,7 @@ export default function CalendarPage() {
               <div style={{ padding: '4px 6px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, marginBottom: 2 }}>
                   {DAY_NAMES.map(d => (
-                    <div key={d} style={{ textAlign: 'center', fontSize: 8, color: '#888', fontWeight: 'bold' }}>
+                    <div key={d} style={{ textAlign: 'center', fontSize: 12, color: '#888', fontWeight: 'bold' }}>
                       {d[0]}
                     </div>
                   ))}
@@ -1396,7 +1396,7 @@ export default function CalendarPage() {
                   <div key={wi} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
                     {week.map((day, di) => (
                       <div key={di} style={{
-                        textAlign: 'center', fontSize: 9, lineHeight: '16px',
+                        textAlign: 'center', fontSize: 12, lineHeight: '16px',
                         borderRadius: 8,
                         background: day === today.getDate() ? '#263590' : 'transparent',
                         color: day === today.getDate() ? '#fff' : day ? '#333' : 'transparent',
@@ -1416,17 +1416,17 @@ export default function CalendarPage() {
                 border: '1px inset #aaa',
                 padding: '6px 8px',
               }}>
-                <div style={{ fontSize: 9, fontWeight: 'bold', color: '#555', marginBottom: 3, letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: 12, fontWeight: 'bold', color: '#555', marginBottom: 3, letterSpacing: '0.04em' }}>
                   ACTIVE FILTER
                 </div>
-                <div style={{ fontSize: 10, color: '#263590', fontWeight: 'bold', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: '#263590', fontWeight: 'bold', lineHeight: 1.4 }}>
                   {filterLabel}
                 </div>
                 <button
                   onClick={openFilter}
                   style={{
                     marginTop: 6, background: 'none', border: 'none',
-                    padding: 0, fontSize: 9, color: '#263590',
+                    padding: 0, fontSize: 12, color: '#263590',
                     textDecoration: 'underline', cursor: 'pointer',
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
                   }}
@@ -1437,12 +1437,12 @@ export default function CalendarPage() {
 
               {/* Color legend — what the event colors mean */}
               <div style={{ margin: '8px 8px 0', background: '#fff', border: '1px inset #aaa', padding: '6px 8px' }}>
-                <div style={{ fontSize: 9, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: 12, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
                   EVENT TYPES
                 </div>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {TYPE_ORDER.map((t) => (
-                    <li key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, lineHeight: 1.3 }}>
+                    <li key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, lineHeight: 1.3 }}>
                       <span aria-hidden="true" style={{ width: 11, height: 11, flexShrink: 0, background: TYPE_META[t].color, borderRadius: 2, border: '1px solid rgba(0,0,0,0.25)' }} />
                       <span style={{ color: '#333' }}>{TYPE_META[t].label}</span>
                     </li>
@@ -1453,12 +1453,12 @@ export default function CalendarPage() {
               {/* Synced calendars (external feeds that pulled in successfully) */}
               {syncedCals.length > 0 && (
                 <div style={{ margin: '8px 8px 0', background: '#fff', border: '1px inset #aaa', padding: '6px 8px' }}>
-                  <div style={{ fontSize: 9, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: 12, fontWeight: 'bold', color: '#555', marginBottom: 4, letterSpacing: '0.04em' }}>
                     SYNCED CALENDARS
                   </div>
                   <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {syncedCals.map((c) => (
-                      <li key={c.name} style={{ fontSize: 10, lineHeight: 1.3 }}>
+                      <li key={c.name} style={{ fontSize: 12, lineHeight: 1.3 }}>
                         {c.website ? (
                           <a href={c.website} target="_blank" rel="noopener noreferrer" style={{ color: '#263590', textDecoration: 'underline' }}>
                             {c.name}
@@ -1469,14 +1469,14 @@ export default function CalendarPage() {
                       </li>
                     ))}
                   </ul>
-                  <div style={{ fontSize: 8, color: '#888', marginTop: 5, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: '#888', marginTop: 5, lineHeight: 1.4 }}>
                     Events from these partners pull in automatically.
                   </div>
                 </div>
               )}
 
               {/* Expand to 1-day hint (shown in 3-day/week views on mobile — sidebar visible on desktop only) */}
-              <div style={{ margin: '8px 8px 0', fontSize: 9, color: '#777', lineHeight: 1.5 }}>
+              <div style={{ margin: '8px 8px 0', fontSize: 12, color: '#777', lineHeight: 1.5 }}>
                 Tip: Switch to <strong>Day</strong> view for a focused single-day look.
               </div>
             </div>
@@ -1516,7 +1516,7 @@ export default function CalendarPage() {
                   <span style={{
                     background: '#a12626', color: 'white',
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                    fontSize: 10, fontWeight: 'bold',
+                    fontSize: 12, fontWeight: 'bold',
                     padding: '2px 12px', letterSpacing: '0.08em',
                     border: '1px solid #7a1a1a',
                   }}>
@@ -1524,7 +1524,7 @@ export default function CalendarPage() {
                   </span>
                   <p style={{
                     fontFamily: '"MS Sans Serif", Arial, sans-serif',
-                    fontSize: 11, color: '#555', margin: 0, textAlign: 'center',
+                    fontSize: 12, color: '#555', margin: 0, textAlign: 'center',
                     maxWidth: 260, lineHeight: 1.5,
                   }}>
                     We couldn&apos;t load events right now. Try refreshing the page.
@@ -1554,7 +1554,7 @@ export default function CalendarPage() {
             borderTop: '2px solid #808080',
             padding: '2px 10px',
             display: 'flex', alignItems: 'center', gap: 16,
-            fontSize: 10, color: '#333',
+            fontSize: 12, color: '#333',
             fontFamily: '"MS Sans Serif", Arial, sans-serif',
             flexShrink: 0, userSelect: 'none',
           }} aria-hidden="true">
@@ -1595,12 +1595,12 @@ export default function CalendarPage() {
                 className="tap-target-btn"
                 style={{
                   width: 20, height: 18, background: '#d4d0c8', border: '1px outset #fff',
-                  fontSize: 11, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
+                  fontSize: 12, lineHeight: 1, cursor: 'pointer', borderRadius: 2, color: '#000',
                 }}
               >✕</button>
             </div>
             <div style={{ padding: '12px 14px', overflowY: 'auto' }}>
-              <p style={{ fontSize: 11, color: '#333', lineHeight: 1.5, margin: '0 0 10px' }}>
+              <p style={{ fontSize: 12, color: '#333', lineHeight: 1.5, margin: '0 0 10px' }}>
                 {"This calendar pulls in events from accessible arts organizations around the world. Here's every calendar that's currently syncing in successfully:"}
               </p>
               {syncedCals.length > 0 ? (
@@ -1621,11 +1621,11 @@ export default function CalendarPage() {
                   ))}
                 </ul>
               ) : (
-                <p style={{ fontSize: 11, color: '#666', fontStyle: 'italic', margin: 0 }}>
+                <p style={{ fontSize: 12, color: '#666', fontStyle: 'italic', margin: 0 }}>
                   New calendars were just added and are syncing in for the first time. Check back soon, this list fills in automatically as each one comes online.
                 </p>
               )}
-              <p style={{ fontSize: 10, color: '#888', marginTop: 10, marginBottom: 0, lineHeight: 1.4 }}>
+              <p style={{ fontSize: 12, color: '#888', marginTop: 10, marginBottom: 0, lineHeight: 1.4 }}>
                 Know an accessible arts organization with a public calendar we should add? <Link href="/contact" style={{ color: '#263590', textDecoration: 'underline' }}>Let us know</Link>.
               </p>
             </div>

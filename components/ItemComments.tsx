@@ -209,7 +209,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
                           aria-label="Artistic Accessibility Collective member"
                           title="Artistic Accessibility Collective member"
                           style={{
-                            fontSize:      10,
+                            fontSize:      12,
                             fontWeight:    700,
                             letterSpacing: '0.06em',
                             color:         C.bg,
@@ -224,7 +224,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
                         </span>
                       )}
                     </span>
-                    <span style={{ fontFamily: C.mono, fontSize: 11, color: C.dim }}>
+                    <span style={{ fontFamily: C.mono, fontSize: 12, color: C.dim }}>
                       <time dateTime={c.created_at}>{formatDate(c.created_at)}</time>
                     </span>
                   </div>
@@ -244,7 +244,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
                         border:        'none',
                         color:         C.dim,
                         fontFamily:    C.mono,
-                        fontSize:      11,
+                        fontSize:      12,
                         cursor:        'pointer',
                         padding:       '2px 6px',
                         letterSpacing: '0.04em',
@@ -284,7 +284,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
               >
                 Add a comment
                 {isAcc && (
-                  <span aria-hidden="true" style={{ marginLeft: 8, fontSize: 10, color: C.amber, background: `${C.amber}22`, border: `1px solid ${C.amber}44`, padding: '1px 6px', borderRadius: 2 }}>
+                  <span aria-hidden="true" style={{ marginLeft: 8, fontSize: 12, color: C.amber, background: `${C.amber}22`, border: `1px solid ${C.amber}44`, padding: '1px 6px', borderRadius: 2 }}>
                     posting as AAC member
                   </span>
                 )}
@@ -321,7 +321,7 @@ export default function ItemComments({ itemSlug, itemType, palette = 'amber' }: 
                 >
                   {posting ? 'Posting…' : isAmber ? '< POST COMMENT >' : '▶ Post Comment'}
                 </button>
-                <span style={{ fontFamily: C.mono, fontSize: 11, color: C.dim }}>
+                <span style={{ fontFamily: C.mono, fontSize: 12, color: C.dim }}>
                   {2000 - draft.length} chars remaining
                 </span>
               </div>

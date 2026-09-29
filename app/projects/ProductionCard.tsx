@@ -92,7 +92,7 @@ export function ProductionCard({ production: p, past = false }: { production: Pr
                   <span style={{ fontWeight: 700 }}>{d.label ? `${d.label}: ` : ''}{formatDate(d)}</span>
                   <span style={{ color: X.muted }}> · {formatWhere(d)}</span>
                   {d.is_sold_out && (
-                    <span style={{ marginLeft: 6, fontSize: '0.6875rem', fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: '#f7e2e0', color: '#8e1a11' }}>
+                    <span style={{ marginLeft: 6, fontSize: '0.75rem', fontWeight: 700, padding: '2px 6px', borderRadius: 3, background: '#f7e2e0', color: '#8e1a11' }}>
                       Sold out
                     </span>
                   )}

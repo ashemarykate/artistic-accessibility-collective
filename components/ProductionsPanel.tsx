@@ -668,7 +668,7 @@ export default function ProductionsPanel() {
                   <option key={k} value={k}>{PRODUCTION_KIND_LABELS[k]}</option>
                 ))}
               </select>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
                 Workshops also appear in the Learning Hub.
               </p>
             </div>
@@ -678,7 +678,7 @@ export default function ProductionsPanel() {
                 id="prod-order" type="number" style={inp} value={form.sort_order}
                 onChange={(e) => set('sort_order', Number(e.target.value) || 0)}
               />
-              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
                 Lower numbers come first.
               </p>
             </div>
@@ -695,7 +695,7 @@ export default function ProductionsPanel() {
                 placeholder="creative-access-intensive"
               />
             </div>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0' }}>
               Filled in from the title. {form.id ? 'Changing it changes the link, so any link you already shared will stop working.' : 'You can change it before publishing.'}
             </p>
           </div>
@@ -710,7 +710,7 @@ export default function ProductionsPanel() {
               placeholder="/2006"
               aria-describedby="prod-microsite-help"
             />
-            <p id="prod-microsite-help" style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+            <p id="prod-microsite-help" style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
               If this project has its own playable site, put its address here, starting with a slash
               (for example <code>/2006</code>) or with https://. The icon in the pink Projects folder
               then opens that instead of the plain page, and the plain pages get a link across to it.
@@ -1315,7 +1315,7 @@ export default function ProductionsPanel() {
                   <div style={{ flex: '1 1 260px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
                       <span style={{
-                        fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase',
+                        fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase',
                         letterSpacing: '0.04em', padding: '3px 8px', borderRadius: 3,
                         background: meta.bg, color: meta.fg,
                       }}>
@@ -1589,8 +1589,8 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
                 <strong>{w.email}</strong>
                 {w.name && <span style={{ color: 'var(--color-text-muted, #5a5a5a)' }}> · {w.name}</span>}
                 {w.notified_at
-                  ? <span style={{ marginLeft: 6, fontSize: '0.6875rem', padding: '2px 6px', borderRadius: 3, background: '#d6f0dc', color: '#125c2a' }}>told</span>
-                  : <span style={{ marginLeft: 6, fontSize: '0.6875rem', padding: '2px 6px', borderRadius: 3, background: '#fdf1b8', color: '#6b5300' }}>waiting</span>}
+                  ? <span style={{ marginLeft: 6, fontSize: '0.75rem', padding: '2px 6px', borderRadius: 3, background: '#d6f0dc', color: '#125c2a' }}>told</span>
+                  : <span style={{ marginLeft: 6, fontSize: '0.75rem', padding: '2px 6px', borderRadius: 3, background: '#fdf1b8', color: '#6b5300' }}>waiting</span>}
               </li>
             ))}
           </ul>
@@ -1639,7 +1639,7 @@ function AttendeeList({ production, onBack }: { production: ProductionWithDates;
                     }}>
                       <strong>{prof?.full_name ?? 'Name not on file'}</strong>
                       {prof?.member_type === 'access_card' && (
-                        <span style={{ fontSize: '0.6875rem', marginLeft: 6, padding: '2px 6px', borderRadius: 3, background: '#e6ecfb', color: 'var(--aac-blue)' }}>
+                        <span style={{ fontSize: '0.75rem', marginLeft: 6, padding: '2px 6px', borderRadius: 3, background: '#e6ecfb', color: 'var(--aac-blue)' }}>
                           Access Card
                         </span>
                       )}

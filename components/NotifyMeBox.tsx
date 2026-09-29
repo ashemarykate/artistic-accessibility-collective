@@ -157,7 +157,7 @@ export default function NotifyMeBox({
         </button>
 
         {/* Said before they type, not after. */}
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.6875rem', color: '#555', lineHeight: 1.5 }}>
+        <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: '#555', lineHeight: 1.5 }}>
           One email about this one thing. We will not add you to a mailing list and we
           will not pass your address on.
         </p>

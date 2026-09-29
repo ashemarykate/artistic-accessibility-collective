@@ -83,7 +83,7 @@ function EventPanelBody({
             <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-blue)', lineHeight: 1.3, marginBottom: '1px' }}>
               {ev.title}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
               {dateStr}{timeStr}{ev.organization ? ` · ${ev.organization}` : ''}
             </p>
           </Link>
@@ -488,7 +488,7 @@ export default function MemberHub() {
               </h1>
             </div>
             <div style={{ padding: '8px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '6px' }}>
                 {displayName} · {profile.username ?? profile.id.slice(0, 8)}
               </p>
               <Link href={profileHref(profile)} aria-label="View my profile">
@@ -512,7 +512,7 @@ export default function MemberHub() {
                 </p>
               )}
               {profile.approved_at && (
-                <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                   Member since{' '}
                   <time dateTime={profile.approved_at}>
                     {new Date(profile.approved_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
@@ -561,7 +561,7 @@ export default function MemberHub() {
                         style={{ ...rowStyle, width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
                       >
                         <span>{item.label}</span>
-                        <span aria-hidden="true" style={{ fontSize: '0.625rem', color: 'var(--color-text-muted)' }}>{cpResourcesOpen ? '▾' : '▸'}</span>
+                        <span aria-hidden="true" style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{cpResourcesOpen ? '▾' : '▸'}</span>
                       </button>
                       {cpResourcesOpen && (
                         <ul id="cp-resources-submenu" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -592,7 +592,7 @@ export default function MemberHub() {
                     <span>{item.label}</span>
                     {item.badge !== null && (
                       <span
-                        style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700 }}
+                        style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.75rem', fontWeight: 700 }}
                         aria-label={`${item.badge} unread`}
                       >
                         {item.badge}
@@ -662,7 +662,7 @@ export default function MemberHub() {
                       style={{ background: 'transparent', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
                     >
                       <strong style={{ color: 'var(--aac-blue)', textDecoration: 'underline', textUnderlineOffset: 2 }}>Save what you love</strong>
-                      <span aria-hidden="true" style={{ fontSize: '0.6875rem', marginLeft: '4px', color: 'var(--aac-blue)' }}>{browseOpen ? '▾' : '▸'}</span>
+                      <span aria-hidden="true" style={{ fontSize: '0.75rem', marginLeft: '4px', color: 'var(--aac-blue)' }}>{browseOpen ? '▾' : '▸'}</span>
                     </button>{' '}
                     Heart any resource to keep it in your My Resources box. On the Library and Cinema you can rate and comment too, so you can tell everyone which picks are great and which to take with a grain of salt.
                     {browseOpen && (
@@ -712,7 +712,7 @@ export default function MemberHub() {
                 Messages
                 {unreadCount > 0 && (
                   <span
-                    style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.6875rem', fontWeight: 700, marginLeft: '6px' }}
+                    style={{ background: '#be123c', color: '#fff', borderRadius: '999px', padding: '0 6px', fontSize: '0.75rem', fontWeight: 700, marginLeft: '6px' }}
                     aria-label={`${unreadCount} unread`}
                   >
                     {unreadCount} new
@@ -770,7 +770,7 @@ export default function MemberHub() {
                         )}
                       </div>
                       {conv.lastMessage && (
-                        <time style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        <time style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                           {relativeDate(conv.lastMessage.sent_at)}
                         </time>
                       )}
@@ -787,9 +787,9 @@ export default function MemberHub() {
               <div className="ms-box-header">
                 <h2><span role="img" aria-label="handshake emoji">🤝</span> Refer a Colleague</h2>
                 {loadErrors.referrals ? (
-                  <span style={{ fontSize: '0.6875rem', color: 'inherit' }}>count unavailable</span>
+                  <span style={{ fontSize: '0.75rem', color: 'inherit' }}>count unavailable</span>
                 ) : recsAvailable != null && (
-                  <span style={{ fontSize: '0.6875rem', color: 'inherit' }}>{recsAvailable} of 3 left this month</span>
+                  <span style={{ fontSize: '0.75rem', color: 'inherit' }}>{recsAvailable} of 3 left this month</span>
                 )}
               </div>
               <div style={{ padding: '10px' }}>
@@ -843,7 +843,7 @@ export default function MemberHub() {
                 <span role="img" aria-label="little green group of people emoticon"><PeopleIcon /></span>{' '}
                 Member Directory
                 {memberCount > 0 && (
-                  <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.6875rem', marginLeft: '6px' }}>{memberCount} members</span>
+                  <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.75rem', marginLeft: '6px' }}>{memberCount} members</span>
                 )}
               </h2>
               <Link href="/members" style={{ fontSize: '0.75rem', color: 'inherit', textDecoration: 'underline' }}>view all</Link>
@@ -884,13 +884,13 @@ export default function MemberHub() {
                                 <img src={m.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               : mName.charAt(0).toUpperCase()}
                           </div>
-                          <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--aac-navy)', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-navy)', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' }}>
                             {mName}
                           </p>
                           {isStaff ? (
-                            <span className="ms-admin-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="Admin">✦ Admin</span>
+                            <span className="ms-admin-badge" style={{ fontSize: '0.75rem', padding: '1px 5px' }} aria-label="Admin">✦ Admin</span>
                           ) : (
-                            <span className="ms-member-badge" style={{ fontSize: '0.5625rem', padding: '1px 5px' }} aria-label="Member">✦ Member</span>
+                            <span className="ms-member-badge" style={{ fontSize: '0.75rem', padding: '1px 5px' }} aria-label="Member">✦ Member</span>
                           )}
                         </Link>
                       </li>
@@ -979,7 +979,7 @@ export default function MemberHub() {
                     <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aac-blue)', lineHeight: 1.3, marginBottom: '1px' }}>
                       {res.name}
                     </p>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                       {res.categoryEmoji} {res.categoryTitle}
                     </p>
                   </a>
@@ -1026,7 +1026,7 @@ export default function MemberHub() {
                           {mName}
                         </p>
                         {m.approved_at && (
-                          <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                             <time dateTime={m.approved_at}>{relativeDate(m.approved_at)}</time>
                           </p>
                         )}

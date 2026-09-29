@@ -33,12 +33,12 @@ export default function UpcomingEducationalEvents() {
           Upcoming Classes &amp; Workshops
         </strong>
       </div>
-      <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#c4c4c4', lineHeight: 1.6, margin: '0 0 10px' }}>
+      <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#c4c4c4', lineHeight: 1.6, margin: '0 0 10px' }}>
         Educational events from the community calendar: workshops, webinars, panels, and talks you can join.
       </p>
 
       {events === null ? (
-        <p role="status" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#9a9a9a', margin: '0 0 10px' }}>
+        <p role="status" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#9a9a9a', margin: '0 0 10px' }}>
           Loading upcoming events…
         </p>
       ) : (
@@ -55,7 +55,7 @@ export default function UpcomingEducationalEvents() {
               </>
             );
             return (
-              <li key={ev.id} style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, lineHeight: 1.5 }}>
+              <li key={ev.id} style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, lineHeight: 1.5 }}>
                 {ev.event_url ? (
                   <a href={ev.event_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                     {inner}

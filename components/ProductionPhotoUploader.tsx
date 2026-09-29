@@ -123,7 +123,7 @@ export default function ProductionPhotoUploader({
     fontFamily: 'inherit', boxSizing: 'border-box', background: '#fff',
   };
   const smallLabel: React.CSSProperties = {
-    display: 'block', fontSize: '0.6875rem', fontWeight: 600,
+    display: 'block', fontSize: '0.75rem', fontWeight: 600,
     color: 'var(--color-text-muted, #5a5a5a)', marginBottom: 2,
   };
 
@@ -224,7 +224,7 @@ export default function ProductionPhotoUploader({
           >
             {uploading ? 'Uploading…' : single ? '📷 Choose photo' : '📷 Add photos'}
           </button>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.375rem 0 0' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0.375rem 0 0' }}>
             JPG, PNG, GIF or WebP · up to 10 MB each
             {!single && ` · ${photos.length} of ${cap} added`}
           </p>

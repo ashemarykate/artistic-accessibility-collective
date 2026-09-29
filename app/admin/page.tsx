@@ -524,7 +524,7 @@ export default function AdminDashboard() {
               >
                 <p style={{
                   margin: '0 0 0.375rem',
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -885,7 +885,7 @@ export default function AdminDashboard() {
                         <p style={{ fontWeight: 600, color: 'var(--aac-navy)', fontSize: '0.9375rem' }}>
                           {a.full_name || a.email || a.user_id.slice(0, 8)}
                           {a.role === 'super_admin' && (
-                            <span className="tag" style={{ marginLeft: '0.5rem', background: 'var(--aac-blue)', color: '#fff', fontSize: '0.6875rem', padding: '1px 7px', borderRadius: '999px' }}>Super-admin</span>
+                            <span className="tag" style={{ marginLeft: '0.5rem', background: 'var(--aac-blue)', color: '#fff', fontSize: '0.75rem', padding: '1px 7px', borderRadius: '999px' }}>Super-admin</span>
                           )}
                         </p>
                         {a.email && a.full_name && (
@@ -1505,10 +1505,10 @@ function EventsPanel({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.25rem' }}>
                       <span style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '0.9375rem' }}>{ev.title}</span>
-                      <span className={`tag ${ev.is_visible ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.7rem' }}>
+                      <span className={`tag ${ev.is_visible ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.75rem' }}>
                         {ev.is_visible ? 'Visible' : 'Hidden'}
                       </span>
-                      <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{ev.source === 'admin' ? 'admin' : ev.source === 'member' ? 'member' : 'ICS'}</span>
+                      <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>{ev.source === 'admin' ? 'admin' : ev.source === 'member' ? 'member' : 'ICS'}</span>
                     </div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
                       {fmtDate(ev.start_at)}
@@ -1517,7 +1517,7 @@ function EventsPanel({
                     </div>
                     {ev.tags.length > 0 && (
                       <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                        {ev.tags.map(t => <span key={t} className="tag tag-blue" style={{ fontSize: '0.7rem' }}>{t}</span>)}
+                        {ev.tags.map(t => <span key={t} className="tag tag-blue" style={{ fontSize: '0.75rem' }}>{t}</span>)}
                       </div>
                     )}
                   </div>
@@ -1598,7 +1598,7 @@ function EventsPanel({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: 2 }}>
                       <span style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--aac-blue)' }}>{src.name}</span>
-                      <span className={`tag ${src.is_active ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.7rem' }}>
+                      <span className={`tag ${src.is_active ? 'tag-green' : 'tag-gray'}`} style={{ fontSize: '0.75rem' }}>
                         {src.is_active ? 'Active' : 'Paused'}
                       </span>
                     </div>
@@ -1606,7 +1606,7 @@ function EventsPanel({
                       {src.ics_url}
                     </div>
                     {src.last_synced_at && (
-                      <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: 2 }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 2 }}>
                         Last synced: {new Date(src.last_synced_at).toLocaleString()}
                         {src.last_error && <span style={{ color: '#c0392b', marginLeft: 6 }}>Error: {src.last_error}</span>}
                       </div>
@@ -2370,9 +2370,9 @@ function ContentManagementPanel() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.25rem' }}>
                       <span style={{ fontWeight: 700, color: 'var(--aac-blue)', fontSize: '0.9375rem' }}>{item.title}</span>
-                      {item.is_essential && <span className="tag tag-yellow" style={{ fontSize: '0.7rem' }}>★ Essential</span>}
-                      {item.is_free && <span className="tag tag-blue" style={{ fontSize: '0.7rem' }}>Free</span>}
-                      <span className={`tag ${item.status === 'approved' ? 'tag-green' : item.status === 'pending' ? 'tag-gray' : 'tag-red'}`} style={{ fontSize: '0.7rem' }}>
+                      {item.is_essential && <span className="tag tag-yellow" style={{ fontSize: '0.75rem' }}>★ Essential</span>}
+                      {item.is_free && <span className="tag tag-blue" style={{ fontSize: '0.75rem' }}>Free</span>}
+                      <span className={`tag ${item.status === 'approved' ? 'tag-green' : item.status === 'pending' ? 'tag-gray' : 'tag-red'}`} style={{ fontSize: '0.75rem' }}>
                         {item.status}
                       </span>
                     </div>
@@ -2385,8 +2385,8 @@ function ContentManagementPanel() {
                       </p>
                     )}
                     <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-                      {item.item_type && <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{item.item_type}</span>}
-                      {item.category && <span className="tag tag-gray" style={{ fontSize: '0.7rem' }}>{item.category}</span>}
+                      {item.item_type && <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>{item.item_type}</span>}
+                      {item.category && <span className="tag tag-gray" style={{ fontSize: '0.75rem' }}>{item.category}</span>}
                       {item.slug && <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>/{item.slug}</span>}
                     </div>
                   </div>

@@ -312,7 +312,7 @@ export default function ConversationPage() {
                       style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}
                     >
                       <div style={{ flex: 1, height: 1, background: 'var(--ms-border)' }} aria-hidden="true" />
-                      <time style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                      <time style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
                         {item.label}
                       </time>
                       <div style={{ flex: 1, height: 1, background: 'var(--ms-border)' }} aria-hidden="true" />

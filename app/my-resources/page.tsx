@@ -284,7 +284,7 @@ function SavedRow({
         </span>
         <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
           {subtitle}{subtitle && year ? ' · ' : ''}{year ?? ''}
-          {badge && <span style={{ marginLeft: 6, background: 'rgba(77,255,124,0.2)', color: '#4dff7c', padding: '0 5px', borderRadius: 2, fontSize: '0.6875rem', fontWeight: 700 }}>{badge}</span>}
+          {badge && <span style={{ marginLeft: 6, background: 'rgba(77,255,124,0.2)', color: '#4dff7c', padding: '0 5px', borderRadius: 2, fontSize: '0.75rem', fontWeight: 700 }}>{badge}</span>}
         </span>
       </a>
     </li>

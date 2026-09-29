@@ -36,7 +36,7 @@ export default function ProjectIconPicker({ value, onChange, kind, kindLabel }: 
       }}>
         Icon in the Projects folder on the home page
       </legend>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0 0 0.5rem' }}>
+      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted, #5a5a5a)', margin: '0 0 0.5rem' }}>
         This is how the project appears inside the pink Current Projects &amp; Events folder.
         Leave it on Choose for me and it picks one to suit a {kindLabel.toLowerCase()}.
       </p>
@@ -75,7 +75,7 @@ export default function ProjectIconPicker({ value, onChange, kind, kindLabel }: 
                 height={36}
                 style={{ display: 'block', imageRendering: 'pixelated' }}
               />
-              <span style={{ fontSize: '0.6875rem', lineHeight: 1.25, color: 'var(--aac-blue)' }}>
+              <span style={{ fontSize: '0.75rem', lineHeight: 1.25, color: 'var(--aac-blue)' }}>
                 {icon.label}
               </span>
             </label>

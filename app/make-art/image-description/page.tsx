@@ -185,7 +185,7 @@ export default function ImageDescriptionPage() {
         </div>
 
         {/* Menu bar */}
-        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11 }}>
+        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12 }}>
           {['File','Edit','Goodies','Wacky','Help'].map((m) => (
             <span key={m} aria-hidden="true" style={{ padding: '2px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
@@ -208,13 +208,13 @@ export default function ImageDescriptionPage() {
                 >
                   👁️ Image Description as Art
                 </h2>
-                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#555', margin: 0, fontStyle: 'italic' }}>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#555', margin: 0, fontStyle: 'italic' }}>
                   Many eyes, one picture. Every perspective belongs here.
                 </p>
               </div>
 
               {/* About this project */}
-              <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 11, fontFamily: '"MS Sans Serif", Arial, sans-serif', color: '#222', lineHeight: 1.65 }}>
+              <div style={{ border: '3px solid #aaa', borderStyle: 'inset', background: '#fff', padding: '9px 13px', fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif', color: '#222', lineHeight: 1.65 }}>
                 Look at the piece below. Write what you see in your own words: your perspective, your language, your way of experiencing it. There is no wrong answer. Each description gets added to a growing community portrait of the work.
               </div>
 
@@ -233,12 +233,12 @@ export default function ImageDescriptionPage() {
                     style={{ width: '100%', maxWidth: 360, height: 180, background: 'linear-gradient(135deg, #e8e4dc 25%, #d8d4cc 100%)', border: '3px outset #999', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
                     <span aria-hidden="true" style={{ fontSize: 36, opacity: 0.4 }}>🖼️</span>
-                    <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, color: '#888', letterSpacing: '0.06em' }}>
+                    <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#888', letterSpacing: '0.06em' }}>
                       IMAGE COMING SOON
                     </span>
                   </div>
                 )}
-                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, color: '#666', margin: 0, textAlign: 'center' }}>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#666', margin: 0, textAlign: 'center' }}>
                   <strong>{piece.title}</strong>
                   {piece.medium !== 'Image coming soon' && <> &nbsp;·&nbsp; {piece.medium}</>}
                 </p>
@@ -257,7 +257,7 @@ export default function ImageDescriptionPage() {
                     <div style={{ fontSize: 20, marginBottom: 4 }}>🎉</div>
                     <strong>Your description has been added!</strong>
                     <br />
-                    <span style={{ fontSize: 11 }}>It appears at the top of the list below.</span>
+                    <span style={{ fontSize: 12 }}>It appears at the top of the list below.</span>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} noValidate aria-label="Add your image description">
@@ -275,11 +275,11 @@ export default function ImageDescriptionPage() {
                         onChange={(e) => setDescText(e.target.value)}
                         required
                         placeholder="What do you see? Write in your own words: your perspective, your language, your experience of it."
-                        style={{ width: '100%', padding: '4px 6px', fontSize: 11, border: '2px inset #aaa', fontFamily: '"MS Sans Serif", Arial, sans-serif', resize: 'vertical', boxSizing: 'border-box', marginBottom: 8, lineHeight: 1.6 }}
+                        style={{ width: '100%', padding: '4px 6px', fontSize: 12, border: '2px inset #aaa', fontFamily: '"MS Sans Serif", Arial, sans-serif', resize: 'vertical', boxSizing: 'border-box', marginBottom: 8, lineHeight: 1.6 }}
                         aria-required="true"
                       />
                       {submitState === 'error' && (
-                        <p role="alert" style={{ color: '#cc0000', fontSize: 11, margin: '0 0 6px', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
+                        <p role="alert" style={{ color: '#cc0000', fontSize: 12, margin: '0 0 6px', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>
                           Something went wrong. Please try again.
                         </p>
                       )}
@@ -295,15 +295,15 @@ export default function ImageDescriptionPage() {
                   </form>
                 )
               ) : (
-                <div style={{ border: '2px solid #c85a20', background: '#fff8f0', padding: '10px 14px', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#333', lineHeight: 1.65 }}>
+                <div style={{ border: '2px solid #c85a20', background: '#fff8f0', padding: '10px 14px', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#333', lineHeight: 1.65 }}>
                   <strong style={{ color: '#c85a20' }}>Want to add your description?</strong>
                   <br />
                   You need a free Access Card to participate. It takes about two minutes to set up.
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Link href="/access-card/signup" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 11, color: '#fff', background: '#c85a20', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
+                    <Link href="/access-card/signup" style={{ fontFamily: '"Comic Sans MS", cursive', fontWeight: 'bold', fontSize: 12, color: '#fff', background: '#c85a20', padding: '3px 12px', textDecoration: 'none', border: '2px outset #e88050', display: 'inline-block' }}>
                       Create an Access Card
                     </Link>
-                    <Link href="/login" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#333', padding: '3px 10px', textDecoration: 'none', border: '2px outset #bbb', background: '#ddd', display: 'inline-block' }}>
+                    <Link href="/login" style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#333', padding: '3px 10px', textDecoration: 'none', border: '2px outset #bbb', background: '#ddd', display: 'inline-block' }}>
                       Log In
                     </Link>
                   </div>
@@ -331,16 +331,16 @@ export default function ImageDescriptionPage() {
                           background: d.isNew ? '#f0faf6' : d.isAutoGen ? '#f0f4f8' : '#fafafa',
                           padding: '8px 11px',
                           fontFamily: d.isAutoGen ? '"Courier New", Courier, monospace' : '"MS Sans Serif", Arial, sans-serif',
-                          fontSize: 11,
+                          fontSize: 12,
                           color: d.isAutoGen ? '#334' : '#222',
                           lineHeight: 1.75,
                         }}
                       >
                         <p style={{ margin: '0 0 4px' }}>{d.text}</p>
-                        <span style={{ fontSize: 10, color: '#888' }}>
+                        <span style={{ fontSize: 12, color: '#888' }}>
                           {d.isAutoGen ? '🤖 ' : ''}{d.author}
                         </span>
-                        {d.isNew && <span style={{ fontSize: 9, color: '#0b5e48', fontWeight: 'bold', marginLeft: 6 }}>NEW</span>}
+                        {d.isNew && <span style={{ fontSize: 12, color: '#0b5e48', fontWeight: 'bold', marginLeft: 6 }}>NEW</span>}
                       </div>
                     ))}
                   </div>
@@ -358,18 +358,18 @@ export default function ImageDescriptionPage() {
             <div key={color.hex} aria-label={color.name} style={{ width: 18, height: 18, background: color.hex, border: '2px outset #fff', borderRadius: 1, cursor: 'crosshair', flexShrink: 0 }} />
           ))}
           <div style={{ flex: 1 }} aria-hidden="true" />
-          <span style={{ fontSize: 10, color: '#555', alignSelf: 'center', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>ArtisticAccessibility.com</span>
+          <span style={{ fontSize: 12, color: '#555', alignSelf: 'center', fontFamily: '"MS Sans Serif", Arial, sans-serif' }}>ArtisticAccessibility.com</span>
         </div>
       </div>
 
       {/* Taskbar */}
-      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, userSelect: 'none', zIndex: 10 }}>
+      <div aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, userSelect: 'none', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '2px 10px 2px 8px', color: 'white', fontWeight: 'bold', minWidth: 180 }}>
           <span style={{ fontSize: 14 }}>👁️</span>
           Image Description as Art
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: 'monospace' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

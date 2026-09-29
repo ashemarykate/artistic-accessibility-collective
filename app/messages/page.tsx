@@ -356,7 +356,7 @@ function MessagesInner() {
             <div className="ms-box">
               <div className="ms-box-header">
                 <span>Conversations</span>
-                <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.6875rem' }}>
+                <span style={{ fontWeight: 400, color: '#b8ccff', fontSize: '0.75rem' }}>
                   {conversations.length} thread{conversations.length !== 1 ? 's' : ''}
                 </span>
               </div>

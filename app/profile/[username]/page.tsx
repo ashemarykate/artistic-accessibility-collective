@@ -538,7 +538,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                   </div>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
                     Member since: <strong>{profile.member_since_display || 'Summer 2026'}</strong>
                   </p>
                 </div>
@@ -565,7 +565,7 @@ export default function ProfilePage() {
                       <label htmlFor="photo-alt" className="form-label" style={{ fontSize: '0.75rem' }}>
                         Describe this photo <span aria-hidden="true" style={{ color: 'var(--color-error)' }}>*</span>
                       </label>
-                      <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
                         1–2 sentences describing what you look like in the photo.
                       </p>
                       <input
@@ -697,7 +697,7 @@ export default function ProfilePage() {
                             <img src={e.endorser.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : eInit}
                         </div>
-                        <span style={{ fontSize: '0.6875rem', color: 'var(--aac-blue)', display: 'block', textAlign: 'center', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', display: 'block', textAlign: 'center', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {eName.split(' ')[0]}
                         </span>
                       </Link>
@@ -752,11 +752,11 @@ export default function ProfilePage() {
                     <label htmlFor="username-input" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '3px' }}>
                       Choose your profile URL
                     </label>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '4px', lineHeight: 1.4 }}>
                       3–30 chars. Letters, numbers, hyphens, underscores.
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #d1d5db', padding: '3px 6px', marginBottom: '3px', gap: '2px' }}>
-                      <span style={{ color: 'var(--color-text-muted)', userSelect: 'none', fontSize: '0.6875rem', whiteSpace: 'nowrap' }}>/profile/</span>
+                      <span style={{ color: 'var(--color-text-muted)', userSelect: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>/profile/</span>
                       <input
                         id="username-input"
                         ref={usernameInputRef}
@@ -774,13 +774,13 @@ export default function ProfilePage() {
                       <p
                         id="username-hint"
                         aria-live="polite"
-                        style={{ fontSize: '0.6875rem', marginBottom: '3px', color: usernameChecking ? 'var(--color-text-muted)' : usernameAvailable === true ? '#059669' : usernameAvailable === false ? 'var(--color-error)' : 'var(--color-text-muted)' }}
+                        style={{ fontSize: '0.75rem', marginBottom: '3px', color: usernameChecking ? 'var(--color-text-muted)' : usernameAvailable === true ? '#059669' : usernameAvailable === false ? 'var(--color-error)' : 'var(--color-text-muted)' }}
                       >
                         {usernameChecking ? 'Checking…' : usernameAvailable === true ? '✓ Available!' : usernameAvailable === false ? '✗ Already taken' : ''}
                       </p>
                     )}
                     {usernameError && (
-                      <p id="username-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.6875rem', marginBottom: '3px' }}>
+                      <p id="username-error" role="alert" style={{ color: 'var(--color-error)', fontSize: '0.75rem', marginBottom: '3px' }}>
                         {usernameError}
                       </p>
                     )}
@@ -1053,7 +1053,7 @@ export default function ProfilePage() {
                                 </Link>
                                 {c.status === 'archived' && (
                                   <span style={{
-                                    marginLeft: 6, fontSize: '0.6875rem', fontWeight: 700,
+                                    marginLeft: 6, fontSize: '0.75rem', fontWeight: 700,
                                     padding: '1px 5px', borderRadius: 3,
                                     background: '#e6e4de', color: '#4a4a4a',
                                   }}>
@@ -1333,7 +1333,7 @@ export default function ProfilePage() {
                                 <img src={p.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : pInit}
                             </div>
-                            <span style={{ fontSize: '0.6875rem', color: 'var(--aac-blue)', display: 'block', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--aac-blue)', display: 'block', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {pName.split(' ')[0]}
                             </span>
                           </Link>
@@ -1343,7 +1343,7 @@ export default function ProfilePage() {
                     {Array.from({ length: Math.max(0, 6 - goTosPreview.length) }).map((_, i) => (
                       <li key={`e${i}`} aria-hidden="true" style={{ textAlign: 'center' }}>
                         <div style={{ width: '100%', aspectRatio: '1/1', border: '1px dashed #c8d3f0', background: '#f0f2fc' }} />
-                        <span style={{ fontSize: '0.6875rem', color: '#c8d3f0' }}>·</span>
+                        <span style={{ fontSize: '0.75rem', color: '#c8d3f0' }}>·</span>
                       </li>
                     ))}
                   </ul>
@@ -1432,7 +1432,7 @@ export default function ProfilePage() {
                             loading="lazy"
                           />
                         </div>
-                        <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: '3px 0 0' }}>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '3px 0 0' }}>
                           <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
                         </p>
                       </div>
@@ -1545,7 +1545,7 @@ export default function ProfilePage() {
                           <Link href={profileHref(e.endorser)} style={{ fontWeight: 'bold', color: 'var(--aac-blue)', textDecoration: 'none' }}>
                             ⭐ {eName}
                           </Link>
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginLeft: '8px' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: '8px' }}>
                             {new Date(e.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
                           </span>
                         </p>

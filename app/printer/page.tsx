@@ -299,7 +299,7 @@ export default function PrinterPage() {
             font-weight: 700;
           }
           .prn-paper-free {
-            font-size: 9px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.1em;
             color: ${C.green};

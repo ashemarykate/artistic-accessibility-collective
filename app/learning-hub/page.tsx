@@ -164,7 +164,7 @@ export default function LearningHubPage() {
         </div>
 
         {/* ── Menu bar ──────────────────────────────────────────────────────── */}
-        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', gap: 0, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11 }}>
+        <div style={{ background: '#c8c8c8', borderBottom: '2px solid #666', padding: '1px 4px', display: 'flex', gap: 0, fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12 }}>
           {['File','Navigate','Search','Bookmark','Help'].map((m) => (
             <span key={m} aria-hidden="true" style={{ padding: '2px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
@@ -268,7 +268,7 @@ export default function LearningHubPage() {
               );
             })}
             <p style={{
-              fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 9, color: '#333',
+              fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#333',
               margin: '6px 0 0', textAlign: 'center', lineHeight: 1.3, writingMode: 'vertical-rl',
               transform: 'rotate(180deg)', alignSelf: 'center',
             }}>Subjects coming soon</p>
@@ -336,11 +336,11 @@ export default function LearningHubPage() {
                   <strong style={{ fontFamily: '"Comic Sans MS", cursive', fontSize: 13, color: '#cc7700' }}>
                     The Channel
                   </strong>
-                  <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 10, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                  <span style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
                     ON AIR
                   </span>
                 </div>
-                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#bbb', lineHeight: 1.6, margin: '0 0 10px' }}>
+                <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#bbb', lineHeight: 1.6, margin: '0 0 10px' }}>
                   A curated playlist of arts accessibility videos, on demand. Shuffles every visit so there is always something new to learn.
                 </p>
                 <a
@@ -397,7 +397,7 @@ export default function LearningHubPage() {
           aria-hidden="true"
           style={{ display: 'flex', background: '#c8c8c8', borderTop: '2px solid #999', padding: '3px 4px', gap: 2, flexShrink: 0, flexWrap: 'wrap', alignItems: 'center' }}
         >
-          <span style={{ fontSize: 10, color: '#555', fontFamily: '"MS Sans Serif", Arial, sans-serif', marginRight: 4, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: '#555', fontFamily: '"MS Sans Serif", Arial, sans-serif', marginRight: 4, flexShrink: 0 }}>
             Contents:
           </span>
           {CONTENTS.map((c) => (
@@ -405,7 +405,7 @@ export default function LearningHubPage() {
               key={c}
               style={{
                 padding: '1px 8px',
-                fontSize: 10,
+                fontSize: 12,
                 fontFamily: '"MS Sans Serif", Arial, sans-serif',
                 background: '#d8d8d0',
                 border: '1px outset #aaa',
@@ -431,7 +431,7 @@ export default function LearningHubPage() {
           display: 'flex', alignItems: 'center',
           padding: '0 8px', gap: 6,
           fontFamily: '"MS Sans Serif", Arial, sans-serif',
-          fontSize: 11, userSelect: 'none', zIndex: 10,
+          fontSize: 12, userSelect: 'none', zIndex: 10,
         }}
       >
         <div style={{
@@ -446,7 +446,7 @@ export default function LearningHubPage() {
           AAC Encyclopedia
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: 'monospace' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

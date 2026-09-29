@@ -43,7 +43,7 @@ export default function AboutPage() {
             <hr style={{ border: 'none', borderTop: '1px solid rgba(0,0,0,0.1)', margin: '0 0 2.5rem' }} />
 
             <section aria-labelledby="section-what" style={{ marginBottom: '2.25rem' }}>
-              <h2 id="section-what" style={{ color: MUTED, fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
+              <h2 id="section-what" style={{ color: MUTED, fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
                 What We Are
               </h2>
               <p className="about-body" style={{ color: TEXT, lineHeight: 1.75 }}>
@@ -52,7 +52,7 @@ export default function AboutPage() {
             </section>
 
             <section aria-labelledby="section-why" style={{ marginBottom: '2.25rem' }}>
-              <h2 id="section-why" style={{ color: MUTED, fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
+              <h2 id="section-why" style={{ color: MUTED, fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
                 Why We Exist
               </h2>
               <p className="about-body" style={{ color: TEXT, lineHeight: 1.75 }}>
@@ -72,7 +72,7 @@ export default function AboutPage() {
             </p>
 
             <section aria-labelledby="section-where" style={{ marginBottom: '3rem' }}>
-              <h2 id="section-where" style={{ color: MUTED, fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
+              <h2 id="section-where" style={{ color: MUTED, fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.625rem' }}>
                 Where We Are
               </h2>
               <p className="about-body" style={{ color: TEXT, lineHeight: 1.75 }}>

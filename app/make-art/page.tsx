@@ -170,7 +170,7 @@ export default function MakeArtPage() {
             </span>
           )}
           <span className="sr-only" role="status">Loading Make Art. Press Enter to skip the intro.</span>
-          <span aria-hidden="true" style={{ position: 'absolute', bottom: 18, fontSize: 11, color: '#777' }}>click anywhere to skip</span>
+          <span aria-hidden="true" style={{ position: 'absolute', bottom: 18, fontSize: 12, color: '#777' }}>click anywhere to skip</span>
         </button>
       )}
 
@@ -195,7 +195,7 @@ export default function MakeArtPage() {
         <div aria-hidden="true" style={{ height: 5, flexShrink: 0, background: 'linear-gradient(90deg,#cc0000,#ff8800,#ffcc00,#00aa00,#0044cc,#6644cc)' }} />
 
         {/* Menu bar: mostly set dressing, but Wacky! really works */}
-        <div style={{ background: '#e8e4da', borderBottom: '2px solid #111', padding: '1px 4px', display: 'flex', alignItems: 'center', fontFamily: UIFONT, fontSize: 11 }}>
+        <div style={{ background: '#e8e4da', borderBottom: '2px solid #111', padding: '1px 4px', display: 'flex', alignItems: 'center', fontFamily: UIFONT, fontSize: 12 }}>
           {['File', 'Edit', 'Goodies'].map((m) => (
             <span key={m} aria-hidden="true" style={{ padding: '3px 8px', cursor: 'default', color: '#000' }}>{m}</span>
           ))}
@@ -203,7 +203,7 @@ export default function MakeArtPage() {
             onClick={() => setSeed(s => s + 1)}
             className="kp-menu-btn"
             aria-label="Wacky! Shuffle the decorations"
-            style={{ padding: '3px 8px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 11, fontWeight: 700, color: '#7a2a8a' }}
+            style={{ padding: '3px 8px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: UIFONT, fontSize: 12, fontWeight: 700, color: '#7a2a8a' }}
           >
             Wacky!
           </button>
@@ -228,7 +228,7 @@ export default function MakeArtPage() {
                 <h2 ref={headingRef} tabIndex={-1} aria-label="Make Art Together" style={{ margin: '0 0 6px', lineHeight: 1.15, outline: 'none' }}>
                   <WobbleWord text="Make Art Together" seed={seed} size="clamp(24px, 4.5vw, 34px)" />
                 </h2>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#555', margin: 0 }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#555', margin: 0 }}>
                   Community art projects, accessible prompts, and creative play.
                 </p>
               </div>
@@ -250,11 +250,11 @@ export default function MakeArtPage() {
                   <strong style={{ fontFamily: KIDFONT, fontSize: 14, color: '#0b5e48' }}>
                     Image Description as Art
                   </strong>
-                  <span style={{ fontFamily: UIFONT, fontSize: 10, background: '#0b5e48', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                  <span style={{ fontFamily: UIFONT, fontSize: 12, background: '#0b5e48', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
                     OPEN
                   </span>
                 </div>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#333', lineHeight: 1.6, margin: '0 0 12px' }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#333', lineHeight: 1.6, margin: '0 0 12px' }}>
                   Pick a piece of art and write what you see in your own words. Every description gets added to a growing, community-built portrait of that piece. Many voices, one work.
                 </p>
                 <Link
@@ -273,11 +273,11 @@ export default function MakeArtPage() {
                   <strong style={{ fontFamily: KIDFONT, fontSize: 14, color: '#ffaa44' }}>
                     The Channel
                   </strong>
-                  <span style={{ fontFamily: UIFONT, fontSize: 10, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                  <span style={{ fontFamily: UIFONT, fontSize: 12, background: '#cc4400', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
                     ON AIR
                   </span>
                 </div>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#ccc', lineHeight: 1.6, margin: '0 0 12px' }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#ccc', lineHeight: 1.6, margin: '0 0 12px' }}>
                   A curated playlist of art and accessibility videos, on demand. Shuffles every visit so there is always something new.
                 </p>
                 <Link
@@ -296,11 +296,11 @@ export default function MakeArtPage() {
                   <strong style={{ fontFamily: KIDFONT, fontSize: 14, color: '#5a2a7a' }}>
                     Submissions
                   </strong>
-                  <span style={{ fontFamily: UIFONT, fontSize: 10, background: '#5a2a7a', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
+                  <span style={{ fontFamily: UIFONT, fontSize: 12, background: '#5a2a7a', color: '#fff', padding: '1px 6px', letterSpacing: '0.06em' }}>
                     OPEN
                   </span>
                 </div>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#333', lineHeight: 1.6, margin: '0 0 12px' }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#333', lineHeight: 1.6, margin: '0 0 12px' }}>
                   Every time this site loads, the logo up top is picked at random from a small set of styles. Design one in your own style and it could join the rotation.
                 </p>
                 <Link
@@ -314,7 +314,7 @@ export default function MakeArtPage() {
 
               {/* Coming soon */}
               <div style={{ border: '3px dashed #aaa', borderRadius: 6, background: '#fafafa', padding: '10px 14px', textAlign: 'center', transform: 'rotate(-0.4deg)' }}>
-                <p style={{ fontFamily: UIFONT, fontSize: 11, color: '#777', margin: 0 }}>
+                <p style={{ fontFamily: UIFONT, fontSize: 12, color: '#777', margin: 0 }}>
                   ✨ More projects are on their way. Check back soon!
                 </p>
               </div>
@@ -339,22 +339,22 @@ export default function MakeArtPage() {
             );
           })}
           <span className="sr-only" role="status">Frame color: {ink.name}</span>
-          <span aria-hidden="true" style={{ fontSize: 11, color: '#333', fontFamily: UIFONT, marginLeft: 4 }}>
+          <span aria-hidden="true" style={{ fontSize: 12, color: '#333', fontFamily: UIFONT, marginLeft: 4 }}>
             🖍️ {ink.name}
           </span>
           <div style={{ flex: 1 }} aria-hidden="true" />
-          <span aria-hidden="true" style={{ fontSize: 10, color: '#555', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
+          <span aria-hidden="true" style={{ fontSize: 12, color: '#555', alignSelf: 'center', fontFamily: UIFONT }}>ArtisticAccessibility.com</span>
         </div>
       </div>
 
       {/* Taskbar */}
-      <div aria-hidden="true" className="make-art-taskbar" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: UIFONT, fontSize: 11, userSelect: 'none', zIndex: 10 }}>
+      <div aria-hidden="true" className="make-art-taskbar" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, background: 'linear-gradient(to bottom, #2a2a3a, #1a1a28)', borderTop: '1px solid #444', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 6, fontFamily: UIFONT, fontSize: 12, userSelect: 'none', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '2px 10px 2px 8px', color: 'white', fontWeight: 'bold', minWidth: 160 }}>
           <span style={{ fontSize: 14 }}>💿</span>
           AAC_PIX_DELUXE.CD
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: 'monospace' }}>
+        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, fontFamily: 'monospace' }}>
           {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>

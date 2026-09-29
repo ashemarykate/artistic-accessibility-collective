@@ -70,7 +70,7 @@ function WinControl({ label, danger }: { label: string; danger?: boolean }) {
   return (
     <span aria-hidden="true" style={{
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      width: 20, height: 16, fontSize: '9px', fontWeight: 'bold',
+      width: 20, height: 16, fontSize: '12px', fontWeight: 'bold',
       background: danger ? '#cc0000' : IE.chrome,
       border: '1px outset #e0ddd8',
       color: danger ? '#fff' : '#000',
@@ -108,7 +108,7 @@ function ToolbarBtn({ icon, label, onClick }: { icon: string; label: string; onC
         gap: '1px', flexShrink: 0,
       }}>
       <span style={{ fontSize: '13px', lineHeight: 1 }}>{icon}</span>
-      <span style={{ fontSize: '9px', fontFamily: IE.font, color: '#000', lineHeight: 1, whiteSpace: 'nowrap' }}>{label}</span>
+      <span style={{ fontSize: '12px', fontFamily: IE.font, color: '#000', lineHeight: 1, whiteSpace: 'nowrap' }}>{label}</span>
     </button>
   );
 }
@@ -141,7 +141,7 @@ function MarqueeStrip({ text }: { text: string }) {
       <div className="marquee-track" style={{ display: 'flex', whiteSpace: 'nowrap', willChange: 'transform' }}>
         {[0, 1].map((k) => (
           <span key={k} className="marquee-inner" style={{
-            fontFamily: NP.fontMono, fontSize: '0.6875rem',
+            fontFamily: NP.fontMono, fontSize: '0.75rem',
             letterSpacing: '0.12em', paddingRight: '4rem',
           }}>
             {text}
@@ -159,7 +159,7 @@ function WebButton({ href, label, bg, fg = '#ffffff' }: { href: string; label: s
       width: 88, height: 31, flexShrink: 0,
       background: bg, color: fg,
       border: `2px outset ${bg}`,
-      fontFamily: NP.fontMono, fontSize: '9px',
+      fontFamily: NP.fontMono, fontSize: '12px',
       fontWeight: 'bold', letterSpacing: '0.06em', textTransform: 'uppercase',
       textDecoration: 'none', textAlign: 'center', lineHeight: 1.2, padding: '0 4px',
     }}>
@@ -173,7 +173,7 @@ function WebButton({ href, label, bg, fg = '#ffffff' }: { href: string; label: s
 function TypeBadge({ type }: { type: string }) {
   return (
     <span style={{
-      display: 'inline-block', fontSize: '0.625rem', fontFamily: NP.fontMono,
+      display: 'inline-block', fontSize: '0.75rem', fontFamily: NP.fontMono,
       letterSpacing: '0.06em', textTransform: 'uppercase',
       color: NP.ink3, border: `1px solid ${NP.borderLight}`,
       padding: '1px 5px', lineHeight: '14px', whiteSpace: 'nowrap', flexShrink: 0,
@@ -188,7 +188,7 @@ function TagBadge({ tag }: { tag: string }) {
   if (!cfg) return null;
   return (
     <span style={{
-      display: 'inline-block', fontSize: '0.625rem', fontFamily: NP.fontMono,
+      display: 'inline-block', fontSize: '0.75rem', fontFamily: NP.fontMono,
       letterSpacing: '0.06em', textTransform: 'uppercase',
       background: cfg.bg, color: cfg.fg,
       padding: '1px 5px', lineHeight: '14px', whiteSpace: 'nowrap', flexShrink: 0,
@@ -217,7 +217,7 @@ function FavoriteButton({ slug, count, isFaved, isLoggedIn, onToggle }: {
       aria-label={isFaved ? `Remove from favorites (${count} saved)` : `Save to favorites${count > 0 ? ` (${count})` : ''}`}
       aria-pressed={isFaved}
       style={{ ...base, cursor: 'pointer' }}>
-      {isFaved ? '♥' : '♡'}{count > 0 && <span style={{ fontSize: '0.6875rem' }}>{count}</span>}
+      {isFaved ? '♥' : '♡'}{count > 0 && <span style={{ fontSize: '0.75rem' }}>{count}</span>}
     </button>
   );
 }
@@ -394,7 +394,7 @@ export default function ResourcesPage() {
           </a>
           {count >= 2 && (
             <span aria-label="Popular resource" style={{
-              fontSize: '0.625rem', fontFamily: NP.fontMono, fontWeight: 'bold',
+              fontSize: '0.75rem', fontFamily: NP.fontMono, fontWeight: 'bold',
               letterSpacing: '0.08em', textTransform: 'uppercase',
               background: '#cc3300', color: '#fff',
               padding: '1px 5px', lineHeight: '14px', flexShrink: 0,
@@ -402,7 +402,7 @@ export default function ResourcesPage() {
           )}
           <TypeBadge type={resource.type} />
           {resource.location && (
-            <span style={{ fontSize: '0.625rem', fontFamily: NP.fontMono, color: NP.ink3, whiteSpace: 'nowrap', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '0.75rem', fontFamily: NP.fontMono, color: NP.ink3, whiteSpace: 'nowrap', letterSpacing: '0.04em' }}>
               📍 {resource.location}
             </span>
           )}
@@ -436,7 +436,7 @@ export default function ResourcesPage() {
           }}>
             {cat.title}
           </h2>
-          <span style={{ marginLeft: 'auto', fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3 }}>
+          <span style={{ marginLeft: 'auto', fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3 }}>
             {catResources.length} item{catResources.length !== 1 ? 's' : ''}
           </span>
         </div>
@@ -492,7 +492,7 @@ export default function ResourcesPage() {
             padding: '0 4px 0 6px', gap: 6, userSelect: 'none',
           }}>
             <span aria-hidden="true" style={{ fontSize: '14px' }}>🌐</span>
-            <span style={{ flex: 1, fontSize: '11px', fontFamily: IE.font, color: '#ffffff', fontWeight: 'bold', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+            <span style={{ flex: 1, fontSize: '12px', fontFamily: IE.font, color: '#ffffff', fontWeight: 'bold', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
               Accessibility Resources · Artistic Accessibility Collective
             </span>
             <div style={{ display: 'flex', gap: '2px' }}>
@@ -507,7 +507,7 @@ export default function ResourcesPage() {
                 onClick={() => router.push('/')}
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 20, height: 16, fontSize: '9px', fontWeight: 'bold',
+                  width: 20, height: 16, fontSize: '12px', fontWeight: 'bold',
                   background: '#cc0000', border: '1px outset #e0ddd8', color: '#fff',
                   fontFamily: IE.font, cursor: 'pointer', flexShrink: 0, padding: 0,
                 }}
@@ -525,7 +525,7 @@ export default function ResourcesPage() {
           }}>
             {['File', 'Edit', 'View', 'Favorites', 'Tools', 'Help'].map((item) => (
               <button key={item} aria-hidden="true" tabIndex={-1} style={{
-                background: 'none', border: 'none', fontSize: '11px',
+                background: 'none', border: 'none', fontSize: '12px',
                 fontFamily: IE.font, padding: '2px 7px', cursor: 'default', color: '#000',
               }}>{item}</button>
             ))}
@@ -545,18 +545,18 @@ export default function ResourcesPage() {
             <ToolbarBtn icon="🏠" label="Home" onClick={() => router.push('/')} />
             <div aria-hidden="true" style={{ width: 1, height: 24, background: IE.border, margin: '0 4px' }} />
             {/* Address bar */}
-            <span style={{ fontSize: '11px', fontFamily: IE.font, color: '#000', flexShrink: 0 }}>Address</span>
+            <span style={{ fontSize: '12px', fontFamily: IE.font, color: '#000', flexShrink: 0 }}>Address</span>
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center',
               background: '#fff', border: `2px inset ${IE.border}`,
               height: 22, padding: '0 6px', overflow: 'hidden',
             }}>
-              <span aria-hidden="true" style={{ fontSize: '10px', fontFamily: '"Courier New"', color: '#000', whiteSpace: 'nowrap' }}>
+              <span aria-hidden="true" style={{ fontSize: '12px', fontFamily: '"Courier New"', color: '#000', whiteSpace: 'nowrap' }}>
                 http://www.artisticaccessibility.com/resources
               </span>
             </div>
             <button aria-hidden="true" tabIndex={-1} style={{
-              fontSize: '11px', fontFamily: IE.font,
+              fontSize: '12px', fontFamily: IE.font,
               background: IE.chrome, border: `2px outset ${IE.chrome}`,
               padding: '2px 10px', cursor: 'pointer', flexShrink: 0,
             }}>Go</button>
@@ -570,11 +570,11 @@ export default function ResourcesPage() {
             borderBottom: `1px solid #d0ccc0`,
             overflow: 'hidden',
           }}>
-            <span aria-hidden="true" style={{ fontSize: '10px', fontFamily: IE.font, color: '#666', marginRight: '8px', flexShrink: 0 }}>Links:</span>
+            <span aria-hidden="true" style={{ fontSize: '12px', fontFamily: IE.font, color: '#666', marginRight: '8px', flexShrink: 0 }}>Links:</span>
             <nav aria-label="Site navigation" style={{ display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
               {NAV_LINKS.map(({ label, href }) => (
                 <Link key={href} href={href} style={{
-                  fontSize: '11px', fontFamily: IE.font, color: '#0000cc',
+                  fontSize: '12px', fontFamily: IE.font, color: '#0000cc',
                   textDecoration: 'underline', padding: '0 10px',
                   borderRight: `1px solid #d0ccc0`, whiteSpace: 'nowrap',
                   lineHeight: '24px',
@@ -595,11 +595,11 @@ export default function ResourcesPage() {
             {/* Page header */}
             <div style={{ borderBottom: `2px solid ${NP.gold}`, padding: '1.25rem 1rem 1rem', maxWidth: '860px', margin: '0 auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '4px' }}>
-                <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
+                <p style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
                   Free Resource Directory · July 2026 ·
                 </p>
                 <Odometer n={totalCount} />
-                <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
+                <p style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: NP.ink3, margin: 0 }}>
                   verified free resources
                 </p>
               </div>
@@ -663,7 +663,7 @@ export default function ResourcesPage() {
                   {sortPopular ? '♥ Popular' : '♡ Popular'}
                 </button>
                 <span style={{ flex: 1 }} />
-                <span aria-live="polite" aria-atomic="true" style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em' }}>
+                <span aria-live="polite" aria-atomic="true" style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3, letterSpacing: '0.04em' }}>
                   {(search || activeType !== 'all' || activeCategoryId) ? `${visibleCount} result${visibleCount !== 1 ? 's' : ''}` : `${totalCount} free resources`}
                 </span>
                 <button onClick={() => { setShowSubmitForm((v) => !v); setSubmitStatus('idle'); }} aria-expanded={showSubmitForm}
@@ -673,7 +673,7 @@ export default function ResourcesPage() {
               </div>
 
               {(search || activeType !== 'all' || activeCategoryId) && (
-                <p style={{ margin: 0, fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em' }}>
+                <p style={{ margin: 0, fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3, letterSpacing: '0.04em' }}>
                   Filtering{activeCategoryId && ` · ${CATEGORIES.find((c) => c.id === activeCategoryId)?.title}`}{activeType !== 'all' && ` · ${activeType}`}{search && ` · "${search}"`} ·{' '}
                   <button onClick={clearFilters} style={{ background: 'none', border: 'none', cursor: 'pointer', color: NP.link, fontFamily: 'inherit', fontSize: 'inherit', textDecoration: 'underline', padding: 0 }}>clear all</button>
                 </p>
@@ -684,7 +684,7 @@ export default function ResourcesPage() {
             {showSubmitForm && (
               <div style={{ background: NP.white, borderBottom: `1px solid ${NP.border}`, padding: '1rem', maxWidth: '860px', margin: '0 auto' }}>
                 <p style={{ fontFamily: NP.fontHead, fontWeight: 'bold', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: NP.ink, margin: '0 0 4px' }}>Suggest a Free Resource</p>
-                <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em', margin: '0 0 0.875rem' }}>All resources must be free to access. Every suggestion is reviewed before being added.</p>
+                <p style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3, letterSpacing: '0.04em', margin: '0 0 0.875rem' }}>All resources must be free to access. Every suggestion is reviewed before being added.</p>
                 {submitStatus === 'success' ? (
                   <div role="status" style={{ background: NP.bg, border: `1px solid ${NP.border}`, padding: '10px 14px', fontFamily: NP.fontBody, fontSize: '0.9375rem', color: NP.ink }}>
                     {isLoggedIn ? <><strong>Your resource is live!</strong> Added to the directory. Admin notified. Thank you!</> : <><strong>Thank you!</strong> Your suggestion will be reviewed before adding.</>}
@@ -750,7 +750,7 @@ export default function ResourcesPage() {
             {/* Resources */}
             <div style={{ maxWidth: '860px', margin: '0 auto', padding: '1.25rem 1rem 2rem' }}>
               {!isLoggedIn && (
-                <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.04em', margin: '0 0 1.25rem' }}>
+                <p style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3, letterSpacing: '0.04em', margin: '0 0 1.25rem' }}>
                   <a href="/login" style={{ color: NP.link }}>Log in</a> to save resources to your favorites.
                 </p>
               )}
@@ -768,7 +768,7 @@ export default function ResourcesPage() {
                   <div style={{ borderTop: `2px solid ${NP.ink}`, borderBottom: `1px solid ${NP.border}`, padding: '6px 0 5px', display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '2px' }}>
                     <span aria-hidden="true">✨</span>
                     <h2 id="member-heading" style={{ margin: 0, fontFamily: NP.fontHead, fontWeight: 'bold', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: NP.ink }}>Member-Submitted Resources</h2>
-                    <span style={{ marginLeft: 'auto', fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3 }}>{memberResources.length} item{memberResources.length !== 1 ? 's' : ''}</span>
+                    <span style={{ marginLeft: 'auto', fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3 }}>{memberResources.length} item{memberResources.length !== 1 ? 's' : ''}</span>
                   </div>
                   {memberResources.map((resource, i) => {
                     const count = favCounts[resource.url] ?? 0;
@@ -779,7 +779,7 @@ export default function ResourcesPage() {
                           <a href={resource.url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: NP.fontHead, fontWeight: 'bold', fontSize: '1rem', color: NP.link, textDecoration: 'underline', textDecorationThickness: '1px', textUnderlineOffset: '2px' }}>
                             {resource.name}<span className="sr-only"> (opens in new tab)</span>
                           </a>
-                          <span style={{ fontSize: '0.625rem', fontFamily: NP.fontMono, color: NP.ink3, letterSpacing: '0.04em' }}>✨ member pick</span>
+                          <span style={{ fontSize: '0.75rem', fontFamily: NP.fontMono, color: NP.ink3, letterSpacing: '0.04em' }}>✨ member pick</span>
                           {(resource.tags ?? []).filter((t) => t !== 'FREE').map((tag) => <TagBadge key={tag} tag={tag} />)}
                           <FavoriteButton slug={resource.url} count={count} isFaved={isFaved} isLoggedIn={isLoggedIn} onToggle={toggleFavorite} />
                         </div>
@@ -800,7 +800,7 @@ export default function ResourcesPage() {
                 <WebButton href="/members"   label="📋 Directory"      bg="#6b4400" />
                 <WebButton href="/contact"   label="✉ Contact Us"      bg="#2a2a2a" />
               </div>
-              <p style={{ fontFamily: NP.fontMono, fontSize: '0.6875rem', color: NP.ink3, letterSpacing: '0.06em', margin: 0, lineHeight: 1.8 }}>
+              <p style={{ fontFamily: NP.fontMono, fontSize: '0.75rem', color: NP.ink3, letterSpacing: '0.06em', margin: 0, lineHeight: 1.8 }}>
                 Free resource directory · All {totalCount} resources verified free at time of publication.<br />
                 <span aria-hidden="true">Best viewed with: an open mind · Est. 2024 · 🖥️ Optimized for accessibility</span>
               </p>
@@ -812,7 +812,7 @@ export default function ResourcesPage() {
             background: IE.chrome, flexShrink: 0,
             height: 22, display: 'flex', alignItems: 'center',
             padding: '0 8px', borderTop: `1px solid ${IE.border}`,
-            fontSize: '11px', fontFamily: IE.font, gap: '0',
+            fontSize: '12px', fontFamily: IE.font, gap: '0',
           }}>
             <span style={{ paddingRight: '10px', borderRight: `1px solid ${IE.border}`, marginRight: '10px' }}>
               {netStatus === 'connecting' ? '⏳ Connecting to artisticaccessibility.com…' : '✓ Done'}

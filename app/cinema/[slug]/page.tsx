@@ -87,7 +87,7 @@ export default function CinemaItemPage() {
             alignItems: 'center',
             gap: 8,
             fontFamily: C.mono,
-            fontSize: 11,
+            fontSize: 12,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             borderBottom: `3px solid ${C.black}`,
@@ -152,7 +152,7 @@ export default function CinemaItemPage() {
                 <span style={{
                   background: item.isFree ? C.black : C.yellow,
                   color: item.isFree ? C.yellow : C.black,
-                  fontFamily: C.mono, fontWeight: 900, fontSize: 9,
+                  fontFamily: C.mono, fontWeight: 900, fontSize: 12,
                   padding: '2px 7px', letterSpacing: '0.14em',
                 }}>
                   ★ ESSENTIAL
@@ -161,7 +161,7 @@ export default function CinemaItemPage() {
               {item.isFree && (
                 <span style={{
                   background: C.black, color: C.yellow,
-                  fontFamily: C.mono, fontWeight: 900, fontSize: 9,
+                  fontFamily: C.mono, fontWeight: 900, fontSize: 12,
                   padding: '2px 7px', letterSpacing: '0.14em',
                 }}>
                   FREE ★
@@ -171,7 +171,7 @@ export default function CinemaItemPage() {
                 <span style={{
                   border: `1px solid ${item.isFree ? C.black : C.white}`,
                   color: item.isFree ? C.black : C.white,
-                  fontFamily: C.mono, fontWeight: 700, fontSize: 9,
+                  fontFamily: C.mono, fontWeight: 700, fontSize: 12,
                   padding: '1px 6px', letterSpacing: '0.1em',
                 }}>
                   AUDIO DESC
@@ -181,7 +181,7 @@ export default function CinemaItemPage() {
                 <span style={{
                   border: `1px solid ${item.isFree ? C.black : C.white}`,
                   color: item.isFree ? C.black : C.white,
-                  fontFamily: C.mono, fontWeight: 700, fontSize: 9,
+                  fontFamily: C.mono, fontWeight: 700, fontSize: 12,
                   padding: '1px 6px', letterSpacing: '0.1em',
                 }}>
                   CC
@@ -210,7 +210,7 @@ export default function CinemaItemPage() {
               </div>
             )}
             {item.runtimeMinutes && (
-              <div style={{ fontFamily: C.mono, fontSize: 11, color: C.gray, marginTop: 3, letterSpacing: '0.08em' }}>
+              <div style={{ fontFamily: C.mono, fontSize: 12, color: C.gray, marginTop: 3, letterSpacing: '0.08em' }}>
                 {item.runtimeMinutes} MIN
               </div>
             )}
@@ -232,7 +232,7 @@ export default function CinemaItemPage() {
                     border: `1px solid ${C.lgray}`,
                     color: C.gray,
                     fontFamily: C.mono,
-                    fontSize: 10,
+                    fontSize: 12,
                     padding: '2px 8px',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
@@ -248,14 +248,14 @@ export default function CinemaItemPage() {
           <div style={{ padding: '14px 22px', borderBottom: `2px solid ${C.navy}` }}>
             {item.platform && item.platform.length > 0 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                <span style={{ fontFamily: C.mono, fontSize: 10, color: C.gray, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>
+                <span style={{ fontFamily: C.mono, fontSize: 12, color: C.gray, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>
                   PLATFORM:
                 </span>
                 {item.platform.map((p) => (
                   <span
                     key={p}
                     style={{
-                      fontFamily: C.mono, fontSize: 11,
+                      fontFamily: C.mono, fontSize: 12,
                       background: C.cream, border: `1px solid ${C.lgray}`,
                       color: C.navy, padding: '1px 8px', letterSpacing: '0.04em', fontWeight: 700,
                     }}
@@ -268,7 +268,7 @@ export default function CinemaItemPage() {
 
             {item.isFree && item.url ? (
               <div>
-                <div style={{ fontFamily: C.mono, fontSize: 10, color: C.black, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <div style={{ fontFamily: C.mono, fontSize: 12, color: C.black, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
                   ★ FREE: WATCH NOW
                 </div>
                 <a
@@ -280,11 +280,11 @@ export default function CinemaItemPage() {
                 >
                   {item.url}
                 </a>
-                <span style={{ fontFamily: C.mono, fontSize: 11, color: C.gray, marginLeft: 8 }}>(opens in new tab)</span>
+                <span style={{ fontFamily: C.mono, fontSize: 12, color: C.gray, marginLeft: 8 }}>(opens in new tab)</span>
               </div>
             ) : item.howToAccess ? (
               <div>
-                <div style={{ fontFamily: C.mono, fontSize: 10, color: C.navy, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                <div style={{ fontFamily: C.mono, fontSize: 12, color: C.navy, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
                   HOW TO WATCH
                 </div>
                 <p style={{ margin: 0, fontSize: 14, lineHeight: 1.75, color: C.black }}>{item.howToAccess}</p>
@@ -295,7 +295,7 @@ export default function CinemaItemPage() {
           {/* ── Ratings + save ──────────────────────────────────────────────── */}
           <div style={{ padding: '16px 22px', borderBottom: `1px solid ${C.lgray}` }}>
             <div style={{
-              fontFamily: C.mono, fontSize: 10, fontWeight: 900,
+              fontFamily: C.mono, fontSize: 12, fontWeight: 900,
               letterSpacing: '0.14em', textTransform: 'uppercase',
               color: C.navy, marginBottom: 14,
             }}>

@@ -259,7 +259,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 
 .ms-box-header a {
   color: #b8ccff;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: normal;
   text-decoration: none;
 }
@@ -323,14 +323,14 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: #d4f0e0;
   border: 1px solid #7dd6a4;
   color: #155e38;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 1px 5px;
 }
 .ms-online-badge::before {
   content: '●';
   color: #22c55e;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
 }
 
 /* Pipe-separated inline nav (below header) */
@@ -356,7 +356,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 
 /* The little [edit] bracket links */
 .ms-edit-link {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--aac-blue);
   text-decoration: none;
 }
@@ -374,7 +374,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
 .ms-stat {
   flex: 1;
   padding: 4px 8px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   border-right: 1px solid var(--ms-border);
   text-align: center;
@@ -402,7 +402,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: var(--aac-blue-light);
 }
 .ms-friend-name {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--aac-blue);
   text-decoration: none;
   display: block;
@@ -446,7 +446,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: #fff3cd;
   border: 1px solid #e0a800;
   color: #6b4400;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 2px 7px;
   font-family: var(--font-body);
@@ -460,7 +460,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: var(--aac-blue);
   border: 1px solid var(--aac-blue-dark);
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 2px 7px;
   font-family: var(--font-body);
@@ -475,7 +475,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: #7a3abf;
   border: 1px solid #5e2a99;
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 2px 7px;
   font-family: var(--font-body);
@@ -490,7 +490,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   background: #0d5c4a;
   border: 1px solid #094034;
   color: #ffffff;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 2px 7px;
   font-family: var(--font-body);
@@ -533,7 +533,7 @@ h1, h2, h3 { line-height: 1.2; font-family: var(--font-body); }
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: bold;
   padding: 2px 7px;
   border: 1px solid var(--ms-border);
@@ -974,7 +974,7 @@ a.btn:active {
 .ms-footer {
   text-align: center;
   padding: 12px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   border-top: 1px solid var(--ms-border);
   margin-top: 16px;
@@ -1094,7 +1094,7 @@ a.btn:active {
   background: #be123c;
   color: #fff;
   border-radius: 999px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   margin-left: 5px;
   vertical-align: middle;
@@ -1204,7 +1204,7 @@ a.btn:active {
 
 /* Sender name + timestamp shown below each bubble */
 .msg-meta {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   margin-top: 3px;
   padding: 0 2px;

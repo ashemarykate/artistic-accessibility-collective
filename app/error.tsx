@@ -55,7 +55,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         </div>
 
         {showDetails && (
-          <div style={{ margin: '0 16px 14px', background: '#fff', boxShadow: 'inset 1px 1px 0 #808080, inset -1px -1px 0 #fff', padding: '8px 10px', fontFamily: '"Lucida Console","Courier New",monospace', fontSize: 11.5, color: '#101010', overflowWrap: 'break-word' }}>
+          <div style={{ margin: '0 16px 14px', background: '#fff', boxShadow: 'inset 1px 1px 0 #808080, inset -1px -1px 0 #fff', padding: '8px 10px', fontFamily: '"Lucida Console","Courier New",monospace', fontSize: 12, color: '#101010', overflowWrap: 'break-word' }}>
             {error.message || 'Unknown error'}{error.digest ? ` (ref: ${error.digest})` : ''}
           </div>
         )}

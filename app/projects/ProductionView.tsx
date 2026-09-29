@@ -173,7 +173,7 @@ export default function ProductionView({ production }: { production: ProductionW
                         {formatDate(d)}
                         {d.is_sold_out && (
                           <span style={{
-                            marginLeft: 8, fontSize: '0.6875rem', fontWeight: 700,
+                            marginLeft: 8, fontSize: '0.75rem', fontWeight: 700,
                             padding: '2px 6px', borderRadius: 3, background: '#f7e2e0', color: '#8e1a11',
                           }}>
                             Sold out

@@ -411,8 +411,8 @@ export default function LibraryPage() {
                     }}
                   >
                     <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-                      <span style={{ color: C.dim, fontSize: 11, letterSpacing: '0.12em' }}>{cat.code}</span>
-                      <span style={{ color: C.hi, fontSize: 11, letterSpacing: '0.06em' }}>{count} ITEMS</span>
+                      <span style={{ color: C.dim, fontSize: 12, letterSpacing: '0.12em' }}>{cat.code}</span>
+                      <span style={{ color: C.hi, fontSize: 12, letterSpacing: '0.06em' }}>{count} ITEMS</span>
                     </span>
 
                     <span className="lib-drawer-title" style={{ color: C.hi, fontSize: 14, fontWeight: 700, lineHeight: 1.3, textShadow: `0 0 4px rgba(255,209,102,0.3)` }}>
@@ -422,13 +422,13 @@ export default function LibraryPage() {
                     {/* A few cards peeking out of the drawer */}
                     <span aria-hidden="true" style={{ borderTop: `1px solid rgba(255,176,0,0.25)`, paddingTop: 7, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                       {picks.map((p) => (
-                        <span key={p.slug} style={{ fontSize: 11, color: C.amber, lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span key={p.slug} style={{ fontSize: 12, color: C.amber, lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {p.isEssential ? '★ ' : '· '}{p.title}
                         </span>
                       ))}
                     </span>
 
-                    <span aria-hidden="true" style={{ marginTop: 'auto', paddingTop: 4, fontSize: 11, letterSpacing: '0.1em', color: C.green }}>
+                    <span aria-hidden="true" style={{ marginTop: 'auto', paddingTop: 4, fontSize: 12, letterSpacing: '0.1em', color: C.green }}>
                       ▶ OPEN DRAWER
                     </span>
                   </button>
@@ -501,7 +501,7 @@ export default function LibraryPage() {
                       className="opac-btn lib-chip"
                       style={{
                         background: on ? C.amber : 'none', color: on ? C.bg : C.amber,
-                        border: `1px solid ${on ? C.amber : C.dim}`, fontFamily: C.mono, fontSize: 11,
+                        border: `1px solid ${on ? C.amber : C.dim}`, fontFamily: C.mono, fontSize: 12,
                         padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.06em',
                         textShadow: 'none', minHeight: 32,
                       }}
@@ -515,7 +515,7 @@ export default function LibraryPage() {
               {isFiltering && (
                 <button
                   onClick={clearFilters}
-                  style={{ background: 'none', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 11, padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                  style={{ background: 'none', border: `1px solid ${C.dim}`, color: C.dim, fontFamily: C.mono, fontSize: 12, padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
                   className="opac-btn"
                 >
                   CLEAR
@@ -741,18 +741,18 @@ function LibraryRow({
       >
         {/* Top row: call num, type badge, title */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-          <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 11, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
+          <span aria-hidden="true" style={{ fontFamily: C.mono, fontSize: 12, color: C.dim, flex: '0 0 auto', letterSpacing: '0.1em' }}>
             {cat?.code ?? '--'}-{TYPE_SHORT[item.type] ?? '??'}
           </span>
 
           {item.isEssential && (
-            <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
+            <span aria-label="Essential pick" style={{ background: C.amber, color: C.bg, fontSize: 12, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto', textShadow: 'none' }}>
               ★
             </span>
           )}
 
           {item.isFree && (
-            <span aria-label="Free access" style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 11, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto' }}>
+            <span aria-label="Free access" style={{ background: 'transparent', border: `1px solid #4dff7c`, color: '#4dff7c', fontSize: 12, fontWeight: 700, padding: '1px 7px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: '0 0 auto' }}>
               FREE
             </span>
           )}
@@ -769,7 +769,7 @@ function LibraryRow({
         <div style={{ marginTop: 3, fontFamily: C.mono, fontSize: 13, color: C.amber }}>
           {item.author}{item.year ? ` · ${item.year}` : ''}
           {!item.isFree && item.howToAccess && (
-            <span style={{ color: C.dim, marginLeft: 10, fontSize: 11 }}>· see how to access →</span>
+            <span style={{ color: C.dim, marginLeft: 10, fontSize: 12 }}>· see how to access →</span>
           )}
         </div>
       </Link>
@@ -792,7 +792,7 @@ function LibraryRow({
         }}
       >
         <span aria-hidden="true">{isFaved ? '♥' : '♡'}</span>
-        {favCount > 0 && <span style={{ fontSize: '9px', lineHeight: 1 }}>{favCount}</span>}
+        {favCount > 0 && <span style={{ fontSize: '12px', lineHeight: 1 }}>{favCount}</span>}
       </button>
     </div>
   );

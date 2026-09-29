@@ -201,7 +201,7 @@ function EditableField({
         >
           {saving ? 'Saving…' : (value || placeholder)}
           {!saving && (
-            <span aria-hidden="true" style={{ marginLeft: 6, fontSize: '0.7rem', color: '#263590', opacity: 0.6 }}>✎</span>
+            <span aria-hidden="true" style={{ marginLeft: 6, fontSize: '0.75rem', color: '#263590', opacity: 0.6 }}>✎</span>
           )}
         </button>
       )}
@@ -269,12 +269,12 @@ function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
       {/* Card type + catalog number row */}
       <div aria-hidden="true" style={{ padding: '8px 14px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{
-          fontSize: '0.7rem', letterSpacing: '0.1em', color: '#4a3a28',
+          fontSize: '0.75rem', letterSpacing: '0.1em', color: '#4a3a28',
           textTransform: 'uppercase', fontWeight: 'bold',
         }}>
           Access Card
         </span>
-        <span style={{ fontSize: '0.7rem', color: '#6a5a44', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '0.75rem', color: '#6a5a44', letterSpacing: '0.05em' }}>
           {catalogNumber(profile.id)}
         </span>
       </div>
@@ -284,7 +284,7 @@ function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
 
       {/* Name / Username field */}
       <div style={{ padding: '0 14px 10px' }}>
-        <div aria-hidden="true" style={{ fontSize: '0.7rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
+        <div aria-hidden="true" style={{ fontSize: '0.75rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
           Name / Username
         </div>
         <EditableField
@@ -301,7 +301,7 @@ function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
 
       {/* Bio field */}
       <div style={{ padding: '0 14px 12px' }}>
-        <div aria-hidden="true" style={{ fontSize: '0.7rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
+        <div aria-hidden="true" style={{ fontSize: '0.75rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
           Bio
         </div>
         <EditableField
@@ -319,7 +319,7 @@ function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
 
       {/* Member since */}
       <div style={{ padding: '0 14px 12px' }}>
-        <div aria-hidden="true" style={{ fontSize: '0.7rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
+        <div aria-hidden="true" style={{ fontSize: '0.75rem', letterSpacing: '0.1em', color: '#4a3a28', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: 4 }}>
           Member Since
         </div>
         <div style={{ fontFamily: '"Courier New", Courier, monospace', fontSize: '0.875rem', color: '#1a1a2e' }}>
@@ -330,7 +330,7 @@ function LibraryCard({ profile, onSave, logoSrc, logoAlt, iconSrc, iconAlt }: {
       {/* Barcode footer */}
       <div style={{ background: '#ede8d8', borderTop: '1px solid #d4c8a8', padding: '8px 14px 10px' }}>
         <Barcode />
-        <div aria-hidden="true" style={{ fontSize: '0.6rem', letterSpacing: '0.08em', color: '#6a5a44', textAlign: 'center', marginTop: 4 }}>
+        <div aria-hidden="true" style={{ fontSize: '0.75rem', letterSpacing: '0.08em', color: '#6a5a44', textAlign: 'center', marginTop: 4 }}>
           ARTISTIC ACCESSIBILITY COLLECTIVE
         </div>
       </div>
@@ -656,7 +656,7 @@ function AccessCardContent() {
               {iconIndex !== null && (
                 <button
                   onClick={() => { setIconIndex(null); localStorage.removeItem('aac-card-icon'); }}
-                  style={{ marginTop: '0.4rem', fontSize: '0.7rem', color: 'rgba(255,255,255,0.75)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  style={{ marginTop: '0.4rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                 >
                   Remove icon
                 </button>

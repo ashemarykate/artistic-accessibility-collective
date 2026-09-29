@@ -151,7 +151,7 @@ function TBtn({
     background: 'none',
     border: 'none',
     padding: '2px 7px',
-    fontSize: '11px',
+    fontSize: '12px',
     fontFamily: theme.font,
     color: '#000',
     cursor: onClick ? 'pointer' : 'default',
@@ -265,7 +265,7 @@ export default function BrowserChrome({
           >
             <span aria-hidden="true" style={{ fontSize: '13px', flexShrink: 0 }}>{T.logo}</span>
             <span aria-hidden="true" style={{
-              flex: 1, fontSize: '11px', fontFamily: T.titleFont,
+              flex: 1, fontSize: '12px', fontFamily: T.titleFont,
               color: T.titleFg, fontWeight: 'bold',
               overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
             }}>
@@ -315,7 +315,7 @@ export default function BrowserChrome({
                 phones so the working buttons keep a single clean row */}
             <div aria-hidden="true" className="retro-chrome-addr" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
               <div style={{ width: 1, height: 20, background: T.chromeDark, margin: '0 3px', flexShrink: 0 }} />
-              <span style={{ fontSize: '11px', fontFamily: T.font, color: '#000', flexShrink: 0 }}>
+              <span style={{ fontSize: '12px', fontFamily: T.font, color: '#000', flexShrink: 0 }}>
                 {T.addrLabel}
               </span>
               <div style={{
@@ -325,7 +325,7 @@ export default function BrowserChrome({
                 height: 20, padding: '0 5px', overflow: 'hidden',
               }}>
                 <span style={{
-                  fontSize: '10px', fontFamily: '"Courier New", Courier, monospace',
+                  fontSize: '12px', fontFamily: '"Courier New", Courier, monospace',
                   color: '#000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }}>
                   {url}
@@ -334,7 +334,7 @@ export default function BrowserChrome({
               {variant !== 'mosaic' && (
                 <button tabIndex={-1} style={{
                   background: T.chrome, border: `1px outset ${T.chromeLight}`,
-                  padding: '1px 8px', fontSize: '11px', fontFamily: T.font,
+                  padding: '1px 8px', fontSize: '12px', fontFamily: T.font,
                   cursor: 'default', flexShrink: 0,
                 }}>
                   Go
@@ -368,7 +368,7 @@ export default function BrowserChrome({
               height: 20, display: 'flex', alignItems: 'center',
               padding: '0 6px',
               borderTop: `1px solid ${T.chromeDark}`,
-              fontSize: '10px', fontFamily: T.font, color: '#000',
+              fontSize: '12px', fontFamily: T.font, color: '#000',
               gap: 8,
             }}
           >

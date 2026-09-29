@@ -53,7 +53,7 @@ export default function WindowControls({
   const face: React.CSSProperties = {
     width: 16, height: 14, background: bg, border: `1px solid ${border}`,
     borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: 'white', fontSize: 9, fontWeight: 'bold',
+    color: 'white', fontSize: 12, fontWeight: 'bold',
   };
 
   return (

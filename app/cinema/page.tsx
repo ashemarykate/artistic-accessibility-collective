@@ -323,13 +323,13 @@ export default function CinemaPage() {
                 <div className="cinema-title" style={{ fontSize: 38, lineHeight: 0.92, fontWeight: 900, letterSpacing: '-0.03em', marginTop: 2 }}>THE CINEMA</div>
               </div>
               <div style={{ borderTop: `2px solid ${C.black}`, paddingTop: 8 }}>
-                <p style={{ margin: '0 0 6px', fontSize: 11, lineHeight: 1.6 }}>
+                <p style={{ margin: '0 0 6px', fontSize: 12, lineHeight: 1.6 }}>
                   A community-curated schedule of films, documentaries, podcasts, and more, centered on disability representation and accessibility in the arts.
                 </p>
-                <p style={{ margin: 0, fontSize: 11, lineHeight: 1.6, color: C.gray }}>
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: C.gray }}>
                   Ratings and comments aren&apos;t extras. They&apos;re how this community holds the record honest: whether a film treats its subjects with dignity, whether accessibility features are actually good, what it means to see your experience onscreen. Watch. Then weigh in.
                 </p>
-                <div style={{ marginTop: 6, fontSize: 11, lineHeight: 1.5 }}>
+                <div style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
                   <strong>★ Free items in yellow &nbsp;·&nbsp; ★ Essential picks</strong>
                   &nbsp;·&nbsp; Click any title to rate, comment, and save.
                   &nbsp;·&nbsp; Something missing? <a href="#suggest-form" style={{ color: C.black, fontWeight: 700 }}>Suggest a title ↓</a>
@@ -347,7 +347,7 @@ export default function CinemaPage() {
               <h2 style={{ margin: 0, fontWeight: 900, fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
                 Channel Lineup · Pick a Channel
               </h2>
-              <span style={{ fontFamily: C.mono, fontSize: 11, opacity: 0.75 }}>
+              <span style={{ fontFamily: C.mono, fontSize: 12, opacity: 0.75 }}>
                 {totals.all} TITLES · {totals.free} FREE · {totals.essential} ESSENTIAL
               </span>
             </div>
@@ -369,24 +369,24 @@ export default function CinemaPage() {
                     <span style={{ background: C.navy, color: C.white, padding: '6px 10px', display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: 10, width: '100%', boxSizing: 'border-box' }}>
                       <span style={{ fontWeight: 900, fontSize: 22, lineHeight: 1, letterSpacing: '-0.02em', opacity: 0.7 }}>{cat.channel}</span>
                       <span style={{ minWidth: 0 }}>
-                        <span className="cinema-lineup-title" style={{ display: 'block', fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                        <span className="cinema-lineup-title" style={{ display: 'block', fontWeight: 900, fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
                           {cat.call}: {cat.title.toUpperCase()}
                         </span>
-                        <span style={{ display: 'block', fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>{cat.description}</span>
+                        <span style={{ display: 'block', fontSize: 12, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>{cat.description}</span>
                       </span>
-                      <span style={{ fontFamily: C.mono, fontSize: 10, opacity: 0.6, whiteSpace: 'nowrap' }}>{count} TITLE{count !== 1 ? 'S' : ''}</span>
+                      <span style={{ fontFamily: C.mono, fontSize: 12, opacity: 0.6, whiteSpace: 'nowrap' }}>{count} TITLE{count !== 1 ? 'S' : ''}</span>
                     </span>
 
                     {/* Three listings peeking out, styled like schedule cells */}
                     <span aria-hidden="true" style={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>
                       {picks.map((p, i) => (
                         <span key={p.slug} style={{ display: 'flex', gap: 5, alignItems: 'baseline', padding: '5px 10px', background: p.isFree ? C.yellow : i % 2 === 0 ? C.white : C.cream, borderBottom: `1px solid ${C.lgray}`, minWidth: 0 }}>
-                          {p.isEssential && <span style={{ fontWeight: 900, fontSize: 11, color: p.isFree ? C.black : C.navy, flex: '0 0 auto' }}>★</span>}
+                          {p.isEssential && <span style={{ fontWeight: 900, fontSize: 12, color: p.isFree ? C.black : C.navy, flex: '0 0 auto' }}>★</span>}
                           <span style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.title}</span>
-                          {p.year && <span style={{ fontSize: 10, opacity: 0.7, flex: '0 0 auto' }}>({p.year})</span>}
+                          {p.year && <span style={{ fontSize: 12, opacity: 0.7, flex: '0 0 auto' }}>({p.year})</span>}
                         </span>
                       ))}
-                      <span style={{ padding: '6px 10px', fontSize: 11, fontWeight: 900, letterSpacing: '0.1em', color: C.navy, background: C.white }}>
+                      <span style={{ padding: '6px 10px', fontSize: 12, fontWeight: 900, letterSpacing: '0.1em', color: C.navy, background: C.white }}>
                         ▶ TUNE IN
                       </span>
                     </span>
@@ -411,7 +411,7 @@ export default function CinemaPage() {
               <button
                 onClick={() => { setShowLineup(true); setActiveCategory(null); setSearch(''); setQuickFilters(new Set()); setPage(1); }}
                 className="cinema-ctrl-btn"
-                style={{ background: C.white, border: `2px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 900, fontSize: 11, padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.08em', marginRight: 6 }}
+                style={{ background: C.white, border: `2px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 900, fontSize: 12, padding: '4px 10px', cursor: 'pointer', letterSpacing: '0.08em', marginRight: 6 }}
               >
                 ◀ CHANNEL LINEUP
               </button>
@@ -438,14 +438,14 @@ export default function CinemaPage() {
                 {activeCat ? activeCat.channel : 'ALL'}
               </div>
               <div style={{ minWidth: 0 }}>
-                <h2 ref={channelHeadingRef} tabIndex={-1} style={{ margin: 0, fontWeight: 900, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', outline: 'none' }}>
+                <h2 ref={channelHeadingRef} tabIndex={-1} style={{ margin: 0, fontWeight: 900, fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', outline: 'none' }}>
                   {activeCat ? `${activeCat.call}: ${activeCat.title.toUpperCase()}` : 'FULL SCHEDULE: ALL CHANNELS'}
                 </h2>
-                <div style={{ fontSize: 10, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>
+                <div style={{ fontSize: 12, opacity: 0.65, lineHeight: 1.3, marginTop: 1 }}>
                   {activeCat ? activeCat.description : 'Every title in the guide, in one listing.'}
                 </div>
               </div>
-              <div style={{ fontFamily: C.mono, fontSize: 10, opacity: 0.6, whiteSpace: 'nowrap' }}>
+              <div style={{ fontFamily: C.mono, fontSize: 12, opacity: 0.6, whiteSpace: 'nowrap' }}>
                 {sorted.length} TITLE{sorted.length !== 1 ? 'S' : ''}
               </div>
             </div>
@@ -453,7 +453,7 @@ export default function CinemaPage() {
             {/* Sort + quick filters */}
             <div style={{ background: C.cream, border: `2px solid ${C.navy}`, borderTop: 'none', padding: '8px 10px', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <label htmlFor="cinema-sort" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Sort by:</label>
+                <label htmlFor="cinema-sort" style={{ fontWeight: 900, fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Sort by:</label>
                 <select
                   id="cinema-sort"
                   value={sortBy}
@@ -479,7 +479,7 @@ export default function CinemaPage() {
                       onClick={() => toggleQuickFilter(f.id)}
                       aria-pressed={on}
                       className="cinema-cat-btn cinema-chip"
-                      style={{ background: on ? C.navy : C.white, color: on ? C.white : C.black, border: `2px solid ${C.navy}`, fontFamily: C.sans, fontWeight: 900, fontSize: 11, padding: '3px 9px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                      style={{ background: on ? C.navy : C.white, color: on ? C.white : C.black, border: `2px solid ${C.navy}`, fontFamily: C.sans, fontWeight: 900, fontSize: 12, padding: '3px 9px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
                     >
                       {f.label}
                     </button>
@@ -491,7 +491,7 @@ export default function CinemaPage() {
                 <button
                   onClick={clearFilters}
                   className="cinema-ctrl-btn"
-                  style={{ background: C.teal, border: `1px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 700, fontSize: 11, padding: '3px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
+                  style={{ background: C.teal, border: `1px solid ${C.black}`, color: C.black, fontFamily: C.sans, fontWeight: 700, fontSize: 12, padding: '3px 10px', cursor: 'pointer', letterSpacing: '0.06em', minHeight: 32 }}
                 >
                   CLEAR ✕
                 </button>
@@ -502,7 +502,7 @@ export default function CinemaPage() {
             <div
               aria-live="polite"
               aria-atomic="true"
-              style={{ background: C.white, border: `2px solid ${C.navy}`, borderTop: `1px solid ${C.lgray}`, borderBottom: 'none', padding: '5px 10px', fontFamily: C.mono, fontSize: 11, color: C.gray }}
+              style={{ background: C.white, border: `2px solid ${C.navy}`, borderTop: `1px solid ${C.lgray}`, borderBottom: 'none', padding: '5px 10px', fontFamily: C.mono, fontSize: 12, color: C.gray }}
             >
               {sorted.length === 0
                 ? 'NO LISTINGS'
@@ -567,7 +567,7 @@ export default function CinemaPage() {
               <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 SUGGEST A TITLE
               </div>
-              <div style={{ fontWeight: 400, fontSize: 11, opacity: 0.8, marginTop: 1 }}>
+              <div style={{ fontWeight: 400, fontSize: 12, opacity: 0.8, marginTop: 1 }}>
                 Documentary · Film · Podcast · Short · Performance · Talk · anything that belongs here
               </div>
             </div>
@@ -586,13 +586,13 @@ export default function CinemaPage() {
               <form onSubmit={handleSuggest} noValidate style={{ display: 'grid', gap: 10 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="cinema-form-grid">
                   <div>
-                    <label htmlFor="sug-title" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                    <label htmlFor="sug-title" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
                       Title <span aria-hidden="true">*</span><span className="sr-only">(required)</span>
                     </label>
                     <input id="sug-title" type="text" value={suggest.title} onChange={(e) => setSuggest((s) => ({ ...s, title: e.target.value }))} placeholder="Film, podcast, or show title" required disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13 }} className="cinema-ctrl-input" />
                   </div>
                   <div>
-                    <label htmlFor="sug-type" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                    <label htmlFor="sug-type" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
                       Type <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span>
                     </label>
                     <select id="sug-type" value={suggest.type} onChange={(e) => setSuggest((s) => ({ ...s, type: e.target.value }))} disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13, background: C.white, appearance: 'none' }} className="cinema-ctrl-input">
@@ -603,7 +603,7 @@ export default function CinemaPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="sug-why" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  <label htmlFor="sug-why" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
                     Why does this belong here? <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span>
                   </label>
                   <textarea id="sug-why" value={suggest.why} onChange={(e) => setSuggest((s) => ({ ...s, why: e.target.value }))} placeholder="Why should anyone interested in disability arts watch this?" rows={3} disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13, resize: 'vertical', lineHeight: 1.6 }} className="cinema-ctrl-input" />
@@ -611,11 +611,11 @@ export default function CinemaPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }} className="cinema-form-grid">
                   <div>
-                    <label htmlFor="sug-name" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Your Name <span style={{ fontWeight: 400 }}>(optional)</span></label>
+                    <label htmlFor="sug-name" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Your Name <span style={{ fontWeight: 400 }}>(optional)</span></label>
                     <input id="sug-name" type="text" value={suggest.name} onChange={(e) => setSuggest((s) => ({ ...s, name: e.target.value }))} placeholder="Optional" disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13 }} className="cinema-ctrl-input" />
                   </div>
                   <div>
-                    <label htmlFor="sug-email" style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Your Email <span style={{ fontWeight: 400 }}>(optional)</span></label>
+                    <label htmlFor="sug-email" style={{ display: 'block', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>Your Email <span style={{ fontWeight: 400 }}>(optional)</span></label>
                     <input id="sug-email" type="email" value={suggest.email} onChange={(e) => setSuggest((s) => ({ ...s, email: e.target.value }))} placeholder="Optional" disabled={suggestStatus === 'loading'} style={{ width: '100%', boxSizing: 'border-box', border: `1px solid ${C.lgray}`, padding: '7px 9px', fontFamily: C.sans, fontSize: 13 }} className="cinema-ctrl-input" />
                   </div>
                 </div>
@@ -745,17 +745,17 @@ function ScheduleCell({
             style={{ fontWeight: 900, fontSize: 13, lineHeight: 1.25, letterSpacing: '-0.01em', flex: 1 }}
           >
             {item.title}
-            {item.year ? <span style={{ fontWeight: 400, fontSize: 11, marginLeft: 5, opacity: 0.7 }}>({item.year})</span> : null}
+            {item.year ? <span style={{ fontWeight: 400, fontSize: 12, marginLeft: 5, opacity: 0.7 }}>({item.year})</span> : null}
           </span>
           <div style={{ display: 'flex', gap: 3, flex: '0 0 auto' }}>
             {item.isFree && (
-              <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 11, letterSpacing: '0.1em', background: C.black, color: C.yellow, padding: '1px 5px' }}>FREE★</span>
+              <span aria-label="Free to stream" style={{ fontWeight: 900, fontSize: 12, letterSpacing: '0.1em', background: C.black, color: C.yellow, padding: '1px 5px' }}>FREE★</span>
             )}
             {item.hasAD && (
-              <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>AD</span>
+              <span aria-label="Audio description available" style={{ fontWeight: 700, fontSize: 12, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>AD</span>
             )}
             {item.hasCaptions && (
-              <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 11, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>CC</span>
+              <span aria-label="Captions available" style={{ fontWeight: 700, fontSize: 12, letterSpacing: '0.08em', border: `1px solid ${C.black}`, padding: '0 4px' }}>CC</span>
             )}
           </div>
         </div>
@@ -789,7 +789,7 @@ function ScheduleCell({
         }}
       >
         <span aria-hidden="true">{isFaved ? '♥' : '♡'}</span>
-        {favCount > 0 && <span style={{ fontSize: '9px', lineHeight: 1, color: C.gray }}>{favCount}</span>}
+        {favCount > 0 && <span style={{ fontSize: '12px', lineHeight: 1, color: C.gray }}>{favCount}</span>}
       </button>
     </div>
   );

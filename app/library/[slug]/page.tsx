@@ -120,12 +120,12 @@ export default function LibraryItemPage() {
           <div style={{ borderBottom: `1px solid ${C.amber}`, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ flex: 1 }}>
               {item.isEssential && (
-                <div style={{ display: 'inline-block', background: C.amber, color: C.bg, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
+                <div style={{ display: 'inline-block', background: C.amber, color: C.bg, fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
                   ★ ESSENTIAL
                 </div>
               )}
               {item.isFree && !item.isEssential && (
-                <div style={{ display: 'inline-block', background: C.green, color: C.bg, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
+                <div style={{ display: 'inline-block', background: C.green, color: C.bg, fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', padding: '2px 9px', marginBottom: 8, textTransform: 'uppercase' }}>
                   FREE
                 </div>
               )}

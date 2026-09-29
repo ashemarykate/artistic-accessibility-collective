@@ -82,7 +82,7 @@ export function Banner({ subtitle }: { subtitle?: string }) {
       </div>
 
       <p style={{
-        margin: 0, fontSize: '0.6875rem', letterSpacing: '0.18em', textTransform: 'uppercase',
+        margin: 0, fontSize: '0.75rem', letterSpacing: '0.18em', textTransform: 'uppercase',
         color: X.lilac, fontFamily: X.sans, fontWeight: 700,
       }}>
         Artistic Accessibility Productions

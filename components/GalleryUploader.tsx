@@ -202,7 +202,7 @@ export default function GalleryUploader({
     fontFamily: 'inherit', background: '#fff', minHeight: 56,
   };
   const labelStyle: React.CSSProperties = {
-    display: 'block', fontSize: '0.6875rem', fontWeight: 600,
+    display: 'block', fontSize: '0.75rem', fontWeight: 600,
     color: 'var(--color-text-muted, #5a5a5a)', marginBottom: 2,
   };
 

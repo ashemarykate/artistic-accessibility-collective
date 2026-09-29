@@ -60,7 +60,7 @@ export default function MobileDock() {
           border-radius: 0;
         }
         .mobile-dock-btn[aria-current="page"] .mobile-dock-label { font-weight: 700; }
-        .mobile-dock-label { font-size: 10px; line-height: 1; }
+        .mobile-dock-label { font-size: 12px; line-height: 1; }
         /* Sticker tilt: each button sits slightly off-square; the active one
            is pressed flat. Decorative only, hit areas unchanged. */
         .mobile-dock-btn:nth-child(1) { transform: rotate(-1.5deg); }

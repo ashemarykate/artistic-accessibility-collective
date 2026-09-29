@@ -36,7 +36,7 @@ const WIN_INP: React.CSSProperties = {
 };
 const WIN_LABEL: React.CSSProperties = {
   display: 'block',
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   color: '#000',
   marginBottom: 3,
@@ -50,7 +50,7 @@ const REQUIRED_MARK = (
   <span style={{ color: '#900', fontWeight: 400 }} aria-hidden="true"> *</span>
 );
 const ERR: React.CSSProperties = {
-  fontSize: 11, color: '#900',
+  fontSize: 12, color: '#900',
   fontFamily: '"MS Sans Serif", Arial, sans-serif',
   marginTop: 3,
 };
@@ -73,7 +73,7 @@ function WinBtn({
       disabled={disabled}
       style={{
         padding: '4px 16px',
-        fontSize: 11,
+        fontSize: 12,
         fontFamily: '"MS Sans Serif", Arial, sans-serif',
         fontWeight: 700,
         background: primary ? '#263590' : '#d4d0c8',
@@ -282,7 +282,7 @@ export default function SubmitEventPage() {
             padding: '4px 8px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 11 }}>
+            <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 12 }}>
               💿 Community Events Calendar
             </span>
           </div>
@@ -342,7 +342,7 @@ export default function SubmitEventPage() {
           display: 'flex', alignItems: 'center', gap: 6,
         }}>
           <span style={{ fontSize: 14 }}>💿</span>
-          <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 11, flex: 1 }}>
+          <span style={{ color: '#fff', fontFamily: '"MS Sans Serif", Arial, sans-serif', fontWeight: 700, fontSize: 12, flex: 1 }}>
             Community Events Calendar: Submit Event
           </span>
         </div>
@@ -357,7 +357,7 @@ export default function SubmitEventPage() {
             onClick={() => { if (confirmDiscardIfDirty(dirty)) { setDirty(false); router.push('/calendar'); } }}
             style={{
               background: '#d4d0c8', border: '2px outset #fff',
-              padding: '2px 8px', fontSize: 11,
+              padding: '2px 8px', fontSize: 12,
               fontFamily: '"MS Sans Serif", Arial, sans-serif',
               cursor: 'pointer',
             }}
@@ -380,7 +380,7 @@ export default function SubmitEventPage() {
             Add a Community Event
           </h1>
 
-          <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 11, color: '#555', marginBottom: 16, lineHeight: 1.5 }}>
+          <p style={{ fontFamily: '"MS Sans Serif", Arial, sans-serif', fontSize: 12, color: '#555', marginBottom: 16, lineHeight: 1.5 }}>
             Events go live immediately and appear on the public calendar.
             Fields marked <span style={{ color: '#900' }}>*</span> are required.
           </p>
@@ -495,7 +495,7 @@ export default function SubmitEventPage() {
               <p style={{ ...WIN_LABEL, marginBottom: 8 }}>Location</p>
               <div style={{ display: 'flex', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
                 {(['online', 'in-person', 'hybrid'] as const).map((t) => (
-                  <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontFamily: '"MS Sans Serif", Arial, sans-serif', cursor: 'pointer' }}>
+                  <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontFamily: '"MS Sans Serif", Arial, sans-serif', cursor: 'pointer' }}>
                     <input
                       type="radio"
                       name="loc-type"
@@ -583,7 +583,7 @@ export default function SubmitEventPage() {
                     key={tag}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 4,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontFamily: '"MS Sans Serif", Arial, sans-serif',
                       cursor: 'pointer',
                       background: tags.includes(tag) ? '#263590' : '#fff',

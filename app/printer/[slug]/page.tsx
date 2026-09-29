@@ -78,7 +78,7 @@ export default function PrinterDocPage() {
         <div className="prn-doc-wrap" style={{ maxWidth: 720, margin: '0 auto', padding: '20px 24px' }}>
 
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="prn-doc-noprint" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 11, letterSpacing: '0.08em', marginBottom: 16, color: C.faint }}>
+          <nav aria-label="Breadcrumb" className="prn-doc-noprint" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12, letterSpacing: '0.08em', marginBottom: 16, color: C.faint }}>
             <Link href="/printer" style={{ color: C.accent, textDecoration: 'none', fontWeight: 700 }} className="prn-doc-link">
               THE PRINTER
             </Link>
@@ -93,8 +93,8 @@ export default function PrinterDocPage() {
           {/* Document card */}
           <article aria-label={`Document details for ${doc.title}`} style={{ border: `2px solid ${C.ink}`, background: '#fff' }}>
             <div className="prn-doc-header" style={{ background: C.ink, color: C.paper, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.85 }}>PRINT JOB READY</span>
-              <span style={{ marginLeft: 'auto', fontSize: 11, border: `1px solid ${C.paper}`, padding: '1px 8px', letterSpacing: '0.1em' }}>FREE</span>
+              <span style={{ fontSize: 12, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.85 }}>PRINT JOB READY</span>
+              <span style={{ marginLeft: 'auto', fontSize: 12, border: `1px solid ${C.paper}`, padding: '1px 8px', letterSpacing: '0.1em' }}>FREE</span>
             </div>
 
             <div style={{ padding: '20px 24px 16px', borderBottom: `1px solid ${C.rule}` }}>
@@ -166,7 +166,7 @@ export default function PrinterDocPage() {
             .prn-doc-wrap { max-width: 100% !important; padding: 0 !important; }
           }
           @media (max-width: 600px) {
-            .prn-doc-header span:first-child { font-size: 10px; }
+            .prn-doc-header span:first-child { font-size: 12px; }
           }
         `}</style>
       </main>
