@@ -464,7 +464,9 @@
   .live-h span{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;
     color:#7a869a;margin-top:3px;font-family:"W95FA",Tahoma,sans-serif}
   .live .live-p{font-size:12px;line-height:1.55;color:#42506a;margin:8px 0 10px}
-  .live .live-test{border:1px solid #b6c6e2;background:#f2f6ff;border-radius:4px;padding:8px 10px;margin:10px 0}
+  .live .live-test{border:2px solid #7a4a00;background:#fff4d6;color:#3a2600;border-radius:4px;padding:8px 10px;margin:10px 0;font-size:12px;line-height:1.55}
+  .live .live-test-h{display:block;font-size:13px;letter-spacing:.08em;margin-bottom:3px;color:#5a3400}
+  .live .live-next{border:1px dashed #1a3d6e;background:#f2f6ff;color:#1a2a4a;border-radius:4px;padding:8px 10px;margin:10px 0;font-size:12px;line-height:1.55}
   .live-dates{display:grid;gap:5px}
   .live-date{
     display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
@@ -2925,17 +2927,21 @@ function viewShow(){
       <p class="live-p">a play performed like an episode of TRL. the audience picks
         the countdown. live online, with limited seating in our studio.</p>
 
-      <div class="live-dates">
+      <p class="live-test" role="note"><b class="live-test-h">TESTING DATES</b>
+        these three shows are a test run for our november show. if you come in
+        person, you may be recorded as part of our live studio audience. if you
+        watch from home, you are testing the interactive 2006 experience with us.</p>
+
+      <div class="live-dates" aria-label="testing dates">
         ${dates.map(d => `<div class="live-date">
           <b>${esc(d.label || "")}</b>
           <span>${esc(showDate(d,{weekday:"short",month:"short"}))} CT</span>
         </div>`).join("")}
       </div>
 
-      <p class="live-p live-test">these three are a test run for our november show.
-        if you come in person, you may be recorded as part of our live studio
-        audience. if you watch from home, you are testing the interactive 2006
-        experience with us.</p>
+      <p class="live-next"><b>check back for November show dates!</b> the November
+        show will be on the world wide web, with limited seating in our live
+        studio audience.</p>
       ${CONFIG.REMIND_URL
         ? `<a class="btn-xp primary live-btn" href="${esc(CONFIG.REMIND_URL)}" target="_blank"
              rel="noopener noreferrer">email me the link<span class="sr-only"> (opens a form in a new tab)</span></a>
