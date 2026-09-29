@@ -8,6 +8,77 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ---
 
+## Found 2026-09-29: the nightly calendar sync has been down for 25 days
+
+The last successful sync was 4 September, the same day the sync route was made
+to refuse to run without `CRON_SECRET`. That was the right rule, but the
+variable was never set in Vercel, so from that day the scheduler got an error
+and nothing said so out loud. Upcoming events fell from 322 (9 September) to
+186 because old ones passed and nothing new arrived. The event reminder job
+added on 9 September has never run either, for the same reason.
+
+Confirmed against the live site: both scheduled routes answer
+`500 CRON_SECRET not set`.
+
+The admin dashboard's Sync now button broke the same day. It asked for the
+secret in a native box and said to leave it blank if unset.
+
+**Done (597b97a):** the route now accepts the scheduler with the secret, or a
+signed-in admin using their own session. The button uses your login, so nobody
+handles the secret and it works while the variable is missing. Refusals
+verified: no token, a garbage token, and a real plain member are all turned
+away. The positive path was not run, because that starts a real sync.
+
+**Still needs Mary Kate:**
+1. Vercel, Settings, Environment Variables, add `CRON_SECRET` for Production
+   (any long random string), then redeploy so it takes effect. That restarts
+   both the nightly sync and the event reminders.
+2. Once the fix has deployed, press Sync now in the admin dashboard once to
+   catch the calendar up.
+
+**Lesson, applies to every future guard of this kind:** when a change makes
+something refuse to run without an environment variable, confirm the variable
+exists before shipping it, then check the job's last-run time the next day.
+A closed door and a broken door look identical from the outside.
+
+## The audit, round 3, scope and method (non-2006, non-backstage)
+
+The July backlog of about 334 findings no longer exists anywhere (the artifact
+is gone and nothing on disk holds it), and round 2 in late August stopped after
+the home page. So this round starts fresh on the site as it is now, not by
+resuming.
+
+**Scope:** about 42 real pages. 31 public, 10 member, 1 admin. Excluded: the
+2006 microsite, Backstage, the dev preview. The reports and staffing sheets
+are gated drafts and out of scope until they are ready. Four addresses are
+redirects and need no audit (`directory`, `hire-us`, `together`,
+`share-feedback`), plus the profile edit alias.
+
+**Sitewide sweeps first, because they cut across pages:**
+1. Readability floor. Text under 12px appears in the retro pages: calendar 42,
+   cinema 29, Make Art image description 17, Make Art 15, home 13, cinema item
+   pages 13, resources 12, library 11, submit logo 11, submit event 9, learning
+   hub 16. Set one minimum size and lift everything to it.
+2. Seven places turn the focus outline off on something that may not be a
+   script-focused heading: `resources` line 621, `access-card` 133, `calendar`
+   1492, `cinema` 672, `submit-event` 35, `profile/[username]` 768. Check each.
+3. The unsaved-changes guard on Edit Profile can strand navigation (see
+   "Noticed 2026-09-09" below).
+
+**Then page by page, in the order people meet them:**
+1. Front doors: home, login, join form, contact, Access Card signup.
+2. Public content: calendar, library, cinema, resources, learning hub, Make
+   Art, printer, projects, about, help, work with us, the three small print
+   pages.
+3. Member area: dashboard, edit profile, profile view, members, messages,
+   my lists, my resources.
+4. Admin dashboard, including the reload-after-every-action problem (item 16).
+
+**Per page:** load it live at desktop and phone width, keyboard only, read the
+accessibility tree, zoom to 200 percent, measure contrast from real computed
+colours, check the console. Findings go in one file with a severity. Anything
+small is fixed the same day.
+
 ## Client documents are no longer public, 2026-09-09
 
 Mary Kate: "I don't want any of the reports or anything to be public facing.
