@@ -112,11 +112,26 @@ export default function AdminDashboard() {
       .maybeSingle();
     setHasMemberProfile(!!memberProfile);
 
-    fetchAll();
+    fetchAll(true);
   };
 
-  const fetchAll = async () => {
-    setLoading(true);
+  // After an action the row you just used is usually gone (an approved profile
+  // leaves the pending list), so focus would fall to the top of the page. Move
+  // it to the result message instead, which also reads it out once. The three
+  // message boxes live in different tabs, so they can share one id.
+  useEffect(() => {
+    if (!adminActionMsg) return;
+    document.getElementById('admin-action-msg')?.focus();
+  }, [adminActionMsg]);
+
+  // Only the first load blanks the screen. Every later call is a quiet refresh
+  // in the background. It used to set `loading` every time, and the loading
+  // gate below replaces the whole dashboard with a spinner, so every approve,
+  // reject, save or delete threw away the page, the scroll position, and the
+  // keyboard focus. Compared with === true so a click handler that passes its
+  // event as the first argument can never be mistaken for the first load.
+  const fetchAll = async (initial: boolean = false) => {
+    if (initial === true) setLoading(true);
     try {
       const [pending, approved, rejected, accessCard, codes, feedback, submissions, eventsRes, icsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('status', 'pending').eq('member_type', 'collective').order('created_at', { ascending: false }),
@@ -141,7 +156,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Admin fetch error:', err);
     } finally {
-      setLoading(false);
+      if (initial === true) setLoading(false);
     }
   };
 
@@ -586,7 +601,7 @@ export default function AdminDashboard() {
         {(activeTab === 'pending' || activeTab === 'approved' || activeTab === 'rejected') && (
           <div id={`panel-${activeTab}`} role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
             {adminActionMsg && (
-              <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginBottom: '1rem' }}>
+              <div id="admin-action-msg" tabIndex={-1} className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} style={{ marginBottom: '1rem' }}>
                 {adminActionMsg.text}
               </div>
             )}
@@ -612,7 +627,7 @@ export default function AdminDashboard() {
         {activeTab === 'access-card' && (
           <div id="panel-access-card" role="tabpanel" aria-labelledby="tab-access-card">
             {adminActionMsg && (
-              <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginBottom: '1rem' }}>
+              <div id="admin-action-msg" tabIndex={-1} className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} style={{ marginBottom: '1rem' }}>
                 {adminActionMsg.text}
               </div>
             )}
@@ -827,7 +842,7 @@ export default function AdminDashboard() {
             <EventsPanel
               events={events}
               icsSources={icsSources}
-              onRefresh={fetchAll}
+              onRefresh={() => fetchAll()}
             />
           </div>
         )}
@@ -862,7 +877,7 @@ export default function AdminDashboard() {
                 </button>
               </form>
               {adminActionMsg && (
-                <div className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} role="status" aria-live="polite" style={{ marginTop: '1rem' }}>
+                <div id="admin-action-msg" tabIndex={-1} className={`alert ${adminActionMsg.type === 'err' ? 'alert-error' : 'alert-info'}`} style={{ marginTop: '1rem' }}>
                   {adminActionMsg.text}
                 </div>
               )}

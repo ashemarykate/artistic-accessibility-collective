@@ -320,10 +320,20 @@ dashes in copy, Modal component is solid, 51 files use live regions.
     188` and `app/resources/page.tsx:505, 543` set `window.location.href`.
     How: use `router.push`. Leave the Refresh button as a real reload.
 
-16. **Admin dashboard reloads everything after each action** (from the July
-    audit, still open). Focus is lost each time.
-    How: after each mutation, update local state for that row instead of
-    refetching all. Move focus to the next row or a status message.
+16. CODE DONE 2026-10-02, NOT YET VERIFIED IN A BROWSER. **Admin dashboard
+    reloads everything after each action.** Cause: `fetchAll` set `loading`
+    every call, and the loading gate replaces the whole dashboard with a
+    spinner, so every approve, reject, save or delete discarded the page, the
+    scroll position and keyboard focus. Now only the first load blocks the
+    screen (`fetchAll(true)`); every later call refreshes quietly. After an
+    action, focus moves to the result message, which is a focusable box shared
+    across the three tabs that show one, so a keyboard user lands on what
+    happened rather than the top of the page. Type-checked and linted only.
+    To verify: sign in as an admin locally, do one reversible action (add then
+    delete a Back of House note), and confirm the screen does not blank and
+    focus lands on the message. Static scan of the page found no native
+    dialogs and a label on every field. Do NOT test approve or reject: the
+    local app talks to the real database.
 
 17. DONE 2026-09-04. **Small title gaps:** `app/reports/layout.tsx` has no title; `app/dev`
     has no layout (add one with `robots: { index: false }`).
