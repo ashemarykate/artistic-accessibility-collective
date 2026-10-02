@@ -238,6 +238,11 @@ list from urgent to fun, with DONE markers and a short list of things only
 Mary Kate can do. Read it before starting new work, and update it as items land.
 `PLAN.md` and `TODO.md` are historical and describe a pre-launch state.
 
+`MK-TO-DO.md` is Mary Kate's running list of things only she can do. Keep it
+current: add an item the moment you hit something you cannot do alone, put
+anything that blocks you under "Waiting on you", and tick items off when she
+says they are done. She multitasks, so keep each item self-contained.
+
 ---
 
 ## Working with Mary Kate
