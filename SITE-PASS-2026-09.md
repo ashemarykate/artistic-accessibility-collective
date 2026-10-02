@@ -84,6 +84,21 @@ build renders the login page correctly.
   technology was used.
 - Zoom to 200 percent and reduced motion were not tested this round.
 
+**Narrow screens and zoom, checked 2026-10-02 (production build, logged out).**
+26 public pages at 320 pixels wide (the standard's reflow test, equal to 400
+percent zoom), and 9 of the densest at 640 (equal to 200 percent zoom). No page
+scrolls sideways at either width. One page had real problems and is fixed:
+Resources. Its "Links" bar clipped the last items, so on a phone Feedback and
+Log In were unreachable, and the decorative address bar pushed its Go button
+outside the window. The links now wrap, and the decorative label and button
+step aside below 430 pixels. Desktop is unchanged. Clipped text that remains is
+window title bars truncating with an ellipsis, by design.
+Reduced motion: a global rule overrides every animation and transition, and the
+animated pages also carry their own guards. Read from the code, not tested with
+the real setting switched on.
+Not tested: tablet widths (768 to 1024), and member and admin pages at narrow
+widths.
+
 **Open decision for Mary Kate: the calendar's starting filter.** A signed-in
 member's calendar starts filtered to the city on their profile. With only 186
 upcoming events worldwide, most cities return nothing, so a member can land on

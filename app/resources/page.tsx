@@ -544,7 +544,7 @@ export default function ResourcesPage() {
             <ToolbarBtn icon="🏠" label="Home" onClick={() => router.push('/')} />
             <div aria-hidden="true" style={{ width: 1, height: 24, background: IE.border, margin: '0 4px' }} />
             {/* Address bar */}
-            <span style={{ fontSize: '12px', fontFamily: IE.font, color: '#000', flexShrink: 0 }}>Address</span>
+            <span className="ie-address-label" style={{ fontSize: '12px', fontFamily: IE.font, color: '#000', flexShrink: 0 }}>Address</span>
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center',
               background: '#fff', border: `2px inset ${IE.border}`,
@@ -554,7 +554,7 @@ export default function ResourcesPage() {
                 http://www.artisticaccessibility.com/resources
               </span>
             </div>
-            <button aria-hidden="true" tabIndex={-1} style={{
+            <button className="ie-go" aria-hidden="true" tabIndex={-1} style={{
               fontSize: '12px', fontFamily: IE.font,
               background: IE.chrome, border: `2px outset ${IE.chrome}`,
               padding: '2px 10px', cursor: 'pointer', flexShrink: 0,
@@ -564,13 +564,14 @@ export default function ResourcesPage() {
           {/* ── Links bar ── */}
           <div style={{
             background: IE.linkBar, flexShrink: 0,
-            height: 24, display: 'flex', alignItems: 'center',
+            minHeight: 24, display: 'flex', alignItems: 'center',
             padding: '0 8px', gap: '0',
             borderBottom: `1px solid #d0ccc0`,
-            overflow: 'hidden',
           }}>
             <span aria-hidden="true" style={{ fontSize: '12px', fontFamily: IE.font, color: '#666', marginRight: '8px', flexShrink: 0 }}>Links:</span>
-            <nav aria-label="Site navigation" style={{ display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+            {/* Wraps instead of clipping. At phone width the last links (Feedback, Log In)
+                used to be cut off by overflow: hidden, so Log In could not be reached. */}
+            <nav aria-label="Site navigation" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
               {NAV_LINKS.map(({ label, href }) => (
                 <Link key={href} href={href} style={{
                   fontSize: '12px', fontFamily: IE.font, color: '#0000cc',
@@ -826,6 +827,9 @@ export default function ResourcesPage() {
       </div>{/* end outer wrapper */}
 
       <style>{`
+        /* The fake address bar is decoration. On a phone its label and Go button
+           pushed the row wider than the window, so they step aside. */
+        @media (max-width: 430px) { .ie-address-label, .ie-go { display: none; } }
         @keyframes marquee-scroll {
           from { transform: translateX(0); }
           to   { transform: translateX(-50%); }
