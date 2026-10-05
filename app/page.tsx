@@ -7,6 +7,7 @@ import { supabase, type ProductionWithDates } from '@/lib/supabase';
 import { fetchPublishedProductions, formatDateShort, isExternalHref, isPast, micrositeHref, nextDate, sortByNextDate } from '@/lib/productions';
 import { PROJECTS_FOLDER_ICON, resolveProjectIcon } from '@/lib/project-icons';
 import Logo from '@/components/Logo';
+import { HOT_TOPICS_PUBLIC } from '@/lib/hot-topics-status';
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,10 @@ const ITEMS: Record<string, ItemDef> = {
   'library':          { label: 'The Library',            icon: 82,        kind: 'app',      cat: 'Resources',     href: '/library',         blurb: 'Browse our growing collection of accessible reading and reference material.' },
   'cinema':           { label: 'The Cinema',             icon: 56,        kind: 'app',      cat: 'Resources',     href: '/cinema',          blurb: 'Watch films, recorded talks and described screenings on demand.' },
   'printer':          { label: 'The Printer',            icon: 'printer', kind: 'app',      cat: 'Resources',     href: '/printer',         blurb: 'A shared print room: checklists, posters, worksheets and guides, ready to print and pass around.' },
+  // Defined always, but only reachable while HOT_TOPICS_PUBLIC is true: it is
+  // added to TREE and to the Resources window conditionally below, so with
+  // every topic still a draft nothing on the desktop changes.
+  'hot-topics':       { label: 'Hot Topics',             icon: 84,        kind: 'app',      cat: 'Resources',     href: '/resources/hot-topics', blurb: 'The big arguments in access and disability arts, laid out fairly, with videos to watch and a place to add your own take.' },
   'access-card':      { label: 'Get an Access Card',     icon: 52,        kind: 'app',      cat: 'Connect',       href: '/access-card',     blurb: 'A free account to save, like and comment on resources and listings.' },
   'my-access-card':   { label: 'My Access Card',         icon: 52,        kind: 'app',      cat: 'Members',       href: '/access-card',     blurb: 'Your Access Card: saved resources, likes and comments.' },
 };
@@ -107,7 +112,7 @@ const TREE: Array<{ type: 'leaf'; key: string } | { type: 'folder'; name: string
   { type: 'folder', name: 'PRODUCTIONS',   children: ['projects'] },
   { type: 'folder', name: 'PLAY',          children: ['make-art'] },
   { type: 'folder', name: 'MORE TO COME',  children: ['learning'] },
-  { type: 'folder', name: 'RESOURCES',     children: ['access-resources', 'library', 'cinema', 'printer', 'calendar'] },
+  { type: 'folder', name: 'RESOURCES',     children: ['access-resources', ...(HOT_TOPICS_PUBLIC ? ['hot-topics'] : []), 'library', 'cinema', 'printer', 'calendar'] },
   { type: 'folder', name: 'CONNECT',       children: ['access-card', 'hire', 'contact', 'instagram'] },
   { type: 'folder', name: 'MEMBERS',       children: ['collective', 'my-access-card'] },
 ];
@@ -483,6 +488,16 @@ function AimBody({ onOpen, account, onSignOut, onNavigate, signOutError }: {
   );
 }
 
+// The rows in the Resources window. The footer count is the length of this
+// list, so it stays right whether or not Hot Topics is showing.
+const EXPLORER_ROWS: Array<{ icon: string | number; label: string; href: string }> = [
+  { icon: 48, label: 'Resources', href: '/resources' },
+  ...(HOT_TOPICS_PUBLIC ? [{ icon: 84, label: 'Hot Topics', href: '/resources/hot-topics' }] : []),
+  { icon: 82, label: 'The Library', href: '/library' },
+  { icon: 56, label: 'The Cinema', href: '/cinema' },
+  { icon: 'printer', label: 'The Printer', href: '/printer' },
+];
+
 function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
   return (
     <div>
@@ -493,13 +508,10 @@ function ExplorerBody({ onOpen }: { onOpen: (key: string) => void }) {
         </div>
       </div>
       <div style={{ background: '#fff' }}>
-        <Row icon={48} label="Resources"   href="/resources" />
-        <Row icon={82} label="The Library" href="/library" />
-        <Row icon={56} label="The Cinema"  href="/cinema" />
-        <Row icon={'printer'} label="The Printer" href="/printer" />
+        {EXPLORER_ROWS.map((r) => <Row key={r.href} icon={r.icon} label={r.label} href={r.href} />)}
       </div>
       <div aria-hidden="true" style={{ background: '#ece9d8', borderTop: '1px solid #c8c4bc', padding: '4px 8px', fontSize: 12, color: '#666', fontFamily: UIFONT }}>
-        4 items
+        {`${EXPLORER_ROWS.length} items`}
       </div>
     </div>
   );
@@ -920,7 +932,9 @@ export default function Home() {
     });
   }, []);
 
-  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema', 'calendar', 'printer', 'faq', 'hire', 'access-resources'];
+  // 'hot-topics' is listed here unconditionally, but nothing links to it
+  // until HOT_TOPICS_PUBLIC is true (see TREE and EXPLORER_ROWS).
+  const DIRECT_NAV = ['make-art', 'learning', 'collective', 'library', 'cinema', 'calendar', 'printer', 'faq', 'hire', 'access-resources', 'hot-topics'];
 
   const [fx, setFx] = useState<Array<{ id: number; from: FxRect; to: FxRect }>>([]);
   const fxId = useRef(0);

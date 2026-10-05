@@ -1,8 +1,57 @@
 # Hot Topics page: plan (2026-10-05)
 
-**Status: PLAN ONLY. Nothing is built.** Waiting on Mary Kate's answers (see
-Decisions). Research was four read-only agents. Anything below marked
-"verified" was checked against the repo or live endpoints on 2026-10-05.
+**Status (2026-10-05): BUILT, HIDDEN, NOT LIVE.** Phases 1 and 2 are in the
+code. Every topic is a draft, so on the live site the pages 404 and no link,
+sitemap entry or nav item exists. Takes cannot work until Mary Kate runs
+`supabase-migration-v64-hot-topic-takes.sql`. The rest of this file is the
+research and design the build followed. Anything marked "verified" was checked
+against the repo or live endpoints on 2026-10-05.
+
+## How it works now (read this first)
+
+- **Preview drafts locally:** `npm run dev`, open
+  `http://localhost:3000/resources/hot-topics`. Drafts show automatically when
+  not in production. To preview a production build: set
+  `NEXT_PUBLIC_HOT_TOPICS_SHOW_DRAFTS=1` for BOTH `npm run build` and
+  `npm run start -- -p 3200`. **Never set that variable on Vercel Production.**
+- **Go live, one topic at a time:** add its slug to `LIVE_TOPIC_SLUGS` in
+  `lib/hot-topics-status.ts`, push. A topic not on that list stays hidden. The
+  status file is tiny on purpose: the draft text lives in
+  `lib/hot-topics-data.ts` and is kept out of the JavaScript every page loads.
+  The nav, desktop, StartBar and sitemap entries appear by themselves once one
+  topic is live. A typo in `LIVE_TOPIC_SLUGS` is silent in production (dev logs a
+  warning) and would link to an empty list, so check the page after pushing.
+- **Takes (anyone, including visitors, approved first):** POST
+  `/api/hot-topics/takes`, rules in `lib/hot-topic-takes.ts`, review in Admin,
+  Takes. Spam trap, per-browser and per-network limits, a cap of 150 waiting
+  takes, one alert email per half hour. Public tables hold only public columns,
+  the private details live in `topic_take_meta` (admin read only).
+- **Before the first topic goes live:** run v64; confirm `SUPABASE_SERVICE_ROLE_KEY`
+  and `RESEND_API_KEY` exist in Vercel; update `/privacy` and `/conduct` (see
+  `MK-TO-DO.md`); read every topic's framing text (it is unread editorial
+  writing); submit one real take, check the alert email, approve it in Admin,
+  delete it. Open the admin Takes tab once: it was written but never opened in a
+  browser (it needs an admin login).
+- **Reels:** every topic has `videos: []` until Mary Kate sends links. Send a
+  link, the @handle, and one line on why it fits, plus caption/description/ASL
+  notes if she watched it, otherwise the card says "Not checked".
+- **Open decisions on takes abuse** (the review raised these, nothing is
+  broken): (A) a database-backed per-address limit using a keyed hash purged
+  after about 24 hours (strongest, needs a migration and a privacy sentence),
+  or (B) a per-member limit plus part of the queue reserved for signed-in
+  members. Today the per-address limit is in memory per server instance.
+  Admin has "Reject all waiting" and "Reject all flagged" for a flood.
+- **Known small things:** a visitor who chose Plain sees Punk for a moment
+  before the page loads; Unicode tag characters are stripped from takes, which
+  also strips the England, Scotland and Wales flag emoji; a crash between the
+  two inserts of one take could leave a hidden take with no private row.
+- **Catalog fixes noticed:** `lib/library-data.ts` entry
+  `stella-young-not-your-inspiration-lib` says her talk "gave the world a name
+  for inspiration porn"; she named it in a 2012 essay and the 2014 talk made it
+  famous. The topic text was corrected, the catalog line was not. The Ruderman
+  white papers are typed 'standard' in `lib/resources-data.ts`.
+- The inspiration topic's slug was changed from `inspiration-porn` to
+  `inspiration-stories` so the address is not caught by web filters.
 
 ## What Mary Kate asked for
 
@@ -133,7 +182,7 @@ see the caveats under the table.
 | cripping-up | Who gets to play disabled characters? | 5 / 11 / 9 |
 | access-as-art | Access is not an add-on | 7 / 7 / 8 |
 | race-and-disability | Race, disability, and who the movement forgets | 6 / 8 / 6 |
-| inspiration-porn | Inspiration porn and the feel-good disability story | 6 / 10 / 3 |
+| inspiration-stories | Inspiration porn and the feel-good disability story | 6 / 10 / 3 |
 | deaf-culture-medical-model | Deaf culture or hearing loss? Who decides | 8 / 6 / 5 |
 | access-labor | Who does the work of access, and who gets paid? | 7 / 4 / 7 |
 | sign-language-as-art | Sign language is art, not just access | 4 / 7 / 5 |
@@ -146,7 +195,7 @@ see the caveats under the table.
 | relaxed-performances | Relaxed performances, explained | 2 / 0 / 8 |
 
 Caveats:
-- Best opener: inspiration-porn (one free 9 minute captioned talk anchors it).
+- Best opener: inspiration-stories (one free 9 minute captioned talk anchors it).
 - ai-captions: the argument side is thinner than the count, most items are
   tools. alt-text cinema items are only adjacent. asl-at-big-events has two
   truly on-topic items. relaxed-performances has no cinema item yet.

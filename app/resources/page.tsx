@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 import { CATEGORIES, ALL_RESOURCES, type ResourceType, type Resource } from '@/lib/resources-data';
+import { HOT_TOPICS_PUBLIC } from '@/lib/hot-topics-status';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const NP = {
@@ -372,6 +373,10 @@ export default function ResourcesPage() {
   const NAV_LINKS = [
     { label: 'Library',   href: '/library' },
     { label: 'Cinema',    href: '/cinema' },
+    // Only while at least one Hot Topic is live (or drafts are switched on).
+    // Plain words, no badge: the HOT badge on a resource row already means
+    // "saved by 2 or more people", so this must not look like another one.
+    ...(HOT_TOPICS_PUBLIC ? [{ label: 'Hot Topics', href: '/resources/hot-topics' }] : []),
     { label: 'Contact',   href: '/contact' },
     { label: 'Feedback',  href: '/feedback' },
     { label: isLoggedIn ? 'My Account' : 'Log In', href: isLoggedIn ? '/dashboard' : '/login' },
@@ -797,6 +802,9 @@ export default function ResourcesPage() {
                 <WebButton href="/"          label="🏠 Home"           bg="#00205b" />
                 <WebButton href="/library"   label="📚 Library"        bg="#1a4a1a" />
                 <WebButton href="/cinema"    label="🎬 Cinema"         bg="#4b0082" />
+                {/* Wraps to two lines (HOT / TOPICS) like Contact Us does. Dark red
+                    is NP.red, white on it is about 10 to 1. */}
+                {HOT_TOPICS_PUBLIC && <WebButton href="/resources/hot-topics" label="💬 Hot Topics" bg={NP.red} />}
                 <WebButton href="/members"   label="📋 Directory"      bg="#6b4400" />
                 <WebButton href="/contact"   label="✉ Contact Us"      bg="#2a2a2a" />
               </div>

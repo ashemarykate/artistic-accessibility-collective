@@ -5,7 +5,7 @@ hits something it cannot do alone, and checked off when you tell it they are
 done. Anything marked WAITING is holding Claude up. Everything else can wait
 until you have a quiet moment.
 
-Last updated: 2026-10-02
+Last updated: 2026-10-05
 
 ---
 
@@ -30,6 +30,15 @@ Last updated: 2026-10-02
   after. Claude will only read and do one reversible action, never approve or
   reject a real profile, because the local app uses the real database.
 
+- [ ] **Run the Hot Topics takes migration** (this unblocks testing "What do
+  you think?"). Supabase, SQL Editor, open `supabase-migration-v64-hot-topic-takes.sql`
+  from the project folder, paste it, Run. It is safe to run twice. Afterwards
+  run the three "check it worked" lines at the bottom of the file: expect 4
+  policies on topic_takes, 1 on topic_take_meta, no insert policy anywhere.
+  Then tell Claude, who will click through the admin Takes tab with you.
+  Also confirm `SUPABASE_SERVICE_ROLE_KEY` and `RESEND_API_KEY` are both in
+  Vercel (the takes door refuses to open without them).
+
 ## Do when you have a minute
 
 - [ ] **Change the `mk-member@` test account password** in Supabase
@@ -47,6 +56,28 @@ Last updated: 2026-10-02
 - [ ] **Add one online or hybrid event to the calendar.** Every upcoming event
   is tagged in person, so the "Upcoming Live Events" panel on the member home
   stays empty until one exists.
+
+- [ ] **Hot Topics: send Claude reels.** For each one: the link, the @handle,
+  and one line on why it fits the topic. If you watched it, say whether it has
+  captions (burned in, or Instagram's own), audio description, ASL. If you
+  did not, the card says "Not checked". The eight draft topics are
+  inspiration stories, who plays disabled characters, access as art, auto
+  captions, open captions, audio description, sign language as art, and access
+  labor.
+
+- [ ] **Hot Topics: read the eight drafts before anything goes live.** Run
+  `npm run dev` and open `localhost:3000/resources/hot-topics` (drafts show
+  there only). The "hot take" framing is public editorial writing Claude drafted
+  from the catalogs. Claude listed the sentences to double check. Tell Claude
+  which topics to take live, one at a time. Until then the live site shows
+  nothing new.
+
+- [ ] **Hot Topics: update `/privacy` and `/conduct` before the first topic
+  goes live.** Privacy needs: takes (the words, the optional name, that a
+  signed-in visit is noted, a random browser code kept to slow spam, that an
+  approved take is public with its date, and how to ask for removal). Conduct
+  currently says it covers "everyone with an account", which leaves out
+  visitors who post takes. Claude can draft both on request.
 
 ## Your business list (not site work)
 

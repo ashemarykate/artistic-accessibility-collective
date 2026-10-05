@@ -2,7 +2,7 @@
 import Logo from '@/components/Logo';
 import { readLoginTrace, clearLoginTrace, type LoginTrace } from '@/lib/after-login';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase, getSessionUser, type Profile, type InviteCode, type TesterFeedback, type CalEvent, type IcsSource, REQUIRED_PROFILE_VERSION, profileHref } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -10,7 +10,7 @@ import BrowserChrome from '@/components/BrowserChrome';
 import ProductionsPanel from '@/components/ProductionsPanel';
 import { useConfirm } from '@/components/useConfirm';
 
-type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'content' | 'events' | 'productions' | 'admins' | 'back-of-house';
+type Tab = 'pending' | 'approved' | 'rejected' | 'invite-codes' | 'feedback' | 'access-card' | 'resource-contacts' | 'resource-submissions' | 'hot-topic-takes' | 'content' | 'events' | 'productions' | 'admins' | 'back-of-house';
 
 type BohNote = {
   id: string;
@@ -76,12 +76,28 @@ export default function AdminDashboard() {
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [adminActionMsg, setAdminActionMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [profileActionPending, setProfileActionPending] = useState<{ id: string; action: 'approve' | 'reject' | 'toggle-public' } | null>(null);
+  // Hot Topics takes waiting for review. null means not known yet (or the
+  // tables are not set up), in which case the tab shows no number.
+  const [pendingTakes, setPendingTakes] = useState<number | null>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const assignNameRef = useRef<HTMLInputElement>(null);
 
 
   useEffect(() => { checkAdmin(); }, []);
   useEffect(() => { setLoginTrace(readLoginTrace()); }, []);
+
+  // The number on the Takes tab. The panel itself reloads and updates it after
+  // every action, so this only has to give the first count.
+  useEffect(() => {
+    if (!isAdmin) return;
+    supabase
+      .from('topic_takes')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count, error }) => {
+        if (!error && count !== null) setPendingTakes(count);
+      });
+  }, [isAdmin]);
 
   const checkAdmin = async () => {
     const user = await getSessionUser();
@@ -423,6 +439,7 @@ export default function AdminDashboard() {
       tabs: [
         { id: 'content', label: 'Page Content' },
         { id: 'resource-submissions', label: 'Suggestions', count: resourceSubmissions.filter((s) => s.status === 'pending').length },
+        { id: 'hot-topic-takes', label: 'Takes', count: pendingTakes ?? undefined },
         { id: 'events', label: 'Events', count: events.filter(e => e.is_visible).length },
         { id: 'resource-contacts', label: 'Resource Contacts' },
       ],
@@ -825,6 +842,12 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {activeTab === 'hot-topic-takes' && (
+          <div id="panel-hot-topic-takes" role="tabpanel" aria-labelledby="tab-hot-topic-takes">
+            <TakesPanel confirm={confirm} onPendingChange={setPendingTakes} />
+          </div>
+        )}
+
         {activeTab === 'content' && (
           <div id="panel-content" role="tabpanel" aria-labelledby="tab-content">
             <ContentManagementPanel />
@@ -1162,6 +1185,398 @@ function ResourceSubmissionsPanel({
       {renderGroup(pending, '⏳ Pending Review')}
       {renderGroup(approved, '✓ Approved')}
       {renderGroup(rejected, '✗ Rejected')}
+    </div>
+  );
+}
+
+// ── Hot Topics takes panel ──────────────────────────────────────────────────
+//
+// Takes are what visitors and members write under "What do you think?" on a Hot
+// Topics page. They are stored by the server (never by the browser) as pending
+// and show on the site only after Approve. The words live in topic_takes and
+// the private flag lives in topic_take_meta, which only admins can read, so the
+// two are read with two separate queries.
+
+type TopicTake = {
+  id: string;
+  topic_slug: string;
+  body: string;
+  display_name: string | null;
+  from_member: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  reviewed_at: string | null;
+  flagged: boolean;
+};
+
+type ConfirmFn = ReturnType<typeof useConfirm>['confirm'];
+
+const TAKE_COLUMNS = 'id, topic_slug, body, display_name, from_member, status, created_at, reviewed_at';
+const TAKES_WAITING_LIMIT = 200;
+const TAKES_REVIEWED_LIMIT = 300;
+/** Ids sent in one request when asking about many takes, so the address stays short. */
+const TAKES_ID_CHUNK = 50;
+
+/** Splits a list into runs of the given size. */
+const inChunks = <T,>(items: T[], size: number): T[][] => {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+  return out;
+};
+
+/** The start of a take, used to name its buttons for screen readers. */
+const takeSnippet = (body: string) => {
+  const flat = body.replace(/\s+/g, ' ').trim();
+  return flat.length > 40 ? `${flat.slice(0, 40)}…` : flat;
+};
+
+/**
+ * A readable name for a topic, made from its slug ("access-labor" becomes
+ * "Access labor"). The topic text itself is deliberately not imported here:
+ * this page is public JavaScript, and unread draft topics must not travel in it.
+ */
+const topicLabel = (slug: string) => {
+  const words = slug.replace(/[-_]+/g, ' ').trim();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : 'Unknown topic';
+};
+
+const takeWhen = (iso: string) =>
+  new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+
+function TakesPanel({
+  confirm,
+  onPendingChange,
+}: {
+  confirm: ConfirmFn;
+  onPendingChange: (count: number) => void;
+}) {
+  const [takes, setTakes] = useState<TopicTake[]>([]);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error' | 'not-set-up'>('loading');
+  const [waitingTotal, setWaitingTotal] = useState(0);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const msgRef = useRef<HTMLDivElement>(null);
+  // When the list was last read. "Reject all waiting" only touches takes that
+  // were already there, so one that arrives while you are deciding is left alone.
+  const loadedAtRef = useRef<string>(new Date().toISOString());
+
+  // Only the first load (and Try again) swaps the list for a loading line.
+  // After an action the list refreshes quietly, so the page, the scroll
+  // position and the focus are not thrown away.
+  const load = useCallback(async (initial: boolean) => {
+    if (initial) setLoadState('loading');
+    try {
+      loadedAtRef.current = new Date().toISOString();
+      const [waiting, reviewed] = await Promise.all([
+        supabase.from('topic_takes').select(TAKE_COLUMNS, { count: 'exact' })
+          .eq('status', 'pending')
+          .order('created_at', { ascending: true })
+          .limit(TAKES_WAITING_LIMIT),
+        supabase.from('topic_takes').select(TAKE_COLUMNS)
+          .in('status', ['approved', 'rejected'])
+          .order('created_at', { ascending: false })
+          .limit(TAKES_REVIEWED_LIMIT),
+      ]);
+
+      const rows = [...(waiting.data ?? []), ...(reviewed.data ?? [])] as Omit<TopicTake, 'flagged'>[];
+
+      // The private side. Asked about exactly the takes on screen, a few at a
+      // time, so a flagged take is never missed however many old ones pile up.
+      const metaResults = waiting.error || reviewed.error
+        ? []
+        : await Promise.all(
+            inChunks(rows.map((r) => r.id), TAKES_ID_CHUNK).map((ids) =>
+              supabase.from('topic_take_meta').select('take_id').eq('flagged', true).in('take_id', ids),
+            ),
+          );
+
+      // Supabase hands errors back, it does not throw them.
+      const failure = waiting.error ?? reviewed.error ?? metaResults.find((m) => m.error)?.error;
+      if (failure) {
+        console.error('Admin takes load error:', failure);
+        const missing = failure.code === '42P01' || failure.code === 'PGRST205'
+          || /does not exist|schema cache/i.test(failure.message ?? '');
+        setLoadState(missing ? 'not-set-up' : 'error');
+        return;
+      }
+
+      const flaggedIds = new Set<string>(
+        metaResults.flatMap((m) => (m.data ?? []).map((x: { take_id: string }) => x.take_id)),
+      );
+      setTakes(rows.map((r) => ({ ...r, flagged: flaggedIds.has(r.id) })));
+      const total = waiting.count ?? (waiting.data ?? []).length;
+      setWaitingTotal(total);
+      onPendingChange(total);
+      setLoadState('ready');
+    } catch (err) {
+      console.error('Admin takes load error:', err);
+      setLoadState('error');
+    }
+  }, [onPendingChange]);
+
+  useEffect(() => { load(true); }, [load]);
+
+  // The row you just used is usually gone from its list, so focus would fall to
+  // the top of the page. Move it to the result message, which also reads it
+  // out once. preventScroll keeps your place in a long list, and the message
+  // is sticky so it stays in view wherever you are.
+  useEffect(() => {
+    if (msg) msgRef.current?.focus({ preventScroll: true });
+  }, [msg]);
+
+  const decide = async (take: TopicTake, status: 'approved' | 'rejected') => {
+    setMsg(null);
+    setBusyId(take.id);
+    try {
+      // .select() hands back the rows that changed. A change the database
+      // refuses (no permission, already handled) is not an error to Supabase,
+      // it is just zero rows, so the count is what tells us it worked.
+      const { data, error } = await supabase.from('topic_takes')
+        .update({ status, reviewed_at: new Date().toISOString() })
+        .eq('id', take.id)
+        .eq('status', 'pending')
+        .select('id');
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        setMsg({ type: 'err', text: 'That take could not be changed. It may already have been handled, or you may not have permission. The list has been refreshed.' });
+      } else {
+        setMsg({ type: 'ok', text: status === 'approved' ? 'Take approved. It will show on its topic page.' : 'Take rejected. It will not be shown.' });
+      }
+      await load(false);
+    } catch (err) {
+      console.error('Take decision error:', err);
+      setMsg({ type: 'err', text: `Could not ${status === 'approved' ? 'approve' : 'reject'} that take. Please try again.` });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Rejects many waiting takes at once. This is the way out when a flood of junk
+  // fills the queue (new takes pause at 150 waiting). "flagged" rejects the
+  // flagged takes shown on this page; "all" rejects everything that was waiting
+  // when the list was last read.
+  const rejectMany = async (scope: 'flagged' | 'all') => {
+    const targets = scope === 'flagged' ? pending.filter((t) => t.flagged) : pending;
+    const count = scope === 'flagged' ? targets.length : waitingTotal;
+    if (count === 0) return;
+    const noun = count === 1 ? 'take' : 'takes';
+    const ok = await confirm({
+      title: scope === 'flagged' ? `Reject ${count} flagged ${noun}?` : `Reject all ${count} waiting ${noun}?`,
+      body: scope === 'flagged'
+        ? 'They will not be shown on the site. You can still see them under Rejected, and delete them from there.'
+        : 'Every take waiting right now will be rejected without being read, including any you have not scrolled to. They will not be shown on the site. You can still see them under Rejected.',
+      confirmLabel: 'Reject',
+      danger: true,
+    });
+    if (!ok) return;
+    setMsg(null);
+    setBulkBusy(true);
+    try {
+      const values = { status: 'rejected', reviewed_at: new Date().toISOString() };
+      let changed = 0;
+      if (scope === 'all') {
+        // One change for the lot. count tells us how many rows it touched.
+        const { error, count: n } = await supabase.from('topic_takes')
+          .update(values, { count: 'exact' })
+          .eq('status', 'pending')
+          .lte('created_at', loadedAtRef.current);
+        if (error) throw error;
+        changed = n ?? 0;
+      } else {
+        for (const ids of inChunks(targets.map((t) => t.id), TAKES_ID_CHUNK)) {
+          const { error, count: n } = await supabase.from('topic_takes')
+            .update(values, { count: 'exact' })
+            .in('id', ids)
+            .eq('status', 'pending');
+          if (error) throw error;
+          changed += n ?? 0;
+        }
+      }
+      setMsg(changed > 0
+        ? { type: 'ok', text: `${changed} ${changed === 1 ? 'take' : 'takes'} rejected. They will not be shown.` }
+        : { type: 'err', text: 'Nothing was changed. The takes may already have been handled, or you may not have permission. The list has been refreshed.' });
+      await load(false);
+    } catch (err) {
+      console.error('Take bulk reject error:', err);
+      setMsg({ type: 'err', text: 'Could not reject those takes. Please try again.' });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const remove = async (take: TopicTake) => {
+    if (!(await confirm({
+      title: 'Delete this take?',
+      body: `It will be removed for good and cannot be brought back: "${takeSnippet(take.body)}"`,
+      confirmLabel: 'Delete',
+      danger: true,
+    }))) return;
+    setMsg(null);
+    setBusyId(take.id);
+    try {
+      const { data, error } = await supabase.from('topic_takes').delete().eq('id', take.id).select('id');
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        setMsg({ type: 'err', text: 'That take could not be deleted. It may already be gone, or you may not have permission. The list has been refreshed.' });
+      } else {
+        setMsg({ type: 'ok', text: 'Take deleted.' });
+      }
+      await load(false);
+    } catch (err) {
+      console.error('Take delete error:', err);
+      setMsg({ type: 'err', text: 'Could not delete that take. Please try again.' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const pending = takes.filter((t) => t.status === 'pending');
+  const approved = takes.filter((t) => t.status === 'approved');
+  const rejected = takes.filter((t) => t.status === 'rejected');
+
+  const renderTake = (t: TopicTake) => {
+    const topicTitle = topicLabel(t.topic_slug);
+    const snippet = takeSnippet(t.body);
+    const busy = busyId === t.id;
+    return (
+      <li key={t.id} className="content-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+          <p style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '0.9375rem', margin: 0 }}>{topicTitle}</p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0 }}>{takeWhen(t.created_at)}</p>
+        </div>
+        <p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: '0.9375rem', lineHeight: 1.55, margin: '0 0 0.625rem' }}>
+          {t.body}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', overflowWrap: 'anywhere' }}>
+            {t.display_name ? <>Name: <strong>{t.display_name}</strong></> : 'No name given'}
+          </span>
+          {t.from_member && <span className="tag tag-blue">Member</span>}
+          {t.flagged && <span className="tag tag-yellow">Flagged for review</span>}
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--color-border)' }}>
+          {t.status === 'pending' ? (
+            <>
+              <button
+                onClick={() => decide(t, 'approved')}
+                disabled={busy}
+                className="btn btn-primary btn-sm"
+                aria-label={`Approve take: ${snippet}`}
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => decide(t, 'rejected')}
+                disabled={busy}
+                className="btn btn-danger btn-sm"
+                aria-label={`Reject take: ${snippet}`}
+              >
+                Reject
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => remove(t)}
+              disabled={busy}
+              className="btn btn-danger btn-sm"
+              aria-label={`Delete take: ${snippet}`}
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      </li>
+    );
+  };
+
+  const listStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' };
+
+  const renderFolded = (label: string, items: TopicTake[]) => {
+    if (items.length === 0) return null;
+    return (
+      <details style={{ marginBottom: '1rem' }}>
+        <summary style={{ cursor: 'pointer', padding: '0.75rem 0', fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem' }}>
+          {label} ({items.length})
+        </summary>
+        <ul style={listStyle}>{items.map(renderTake)}</ul>
+      </details>
+    );
+  };
+
+  return (
+    <div>
+      {msg && (
+        <div id="admin-action-msg" ref={msgRef} tabIndex={-1} className={`alert ${msg.type === 'err' ? 'alert-error' : 'alert-info'}`} style={{ marginBottom: '1rem', position: 'sticky', top: 0, zIndex: 10 }}>
+          {msg.text}
+        </div>
+      )}
+
+      <div className="content-card" style={{ marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: 0 }}>
+          Takes that visitors and members share at the bottom of a Hot Topics page. Nothing shows on the site until you approve it. A take marked <strong>Flagged for review</strong> had a link, an email address, or a word from our watch list in it, so read those with care.
+        </p>
+      </div>
+
+      {loadState === 'loading' && (
+        <p role="status" style={{ color: 'var(--color-text-muted)' }}>Loading takes…</p>
+      )}
+
+      {loadState === 'not-set-up' && (
+        <div className="alert alert-warning" role="alert">
+          <p style={{ margin: '0 0 0.5rem' }}>
+            The takes tables are not in the database yet. Run the Hot Topics migration (supabase-migration-v64-hot-topic-takes.sql) in the Supabase SQL Editor, then try again.
+          </p>
+          <button onClick={() => load(true)} className="btn btn-primary btn-sm">Try again</button>
+        </div>
+      )}
+
+      {loadState === 'error' && (
+        <div className="alert alert-error" role="alert">
+          <p style={{ margin: '0 0 0.5rem' }}>Could not load the takes. Check your connection and try again.</p>
+          <button onClick={() => load(true)} className="btn btn-primary btn-sm">Try again</button>
+        </div>
+      )}
+
+      {loadState === 'ready' && (
+        <>
+          <h2 style={{ fontWeight: 'bold', color: 'var(--aac-blue)', fontSize: '1rem', marginBottom: '0.75rem' }}>
+            Waiting for review <span style={{ fontWeight: 400, color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>({waitingTotal})</span>
+          </h2>
+          {waitingTotal > pending.length && (
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
+              Showing the oldest {pending.length} of {waitingTotal}. Deal with these and the rest will appear.
+            </p>
+          )}
+          {pending.length > 1 && (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+              {pending.some((t) => t.flagged) && (
+                <button onClick={() => rejectMany('flagged')} disabled={bulkBusy} className="btn btn-danger btn-sm">
+                  Reject all flagged ({pending.filter((t) => t.flagged).length})
+                </button>
+              )}
+              <button onClick={() => rejectMany('all')} disabled={bulkBusy} className="btn btn-danger btn-sm">
+                Reject all waiting ({waitingTotal})
+              </button>
+            </div>
+          )}
+          {pending.length === 0 ? (
+            <div className="content-card" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+              Nothing is waiting. New takes will show up here.
+            </div>
+          ) : (
+            <ul style={{ ...listStyle, marginBottom: '1.5rem' }}>{pending.map(renderTake)}</ul>
+          )}
+
+          {renderFolded('Approved', approved)}
+          {renderFolded('Rejected', rejected)}
+          {approved.length + rejected.length >= TAKES_REVIEWED_LIMIT && (
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
+              Showing the newest {TAKES_REVIEWED_LIMIT} approved and rejected takes. Delete old ones to see more.
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }

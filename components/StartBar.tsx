@@ -20,6 +20,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { HOT_TOPICS_PUBLIC } from '@/lib/hot-topics-status';
 
 const RAISED = 'inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #fff, inset -2px -2px 0 #808080, inset 2px 2px 0 #dfdfdf';
 const SUNKEN = 'inset 1px 1px 0 #0a0a0a, inset -1px -1px 0 #fff, inset 2px 2px 0 #808080, inset -2px -2px 0 #dfdfdf';
@@ -48,6 +49,9 @@ const NAV: Node[] = [
   ] },
   { type: 'folder', name: 'RESOURCES', children: [
     { label: 'Resources',    icon: 48, href: '/resources' },
+    // Only while at least one Hot Topic is live (or drafts are switched on).
+    // Icon 84 is the speech bubble: it fits a page of opinions.
+    ...(HOT_TOPICS_PUBLIC ? [{ label: 'Hot Topics', icon: 84, href: '/resources/hot-topics' }] : []),
     { label: 'Learning Hub', icon: 80, href: '/learning-hub' },
   ] },
   { type: 'folder', name: 'CONNECT', children: [
