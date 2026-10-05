@@ -238,6 +238,13 @@ list from urgent to fun, with DONE markers and a short list of things only
 Mary Kate can do. Read it before starting new work, and update it as items land.
 `PLAN.md` and `TODO.md` are historical and describe a pre-launch state.
 
+`HOT-TOPICS-PLAN.md` covers the Hot Topics section under Resources (built on
+2026-10-05, hidden until a topic is added to `LIVE_TOPIC_SLUGS` in
+`lib/hot-topics-status.ts`). Read its "How it works now" section before
+touching it. Takes are anonymous and moderated, so the database rules and the
+server route in `lib/hot-topic-takes.ts` matter: keep private columns out of
+`topic_takes` and never add an insert policy.
+
 `MK-TO-DO.md` is Mary Kate's running list of things only she can do. Keep it
 current: add an item the moment you hit something you cannot do alone, put
 anything that blocks you under "Waiting on you", and tick items off when she
