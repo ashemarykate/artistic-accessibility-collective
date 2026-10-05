@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hot Topics mock · Artistic Accessibility Collective</title>
+<style>
+@font-face{font-family:'AAC Display';src:url(data:font/woff2;base64,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) format('woff2');font-weight:400;font-style:normal;font-display:swap}
+
+:root{
+  /* Hot Topics palette. Every pair is checked by hot-topics-contrast.mjs. */
+  --ht-black:#0a0a0c;
+  --ht-coal:#17171c;
+  --ht-graphite:#2a2a33;
+  --ht-paper:#f5f1e8;
+  --ht-white:#ffffff;
+  --ht-ink:#101014;
+  --ht-ink-soft:#40404b;
+  --ht-fog:#cfcfd8;
+  --ht-red:#d8002f;
+  --ht-red-deep:#a30026;
+  --ht-pink:#ff5c9d;
+  --ht-yellow:#f5d84a;
+  --ht-silver:#b9bcc6;            /* decorative only: studs, pins */
+  /* Existing site tokens, used only for the focus ring (globals.css:43, 46) */
+  --aac-navy:#0d1e4a;
+  --aac-yellow:#f5d84a;
+  --font-display:'AAC Display','Impact','Arial Black',sans-serif;   /* same stack as globals.css:61 */
+  --font-body:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --startbar-h:44px;               /* components/StartBar.tsx:215 */
+  --hard-shadow:4px 4px 0 var(--ht-red);
+  --card-shadow:6px 6px 0 var(--ht-red);
+  --tilt-a:-3deg; --tilt-b:6deg; --tilt-c:1.5deg;
+}
+/* Plain look: a viewer switch that removes every decorative layer and keeps all content. */
+[data-look="plain"]{--hard-shadow:none;--card-shadow:none;--tilt-a:0deg;--tilt-b:0deg;--tilt-c:0deg}
+[data-look="plain"] .deco,[data-look="plain"] .pin{display:none!important}
+[data-look="plain"] .tape::before,[data-look="plain"] .torn::after,[data-look="plain"] .tile-art::before{display:none}
+[data-look="plain"] .sticker--new{clip-path:none;width:auto;height:auto;padding:4px 10px}
+[data-look="plain"] .pricetag,[data-look="plain"] .shelf-tag{clip-path:none;padding-left:12px}
+[data-look="plain"] .pricetag::before{display:none}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ht-black);color:var(--ht-white);font-family:var(--font-body);font-size:1.0625rem;line-height:1.6;padding-bottom:calc(var(--startbar-h) + 20px)}
+img,svg{max-width:100%}
+
+/* Same behaviour as the site: globals.css:88-95 */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Site focus ring, mirrored from globals.css:166-205 so the mock shows the real thing. Not restyled anywhere below. */
+:focus-visible{outline:3px solid var(--aac-navy);outline-offset:2px;box-shadow:0 0 0 2px var(--aac-yellow)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid var(--aac-navy)!important;outline-offset:2px!important;box-shadow:0 0 0 2px var(--aac-yellow)!important}
+:focus:not(:focus-visible){outline:none}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+.skip-nav{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;text-decoration:none}
+.skip-nav:focus,.skip-nav:focus-visible{position:fixed;top:0;left:0;width:auto;height:auto;padding:10px 20px;margin:0;overflow:visible;clip:auto;clip-path:none;white-space:normal;background:var(--aac-navy);color:#fff;font-weight:700;z-index:9999}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+a{color:inherit;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--ht-pink)}
+.on-paper a:not(.btn){color:var(--ht-red-deep);text-decoration-color:currentColor}
+p{margin:0 0 1em}
+h1,h2,h3{margin:0}
+
+/* Display type: AAC Display is capitals only, so uppercase is set in CSS to keep the Impact fallback matching. */
+.h-display{font-family:var(--font-display);text-transform:uppercase;font-weight:400;letter-spacing:.02em;line-height:1.08;overflow-wrap:break-word}
+.h1{font-size:clamp(2.25rem,1.1rem + 6.4vw,5rem);color:var(--ht-white);text-shadow:var(--hard-shadow)}
+.h2{font-size:clamp(1.75rem,1.2rem + 2.6vw,2.75rem)}
+.kicker{font-size:.875rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:var(--ht-pink)}
+.on-paper .kicker{color:var(--ht-red-deep)}
+.lede{font-size:1.25rem;line-height:1.5;max-width:44rem}
+.hint{font-size:1rem;color:var(--ht-fog);margin:0 0 .75em}
+.on-paper .hint{color:var(--ht-ink-soft)}
+
+/* Mock-only furniture */
+.mockbar{background:var(--ht-graphite);color:#fff;border-bottom:3px dashed var(--ht-fog);padding:12px 0;font-size:.9375rem}
+.mockbar p{margin:0 0 6px}
+.mockbar ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 16px}
+.mockbar a{display:inline-flex;align-items:center;min-height:44px}
+.screen-label{background:var(--ht-graphite);color:#fff;padding:10px 0;font-size:.9375rem;font-weight:700;letter-spacing:.04em;border-top:3px dashed var(--ht-fog);border-bottom:3px dashed var(--ht-fog);margin-top:48px}
+.fake-taskbar{position:fixed;left:0;right:0;bottom:0;height:var(--startbar-h);background:#c3c3c3;border-top:2px solid #fff;display:flex;align-items:center;padding:0 12px;font:700 .875rem Tahoma,Arial,sans-serif;color:#0a0a0a;z-index:50}
+
+/* Decorative strips (CSS only, nothing in the accessibility tree) */
+.strip-check{height:14px;background:repeating-conic-gradient(var(--ht-white) 0% 25%,var(--ht-black) 0% 50%) 0 0/28px 28px}
+.strip-caution{height:14px;background:repeating-linear-gradient(-45deg,var(--ht-yellow) 0 14px,var(--ht-black) 14px 28px)}
+.studs{height:26px;background:radial-gradient(circle at 50% 50%,#fff 0 1.5px,var(--ht-silver) 2.5px,#6d7080 5.5px,transparent 6.5px) 0 50%/24px 26px repeat-x}
+
+/* Hero */
+.hero{position:relative;padding:20px 0 22px}
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:0 10px;margin:0 0 10px;padding:0;font-size:1rem}
+.crumbs li{display:inline-flex;align-items:center;gap:10px}
+.crumbs li+li::before{content:"";width:0;height:16px;border-left:2px solid var(--ht-fog);transform:skewX(-20deg)}
+.crumbs a{display:inline-flex;align-items:center;min-height:44px}
+.crumbs [aria-current]{font-weight:700}
+.hero .pin{position:absolute;right:16px;top:70px;transform:rotate(24deg)}
+@media (max-width:560px){.hero .pin{display:none}}
+.hero-meta{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin-top:18px}
+.meta{font-size:1rem;color:var(--ht-fog);margin:0}
+
+/* Controls bar */
+.bar{background:var(--ht-coal);border-top:3px solid var(--ht-white);border-bottom:3px solid var(--ht-white);padding:12px 0}
+.bar .wrap{display:flex;flex-wrap:wrap;gap:10px 32px;align-items:center}
+.seg{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg-label{font-weight:800;font-size:.875rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ht-fog)}
+.pill{min-height:44px;min-width:44px;padding:8px 14px;background:transparent;color:var(--ht-white);border:2px solid var(--ht-white);font:700 1rem var(--font-body);cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--ht-white);color:var(--ht-ink)}
+.pill:hover{background:var(--ht-graphite)}
+.pill[aria-pressed="true"]:hover{background:var(--ht-fog)}
+
+/* Heat meter: filled vs outlined boxes plus the words. Never color alone. */
+.heat{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0;font-size:.9375rem;font-weight:700}
+.heat-label{font-size:.8125rem;letter-spacing:.1em;text-transform:uppercase}
+.heat-segs{display:inline-flex;gap:3px}
+.heat-segs i{display:block;width:14px;height:20px;border:2px solid currentColor;transform:skewX(-12deg)}
+.heat-segs i.on{background:currentColor}
+@media (forced-colors:active){.heat-segs i.on{background:CanvasText;forced-color-adjust:none}}
+
+/* Topic tiles */
+.tiles{list-style:none;margin:0;padding:0;display:grid;gap:30px 24px;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr))}
+.tiles>li{display:flex}
+.tile{position:relative;display:flex;flex-direction:column;width:100%;color:var(--ht-ink);background:var(--ht-white);border:3px solid var(--ht-white);box-shadow:var(--card-shadow);text-decoration:none;transition:transform .12s ease-out}
+.tile:hover{transform:translate(-2px,-2px)}
+.tile-art{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;min-height:170px;padding:30px 16px 18px}
+.tile-art::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:repeating-conic-gradient(rgba(255,255,255,.28) 0% 25%,rgba(0,0,0,.28) 0% 50%) 0 0/20px 20px}
+.tile-no{position:absolute;top:18px;left:16px;font-size:.8125rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.tile-title{font-size:1.625rem}
+.tile--red .tile-art{background:var(--ht-red);color:var(--ht-white)}
+.tile--coal .tile-art{background:var(--ht-coal);color:var(--ht-white)}
+.tile--pink .tile-art{background:var(--ht-pink);color:var(--ht-black)}
+.tile--paper .tile-art{background:var(--ht-paper);color:var(--ht-ink);border-bottom:3px solid var(--ht-ink)}
+.tile--coal .tile-no{color:var(--ht-pink)}
+.tile-info{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--ht-white);color:var(--ht-ink);flex:1}
+.tile-sum{font-size:1.0625rem;line-height:1.5}
+.tile-cta{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;padding:10px 14px;background:var(--ht-ink);color:var(--ht-white);font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.9375rem}
+.tile:hover .tile-cta{background:var(--ht-red)}
+.arrow{flex:none}
+
+/* Price tag (counts) */
+.pricetag{position:relative;align-self:flex-start;background:var(--ht-yellow);color:var(--ht-ink);font-size:.9375rem;font-weight:700;line-height:1.3;padding:6px 14px 6px 32px;clip-path:polygon(16px 0,100% 0,100% 100%,16px 100%,0 50%)}
+.pricetag::before{content:"";position:absolute;left:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--ht-white);box-shadow:inset 0 0 0 1.5px var(--ht-ink)}
+
+/* Stickers. Tilt is static and applied to badges only, never to paragraphs, forms or links (same rule as globals.css:554-567). */
+.sticker{position:absolute;z-index:2;display:grid;place-items:center;text-align:center;font-size:.8125rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1.05}
+.sticker--new{top:-18px;right:-10px;width:66px;height:66px;background:var(--ht-yellow);color:var(--ht-ink);transform:rotate(var(--tilt-b));clip-path:polygon(50.0% 0.0%,58.5% 13.0%,71.7% 5.0%,73.7% 20.3%,89.1% 18.8%,84.2% 33.5%,98.7% 38.9%,88.0% 50.0%,98.7% 61.1%,84.2% 66.5%,89.1% 81.2%,73.7% 79.7%,71.7% 95.0%,58.5% 87.0%,50.0% 100.0%,41.5% 87.0%,28.3% 95.0%,26.3% 79.7%,10.9% 81.2%,15.8% 66.5%,1.3% 61.1%,12.0% 50.0%,1.3% 38.9%,15.8% 33.5%,10.9% 18.8%,26.3% 20.3%,28.3% 5.0%,41.5% 13.0%)}
+.sticker--pick{top:-16px;left:-10px;padding:5px 10px;background:var(--ht-white);color:var(--ht-ink);border:2px solid var(--ht-ink);transform:rotate(var(--tilt-a))}
+.sticker--inline{position:static;display:inline-grid}
+
+/* Tape and torn edges (pseudo-elements on containers with no clip-path, so focus rings are never cut) */
+.tape{position:relative}
+.tape::before{content:"";position:absolute;top:-13px;left:22px;width:96px;height:28px;background:#e6dcc2;opacity:.95;transform:rotate(var(--tilt-a));clip-path:polygon(0 0,4% 18%,0 36%,3% 54%,0 72%,4% 88%,0 100%,100% 100%,97% 82%,100% 64%,96% 46%,100% 28%,97% 10%,100% 0)}
+.torn{position:relative;margin-bottom:14px}
+.torn::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='10' viewBox='0 0 96 10'%3E%3Cpath d='M0 0H96V4L90 8L83 3L75 9L68 4L60 8L52 2L44 7L36 3L28 9L20 4L12 8L5 3L0 6Z' fill='%23f5f1e8'/%3E%3C/svg%3E") repeat-x 0 0/96px 10px}
+
+/* Sections */
+.section{padding:34px 0}
+.panel{background:var(--ht-paper);color:var(--ht-ink);padding:34px 18px 26px}
+.panel .h2{color:var(--ht-ink);margin-bottom:14px}
+.panel p.lead{font-size:1.25rem;line-height:1.55;max-width:42rem}
+.camps{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin:18px 0 6px}
+.camp{border:3px solid var(--ht-ink);background:var(--ht-white);padding:14px 16px}
+.camp h3{display:inline-block;background:var(--ht-ink);color:var(--ht-white);font-size:.9375rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;margin-bottom:10px}
+.camp p{margin:0}
+.jump ul{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.jump a{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border:2px solid var(--ht-white);text-decoration:none;font-weight:700}
+.jump a:hover{background:var(--ht-white);color:var(--ht-ink)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;min-width:48px;padding:10px 18px;font:700 1rem/1.2 var(--font-body);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;border:2px solid transparent;cursor:pointer}
+.btn--red{background:var(--ht-red);color:var(--ht-white);border-color:var(--ht-white);box-shadow:4px 4px 0 var(--ht-pink)}
+.on-paper .btn--red{border-color:var(--ht-ink);box-shadow:4px 4px 0 var(--ht-ink)}
+.btn--pink{background:var(--ht-pink);color:var(--ht-black);border-color:var(--ht-black);box-shadow:3px 3px 0 var(--ht-white)}
+.btn--ghost{background:transparent;color:var(--ht-white);border-color:var(--ht-white)}
+.btn:hover{background:var(--ht-white);color:var(--ht-ink)}
+.on-paper .btn--red:hover{background:var(--ht-ink);color:var(--ht-white)}
+button:not(:disabled):active,a.btn:active{transform:translate(1px,1px)}
+
+/* Watch */
+.reels{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:22px 20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+.reel{display:grid;grid-template-columns:84px 1fr;gap:16px;background:var(--ht-coal);border:2px solid var(--ht-white);padding:16px}
+@media (max-width:380px){.reel{grid-template-columns:60px 1fr;gap:12px;padding:12px}}
+.reel-poster{align-self:start;aspect-ratio:9/16;background:var(--ht-black);border:2px solid var(--ht-pink);display:grid;place-items:center;position:relative;overflow:hidden}
+.reel-poster::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:repeating-conic-gradient(var(--ht-white) 0% 25%,var(--ht-black) 0% 50%) 0 0/10px 10px}
+.play{width:0;height:0;border-left:20px solid var(--ht-red);border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:6px}
+.reel-title{font-size:1.1875rem;line-height:1.3;margin-bottom:4px}
+.reel-by{font-size:1rem;color:var(--ht-fog);margin:0 0 8px}
+.reel-why{margin:0 0 10px}
+.chips{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0}
+.chip{display:inline-flex;align-items:center;padding:3px 8px;border:2px solid var(--ht-white);font-size:.8125rem;font-weight:700;line-height:1.25}
+.chip--yes{background:var(--ht-white);color:var(--ht-ink)}
+.chip--unk{border-style:dashed}
+.embed{margin-top:12px}
+.embed summary{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border:2px solid var(--ht-white);font-weight:700;cursor:pointer}
+.embed[open] summary{background:var(--ht-white);color:var(--ht-ink)}
+.embed-frame{aspect-ratio:9/16;max-width:260px;display:grid;place-items:center;text-align:center;border:2px dashed var(--ht-fog);color:var(--ht-fog);padding:12px;margin-top:8px}
+.note{max-width:46rem;margin:22px 0 0}
+
+/* Shelves */
+.shelf-group{margin-top:26px}
+.shelf-tag{display:inline-flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--ht-yellow);color:var(--ht-ink);padding:6px 18px 6px 32px;clip-path:polygon(16px 0,100% 0,100% 100%,16px 100%,0 50%);font-family:var(--font-display);text-transform:uppercase;font-size:1.25rem;letter-spacing:.02em}
+.shelf-tag small{font-family:var(--font-body);font-size:.9375rem;font-weight:700;text-transform:none;letter-spacing:0}
+.shelf-list{list-style:none;margin:10px 0 0;padding:0}
+.shelf-item{padding:10px 0 12px;border-bottom:2px dashed var(--ht-ink)}
+.shelf-item:last-child{border-bottom:0}
+.shelf-link{display:inline-flex;align-items:center;min-height:44px;font-size:1.125rem;font-weight:800;line-height:1.3}
+.shelf-meta{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0 0 6px;font-size:1rem;color:var(--ht-ink-soft)}
+.shelf-why{margin:0}
+.tagchip{display:inline-flex;align-items:center;padding:2px 8px;border:2px solid var(--ht-ink);font-size:.8125rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ht-ink);background:var(--ht-white)}
+.tagchip--free{background:var(--ht-yellow)}
+.more summary{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:6px 12px;border:2px solid var(--ht-ink);font-weight:700;cursor:pointer;background:var(--ht-white)}
+.more[open] summary{background:var(--ht-ink);color:var(--ht-white)}
+.shelf-foot{margin:8px 0 0}
+.shelf-foot a{display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+
+/* What do you think */
+.think-head{background:var(--ht-red);color:var(--ht-white);padding:30px 0 26px;border-top:3px solid var(--ht-white);border-bottom:3px solid var(--ht-white)}
+.think-head .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px}
+.think-head h2{font-size:clamp(2rem,1.2rem + 4vw,3.5rem)}
+.bubble{position:relative;background:var(--ht-white);color:var(--ht-ink);border:3px solid var(--ht-ink);padding:6px 14px;font-weight:800;transform:rotate(var(--tilt-c))}
+.bubble::after{content:"";position:absolute;left:18px;bottom:-14px;width:0;height:0;border-left:4px solid transparent;border-right:14px solid transparent;border-top:12px solid var(--ht-ink)}
+.think-body{padding-top:30px;padding-bottom:12px}
+.form-panel{background:var(--ht-paper);color:var(--ht-ink);padding:26px 18px 22px;position:relative}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:18px}
+.field label,.field legend{font-weight:800;font-size:1.0625rem}
+.opt,.req{font-weight:400;color:var(--ht-ink-soft)}
+.field input[type=text],.field textarea{width:100%;font:1.0625rem/1.5 var(--font-body);color:var(--ht-ink);background:var(--ht-white);border:2px solid var(--ht-ink);padding:10px 12px;min-height:48px}
+.field textarea{min-height:140px;resize:vertical}
+.field [aria-invalid="true"]{border-color:var(--ht-red-deep);border-width:3px}
+.field-error{color:var(--ht-red-deep);font-weight:700;margin:0}
+fieldset.field{border:0;padding:0;min-width:0}
+fieldset.field legend{padding:0;margin-bottom:6px}
+.field .check{font-weight:400}
+.radios{display:grid;gap:4px 16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.check{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px 0;font-size:1.0625rem}
+.check input{width:24px;height:24px;margin:1px 0 0;flex:none;accent-color:var(--ht-ink)}
+.err-summary{border:3px solid var(--ht-red-deep);background:var(--ht-white);padding:12px 16px;margin-bottom:18px}
+.err-summary:empty{display:none}
+.err-summary strong{color:var(--ht-red-deep)}
+.err-summary ul{margin:6px 0 0;padding-left:20px}
+.status{border:3px solid var(--ht-ink);background:var(--ht-white);padding:14px 16px;margin-bottom:18px}
+.status:empty{display:none}
+.takes{margin-top:34px}
+.takes h3{font-size:1.5rem;margin-bottom:14px;color:var(--ht-white)}
+.take{background:var(--ht-paper);color:var(--ht-ink);border-left:10px solid var(--ht-red);padding:16px 18px;margin:0 0 18px}
+.take p{margin:0 0 .6em}
+.take footer{font-size:1rem;color:var(--ht-ink-soft)}
+.take-list{list-style:none;margin:0;padding:0}
+
+.pager{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;margin-top:34px}
+.foot{padding:26px 0 8px;font-size:1rem;color:var(--ht-fog)}
+.foot a{display:inline-flex;align-items:center;min-height:44px}
+
+@media (forced-colors:active){
+  .tile,.reel,.camp,.take,.panel,.form-panel{border:2px solid CanvasText}
+  .sticker,.pricetag,.shelf-tag{border:2px solid CanvasText}
+}
+@media (prefers-reduced-motion:reduce){.tile:hover{transform:none}}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes stamp{from{transform:scale(1.12) rotate(-2deg);opacity:.2}to{transform:none;opacity:1}}
+  .status.is-new{animation:stamp .28s ease-out 1}
+}
+</style>
+</head>
+<body>
+<a class="skip-nav" href="#main-content">Skip to main content</a>
+
+<div class="mockbar" role="region" aria-label="About this mock">
+  <div class="wrap">
+    <p><strong>MOCK ONLY.</strong> Every title, number, name and link below is placeholder content. No reel URLs, no real attributions. Two screens are stacked in this one file, so it has two h1 headings. The real pages have one each.</p>
+    <ul>
+      <li><a href="#list">Screen 1: topic list</a></li>
+      <li><a href="#topic">Screen 2: one topic</a></li>
+    </ul>
+  </div>
+</div>
+
+<main id="main-content">
+
+<!-- ================= SCREEN 1: LIST ================= -->
+<div class="screen-label" id="list"><div class="wrap">SCREEN 1 OF 2 · the topic list at /resources/hot-topics</div></div>
+
+<div class="hero">
+  <div class="strip-check deco" aria-hidden="true" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="wrap" style="padding-top:22px">
+    <svg class="pin deco" width="84" height="30" viewBox="0 0 84 30" aria-hidden="true" focusable="false"><g fill="none" stroke="#b9bcc6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="15" r="6"/><path d="M16 11H66a6 6 0 0 1 0 8H16"/><path d="M16 15H62"/><path d="M70 8l10 7-10 7"/></g></svg>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="#">Resources</a></li>
+        <li><span aria-current="page">Hot Topics</span></li>
+      </ol>
+    </nav>
+    <p class="kicker">Resources</p>
+    <h1 class="h-display h1">Hot Topics</h1>
+    <p class="lede" style="margin-top:16px">The stuff the field argues about. Pick one, watch a few videos, check our shelves, then tell us what you think.</p>
+    <div class="hero-meta">
+      <p class="meta">6 sample topics · updated [date]</p>
+    </div>
+  </div>
+</div>
+<div class="studs deco" aria-hidden="true"></div>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="seg" role="group" aria-label="Sort topics">
+      <span class="seg-label" aria-hidden="true">Sort</span>
+      <button class="pill" type="button" data-sort="heat" aria-pressed="true">Hottest</button>
+      <button class="pill" type="button" data-sort="newest" aria-pressed="false">Newest</button>
+      <button class="pill" type="button" data-sort="title" aria-pressed="false">A to Z</button>
+    </div>
+    <div class="seg" role="group" aria-label="Look of this page">
+      <span class="seg-label" aria-hidden="true">Look</span>
+      <button class="pill" type="button" data-look-btn="punk" aria-pressed="true">Punk</button>
+      <button class="pill" type="button" data-look-btn="plain" aria-pressed="false">Plain</button>
+    </div>
+  </div>
+</div>
+<p id="sort-live" class="sr-only" role="status"></p>
+
+<section class="section" aria-labelledby="list-h">
+  <div class="wrap">
+    <h2 id="list-h" class="sr-only">All hot topics</h2>
+    <p class="meta" style="margin-bottom:26px">Heat shows how split the field is. It does not say who is right.</p>
+    <ul class="tiles" id="tiles">
+      <li data-heat="4" data-newest="3" data-title="should captions be art or access?">
+        <a class="tile tile--red" href="#" aria-labelledby="t1-t" aria-describedby="t1-b t1-s t1-h t1-c">
+          <span class="sticker sticker--pick" id="t1-b">Staff pick</span>
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 01</span>
+            <h2 class="h-display tile-title" id="t1-t">Should captions be art or access?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t1-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t1-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> <span class="heat-text">4 of 5, spicy</span></p>
+            <span class="pricetag" id="t1-c">3 reels, 6 shelf picks, 12 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+      <li data-heat="5" data-newest="6" data-title="who gets to describe the image?">
+        <a class="tile tile--coal" href="#" aria-labelledby="t2-t" aria-describedby="t2-b t2-s t2-h t2-c">
+          <span class="sticker sticker--new" id="t2-b">New</span>
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 02</span>
+            <h2 class="h-display tile-title" id="t2-t">Who gets to describe the image?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t2-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t2-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span> <span class="heat-text">5 of 5, scorching</span></p>
+            <span class="pricetag" id="t2-c">5 reels, 4 shelf picks, 31 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+      <li data-heat="3" data-newest="5" data-title="can ai do your access work?">
+        <a class="tile tile--pink" href="#" aria-labelledby="t3-t" aria-describedby="t3-b t3-s t3-h t3-c">
+          <span class="sticker sticker--new" id="t3-b">New</span>
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 03</span>
+            <h2 class="h-display tile-title" id="t3-t">Can AI do your access work?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t3-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t3-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span> <span class="heat-text">3 of 5, hot</span></p>
+            <span class="pricetag" id="t3-c">2 reels, 3 shelf picks, 8 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+      <li data-heat="2" data-newest="2" data-title="open or closed captions at live shows?">
+        <a class="tile tile--paper" href="#" aria-labelledby="t4-t" aria-describedby="t4-s t4-h t4-c">
+          
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 04</span>
+            <h2 class="h-display tile-title" id="t4-t">Open or closed captions at live shows?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t4-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t4-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span> <span class="heat-text">2 of 5, warm</span></p>
+            <span class="pricetag" id="t4-c">4 reels, 5 shelf picks, 9 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+      <li data-heat="4" data-newest="4" data-title="who pays for access?">
+        <a class="tile tile--red" href="#" aria-labelledby="t5-t" aria-describedby="t5-s t5-h t5-c">
+          
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 05</span>
+            <h2 class="h-display tile-title" id="t5-t">Who pays for access?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t5-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t5-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> <span class="heat-text">4 of 5, spicy</span></p>
+            <span class="pricetag" id="t5-c">1 reels, 2 shelf picks, 17 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+      <li data-heat="1" data-newest="1" data-title="identity first or person first?">
+        <a class="tile tile--coal" href="#" aria-labelledby="t6-t" aria-describedby="t6-s t6-h t6-c">
+          
+          <span class="tile-art">
+            <span class="tile-no" aria-hidden="true">Sample 06</span>
+            <h2 class="h-display tile-title" id="t6-t">Identity first or person first?</h2>
+          </span>
+          <span class="tile-info">
+            <span class="tile-sum" id="t6-s">Placeholder summary: one plain sentence about what people are arguing over.</span>
+            <p class="heat" id="t6-h"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></span> <span class="heat-text">1 of 5, mild</span></p>
+            <span class="pricetag" id="t6-c">6 reels, 8 shelf picks, 5 takes</span>
+            <span class="tile-cta" aria-hidden="true">Open this topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<div class="strip-caution deco" aria-hidden="true"></div>
+<section class="section" aria-labelledby="suggest-h" style="background:var(--ht-coal)">
+  <div class="wrap">
+    <p class="kicker">Got one we missed?</p>
+    <h2 id="suggest-h" class="h-display h2" style="margin-bottom:12px">Suggest a hot topic</h2>
+    <p class="lede" style="margin-bottom:18px">Tell us what people in your corner of the arts keep arguing about.</p>
+    <a class="btn btn--red" href="#">Suggest a topic</a>
+  </div>
+</section>
+
+<!-- ================= SCREEN 2: TOPIC ================= -->
+<div class="screen-label" id="topic"><div class="wrap">SCREEN 2 OF 2 · one topic at /resources/hot-topics/[slug]</div></div>
+
+<div class="hero">
+  <div class="strip-check deco" aria-hidden="true" style="position:absolute;top:0;left:0;right:0"></div>
+  <div class="wrap" style="padding-top:22px">
+    <nav class="crumbs" aria-label="Breadcrumb for this topic">
+      <ol>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Hot Topics</a></li>
+        <li><span aria-current="page">Sample topic</span></li>
+      </ol>
+    </nav>
+    <p class="kicker">Sample 01</p>
+    <h1 class="h-display h1">Should captions be art or access?</h1>
+    <div class="hero-meta">
+      <span class="sticker sticker--pick sticker--inline" style="position:static">Staff pick</span>
+      <p class="heat"><span class="heat-label">Heat</span> <span class="heat-segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span> <span class="heat-text">4 of 5, spicy</span></p>
+      <p class="meta">Updated [date]</p>
+    </div>
+    <nav class="jump" aria-label="On this page">
+      <ul>
+        <li><a href="#hot-take">The hot take</a></li>
+        <li><a href="#watch">Watch</a></li>
+        <li><a href="#shelves">From our shelves</a></li>
+        <li><a href="#think">What do you think?</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+<div class="studs deco" aria-hidden="true"></div>
+
+<!-- 1. THE HOT TAKE -->
+<section class="section" id="hot-take" aria-labelledby="hot-take-h">
+  <div class="wrap">
+    <div class="panel tape torn on-paper">
+      <p class="kicker">The short version</p>
+      <h2 id="hot-take-h" class="h-display h2">The hot take</h2>
+      <p class="lead">[Placeholder: one or two plain sentences that say what the argument is, written by an AAC editor.]</p>
+      <div class="camps">
+        <div class="camp"><h3>One side</h3><p>[Placeholder: this camp's case in two or three sentences, in their own terms.]</p></div>
+        <div class="camp"><h3>The other side</h3><p>[Placeholder: this camp's case in two or three sentences, in their own terms.]</p></div>
+      </div>
+      <p class="hint" style="margin-top:14px">Editor note: [placeholder for context, a date, or a content note].</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. WATCH -->
+<section class="section" id="watch" aria-labelledby="watch-h">
+  <div class="wrap">
+    <p class="kicker">Short videos</p>
+    <h2 id="watch-h" class="h-display h2">Watch</h2>
+    <p class="note" style="margin-top:10px">Mostly Instagram reels. They open on Instagram in a new tab, and Instagram may ask you to log in. We do not load anything from Instagram unless you press play.</p>
+    <ul class="reels">
+        <li class="reel">
+          <div class="reel-poster deco" aria-hidden="true"><span class="play"></span></div>
+          <div class="reel-body">
+            <h3 class="reel-title">[Reel title goes here]</h3>
+            <p class="reel-by">[creator handle] · [length]</p>
+            <p class="reel-why">Why it is here: placeholder sentence from an AAC editor.</p>
+            <ul class="chips" aria-label="Access features of this video"><li class="chip chip--yes">Captions: yes</li><li class="chip chip--no">ASL: no</li><li class="chip chip--unk">Audio description: unknown</li></ul>
+            <div class="reel-actions">
+              <a class="btn btn--pink" href="#">Watch on Instagram<span class="sr-only"> (opens in new tab)</span> <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></a>
+            </div>
+            
+          </div>
+        </li>
+        <li class="reel">
+          <div class="reel-poster deco" aria-hidden="true"><span class="play"></span></div>
+          <div class="reel-body">
+            <h3 class="reel-title">[Reel title that is long enough to wrap onto a second line on a phone]</h3>
+            <p class="reel-by">[creator handle] · [length]</p>
+            <p class="reel-why">Why it is here: placeholder sentence from an AAC editor.</p>
+            <ul class="chips" aria-label="Access features of this video"><li class="chip chip--yes">Captions: yes</li><li class="chip chip--yes">ASL: yes</li><li class="chip chip--no">Audio description: no</li></ul>
+            <div class="reel-actions">
+              <a class="btn btn--pink" href="#">Watch on Instagram<span class="sr-only"> (opens in new tab)</span> <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></a>
+            </div>
+            
+            <details class="embed">
+              <summary>Play on this page</summary>
+              <p class="hint">Pressing play loads Instagram's player here, which contacts Instagram. Nothing loads until you do.</p>
+              <div class="embed-frame" role="img" aria-label="Placeholder for where the Instagram player would appear. Nothing loads in this mock."><span>Embed area, 9 by 16</span></div>
+            </details>
+          </div>
+        </li>
+        <li class="reel">
+          <div class="reel-poster deco" aria-hidden="true"><span class="play"></span></div>
+          <div class="reel-body">
+            <h3 class="reel-title">[Another reel title]</h3>
+            <p class="reel-by">[creator handle] · [length]</p>
+            <p class="reel-why">Why it is here: placeholder sentence from an AAC editor.</p>
+            <ul class="chips" aria-label="Access features of this video"><li class="chip chip--unk">Captions: unknown</li><li class="chip chip--no">ASL: no</li><li class="chip chip--unk">Audio description: unknown</li></ul>
+            <div class="reel-actions">
+              <a class="btn btn--pink" href="#">Watch on Instagram<span class="sr-only"> (opens in new tab)</span> <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3H3v10h10v-3M9 2h5v5M14 2L7 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></a>
+            </div>
+            
+          </div>
+        </li>
+    </ul>
+    <p class="hint" style="margin:16px 0 0">Access info is checked by our team. Unknown means we have not checked yet.</p>
+    <p class="shelf-foot" style="margin:0"><a href="#" style="display:inline-flex;align-items:center;min-height:44px;font-weight:700">Know a reel that belongs here? Send it to us</a></p>
+  </div>
+</section>
+
+<!-- 3. FROM OUR SHELVES -->
+<section class="section" id="shelves" aria-labelledby="shelves-h">
+  <div class="wrap">
+    <div class="panel torn on-paper tape">
+      <p class="kicker">Keep going</p>
+      <h2 id="shelves-h" class="h-display h2">From our shelves</h2>
+      <p class="lead" style="font-size:1.0625rem">Picks from the Library, the Cinema and the Resources directory that speak to this topic.</p>
+
+      <div class="shelf-group" id="shelf-library">
+        <h3 class="shelf-tag">Library <small>books and reading</small></h3>
+        <ul class="shelf-list">
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Book title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Book</span> <span>[Author], [year]</span> <span class="tagchip tagchip--free">Free</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Essay title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Essay</span> <span>[Author], [year]</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Zine title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Zine</span> <span>[Author], [year]</span> <span class="tagchip tagchip--free">Free</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+        </ul>
+        <details class="more"><summary>Show 4 more from the Library</summary>
+          <ul class="shelf-list">
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Article title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Article</span> <span>[Author], [year]</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li></ul>
+        </details>
+        <p class="shelf-foot"><a href="#">See the whole Library</a></p>
+      </div>
+
+      <div class="shelf-group" id="shelf-cinema">
+        <h3 class="shelf-tag">Cinema <small>films, talks and podcasts</small></h3>
+        <ul class="shelf-list">
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Film title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Film</span> <span>[Director], [year]</span> <span class="tagchip">Captioned</span> <span class="tagchip">Audio described</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+          <li class="shelf-item">
+            <a class="shelf-link" href="#">[Talk title from the catalog, long enough to wrap to a second line on a phone]</a>
+            <p class="shelf-meta"><span class="tagchip">Talk</span> <span>[Speaker], [year]</span> <span class="tagchip tagchip--free">Free</span> <span class="tagchip">Captioned</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+        </ul>
+        <p class="shelf-foot"><a href="#">See the whole Cinema</a></p>
+      </div>
+
+      <div class="shelf-group" id="shelf-resources">
+        <h3 class="shelf-tag">Resources <small>links and tools</small></h3>
+        <ul class="shelf-list">
+          <li class="shelf-item">
+            <a class="shelf-link" href="#" target="_blank" rel="noopener noreferrer">[Guide title from the catalog, long enough to wrap to a second line on a phone]<span class="sr-only"> (opens in new tab)</span></a>
+            <p class="shelf-meta"><span class="tagchip">Guide</span> <span>[Organization]</span> <span class="tagchip tagchip--free">Free</span></p>
+            <p class="shelf-why">Placeholder: one sentence on why this belongs under this topic.</p>
+          </li>
+        </ul>
+        <p class="shelf-foot"><a href="#">See all Resources</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. WHAT DO YOU THINK -->
+<section id="think" aria-labelledby="think-h" style="margin-top:26px">
+  <div class="think-head">
+    <div class="wrap">
+      <h2 id="think-h" class="h-display">What do you think?</h2>
+      <span class="bubble" aria-hidden="true">Your turn</span>
+    </div>
+  </div>
+  <div class="wrap think-body">
+    <div class="form-panel on-paper tape">
+      <p class="lead" style="font-size:1.125rem;max-width:40rem">Short and honest is great. A person at AAC reads every take before it goes up. Be sharp about ideas and kind about people.</p>
+      <form id="take-form" novalidate aria-labelledby="think-h">
+        <div id="form-errors" class="err-summary" role="alert" tabindex="-1"></div>
+        <div class="field">
+          <label for="take-name">Name to show <span class="opt">(optional)</span></label>
+          <p class="hint" id="take-name-h" style="margin:0">Leave it blank and we will post it as "A member".</p>
+          <input id="take-name" name="name" type="text" autocomplete="nickname" aria-describedby="take-name-h">
+        </div>
+        <div class="field">
+          <label for="take-text">Your take <span class="req">(required)</span></label>
+          <p class="hint" id="take-text-h" style="margin:0">Up to 600 characters.</p>
+          <textarea id="take-text" name="take" maxlength="600" aria-describedby="take-text-h take-count" aria-required="true"></textarea>
+          <p class="hint" id="take-count" style="margin:0">0 of 600 characters</p>
+          <p class="sr-only" id="take-limit" role="status"></p>
+        </div>
+        <fieldset class="field">
+          <legend>Where are you coming from? <span class="opt">(optional)</span></legend>
+          <div class="radios">
+            <label class="check"><input type="radio" name="who" value="audience"> Audience member</label>
+            <label class="check"><input type="radio" name="who" value="maker"> Artist or maker</label>
+            <label class="check"><input type="radio" name="who" value="access"> Access worker</label>
+            <label class="check"><input type="radio" name="who" value="other"> Something else</label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="check" for="take-ok"><input id="take-ok" name="ok" type="checkbox" aria-required="true"> It is ok to show my take, and the name above, on this page after it is reviewed.</label>
+        </div>
+        <div id="form-status" class="status" role="status" tabindex="-1"></div>
+        <button class="btn btn--red" type="submit">Send my take</button>
+      </form>
+    </div>
+
+    <div class="takes" aria-labelledby="takes-h" role="region">
+      <h3 id="takes-h" class="h-display">Takes so far <span style="font-family:var(--font-body);font-size:1rem;text-transform:none;letter-spacing:0">(2 samples)</span></h3>
+      <ul class="take-list">
+        <li><article class="take on-paper">
+          <p><span class="tagchip">Sample take</span></p>
+          <p>This is placeholder text standing in for something a person might write. It is here to show line length, spacing and how a longer take wraps on a phone screen without squeezing.</p>
+          <footer>[display name] · [date]</footer>
+        </article></li>
+        <li><article class="take on-paper">
+          <p><span class="tagchip">Sample take</span></p>
+          <p>A shorter placeholder take.</p>
+          <footer>A member · [date]</footer>
+        </article></li>
+      </ul>
+    </div>
+
+    <nav class="pager" aria-label="More topics">
+      <a class="btn btn--ghost" href="#">Previous topic</a>
+      <a class="btn btn--red" href="#">Next topic <svg class="arrow" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M2 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></svg></a>
+    </nav>
+  </div>
+</section>
+
+<div class="strip-check deco" aria-hidden="true" style="margin-top:30px"></div>
+<footer class="foot"><div class="wrap">
+  <a href="#">Back to Resources</a> · <a href="#">Library</a> · <a href="#">Cinema</a> · <a href="#">Contact</a>
+</div></footer>
+
+</main>
+
+<div class="fake-taskbar" aria-hidden="true">Site taskbar stand-in. The real one is fixed at the bottom of every page.</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  // Look switch
+  var lookBtns=document.querySelectorAll('[data-look-btn]');
+  Array.prototype.forEach.call(lookBtns,function(b){b.addEventListener('click',function(){
+    root.setAttribute('data-look',b.getAttribute('data-look-btn'));
+    Array.prototype.forEach.call(lookBtns,function(x){x.setAttribute('aria-pressed',String(x===b));});
+  });});
+  // Sort
+  var list=document.getElementById('tiles'),live=document.getElementById('sort-live');
+  var sortBtns=document.querySelectorAll('[data-sort]');
+  var names={heat:'hottest first',newest:'newest first',title:'A to Z'};
+  Array.prototype.forEach.call(sortBtns,function(b){b.addEventListener('click',function(){
+    var k=b.getAttribute('data-sort');
+    var items=Array.prototype.slice.call(list.children);
+    items.sort(function(a,c){
+      if(k==='title')return a.dataset.title<c.dataset.title?-1:1;
+      return Number(c.dataset[k])-Number(a.dataset[k]);
+    });
+    items.forEach(function(li){list.appendChild(li);});
+    Array.prototype.forEach.call(sortBtns,function(x){x.setAttribute('aria-pressed',String(x===b));});
+    live.textContent='Sorted '+names[k]+'.';
+  });});
+  // Mock links go nowhere
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href="#"]');if(a)e.preventDefault();});
+  // Counter: quiet, announces only near the limit
+  var ta=document.getElementById('take-text'),cnt=document.getElementById('take-count'),lim=document.getElementById('take-limit');
+  ta.addEventListener('input',function(){
+    var n=ta.value.length;cnt.textContent=n+' of 600 characters';
+    if(n>=600)lim.textContent='Limit reached. 600 characters.';
+    else if(n>=550)lim.textContent=(600-n)+' characters left.';
+    else lim.textContent='';
+  });
+  // Form: validate, summarize, focus
+  var form=document.getElementById('take-form'),errs=document.getElementById('form-errors'),status=document.getElementById('form-status');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var take=document.getElementById('take-text'),ok=document.getElementById('take-ok'),problems=[];
+    [take,ok].forEach(function(el){el.removeAttribute('aria-invalid');var o=document.getElementById(el.id+'-err');if(o)o.remove();});
+    if(take.value.trim().length<10)problems.push({el:take,msg:'Write a little more. A take needs at least 10 characters.'});
+    if(!ok.checked)problems.push({el:ok,msg:'Tick the box so we know it is ok to show your take.'});
+    status.textContent='';status.classList.remove('is-new');
+    if(problems.length){
+      errs.innerHTML='<strong>Error:</strong> '+problems.length+(problems.length===1?' thing needs':' things need')+' fixing.<ul>'+problems.map(function(p){return '<li><a href="#'+p.el.id+'">'+p.msg+'</a></li>';}).join('')+'</ul>';
+      problems.forEach(function(p){
+        p.el.setAttribute('aria-invalid','true');
+        var m=document.createElement('p');m.className='field-error';m.id=p.el.id+'-err';m.textContent='Error: '+p.msg;
+        p.el.closest('.field').appendChild(m);
+        p.el.setAttribute('aria-describedby',(p.el.getAttribute('aria-describedby')||'')+' '+m.id);
+      });
+      errs.focus();
+      return;
+    }
+    errs.innerHTML='';
+    status.textContent='Thanks. Your take is waiting for a person to read it. It will show up here once approved.';
+    status.classList.add('is-new');status.focus();
+  });
+  errs.addEventListener('click',function(e){var a=e.target.closest('a');if(a){e.preventDefault();var t=document.querySelector(a.getAttribute('href'));if(t)t.focus();}});
+})();
+</script>
+</body>
+</html>

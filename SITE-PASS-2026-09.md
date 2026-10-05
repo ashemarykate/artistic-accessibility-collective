@@ -498,3 +498,48 @@ with MK.
 - Confirm `CRON_SECRET` is set in Vercel.
 - Decide item 18 (dashboard panels), 21 (share-feedback), 22 (required alt
   text), 23 (font + Riot Fest rates), 27 (who drafts the policy pages).
+
+---
+
+## Found while researching Hot Topics (2026-10-05)
+
+From reading code and a few live requests, not yet reproduced in a browser
+unless it says so. Details and file lines are in `HOT-TOPICS-PLAN.md` and the
+research notes behind it. Hot Topics itself is planned there, not built.
+
+- **Privacy page is out of step with the site.** `/privacy` says three
+  companies and "no third-party cookies", but the profile page embeds YouTube
+  and Vimeo on page view (`app/profile/[username]/page.tsx` ~22-30, 1426-1436),
+  both The Channel pages load Google's YouTube script, and www.youtube.com
+  embeds set cookies. Fix by moving the profile embeds to youtube-nocookie with
+  click to load, and by rewording the page. Mary Kate is editing the policy
+  drafts anyway.
+- **Resources marquee has no pause control** (`app/resources/page.tsx`
+  ~134-153, 837-841, scrolls for 28 seconds). Likely WCAG 2.2.2. The global
+  reduced-motion rule stops it for people who set that, but nobody else can.
+- **Soft 404s.** `/library/<nonsense>` and `/cinema/<nonsense>` return HTTP 200
+  with a "not found" screen (verified live), so search engines can index them.
+  Use a server page with `notFound()`.
+- **Suspected: member resource suggestions fail.** `app/resources/page.tsx:309`
+  inserts `status: 'approved'` for members, but the v37 policy only allows
+  `status = 'pending'`. Either the live policy differs from the file or members
+  see "Something went wrong". Check empirically with a throwaway script.
+- **Approved suggestions of any section show on /resources.** The query at
+  `app/resources/page.tsx` ~255-263 has no section filter, so approved Library
+  or Cinema suggestions would render as "Member-Submitted Resources" with no
+  link. Approved rows also expose submitter name and email through the public
+  API (acknowledged in v37).
+- **ItemComments gaps** (comments on Library and Cinema items): no admin
+  delete (an admin must edit the database by hand), no report button, no rate
+  limit or honeypot, no limit on results, and any signed-in user can set their
+  own `display_name` and the "AAC" badge through the REST API because the
+  policy only checks `user_id`. The delete button hit area is under 44px.
+- **Reaction hearts go nowhere.** Library and Cinema reactions write
+  `item_reactions` rows that no page reads back.
+- **Library and Cinema category breadcrumbs do nothing.** They link to
+  `?category=...` but neither index page reads query parameters.
+- **Admin-added Library and Cinema items link to a not-found screen.** The
+  index merges database rows but the detail pages only resolve static slugs.
+- **No security headers at all** (no CSP, X-Frame-Options, Referrer-Policy,
+  Permissions-Policy). Not urgent, but note: never add a Referrer-Policy of
+  `no-referrer` or `same-origin` without checking YouTube embeds (they error).

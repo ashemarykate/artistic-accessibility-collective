@@ -1,0 +1,1127 @@
+{
+ "note": "Research output 2026-10-05. Every slug and url was checked by literal match in lib/library-data.ts, lib/cinema-data.ts, lib/resources-data.ts. Titles, pitches and prompts are DRAFTS for Mary Kate to edit. Re-verify before use, the catalogs change.",
+ "topics": [
+  {
+   "id": "cripping-up",
+   "title": "Who gets to play disabled characters?",
+   "pitch": "From My Left Foot to Echo, the long fight over whether nondisabled actors should ever play disabled roles, and who gets hired behind the camera.",
+   "prompt": "Should a nondisabled actor ever play a disabled character, and what would it take for casting to actually change?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "cinema-of-isolation",
+     "title": "The Cinema of Isolation: A History of Physical Disability in the Movies"
+    },
+    {
+     "slug": "respectability-hollywood-disability",
+     "title": "RespectAbility: Hollywood Disability Inclusion Resources"
+    },
+    {
+     "slug": "being-seen-sjunneson",
+     "title": "Being Seen: One Deafblind Woman's Fight to End Ableism"
+    },
+    {
+     "slug": "narrative-prosthesis",
+     "title": "Narrative Prosthesis: Disability and the Dependencies of Discourse"
+    },
+    {
+     "slug": "ill-scream-later",
+     "title": "I'll Scream Later"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "my-left-foot",
+     "title": "My Left Foot"
+    },
+    {
+     "slug": "a-different-man",
+     "title": "A Different Man"
+    },
+    {
+     "slug": "code-of-the-freaks",
+     "title": "Code of the Freaks"
+    },
+    {
+     "slug": "the-war-on-wheels-podcast",
+     "title": "The War on Wheels"
+    },
+    {
+     "slug": "a-quiet-place-part-ii",
+     "title": "A Quiet Place Part II"
+    },
+    {
+     "slug": "echo-marvel",
+     "title": "Echo"
+    },
+    {
+     "slug": "the-peanut-butter-falcon",
+     "title": "The Peanut Butter Falcon"
+    },
+    {
+     "slug": "keep-the-change",
+     "title": "Keep the Change"
+    },
+    {
+     "slug": "champions-2023",
+     "title": "Champions"
+    },
+    {
+     "slug": "coda-2021",
+     "title": "CODA"
+    },
+    {
+     "slug": "as-we-see-it",
+     "title": "As We See It"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://rudermanfoundation.org/advocacy-media/white-papers/",
+     "name": "Ruderman Family Foundation: White Papers"
+    },
+    {
+     "url": "https://www.filmdis.com",
+     "name": "FilmDis"
+    },
+    {
+     "url": "https://www.1in4coalition.org",
+     "name": "1IN4 Coalition"
+    },
+    {
+     "url": "https://inevitable.foundation",
+     "name": "Inevitable Foundation"
+    },
+    {
+     "url": "https://annenberg.usc.edu/research/aii",
+     "name": "USC Annenberg Inclusion Initiative"
+    },
+    {
+     "url": "https://gadim.org/",
+     "name": "GADIM: Global Alliance for Disability in Media and Entertainment"
+    },
+    {
+     "url": "https://phamaly.org/",
+     "name": "Phamaly Theatre Company"
+    },
+    {
+     "url": "https://nationaldisabilitytheatre.org",
+     "name": "National Disability Theatre"
+    },
+    {
+     "url": "https://disabilitybelongs.org/entertainment/",
+     "name": "Disability Belongs: Entertainment and News Media"
+    }
+   ],
+   "note": "Deepest topic in the catalogs (25 items). The catalog text itself names the debate: my-left-foot is described as the most-cited example of cripping up (lib/cinema-data.ts, my-left-foot entry), and the-war-on-wheels-podcast covers authentic casting and cripping up. a-different-man is the live counterexample (nondisabled lead in prosthetics, disabled co-star). Both https://www.respectability.org and https://disabilitybelongs.org/entertainment/ exist as separate resources (RespectAbility was renamed Disability Belongs), so pick one to avoid showing the same org twice. The library entry respectability-hollywood-disability still uses the old name."
+  },
+  {
+   "id": "access-as-art",
+   "title": "Access is not an add-on",
+   "pitch": "Captions, description, and sign language built into the art itself, from Graeae to Kinetic Light, instead of bolted on at the end.",
+   "prompt": "Have you seen access done as part of the art itself? What did it change for you as an audience member or artist?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "graeae-aesthetics-of-access",
+     "title": "Graeae Theatre Company: The Aesthetics of Access"
+    },
+    {
+     "slug": "kinetic-light-audimance-lib",
+     "title": "Audimance: Multi-Track Audience-Choice Audio Description"
+    },
+    {
+     "slug": "caption-with-intention",
+     "title": "Caption with Intention, Open-Source Design System"
+    },
+    {
+     "slug": "bodies-in-commotion",
+     "title": "Bodies in Commotion: Disability and Performance"
+    },
+    {
+     "slug": "disability-aesthetics-siebers",
+     "title": "Disability Aesthetics"
+    },
+    {
+     "slug": "alt-text-as-poetry",
+     "title": "Alt Text as Poetry, Workbook"
+    },
+    {
+     "slug": "subtxt-creative-captioning",
+     "title": "SUBTXT Creative: Creative Captioning Research and Practice"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "christine-sun-kim-close-readings",
+     "title": "Christine Sun Kim: Captioned Video Art"
+    },
+    {
+     "slug": "kinetic-light-wired",
+     "title": "Kinetic Light, Performance Films"
+    },
+    {
+     "slug": "kinetic-light-descent-research",
+     "title": "Kinetic Light: DESCENT"
+    },
+    {
+     "slug": "graeae-reasons-to-be-cheerful",
+     "title": "Reasons to be Cheerful"
+    },
+    {
+     "slug": "alice-sheppard-kinetic-light-talks",
+     "title": "Alice Sheppard: Talks on Crip Aesthetics & Access"
+    },
+    {
+     "slug": "the-tuba-thieves-2023",
+     "title": "The Tuba Thieves"
+    },
+    {
+     "slug": "candoco-dance-company-archive",
+     "title": "Candoco Dance Company: Video Channel"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://captionwithintention.org",
+     "name": "Caption with Intention"
+    },
+    {
+     "url": "https://kineticlight.org/audimance",
+     "name": "Kinetic Light, Audimance"
+    },
+    {
+     "url": "https://graeae.org/accessibility",
+     "name": "Graeae Theatre Company, Access Resources"
+    },
+    {
+     "url": "https://rampsonthemoon.co.uk/",
+     "name": "Ramps on the Moon"
+    },
+    {
+     "url": "https://www.boptheatre.co.uk/",
+     "name": "Birds of Paradise Theatre Company"
+    },
+    {
+     "url": "https://tbtb.org",
+     "name": "Theater Breaking Through Barriers"
+    },
+    {
+     "url": "https://candoco.co.uk",
+     "name": "Candoco Dance Company"
+    },
+    {
+     "url": "https://www.subtxt.co.uk",
+     "name": "SUBTXT Creative, Expressive Captions Research"
+    }
+   ],
+   "note": "Balanced across all three catalogs and the most on-brand topic for AAC. Overlaps on purpose with open-captions, alt-text and audio-description-craft, so it can serve as the umbrella that links to those."
+  },
+  {
+   "id": "race-and-disability",
+   "title": "Race, disability, and who the movement forgets",
+   "pitch": "Black ASL, Krip-Hop, and the disabled artists of color who have been shaping this work all along.",
+   "prompt": "Whose stories are missing from the disability spaces and events you know, and what would it take to fix that?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "black-disability-politics",
+     "title": "Black Disability Politics"
+    },
+    {
+     "slug": "moving-toward-the-ugly",
+     "title": "Moving Toward the Ugly: A Politic Beyond Desirability"
+    },
+    {
+     "slug": "black-disabled-art-history-101",
+     "title": "Black Disabled Art History 101"
+    },
+    {
+     "slug": "hidden-treasure-of-black-asl",
+     "title": "The Hidden Treasure of Black ASL: Its History and Structure"
+    },
+    {
+     "slug": "sounds-like-home",
+     "title": "Sounds Like Home: Growing Up Black and Deaf in the South"
+    },
+    {
+     "slug": "learn-black-american-sign-language",
+     "title": "Learn Black American Sign Language"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "signing-black-in-america",
+     "title": "Signing Black in America"
+    },
+    {
+     "slug": "krip-hop-nation-podcast",
+     "title": "Krip-Hop Nation Radio & Podcast"
+    },
+    {
+     "slug": "krip-hop-nation-music-videos",
+     "title": "Krip-Hop Nation: Music Videos & Films"
+    },
+    {
+     "slug": "reid-my-mind-radio",
+     "title": "Reid My Mind Radio"
+    },
+    {
+     "slug": "fire-through-dry-grass",
+     "title": "Fire Through Dry Grass"
+    },
+    {
+     "slug": "best-kept-secret",
+     "title": "Best Kept Secret"
+    },
+    {
+     "slug": "wheelchair-sports-camp-music",
+     "title": "Wheelchair Sports Camp: Music & Video"
+    },
+    {
+     "slug": "leroy-moore-keith-jones-music-activism",
+     "title": "Leroy Moore & Keith Jones: Music and Activism"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.nbda.org/",
+     "name": "National Black Deaf Advocates (NBDA)"
+    },
+    {
+     "url": "https://kriphopnation.com",
+     "name": "Krip-Hop Nation"
+    },
+    {
+     "url": "https://www.rampyourvoice.com/",
+     "name": "Ramp Your Voice!"
+    },
+    {
+     "url": "https://affecttheverb.com/disabledandhere",
+     "name": "Disabled and Here"
+    },
+    {
+     "url": "https://dj-cultureclub.org/",
+     "name": "Disability Justice Culture Club (DJCC)"
+    },
+    {
+     "url": "https://www.deafspotlight.org/",
+     "name": "Deaf Spotlight"
+    }
+   ],
+   "note": "Not on the original candidate list, but the catalogs clearly support it. Video-friendly: per the data, signing-black-in-america, krip-hop-nation-music-videos, wheelchair-sports-camp-music and leroy-moore-keith-jones-music-activism are marked free. The Krip-Hop and Black ASL items give a natural bridge to the sign-language-as-art topic."
+  },
+  {
+   "id": "inspiration-porn",
+   "title": "Inspiration porn and the feel-good disability story",
+   "pitch": "A nine minute TED talk gave the world a name for it, so why do we keep making and sharing these stories?",
+   "prompt": "What is the difference between a story that celebrates a disabled person and one that uses them? Share one of each.",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "stella-young-not-your-inspiration-lib",
+     "title": "I am Not Your Inspiration, Thank You Very Much"
+    },
+    {
+     "slug": "too-late-to-die-young",
+     "title": "Too Late to Die Young: Nearly True Tales from a Life"
+    },
+    {
+     "slug": "find-another-dream-zayid",
+     "title": "Find Another Dream"
+    },
+    {
+     "slug": "mean-little-deaf-queer",
+     "title": "Mean Little deaf Queer"
+    },
+    {
+     "slug": "the-problem-body-film",
+     "title": "The Problem Body: Projecting Disability on Film"
+    },
+    {
+     "slug": "against-technoableism-shew",
+     "title": "Against Technoableism: Rethinking Who Needs Improvement"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "stella-young-not-your-inspiration",
+     "title": "I'm Not Your Inspiration, Thank You Very Much"
+    },
+    {
+     "slug": "maysoon-zayid-99-problems",
+     "title": "Maysoon Zayid: I Got 99 Problems, Palsy Is Just One"
+    },
+    {
+     "slug": "murderball",
+     "title": "Murderball"
+    },
+    {
+     "slug": "rising-phoenix",
+     "title": "Rising Phoenix"
+    },
+    {
+     "slug": "lost-voice-guy-cerebral-lolsy",
+     "title": "Lost Voice Guy: Cerebral LOLsy"
+    },
+    {
+     "slug": "josh-blue-sticky-change",
+     "title": "Josh Blue: Sticky Change"
+    },
+    {
+     "slug": "kills-on-wheels",
+     "title": "Kills on Wheels (Tiszta szívvel)"
+    },
+    {
+     "slug": "shameless-the-art-of-disability",
+     "title": "SHAMELESS: The ART of Disability"
+    },
+    {
+     "slug": "the-miracle-worker-1962",
+     "title": "The Miracle Worker"
+    },
+    {
+     "slug": "when-billy-broke-his-head",
+     "title": "When Billy Broke His Head and Other Tales of Wonder"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.ted.com/talks/stella_young_i_m_not_your_inspiration_thank_you_very_much",
+     "name": "Stella Young, \"I'm Not Your Inspiration, Thank You Very Much\""
+    },
+    {
+     "url": "https://disabilityvisibilityproject.com/essays",
+     "name": "Disability Visibility Project, Essays & Media"
+    },
+    {
+     "url": "https://www.talilalewis.com/blog/working-definition-of-ableism-january-2022-update",
+     "name": "Talila A. Lewis: Working Definition of Ableism"
+    }
+   ],
+   "note": "Best opener for the whole page: one free 9 minute captioned talk anchors it (stella-young-not-your-inspiration is marked free, TED/YouTube) and the comedians (josh-blue-sticky-change is free on YouTube) keep it fun. Resources column is thin (3), so lean on library and cinema. The-miracle-worker-1962 is catalogued as worth watching critically for its savior framing, not as a good example."
+  },
+  {
+   "id": "deaf-culture-medical-model",
+   "title": "Deaf culture or hearing loss? Who decides",
+   "pitch": "Cochlear implants, Deafhood, and the argument over whether deafness is something to fix or a language community to join.",
+   "prompt": "Where have you seen the medical view and the cultural view of deafness clash, and whose voice was missing from that conversation?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "understanding-deaf-culture-ladd",
+     "title": "Understanding Deaf Culture: In Search of Deafhood"
+    },
+    {
+     "slug": "mask-of-benevolence-lane",
+     "title": "The Mask of Benevolence: Disabling the Deaf Community"
+    },
+    {
+     "slug": "deaf-in-america",
+     "title": "Deaf in America: Voices from a Culture"
+    },
+    {
+     "slug": "nad-position-papers",
+     "title": "National Association of the Deaf, Position Papers"
+    },
+    {
+     "slug": "that-deaf-kid",
+     "title": "That Deaf Kid: The Ultimate Guide for Parents of Deaf and Hard of Hearing Children"
+    },
+    {
+     "slug": "rebuilt-chorost",
+     "title": "Rebuilt: My Journey Back to the Hearing World"
+    },
+    {
+     "slug": "deaf-utopia",
+     "title": "Deaf Utopia: A Memoir, and a Love Letter to a Way of Life"
+    },
+    {
+     "slug": "true-biz",
+     "title": "True Biz"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "sound-and-fury",
+     "title": "Sound and Fury"
+    },
+    {
+     "slug": "through-deaf-eyes",
+     "title": "Through Deaf Eyes"
+    },
+    {
+     "slug": "deaf-president-now-2025",
+     "title": "Deaf President Now!"
+    },
+    {
+     "slug": "fixed-science-fiction-human-enhancement",
+     "title": "Fixed: The Science/Fiction of Human Enhancement"
+    },
+    {
+     "slug": "name-me-lawand",
+     "title": "Name Me Lawand"
+    },
+    {
+     "slug": "deaf-u",
+     "title": "Deaf U"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.nad.org",
+     "name": "National Association of the Deaf (NAD)"
+    },
+    {
+     "url": "https://www.pbs.org/weta/throughdeafeyes",
+     "name": "Through Deaf Eyes (PBS, 2007)"
+    },
+    {
+     "url": "https://gupress.gallaudet.edu",
+     "name": "Gallaudet University Press"
+    },
+    {
+     "url": "https://gallaudet.edu",
+     "name": "Gallaudet University"
+    },
+    {
+     "url": "https://journals.publishing.umich.edu/dsdj/",
+     "name": "Deaf Studies Digital Journal (DSDJ)"
+    }
+   ],
+   "note": "The catalogs include both sides (Ladd and Lane for the cultural model, Chorost's Rebuilt as a cochlear implant memoir, That Deaf Kid arguing for balance), which matters for a fair 'What do you think?' box. The exact term Deaf Gain appears nowhere in any catalog, so frame it as Deafhood or the cultural model. Editorial caution: the prompt is worded to ask about conflicts and missing voices rather than inviting hearing people to rule on Deaf children. Deaf U is catalogued as controversial inside the Deaf community."
+  },
+  {
+   "id": "access-labor",
+   "title": "Who does the work of access, and who gets paid?",
+   "pitch": "Access docs, access intimacy, and the quiet reality that disabled people so often end up doing the access work for everyone else.",
+   "prompt": "Has asking for access ever turned into unpaid work for you? What would fair look like?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "access-intimacy-the-missing-link",
+     "title": "Access Intimacy: The Missing Link"
+    },
+    {
+     "slug": "care-work-dreaming-disability-justice",
+     "title": "Care Work: Dreaming Disability Justice"
+    },
+    {
+     "slug": "leaving-evidence-blog",
+     "title": "Leaving Evidence (Blog Archive)"
+    },
+    {
+     "slug": "disability-intimacy",
+     "title": "Disability Intimacy: Essays on Love, Care, and Desire"
+    },
+    {
+     "slug": "capitalism-and-disability-russell",
+     "title": "Capitalism and Disability: Selected Writings by Marta Russell"
+    },
+    {
+     "slug": "university-sheffield-captioning-suspense",
+     "title": "Captioning, Cinema and Suspense (University of Sheffield / Paper Studio)"
+    },
+    {
+     "slug": "think-outside-the-vox-lib",
+     "title": "Think Outside the Vox: Audio Description Training and Approach"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "contra-podcast",
+     "title": "Contra*"
+    },
+    {
+     "slug": "alice-wong-disability-visibility-talks",
+     "title": "Alice Wong, Talks & Recorded Lectures"
+    },
+    {
+     "slug": "sins-invalid-unashamed-claim",
+     "title": "Sins Invalid: An Unashamed Claim to Beauty"
+    },
+    {
+     "slug": "sins-invalid-performance-archive",
+     "title": "Sins Invalid: Performance Video Archive"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.accessdocsforartists.com",
+     "name": "Access Docs for Artists"
+    },
+    {
+     "url": "https://www.disabilityintersectionalitysummit.com/access-is-love/",
+     "name": "Access Is Love"
+    },
+    {
+     "url": "https://disabledlist.org",
+     "name": "Disabled List"
+    },
+    {
+     "url": "https://www.disabilitymedia.org/",
+     "name": "Disability Media Alliance"
+    },
+    {
+     "url": "https://nationaldisabilitytheatre.org",
+     "name": "National Disability Theatre"
+    },
+    {
+     "url": "https://sinsinvalid.org/resources/",
+     "name": "Sins Invalid, Resources & Access Guidance"
+    },
+    {
+     "url": "https://whoamitostopit.com/media-accessibility/",
+     "name": "Cheryl Green: Media Access (Who Am I To Stop It)"
+    }
+   ],
+   "note": "This merges two candidate topics (who gets paid for access labor, and access riders/access doulas) because the evidence overlaps. Be aware nothing in the catalogs states pay rates or contracts: the on-topic hooks are the Sheffield study recommendation to treat caption design as a paid profession, Disabled List (hire disabled people as experts), the National Disability Theatre hiring focus, Contra* (episodes on access labor) and Mia Mingus's access intimacy. The word doula appears in none of the three catalogs."
+  },
+  {
+   "id": "sign-language-as-art",
+   "title": "Sign language is art, not just access",
+   "pitch": "ASL poetry, Deaf dance, and Deaf theater, with plenty of it free to watch.",
+   "prompt": "What is the best signed performance you have seen, and was it made by Deaf artists or interpreted for them?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "the-deaf-poets-society-journal",
+     "title": "The Deaf Poets Society: Deaf and Disabled Literature and Art"
+    },
+    {
+     "slug": "deaf-republic-kaminsky",
+     "title": "Deaf Republic"
+    },
+    {
+     "slug": "how-to-communicate-clark",
+     "title": "How to Communicate: Poems"
+    },
+    {
+     "slug": "black-disabled-art-history-101",
+     "title": "Black Disabled Art History 101"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "deaf-jam",
+     "title": "Deaf Jam"
+    },
+    {
+     "slug": "deaf-west-spring-awakening",
+     "title": "Deaf West Theatre: Spring Awakening"
+    },
+    {
+     "slug": "deaf-west-theatre-video-channel",
+     "title": "Deaf West Theatre: Video Channel"
+    },
+    {
+     "slug": "antoine-hunter-urban-jazz-dance",
+     "title": "Antoine Hunter / Urban Jazz Dance Company"
+    },
+    {
+     "slug": "gallaudet-dance-company",
+     "title": "Gallaudet Dance Company"
+    },
+    {
+     "slug": "sign-short-film",
+     "title": "Sign"
+    },
+    {
+     "slug": "the-disability-collective-podcast",
+     "title": "The Disability Collective"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://dpan.tv",
+     "name": "D-PAN.TV (Deaf Professional Arts Network)"
+    },
+    {
+     "url": "https://www.aslslam.org",
+     "name": "ASL SLAM"
+    },
+    {
+     "url": "https://howlround.com/happenings/disability-deaf-performance-conversation",
+     "name": "HowlRound, Disability & Deaf Performance Conversations (UK)"
+    },
+    {
+     "url": "https://lumotv.co.uk",
+     "name": "LumoTV (formerly BSL Zone)"
+    },
+    {
+     "url": "https://www.deafspotlight.org/",
+     "name": "Deaf Spotlight"
+    }
+   ],
+   "note": "Most video-friendly Deaf topic: sign-short-film, antoine-hunter-urban-jazz-dance and gallaudet-dance-company are marked free in the data, and D-PAN.TV is described as known for ASL music videos, which is the closest thing in the catalogs to the sign-language-in-music-videos candidate. No catalog item is specifically a music video with sign-singing beyond that description, so the music angle rests on D-PAN.TV and one podcast."
+  },
+  {
+   "id": "audio-description-craft",
+   "title": "Audio description is a craft, not a checkbox",
+   "pitch": "Should describers say what people look like, including race and disability? Blind describers and trainers are right in the middle of that argument.",
+   "prompt": "When a describer tells you about a person on screen, what do you want to know, and what do you want left out?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "more-than-meets-the-eye",
+     "title": "More Than Meets the Eye: What Blindness Brings to Art"
+    },
+    {
+     "slug": "think-outside-the-vox-lib",
+     "title": "Think Outside the Vox: Audio Description Training and Approach"
+    },
+    {
+     "slug": "kinetic-light-audimance-lib",
+     "title": "Audimance: Multi-Track Audience-Choice Audio Description"
+    },
+    {
+     "slug": "audio-description-coalition-standards",
+     "title": "Standards for Audio Description and Code of Professional Conduct for Describers"
+    },
+    {
+     "slug": "dcmp-audio-description-tip-sheet",
+     "title": "DCMP Audio Description Tip Sheet"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "reid-my-mind-radio",
+     "title": "Reid My Mind Radio"
+    },
+    {
+     "slug": "thomas-reid-audio-description-demo",
+     "title": "Thomas Reid, Audio Description Training Talks"
+    },
+    {
+     "slug": "talk-description-to-me",
+     "title": "Talk Description to Me"
+    },
+    {
+     "slug": "joybubbles-2026",
+     "title": "Joybubbles"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://vocaleyes.co.uk/research/describing-diversity/",
+     "name": "VocalEyes: Describing Diversity"
+    },
+    {
+     "url": "https://dcmp.org/learn/227-audio-description-tip-sheet",
+     "name": "DCMP Audio Description Tip Sheet"
+    },
+    {
+     "url": "https://whoamitostopit.com/media-accessibility/",
+     "name": "Cheryl Green: Media Access (Who Am I To Stop It)"
+    },
+    {
+     "url": "https://theadna.org/",
+     "name": "Audio Description Network Alliance (ADNA)"
+    },
+    {
+     "url": "https://thinkoutsidethevox.org/education",
+     "name": "Think Outside the Vox, Education"
+    },
+    {
+     "url": "https://reidmymind.com",
+     "name": "Reid My Mind Radio"
+    },
+    {
+     "url": "https://youdescribe.org",
+     "name": "YouDescribe"
+    }
+   ],
+   "note": "Not on the original list but it balances the page, since most other topics skew Deaf or autistic. VocalEyes Describing Diversity (twelve principles on describing race, gender, disability) is the debate hook. This is also the best honest substitute for the thin AI audio description candidate: the catalogs cover the human craft deeply, not the AI side. joybubbles-2026 is catalogued as the first Sundance film with open audio description."
+  },
+  {
+   "id": "open-captions",
+   "title": "Open captions, closed captions, or a gadget?",
+   "pitch": "Caption glasses, cupholder screens, and phone apps versus just putting the captions on the screen for everyone.",
+   "prompt": "At a movie or a show, would you rather have open captions on screen for everyone or a personal device? Why?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "reading-sounds-zdenek",
+     "title": "Reading Sounds: Closed-Captioned Media and Popular Culture"
+    },
+    {
+     "slug": "university-sheffield-captioning-suspense",
+     "title": "Captioning, Cinema and Suspense (University of Sheffield / Paper Studio)"
+    },
+    {
+     "slug": "nad-captioning-advocacy",
+     "title": "National Association of the Deaf: Captioning Advocacy and Resources"
+    },
+    {
+     "slug": "caption-with-intention",
+     "title": "Caption with Intention, Open-Source Design System"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "see-what-im-saying",
+     "title": "See What I'm Saying: The Deaf Entertainers Documentary"
+    },
+    {
+     "slug": "the-tuba-thieves-2023",
+     "title": "The Tuba Thieves"
+    },
+    {
+     "slug": "superfest-disability-film-festival",
+     "title": "Superfest International Disability Film Festival"
+    },
+    {
+     "slug": "reunion-bbc",
+     "title": "Reunion"
+    },
+    {
+     "slug": "christine-sun-kim-close-readings",
+     "title": "Christine Sun Kim: Captioned Video Art"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.tdf.org",
+     "name": "Theatre Development Fund (TDF)"
+    },
+    {
+     "url": "https://galapro.com",
+     "name": "GalaPro"
+    },
+    {
+     "url": "https://www.stagetext.org",
+     "name": "Stagetext"
+    },
+    {
+     "url": "https://www.hearingloss.org",
+     "name": "Hearing Loss Association of America (HLAA)"
+    },
+    {
+     "url": "https://www.nad.org/resources/technology/television-and-closed-captioning/",
+     "name": "NAD: Television and Closed Captioning"
+    },
+    {
+     "url": "https://www.fcc.gov/consumers/guides/closed-captioning-television",
+     "name": "FCC, Closed Captioning on Television"
+    },
+    {
+     "url": "https://www.kennedy-center.org/education/networks-conferences-and-research/research-and-resources/lead-research-and-resources",
+     "name": "Kennedy Center LEAD Research & Resources"
+    }
+   ],
+   "note": "This merges the open-vs-closed candidate with the caption glasses and theater devices candidate. Caveat: no catalog item mentions caption glasses (I searched glasses, wearable, CaptiView, Sony). The device side is covered only by GalaPro (phone app), TDF (open captions plus GalaPro), HLAA (hearing loops) and Kennedy Center LEAD (assistive listening). Add the NAD page on caption access in movie theaters (see gaps) to cover glasses before publishing."
+  },
+  {
+   "id": "ai-captions",
+   "title": "Are auto captions good enough?",
+   "pitch": "AI captions are free and everywhere, and caption advocates have been arguing for years about when a machine is enough.",
+   "prompt": "When is an auto caption good enough, and when does it need a human captioner?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "nad-captioning-advocacy",
+     "title": "National Association of the Deaf: Captioning Advocacy and Resources"
+    },
+    {
+     "slug": "whoamitostopit-caption-quality",
+     "title": "Cheryl Green on Caption Quality and Creative Access"
+    },
+    {
+     "slug": "reading-sounds-zdenek",
+     "title": "Reading Sounds: Closed-Captioned Media and Popular Culture"
+    },
+    {
+     "slug": "against-technoableism-shew",
+     "title": "Against Technoableism: Rethinking Who Needs Improvement"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "rikki-poynter-channel",
+     "title": "Rikki Poynter: Deaf Awareness & Captioning Advocacy"
+    },
+    {
+     "slug": "christine-sun-kim-close-readings",
+     "title": "Christine Sun Kim: Captioned Video Art"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://www.nad.org/resources/technology/television-and-closed-captioning/",
+     "name": "NAD: Television and Closed Captioning"
+    },
+    {
+     "url": "https://otter.ai",
+     "name": "Otter.ai"
+    },
+    {
+     "url": "https://github.com/openai/whisper",
+     "name": "OpenAI Whisper"
+    },
+    {
+     "url": "https://blog.pope.tech/2024/05/24/a-complete-guide-for-adding-captions-to-youtube-videos/",
+     "name": "Pope Tech: Guide to Adding Captions to YouTube Videos"
+    },
+    {
+     "url": "https://www.ava.me/",
+     "name": "Ava"
+    },
+    {
+     "url": "https://www.android.com/accessibility/live-transcribe/",
+     "name": "Google Live Transcribe"
+    },
+    {
+     "url": "https://www.ncra.org",
+     "name": "National Court Reporters Association (NCRA)"
+    },
+    {
+     "url": "https://ccacaptioning.org/",
+     "name": "CCAC: Collaborative for Communication Access via Captioning"
+    }
+   ],
+   "note": "Counts as strong but the argument side is thinner than the count suggests: the AI tools (Otter, Whisper, Ava, Live Transcribe) are catalogued as tools, and the explicit critique comes from the NAD resource description (it says the page covers NAD's position on automatic speech recognition; I did not open that NAD page to confirm what the position says), rikki-poynter-channel (#NoMoreCraptions) and Against Technoableism, whose catalog description says it is directly relevant to AI-and-accessibility debates. Whisper's entry says output always needs human editing, and Otter's says not CART-quality."
+  },
+  {
+   "id": "autistic-voices",
+   "title": "Who speaks for autistic people?",
+   "pitch": "Autistic-led organizations, nonspeaking authors, and a few shows that got it right (or at least started a fight).",
+   "prompt": "Which autistic voices have you learned the most from, and which stories talked over the people they were about?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "asan-autistic-community-toolkits",
+     "title": "Autistic Self Advocacy Network, Free Toolkits & Guides"
+    },
+    {
+     "slug": "camouflage-autistic-women",
+     "title": "Camouflage: The Hidden Lives of Autistic Women"
+    },
+    {
+     "slug": "this-is-how-we-talk",
+     "title": "This Is How We Talk: A Celebration of Disability and Connection"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "citizen-autistic",
+     "title": "Citizen Autistic"
+    },
+    {
+     "slug": "deej",
+     "title": "Deej"
+    },
+    {
+     "slug": "wretches-and-jabberers",
+     "title": "Wretches & Jabberers"
+    },
+    {
+     "slug": "the-reason-i-jump",
+     "title": "The Reason I Jump"
+    },
+    {
+     "slug": "love-on-the-spectrum",
+     "title": "Love on the Spectrum"
+    },
+    {
+     "slug": "special-books-by-special-kids",
+     "title": "Special Books by Special Kids"
+    },
+    {
+     "slug": "as-we-see-it",
+     "title": "As We See It"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://autisticadvocacy.org",
+     "name": "Autistic Self Advocacy Network (ASAN)"
+    },
+    {
+     "url": "https://awnnetwork.org/",
+     "name": "Autistic Women & Nonbinary Network (AWN)"
+    }
+   ],
+   "note": "Not on the original list, but the catalogs support it and it is a genuine live argument: love-on-the-spectrum is catalogued as debated inside autistic communities, and citizen-autistic is described as a primer on nothing about us without us in autism politics. The ASAN resource entry says to cite ASAN, not Autism Speaks; that is the catalog's editorial stance, so MK should be comfortable repeating it publicly before this topic goes live. Special-books-by-special-kids is marked free (YouTube)."
+  },
+  {
+   "id": "alt-text",
+   "title": "Alt text: checkbox or creative writing?",
+   "pitch": "Describing images well on social media and websites, from quick basics to treating alt text like poetry.",
+   "prompt": "Share an image description you have written or heard that made a picture come alive, or one that missed the point.",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "alt-text-as-poetry",
+     "title": "Alt Text as Poetry, Workbook"
+    },
+    {
+     "slug": "scribely-humanistic-alt-text",
+     "title": "Scribely: Humanistic Alt Text and Image Description"
+    },
+    {
+     "slug": "webaim-articles-and-tools",
+     "title": "WebAIM: Articles, Tutorials and WAVE"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "talk-description-to-me",
+     "title": "Talk Description to Me"
+    },
+    {
+     "slug": "thomas-reid-audio-description-demo",
+     "title": "Thomas Reid, Audio Description Training Talks"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://alt-text-as-poetry.net",
+     "name": "Alt Text as Poetry"
+    },
+    {
+     "url": "https://www.accessible-social.com",
+     "name": "Accessible Social"
+    },
+    {
+     "url": "https://coyote.pics",
+     "name": "Coyote"
+    },
+    {
+     "url": "https://www.cooperhewitt.org/cooper-hewitt-guidelines-for-image-description/",
+     "name": "Cooper Hewitt: Guidelines for Image Description"
+    },
+    {
+     "url": "https://kineticlight.org",
+     "name": "Kinetic Light"
+    },
+    {
+     "url": "https://sinsinvalid.org/resources/",
+     "name": "Sins Invalid, Resources & Access Guidance"
+    }
+   ],
+   "note": "Solid on reading and tools, weak on video: the two cinema items are about spoken description generally (a podcast on describing news images, and AD craft talks), not alt text itself, so treat the cinema column as adjacent. Accessible Social is the one entry aimed squarely at social media, which fits the Instagram angle. No catalog item covers AI-generated alt text."
+  },
+  {
+   "id": "asl-at-big-events",
+   "title": "Who is actually signing at the concert?",
+   "pitch": "ASL interpreters at concerts and big events, what good looks like, and why Deaf interpreters matter.",
+   "prompt": "Have you seen an interpreter at a big event? Could you see them, and did it feel like part of the show or an afterthought?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "rid-standard-practice-papers",
+     "title": "RID Standard Practice Papers"
+    },
+    {
+     "slug": "the-sign-for-home",
+     "title": "The Sign for Home"
+    }
+   ],
+   "cinema": [
+    {
+     "slug": "sign-the-show",
+     "title": "Sign the Show: Deaf Culture, Access & Entertainment"
+    },
+    {
+     "slug": "the-disability-collective-podcast",
+     "title": "The Disability Collective"
+    },
+    {
+     "slug": "the-last-of-us-asl-edition",
+     "title": "The Last of Us: ASL-Interpreted Edition"
+    },
+    {
+     "slug": "new-amsterdam-dr-wilder",
+     "title": "New Amsterdam (Dr. Elizabeth Wilder)"
+    }
+   ],
+   "resources": [
+    {
+     "url": "https://rid.org",
+     "name": "Registry of Interpreters for the Deaf (RID)"
+    },
+    {
+     "url": "https://www.attitudeiseverything.org.uk",
+     "name": "Attitude is Everything, Charter of Best Practice"
+    },
+    {
+     "url": "https://halfaccess.org",
+     "name": "Half Access"
+    },
+    {
+     "url": "https://solt.co.uk/access/",
+     "name": "Society of London Theatre (SOLT): Access"
+    },
+    {
+     "url": "https://howlround.com/happenings/disability-deaf-performance-conversation",
+     "name": "HowlRound, Disability & Deaf Performance Conversations (UK)"
+    }
+   ],
+   "note": "Only two items are truly about concert interpreting (sign-the-show, a documentary on ASL music interpreters, and the-disability-collective-podcast, which covers Deaf interpretation and sign-singing). The rest are adjacent: RID covers Certified Deaf Interpreters and its practice papers mention performing arts (per the library description), Attitude is Everything and Half Access are about live music access generally, not interpreting. Nothing covers a specific viral event interpreter. Good topic, but the catalog is thinner here than the raw count of 11 suggests."
+  },
+  {
+   "id": "relaxed-performances",
+   "title": "Relaxed performances, explained",
+   "pitch": "Shows where it is fine to move, make noise, and leave and come back: who they are for and how to run one well.",
+   "prompt": "Have you been to a relaxed or sensory-friendly performance? What helped, and what would you change?",
+   "strength": "strong",
+   "library": [
+    {
+     "slug": "tdf-autism-friendly-performances",
+     "title": "TDF Autism Friendly Performances: Visual Narratives and Character Guides"
+    },
+    {
+     "slug": "asan-autistic-community-toolkits",
+     "title": "Autistic Self Advocacy Network, Free Toolkits & Guides"
+    }
+   ],
+   "cinema": [],
+   "resources": [
+    {
+     "url": "https://www.touretteshero.com/2016/03/16/relaxed-performances-the-faqs/",
+     "name": "Touretteshero: A Guide to Relaxed Performances"
+    },
+    {
+     "url": "https://officiallondontheatre.com/access",
+     "name": "Society of London Theatre, Relaxed Performance Guidelines"
+    },
+    {
+     "url": "https://leagueofchicagotheatres.org/accessibility-resources",
+     "name": "League of Chicago Theatres, Accessibility Resources"
+    },
+    {
+     "url": "https://kulturecity.org",
+     "name": "KultureCity"
+    },
+    {
+     "url": "https://uktheatre.org/resource-tag/access/",
+     "name": "UK Theatre: Access Resources"
+    },
+    {
+     "url": "https://solt.co.uk/access/",
+     "name": "Society of London Theatre (SOLT): Access"
+    },
+    {
+     "url": "https://www.artsmidwest.org/resources/accessibility",
+     "name": "Arts Midwest Accessibility Center"
+    },
+    {
+     "url": "https://autisticadvocacy.org",
+     "name": "Autistic Self Advocacy Network (ASAN)"
+    }
+   ],
+   "note": "Strong on how-to resources (8) but has zero cinema items, so the videos part of the page would be empty. It needs at least one cinema entry (for example a recorded relaxed performance or a Touretteshero talk) before it feels like the other topics. Also no library book is specifically about relaxed performance beyond the TDF toolkit. Ranked last for that reason, but it is a hot, practical topic venues care about."
+  }
+ ],
+ "gaps": [
+  "AI audio description and synthetic voices: zero catalog items on it (searched AI, synthetic, text-to-speech, TTS, generative, avatar). Only adjacent hooks exist (against-technoableism-shew; human narrator material like ADNA and reid-my-mind-radio). Add the American Council of the Blind guidelines on text to speech in audio description, https://www.acb.org/node/9229 (I fetched it: it says human-voiced AD remains the gold standard and allows TTS only under conditions such as blind-professional review and audience transparency). A search snippet also cites ACB Resolution 2021-22 favoring human voices; I did not verify that on a primary page.",
+  "Website accessibility overlays: zero catalog items (the only overlay matches are unrelated, like the WAVE visual overlay). Add the Overlay Fact Sheet, https://overlayfactsheet.com/en/ (fetched: a critique of overlays endorsed by over 1,048 professionals) and the FTC action against accessiBe, https://www.ftc.gov/news-events/news/press-releases/2025/04/ftc-approves-final-order-requiring-accessibe-pay-1-million (found in a search restricted to ftc.gov; I did not open the page itself, so confirm before citing). Existing digital resources such as axe (catalogued as catching about 30 percent of issues) would support it but do not address overlays.",
+  "Caption glasses and personal caption devices: no catalog item mentions them. Add the NAD page on caption access in movie theaters, https://www.nad.org/resources/technology/caption-access-in-movie-theaters/ (fetched: covers Sony Entertainment Access Glasses and CaptiView and says NAD still advocates for open captioning). This would complete the open-captions topic.",
+  "Access doulas: the word doula appears in none of the three catalogs. Access riders have only one entry (Access Docs for Artists). Needs new items before it can stand alone; it is currently folded into access-labor.",
+  "Person-first versus identity-first language and video game accessibility: no dedicated items found (language: no matches for identity-first, person-first or terminology guides; games: one fiction title and a mention in the FilmDis description, nothing in cinema). Not worth publishing yet.",
+  "Disabled comedians (not in the 14 above, extra option): strong in video and books but with zero resources. Cinema: josh-blue-sticky-change, ryan-niemiller-unarmed-and-dangerous, lost-voice-guy-cerebral-lolsy, hannah-gadsby-douglas, drew-lynch-concussed, pushers-rosie-jones, jerk-bbc, what-the-deaf. Library: find-another-dream-zayid, mean-little-deaf-queer, too-late-to-die-young. Good for a lighter, video-heavy topic if one resource or two is added.",
+  "Assisted dying and the right to die (optional, sensitive): only three entries (unspeakable-conversations, life-after-davenport-2025, and the NYT essay resource at https://www.nytimes.com/2003/02/16/magazine/unspeakable-conversations.html). Thin, and it needs Mary Kate's editorial call and moderation thought before a public What do you think box.",
+  "Cinema column is empty for relaxed-performances and nearly empty for alt-text (only adjacent spoken description items), so those two need at least one video item each to match the rest of the page.",
+  "The Instagram reels idea has no support in the data: no catalog entry links to Instagram, so reels would have to be added as new items with their own field (for example an outbound link card rather than an embed)."
+ ]
+}
