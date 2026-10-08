@@ -691,6 +691,13 @@
   /* The collective, sitting on the wallpaper rather than on a bar of its own,
      so it reads as part of the desk instead of a footer bolted to the window.
      Drop shadow because the collage underneath is busy and light in places. */
+  .sfx-toggle{
+    position:fixed;left:8px;bottom:8px;z-index:50;min-height:44px;min-width:44px;
+    background:#fff;color:#1a2a4a;border:2px solid #1a3d6e;border-radius:4px;
+    font:bold 12px Tahoma,Verdana,sans-serif;padding:6px 10px;cursor:pointer;
+  }
+  .sfx-toggle[aria-pressed="false"]{background:#e8e8e8;color:#333}
+  .live-join{margin:8px 0 4px;font-size:13px;padding:9px 14px}
   .aac-foot{
     display:flex;justify-content:center;padding:7px 8px 0;
     background:none;text-decoration:none;
@@ -1024,6 +1031,7 @@
   </main>
 </div>
 <div class="overlay" id="overlay"><div class="win popwin" id="popwin"></div></div>
+<button class="sfx-toggle" id="sfxtoggle" type="button" aria-pressed="true">sound: on</button>
 
 <script>
 // The hosted copy carries <html lang="en"> in its markup. This is for the
@@ -1305,6 +1313,8 @@ CONFIG.RESERVE_URL = CONFIG.RESERVE_URL || "";
    appears when Backstage has a reminder link, so putting a
    real form there is all it takes to bring it back. */
 CONFIG.REMIND_URL = CONFIG.REMIND_URL || "";
+/* Where "click here to join" goes. Empty hides the join link on show night. */
+CONFIG.JOIN_URL = CONFIG.JOIN_URL || "";
 CONFIG.SUBMIT_FORM_URL = CONFIG.SUBMIT_FORM_URL || LINKS.submit;
 
 /* Three states, and the switch in Backstage decides the one that matters.
@@ -1757,6 +1767,7 @@ function wireSignOn(){
   const go = (name)=>{
     ME.sn = name || (input.value||"").trim().slice(0,20) || anonName();
     LS.set("sn", ME.sn);
+    SFX.open();
     screen = pendingScreen || "home"; pendingScreen = null; render();
   };
   document.getElementById("signonbtn").onclick = ()=>go();
@@ -1811,7 +1822,7 @@ function wireHome(list){
   document.getElementById("wCenter").onclick = ()=>{ screen = list[podSel].id; podSel = 0; render(); };
   const sign = document.getElementById("podsign");
   if(sign) sign.onclick = ()=>{
-    if(ME.sn){ ME.sn=null; LS.set("sn",null); }
+    if(ME.sn){ ME.sn=null; LS.set("sn",null); SFX.close(); }
     screen = "signon"; render();
   };
   app.querySelectorAll("[data-pod]").forEach(b=>{
@@ -2923,6 +2934,9 @@ function viewShow(){
     <div class="live">
       ${castLine()}
       ${phaseBanner()}
+      ${CONFIG.SHOW_MODE && CONFIG.JOIN_URL
+        ? `<button class="btn-xp primary live-join" id="joinshow" type="button">click here to join the show</button>`
+        : ``}
       <h2 class="live-h"><img class="live-wm" src="/2006/wordmark.png" alt="2006"><span>the year. the show. live.</span></h2>
       <p class="live-p">a play performed like an episode of TRL. the audience picks
         the countdown. live online, with limited seating in our studio.</p>
@@ -2991,6 +3005,8 @@ function chatStyle(b){
 }
 function wireShow(){
   wireContrastTab();
+  const join = document.getElementById("joinshow");
+  if(join) join.onclick = openJoin;
   // A chat window jumps to the newest line. This one does not: the top is the
   // start of the answer and you scroll down through the rest.
   const log = document.getElementById("saylog");
@@ -3145,7 +3161,7 @@ function openIM(i){
       <button class="btn-xp" id="infobtn">Info</button>
       <button class="btn-xp primary" id="sendbtn" ${canType?"":"disabled"}>Send</button>
     </div>`;
-  overlay.classList.add("open");
+  popOpen("Instant message with " + b.sn, "popx");
   document.getElementById("popx").onclick = closePop;
   document.getElementById("infobtn").onclick = ()=>openInfo(i);
   const entry = document.getElementById("imentry");
@@ -3167,6 +3183,7 @@ function openIM(i){
     typing.textContent = "SmarterChild is typing...";
     setTimeout(()=>{
       typing.textContent = "";
+      SFX.ping();
       log.insertAdjacentHTML("beforeend",
         `<div><span class="who-them">SmarterChild:</span> ${scHTML(smarterChild(v))}</div>`);
       log.scrollTop = log.scrollHeight;
@@ -3201,11 +3218,123 @@ function openInfo(i){
         <span class="prof-label">PROFILE</span>${smileyfy(b.profile)}</div>
     </div>
     <div class="im-actions"><button class="btn-xp" id="closeinfo">Close</button></div>`;
-  overlay.classList.add("open");
+  popOpen("Buddy info for " + b.sn, "popx2");
   document.getElementById("popx2").onclick = closePop;
   document.getElementById("closeinfo").onclick = closePop;
 }
-function closePop(){ overlay.classList.remove("open"); }
+
+/* ── sound ──
+   Three short sounds, made in the browser so there are no files to host: the
+   door opening when you sign on, the door shutting when you sign off, and the
+   IM ping. They only ever play right after something you pressed, and the
+   button in the corner turns them off for good. Nothing plays on load. */
+const SFX = (()=>{
+  let ctx = null;
+  const on = ()=> LS.get("sfx", true) !== false;
+  const ac = ()=>{
+    if(!ctx){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ctx = new C(); }
+    if(ctx.state === "suspended") ctx.resume();
+    return ctx;
+  };
+  const env = (g, t, peak, a, d)=>{
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
+  };
+  const noise = (c, secs)=>{
+    const buf = c.createBuffer(1, Math.ceil(c.sampleRate * secs), c.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource(); src.buffer = buf; return src;
+  };
+  // a hinge: a sawtooth wobbling through a narrow filter, gliding up or down
+  const creak = (c, t, from, to, len, vol)=>{
+    const o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+    const lfo = c.createOscillator(), lg = c.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(from, t); o.frequency.linearRampToValueAtTime(to, t + len);
+    f.type = "bandpass"; f.frequency.value = 900; f.Q.value = 6;
+    lfo.frequency.value = 26; lg.gain.value = from * 0.07;
+    lfo.connect(lg); lg.connect(o.frequency);
+    o.connect(f); f.connect(g); g.connect(c.destination);
+    env(g, t, vol, 0.03, len);
+    o.start(t); lfo.start(t); o.stop(t + len + 0.1); lfo.stop(t + len + 0.1);
+  };
+  const thud = (c, t, vol)=>{
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.14);
+    o.connect(g); g.connect(c.destination); env(g, t, vol, 0.005, 0.16);
+    o.start(t); o.stop(t + 0.3);
+    const n = noise(c, 0.08), nf = c.createBiquadFilter(), ng = c.createGain();
+    nf.type = "lowpass"; nf.frequency.value = 600;
+    n.connect(nf); nf.connect(ng); ng.connect(c.destination); env(ng, t, vol * 0.7, 0.003, 0.07);
+    n.start(t); n.stop(t + 0.1);
+  };
+  const play = fn => ()=>{ if(!on()) return; try{ const c = ac(); if(c) fn(c, c.currentTime + 0.02); }catch(e){} };
+  return {
+    on,
+    open:  play((c, t)=>{ creak(c, t, 170, 340, 0.55, 0.22); thud(c, t + 0.58, 0.18); }),
+    close: play((c, t)=>{ creak(c, t, 330, 170, 0.35, 0.18); thud(c, t + 0.38, 0.4); }),
+    ping:  play((c, t)=>{
+      [[1175, 0], [1568, 0.11]].forEach(([hz, at])=>{
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = "triangle"; o.frequency.value = hz;
+        o.connect(g); g.connect(c.destination); env(g, t + at, 0.28, 0.01, 0.22);
+        o.start(t + at); o.stop(t + at + 0.3);
+      });
+    }),
+  };
+})();
+(function(){
+  const b = document.getElementById("sfxtoggle");
+  const paint = ()=>{ const on = SFX.on(); b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "sound: on" : "sound: off"; };
+  b.onclick = ()=>{ LS.set("sfx", !SFX.on()); paint(); SFX.ping(); };
+  paint();
+})();
+
+/* ── the pop-up windows ──
+   Both are real dialogs now: named, focus moves in when one opens and goes
+   back to what you pressed when it closes. */
+let popOpener = null;
+function popOpen(label, focusId){
+  if(!overlay.classList.contains("open")) popOpener = document.activeElement;
+  popwin.setAttribute("role", "dialog");
+  popwin.setAttribute("aria-modal", "true");
+  popwin.setAttribute("aria-label", label);
+  overlay.classList.add("open");
+  const f = document.getElementById(focusId); if(f) f.focus();
+}
+function closePop(){
+  if(!overlay.classList.contains("open")) return;
+  overlay.classList.remove("open");
+  const o = popOpener; popOpener = null;
+  if(o && document.contains(o) && o.focus) o.focus();
+}
+
+/* "Click here to join the show": an IM from the first cast member on the buddy
+   list, the way a link would have reached you in 2006. */
+function openJoin(){
+  if(!CONFIG.JOIN_URL) return;
+  const from = buddies.find(b => b.avatar && !b.isBot) || { sn:"2006", avatar:"" };
+  popwin.innerHTML = `
+    <div class="titlebar">
+      ${from.avatar
+        ? `<img class="av" src="${esc(from.avatar)}.png" alt="">`
+        : `<img class="i" src="${ICONS.online}" width="16" height="16" alt="">`}
+      IM from ${esc(from.sn)}
+      <span class="tb-btns"><button class="tb-btn x" id="popx3" aria-label="close">✕</button></span>
+    </div>
+    <div style="height:6px"></div>
+    <div class="im-log">
+      <div><span class="who-them">${esc(from.sn)}:</span> This is a tester and will work best on a laptop.</div>
+      <div><span class="who-them">${esc(from.sn)}:</span> <a href="${esc(CONFIG.JOIN_URL)}" target="_blank"
+        rel="noopener noreferrer">Click here to join.<span class="sr-only"> (opens in a new tab)</span></a></div>
+    </div>
+    <div class="im-actions"><button class="btn-xp" id="joinclose">Close</button></div>`;
+  popOpen("Instant message: join the show", "popx3");
+  document.getElementById("popx3").onclick = closePop;
+  document.getElementById("joinclose").onclick = closePop;
+  SFX.ping();
+}
 overlay.addEventListener("click", e=>{ if(e.target===overlay) closePop(); });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closePop(); });
 
