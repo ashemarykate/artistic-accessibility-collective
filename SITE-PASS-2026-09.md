@@ -8,6 +8,46 @@ Baseline at time of survey: TypeScript clean, ESLint 12 errors (all the new
 
 ---
 
+## In progress, NOT public yet
+
+**Hot Topics** (`/resources/hot-topics`). Built 2026-10-05, deliberately hidden:
+every topic is a draft, so on the live site the pages 404 and no link, sitemap
+entry or nav item exists (re-verified live 2026-10-08). It goes public only when
+Mary Kate says so, one topic at a time, by adding the slug to
+`LIVE_TOPIC_SLUGS` in `lib/hot-topics-status.ts`. Full notes in
+`HOT-TOPICS-PLAN.md`.
+
+Done means all of these:
+1. `supabase-migration-v64-hot-topic-takes.sql` run and the three check queries
+   at the bottom of the file give the expected results.
+2. `SUPABASE_SERVICE_ROLE_KEY` and `RESEND_API_KEY` confirmed in Vercel.
+3. Admin, Takes tab clicked through with an admin login (written, never opened
+   in a browser).
+4. `/privacy` and `/conduct` updated for takes (and for third-party video).
+5. Mary Kate has read and edited the framing text of every topic going live.
+6. At least a first batch of reels added, or she accepts "No videos here yet".
+7. One real take sent from the public form, the alert email received, approved
+   in Admin, shown on the page, then deleted.
+8. The GitHub repository is private (see the next section), so the unfinished
+   text is not readable there either.
+9. Then add the slugs, push, and check the live pages and sitemap.
+
+## Found 2026-10-08: the GitHub repository is public
+
+Anyone can read the code on GitHub with no login (checked without
+authentication: the repository API and raw file URLs answer 200). That
+includes the client documents under `lib/reports` and `lib/staffing` (the
+Riot Fest rates), the draft Hot Topics text, `MK-TO-DO.md`, and this file. The
+2026-09-09 client-document gate only stops the website serving them, it does not
+touch the repository. No env file is tracked. 0 forks, 0 stars, 0 watchers.
+Fix is Mary Kate's: GitHub, repository Settings, Danger Zone, Change visibility,
+Make private (top of `MK-TO-DO.md`). After she does it, confirm that the raw
+URLs answer 404 without a login and that the next Vercel deploy still succeeds.
+Anything already copied cannot be recalled. If any secret was ever committed in
+the past, rotate it (not checked here).
+
+---
+
 ## Found 2026-09-29: the nightly calendar sync has been down for 25 days
 
 The last successful sync was 4 September, the same day the sync route was made

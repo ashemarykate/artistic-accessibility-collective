@@ -26,6 +26,7 @@ against the repo or live endpoints on 2026-10-05.
   Takes. Spam trap, per-browser and per-network limits, a cap of 150 waiting
   takes, one alert email per half hour. Public tables hold only public columns,
   the private details live in `topic_take_meta` (admin read only).
+- **Decision 2026-10-08:** keep it hidden and treat it as work in progress; it goes public only when everything in the "Done means" list in `SITE-PASS-2026-09.md` (section "In progress, NOT public yet") is checked. That list includes making the GitHub repository private, because the repository is public and holds the draft text.
 - **Before the first topic goes live:** run v64; confirm `SUPABASE_SERVICE_ROLE_KEY`
   and `RESEND_API_KEY` exist in Vercel; update `/privacy` and `/conduct` (see
   `MK-TO-DO.md`); read every topic's framing text (it is unread editorial

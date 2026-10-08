@@ -5,11 +5,25 @@ hits something it cannot do alone, and checked off when you tell it they are
 done. Anything marked WAITING is holding Claude up. Everything else can wait
 until you have a quiet moment.
 
-Last updated: 2026-10-05
+Last updated: 2026-10-08
 
 ---
 
 ## Waiting on you (blocks something)
+
+- [ ] **Make the GitHub repository private. Do this first, it takes a minute.**
+  Right now anyone on the internet can read the project's code on GitHub
+  without logging in. That includes the client accessibility reports, the Riot
+  Fest staffing price-out and rates, the unfinished Hot Topics text, this
+  to-do list, and the notes about past security fixes. The website hides all of
+  that, GitHub does not. To fix it: github.com, open the
+  artistic-accessibility-collective repository, Settings, scroll to the
+  bottom "Danger Zone", Change visibility, Make private, and type the
+  repository name to confirm. Vercel keeps deploying private repositories
+  (Claude will check the next deploy). Tell Claude when it is done. One
+  honest limit: this stops new readers, it cannot take back anything someone
+  already copied. It has had 0 forks, 0 stars and 0 watchers, which is a good
+  sign but not proof.
 
 - [ ] **Set `CRON_SECRET` in Vercel, then redeploy.** The calendar has not
   synced for about 4 weeks and the event reminder emails have never run.
