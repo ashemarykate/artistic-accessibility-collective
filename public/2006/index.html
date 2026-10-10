@@ -2913,7 +2913,7 @@ function viewShow(){
     <div class="live">
       ${castLine()}
       ${phaseBanner()}
-      ${CONFIG.SHOW_MODE && CONFIG.JOIN_URL
+      ${CONFIG.JOIN_URL
         ? `<button class="btn-xp primary live-join" id="joinshow" type="button">click here to join the show</button>`
         : ``}
       <h2 class="live-h"><img class="live-wm" src="/2006/wordmark.png" alt="2006"><span>the year. the show. live.</span></h2>
@@ -3290,7 +3290,8 @@ function closePop(){
 }
 
 /* "Click here to join the show": an IM from the first cast member on the buddy
-   list, the way a link would have reached you in 2006. */
+   list, the way a link would have reached you in 2006. The button is always on
+   the page. Show Mode decides what the IM says: the link, or "not ready yet". */
 function openJoin(){
   if(!CONFIG.JOIN_URL) return;
   const from = buddies.find(b => b.avatar && !b.isBot) || { sn:"2006", avatar:"" };
@@ -3304,9 +3305,11 @@ function openJoin(){
     </div>
     <div style="height:6px"></div>
     <div class="im-log">
-      <div><span class="who-them">${esc(from.sn)}:</span> This is a tester and will work best on a laptop.</div>
-      <div><span class="who-them">${esc(from.sn)}:</span> <a href="${esc(CONFIG.JOIN_URL)}" target="_blank"
-        rel="noopener noreferrer">Click here to join.<span class="sr-only"> (opens in a new tab)</span></a></div>
+      ${CONFIG.SHOW_MODE
+        ? `<div><span class="who-them">${esc(from.sn)}:</span> This is a tester and will work best on a laptop.</div>
+           <div><span class="who-them">${esc(from.sn)}:</span> <a href="${esc(CONFIG.JOIN_URL)}" target="_blank"
+             rel="noopener noreferrer">Click here to join.<span class="sr-only"> (opens in a new tab)</span></a></div>`
+        : `<div><span class="who-them">${esc(from.sn)}:</span> The show isn't ready for you yet.</div>`}
     </div>
     <div class="im-actions"><button class="btn-xp" id="joinclose">Close</button></div>`;
   popOpen("Instant message: join the show", "popx3");
