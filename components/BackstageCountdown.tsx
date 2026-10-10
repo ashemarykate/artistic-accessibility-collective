@@ -6,7 +6,7 @@ import SeeOnSite from '@/components/SeeOnSite';
 import { PORTAL_PANEL_STYLE } from '@/lib/production-admin-copy';
 import {
   fetchCountdown, createCountdownVideo, saveCountdownVideo, deleteCountdownVideo,
-  fetchStandings, youtubeId, type CountdownVideo,
+  fetchStandings, fetchPracticeStandings, youtubeId, type CountdownVideo,
 } from '@/lib/backstage';
 
 /**
@@ -47,6 +47,7 @@ export default function BackstageCountdown({
 }) {
   const [videos, setVideos] = useState<CountdownVideo[]>(preview ? SAMPLE : []);
   const [standings, setStandings] = useState<Record<string, number>>(preview ? { p1: 14, p2: 9 } : {});
+  const [practice, setPractice] = useState<Record<string, number>>(preview ? { p1: 31, p2: 22 } : {});
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const { confirm, confirmDialog } = useConfirm();
@@ -56,16 +57,21 @@ export default function BackstageCountdown({
     fetchCountdown(productionId).then(setVideos);
   }, [productionId, preview]);
 
-  // Standings only mean something while voting is open, and then they change
-  // every few seconds, so poll. Stops the moment the switch goes off.
+  // Both tallies are collected whether or not voting is open, and they change
+  // every few seconds on a show weekend, so poll. The real count stays on
+  // screen after voting closes, so the day after the last show it is still
+  // there to look at.
   useEffect(() => {
-    if (preview || !votingOpen) return;
+    if (preview) return;
     let alive = true;
-    const tick = () => fetchStandings(productionId).then((s) => { if (alive) setStandings(s); });
+    const tick = () => {
+      fetchStandings(productionId).then((s) => { if (alive) setStandings(s); });
+      fetchPracticeStandings(productionId).then((s) => { if (alive) setPractice(s); });
+    };
     tick();
     const t = setInterval(tick, 15000);
     return () => { alive = false; clearInterval(t); };
-  }, [productionId, votingOpen, preview]);
+  }, [productionId, preview]);
 
   const patch = (id: string, p: Partial<CountdownVideo>) =>
     setVideos((vs) => vs.map((v) => (v.id === id ? { ...v, ...p } : v)));
@@ -75,6 +81,13 @@ export default function BackstageCountdown({
   const ordered = votingOpen
     ? live.slice().sort((a, b) => (standings[b.id] ?? 0) - (standings[a.id] ?? 0) || a.sort_order - b.sort_order)
     : live.slice().sort((a, b) => a.sort_order - b.sort_order);
+
+  const realTotal = live.reduce((n, v) => n + (standings[v.id] ?? 0), 0);
+  const practiceTotal = live.reduce((n, v) => n + (practice[v.id] ?? 0), 0);
+  const tally = live.slice().sort((a, b) => {
+    const key = (v: CountdownVideo) => (votingOpen ? (standings[v.id] ?? 0) : (practice[v.id] ?? 0));
+    return key(b) - key(a) || (standings[b.id] ?? 0) - (standings[a.id] ?? 0) || a.sort_order - b.sort_order;
+  });
 
   const add = async () => {
     const next = videos.length ? Math.max(...videos.map((v) => v.sort_order)) + 1 : 1;
@@ -179,6 +192,45 @@ export default function BackstageCountdown({
           ? 'Voting is open, so this is sorted by votes: check it as each show starts and play that order.'
           : 'When voting is open this sorts itself by votes.'}
       </p>
+
+      {canCurate && live.length > 0 && (
+        <div style={{ margin: '1rem 0 0.25rem', border: '1px solid #cfd6ee', borderRadius: 6, padding: '0.75rem 0.9rem', background: '#f4f6fd' }}>
+          <h3 style={{ fontSize: '0.95rem', color: 'var(--aac-blue)', margin: 0 }}>The votes so far</h3>
+          <p style={{ fontSize: '0.8rem', color: '#444', margin: '0.25rem 0 0.5rem' }}>
+            {votingOpen
+              ? 'Voting is open. Real votes decide the order; check it as each show starts. Practice votes are from before it opened.'
+              : 'Voting is closed. These are practice votes from the test run, and the real count if there was one. One vote per browser, newest wins.'}
+          </p>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+            <caption className="sr-only">Votes per video</caption>
+            <thead>
+              <tr style={{ textAlign: 'left', color: '#444', fontSize: '0.75rem' }}>
+                <th scope="col" style={{ padding: '0.2rem 0.4rem 0.2rem 0' }}>Video</th>
+                <th scope="col" style={{ padding: '0.2rem 0.4rem', textAlign: 'right' }}>Real votes</th>
+                <th scope="col" style={{ padding: '0.2rem 0 0.2rem 0.4rem', textAlign: 'right' }}>Practice votes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tally.map((v) => (
+                <tr key={v.id} style={{ borderTop: '1px solid #dfe3f3' }}>
+                  <th scope="row" style={{ fontWeight: 600, padding: '0.3rem 0.4rem 0.3rem 0', textAlign: 'left' }}>
+                    {v.title || 'Untitled'}{v.artist ? <span style={{ fontWeight: 400, color: '#555' }}>, {v.artist}</span> : null}
+                  </th>
+                  <td style={{ padding: '0.3rem 0.4rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{standings[v.id] ?? 0}</td>
+                  <td style={{ padding: '0.3rem 0 0.3rem 0.4rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{practice[v.id] ?? 0}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr style={{ borderTop: '2px solid #cfd6ee', fontWeight: 700 }}>
+                <th scope="row" style={{ padding: '0.35rem 0.4rem 0.2rem 0', textAlign: 'left' }}>Total</th>
+                <td style={{ padding: '0.35rem 0.4rem 0.2rem', textAlign: 'right' }}>{realTotal}</td>
+                <td style={{ padding: '0.35rem 0 0.2rem 0.4rem', textAlign: 'right' }}>{practiceTotal}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
 
       {!canCurate && (
         <p style={{ color: '#777', fontStyle: 'italic' }}>Producers and creators look after this one.</p>

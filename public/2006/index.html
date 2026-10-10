@@ -2063,6 +2063,12 @@ function wireCountdown(){
     }
 
     myVote = chosen.value; LS.set("vote", myVote);
+    // Also tell the company how the practice is going. Best effort: it never
+    // blocks the vote, and a slot that is not a real row is simply refused.
+    if(ME.sn && /^[0-9a-f-]{36}$/i.test(chosen.value)){
+      fetch("/api/2006/vote", {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({videoId: chosen.value, screenName: ME.sn, device: deviceTag(), website: ""})}).catch(()=>{});
+    }
     document.getElementById("ct-pick").textContent = "your pick: " + titleOf(myVote) + ".";
     document.getElementById("castbtn").textContent = "change my practice vote";
     const sm = document.getElementById("statusmsg"); if(sm) sm.textContent = statusText();

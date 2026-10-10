@@ -1,9 +1,10 @@
 /**
  * POST /api/2006/vote  ·  a real vote on the countdown.
  *
- * Only accepted while the cast has voting_open switched on, which they flip
- * the day before the first show and off again the day after the last. The
- * rest of the time the page runs the practice vote, which never reaches here.
+ * While the cast has voting_open switched on (the day before the first show
+ * to the day after the last) this is a real vote. At any other time it is
+ * recorded as a practice vote: the company can see how a test run is leaning,
+ * and the real standings never see it.
  *
  * Each screen name's most recent vote is the one that counts, so changing your
  * mind is one press. The standings view does that arithmetic; this handler
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
     .eq('productions.slug', SLUG)
     .maybeSingle();
   if (!site) return no('the countdown is not set up yet.', 404);
-  if (!site.voting_open) return no('voting is not open yet. it opens the day before the show.', 403);
+  const practice = !site.voting_open;
 
   // The video has to be a real, approved, votable row on THIS show.
   const { data: video } = await admin
@@ -76,8 +77,11 @@ export async function POST(req: Request) {
     video_id: videoId,
     screen_name: screenName,
     device_tag: device,
+    // Only named when true, so a real vote still goes through on a database
+    // that has not run v65 yet.
+    ...(practice ? { practice: true } : {}),
   });
   if (error) return no('it did not count. that one is on us, try again.', 502);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, practice });
 }

@@ -727,6 +727,18 @@ export async function fetchStandings(productionId: string): Promise<Record<strin
   return out;
 }
 
+/** Practice votes, per video. Empty (not an error) on a database that has not
+ *  run v65, because the column it reads does not exist there yet. */
+export async function fetchPracticeStandings(productionId: string): Promise<Record<string, number>> {
+  const { data } = await supabase
+    .from('production_countdown_standings')
+    .select('video_id, practice_votes')
+    .eq('production_id', productionId);
+  const out: Record<string, number> = {};
+  (data ?? []).forEach((r: { video_id: string; practice_votes: number }) => { out[r.video_id] = r.practice_votes; });
+  return out;
+}
+
 
 /* ══════════════════ Blockbuster ══════════════════
    The wall of films on the public site. Curated by the company, so there is no
