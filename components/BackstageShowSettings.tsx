@@ -33,6 +33,9 @@ export default function BackstageShowSettings({
 }) {
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState('');
+  // Nothing here is live until Save is pressed, so say so the moment a switch moves.
+  const [dirty, setDirty] = useState(false);
+  const change = (patch: Partial<MicrositeState>) => { setDirty(true); setNote(''); onChange(patch); };
 
   const save = async () => {
     if (preview) { setNote('Preview only, nothing was saved.'); return; }
@@ -41,13 +44,14 @@ export default function BackstageShowSettings({
     KEYS.forEach((k: Key) => { (patch as Record<string, unknown>)[k] = site[k] ?? (typeof site[k] === 'boolean' ? false : ''); });
     const res = await saveMicrositeSettings(productionId, patch);
     setSaving(false);
+    if (res.ok) setDirty(false);
     setNote(res.ok ? 'Saved. The site has it now.' : `Could not save: ${res.error}`);
   };
 
   const Switch = ({ k, label, help, danger }: { k: Key; label: string; help: string; danger?: boolean }) => (
     <label style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', padding: '0.5rem 0', borderTop: '1px solid #e3e0d6' }}>
       <input type="checkbox" checked={Boolean(site[k])} disabled={!canEdit}
-             onChange={(e) => onChange({ [k]: e.target.checked } as Partial<MicrositeState>)}
+             onChange={(e) => change({ [k]: e.target.checked } as Partial<MicrositeState>)}
              style={{ marginTop: '0.25rem', width: '1.1rem', height: '1.1rem' }} />
       <span>
         <span style={{ fontWeight: 700, color: danger ? '#a00' : '#222' }}>{label}</span>
@@ -62,7 +66,7 @@ export default function BackstageShowSettings({
       <span style={{ display: 'block', fontSize: '0.85rem', color: '#444', margin: '0.1rem 0 0.35rem' }}>{help}</span>
       <input id={`set-${k}`} className="form-input" disabled={!canEdit} placeholder={placeholder}
              value={String(site[k] ?? '')}
-             onChange={(e) => onChange({ [k]: e.target.value } as Partial<MicrositeState>)} />
+             onChange={(e) => change({ [k]: e.target.value } as Partial<MicrositeState>)} />
     </div>
   );
 
@@ -106,10 +110,19 @@ export default function BackstageShowSettings({
         help="The public video submission form. The button on the countdown points here." />
 
       {canEdit && (
-        <p style={{ margin: '1rem 0 0', display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button className="btn btn-sm" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save the switches'}</button>
-          {note && <span style={{ color: '#356' }} role="status">{note}</span>}
-        </p>
+        <div style={{
+          position: 'sticky', bottom: 0, margin: '1rem -1.25rem -1.25rem', padding: '0.75rem 1.25rem',
+          background: dirty ? '#fff4d6' : '#f4f6fd', borderTop: `2px solid ${dirty ? '#7a4a00' : '#cfd6ee'}`,
+          display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', zIndex: 5,
+        }}>
+          <button className="btn" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save the switches'}</button>
+          {dirty && !note && (
+            <span style={{ color: '#3a2600', fontWeight: 700 }} role="status">
+              You changed something. It is not live until you press Save.
+            </span>
+          )}
+          {note && <span style={{ color: '#244', fontWeight: 700 }} role="status">{note}</span>}
+        </div>
       )}
     </section>
   );
