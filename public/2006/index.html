@@ -3305,6 +3305,8 @@ function openJoin(){
     </div>
     <div style="height:6px"></div>
     <div class="im-log">
+      <div><span class="who-them">${esc(from.sn)}:</span> Vote on your favorite video before you come in.
+        <a href="#" id="joinvote">Go vote.</a> Voting closes at the start of the show!</div>
       ${CONFIG.SHOW_MODE
         ? `<div><span class="who-them">${esc(from.sn)}:</span> This is a tester and will work best on a laptop.</div>
            <div><span class="who-them">${esc(from.sn)}:</span> <a href="${esc(CONFIG.JOIN_URL)}" target="_blank"
@@ -3315,6 +3317,9 @@ function openJoin(){
   popOpen("Instant message: join the show", "popx3");
   document.getElementById("popx3").onclick = closePop;
   document.getElementById("joinclose").onclick = closePop;
+  document.getElementById("joinvote").onclick = e=>{
+    e.preventDefault(); closePop(); screen = "videos"; selected = -1; render();
+  };
   SFX.ping();
 }
 overlay.addEventListener("click", e=>{ if(e.target===overlay) closePop(); });
